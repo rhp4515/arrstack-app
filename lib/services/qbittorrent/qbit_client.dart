@@ -50,8 +50,13 @@ class QbitClient implements ConnectionTestClient {
       final cookies = response.headers['set-cookie'];
       if (cookies != null) {
         for (final cookie in cookies) {
-          if (cookie.startsWith('SID=')) {
-            _sid = cookie.split(';').first;
+          // The session cookie is `SID=` on qBittorrent < 5.2.0 and
+          // `QBT_SID_<port>=` on 5.2.0+ (which also returns 204, not 200, on a
+          // successful login). Capture either.
+          final pair = cookie.split(';').first;
+          final name = pair.split('=').first;
+          if (name == 'SID' || name.startsWith('QBT_SID')) {
+            _sid = pair;
             break;
           }
         }

@@ -1,0 +1,41 @@
+/// The set of supported service integrations (spec §3, §6).
+library;
+
+import 'package:arrstack/core/models/auth_type.dart';
+
+/// One integration this app knows how to talk to.
+///
+/// Adding a post-v1 service (Lidarr, SABnzbd, ...) means adding a case here
+/// plus a new `services/<name>/` plugin — no other core changes (spec §5).
+enum ServiceType {
+  sonarr,
+  radarr,
+  bazarr,
+  prowlarr,
+  qbittorrent,
+  uptimeKuma,
+  seerr;
+
+  /// Human-readable name shown in onboarding/settings UI.
+  String get displayName => switch (this) {
+    ServiceType.sonarr => 'Sonarr',
+    ServiceType.radarr => 'Radarr',
+    ServiceType.bazarr => 'Bazarr',
+    ServiceType.prowlarr => 'Prowlarr',
+    ServiceType.qbittorrent => 'qBittorrent',
+    ServiceType.uptimeKuma => 'Uptime Kuma',
+    ServiceType.seerr => 'Seerr',
+  };
+
+  /// The auth style this service uses out of the box (spec §6). Onboarding
+  /// may still let a user pick differently if a service ever supports both.
+  AuthType get defaultAuthType => switch (this) {
+    ServiceType.qbittorrent ||
+    ServiceType.uptimeKuma => AuthType.usernamePassword,
+    ServiceType.sonarr ||
+    ServiceType.radarr ||
+    ServiceType.bazarr ||
+    ServiceType.prowlarr ||
+    ServiceType.seerr => AuthType.apiKey,
+  };
+}

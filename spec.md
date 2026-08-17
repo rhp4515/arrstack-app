@@ -257,10 +257,29 @@ pick up the **first unchecked phase** (see §11).
       build_runner/riverpod_generator need analyzer ^13, so no all-stable combo resolves on Dart
       3.13/Flutter 3.47; revisit when freezed 4.x ships stable. analyze clean, 2/2 tests, reviewed
       (0 CRITICAL/HIGH; 3 MEDIUM + 2 LOW all fixed).
-- [ ] **Phase 2 — Core plumbing.** `core/network` Dio factory + `X-Api-Key` interceptor + `Result`
+- [x] **Phase 2 — Core plumbing.** `core/network` Dio factory + `X-Api-Key` interceptor + `Result`
       + `AppError`; **`EndpointResolver` + connectivity/SSID source (§6a)** driving Dio's baseUrl;
       `core/storage` SecureStore + ConfigStore; instance model (local+remote URLs, homeSsids,
       endpointMode) & repository. Tests (incl. resolver matrix).
+      ✅ Done 2026-08-16. `Result<T>` (Ok/Err) + sealed `AppError` (7 variants) + `mapDioException`;
+      interceptors: `ApiKeyInterceptor`, error-mapping, `RedactingLogInterceptor` (redacts key/
+      auth/cookie headers + secret query params — tested that the raw key never appears in logs).
+      **`EndpointResolver` verified correct against the full §6a matrix** (pure fn; `SsidSource`/
+      `ConnectivitySource` abstracted for tests). `ServiceInstance`/`ServiceCredential` (secret union
+      lives ONLY in SecureStore) / `ServiceIdentity` freezed models + boundary validation. Corrupt/
+      legacy stored JSON degrades to `Err`/`null`, never throws across the boundary. Providers:
+      `configStore/secureStore/instanceRepository/instances/homeSsids/defaultEndpointMode`. Seed
+      contract `ConnectionTestClient` in `services/contracts/`. 94 tests, analyze clean, reviewed
+      (0 CRITICAL; 2 HIGH corrupt-JSON crash paths **fixed** + regression-tested; secret-safety +
+      resolver confirmed clean).
+      **Deferred to Phase 4 (do these FIRST, in `core/`, so all service modules mirror one pattern):**
+      (a) a `dioForInstance(instanceId)` / `resolvedBaseUrlProvider` composition wiring
+      EndpointResolver + `currentSsidProvider` + `homeSsidsProvider` + DioFactory + SecureStore into
+      ONE place — never hand-build a baseUrl in a service repo (§11 guardrail). (b) Harden
+      `SecureStore.writeCredential`/`ConfigStore` write failures (Keychain/pref errors) into `AppError`
+      rather than letting them throw. (c) LOW: in `InstanceRepository`, replace `as Ok<..>` casts with
+      `case Ok(:final value)` destructuring; set `needsManualOverride` when a *forced* endpoint mode
+      falls back to the other URL.
 - [ ] **Phase 3 — Onboarding & Settings.** Add/edit/delete instances, per-type forms with **dual
       URL + per-endpoint Test connection**, **home SSID setting** + permission flow + endpoint
       override UI, default selection, theme setting. Tests (form validation + storage + resolver UX).

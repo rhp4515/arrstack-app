@@ -9,4 +9,8 @@ abstract final class RoutePaths {
   static const String settings = '/settings';
   static const String addInstance = '/settings/add';
   static String editInstance(String id) => '/settings/$id/edit';
+
+  static String movieDetail(String instanceId, int movieId) =>
+      '/library/radarr/$instanceId/movie/$movieId';
+  static String addMovie(String instanceId) => '/library/radarr/$instanceId/add';
 }

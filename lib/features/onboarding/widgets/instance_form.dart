@@ -74,7 +74,7 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
         ),
         const SizedBox(height: AppSpacing.md),
         DropdownButtonFormField<ServiceType>(
-          value: state.type,
+          initialValue: state.type,
           decoration: const InputDecoration(
             labelText: 'Service Type',
             prefixIcon: Icon(Icons.category_outlined),

@@ -25,3 +25,13 @@ Future<Result<T>> guardDioCall<T>(Future<T> Function() call) async {
     );
   }
 }
+
+/// A convenience wrapper around [guardDioCall] that handles [Response] data
+/// mapping.
+Future<Result<T>> dioCall<T>(
+  Future<Response<dynamic>> Function() call, {
+  required T Function(dynamic data) map,
+}) async {
+  final result = await guardDioCall(call);
+  return result.map((response) => map(response.data));
+}

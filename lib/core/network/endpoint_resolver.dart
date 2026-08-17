@@ -100,11 +100,16 @@ class EndpointResolver {
       );
     }
 
+    // needsManualOverride is true if:
+    // 1. Auto-mode had to guess (SSID unavailable).
+    // 2. A forced mode had to fall back to the other URL.
+    final fellBack = preferred != resolved.endpoint;
+
     return Ok(
       EndpointResolution(
         baseUrl: resolved.url,
         endpoint: resolved.endpoint,
-        needsManualOverride: isAuto && currentSsid == null,
+        needsManualOverride: (isAuto && currentSsid == null) || fellBack,
       ),
     );
   }

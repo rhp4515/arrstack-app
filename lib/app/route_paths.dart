@@ -7,4 +7,5 @@ abstract final class RoutePaths {
   static const String downloads = '/downloads';
   static const String uptime = '/uptime';
   static const String settings = '/settings';
+  static const String addInstance = '/settings/add';
 }

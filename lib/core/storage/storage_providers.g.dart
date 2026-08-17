@@ -188,6 +188,92 @@ final class InstancesProvider
 
 String _$instancesHash() => r'5b381b81053b624960740fe63ecaba58565f6dae';
 
+/// Watches a single [ServiceInstance] by id.
+
+@ProviderFor(serviceInstance)
+final serviceInstanceProvider = ServiceInstanceFamily._();
+
+/// Watches a single [ServiceInstance] by id.
+
+final class ServiceInstanceProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<ServiceInstance>>,
+          Result<ServiceInstance>,
+          FutureOr<Result<ServiceInstance>>
+        >
+    with
+        $FutureModifier<Result<ServiceInstance>>,
+        $FutureProvider<Result<ServiceInstance>> {
+  /// Watches a single [ServiceInstance] by id.
+  ServiceInstanceProvider._({
+    required ServiceInstanceFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'serviceInstanceProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$serviceInstanceHash();
+
+  @override
+  String toString() {
+    return r'serviceInstanceProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<ServiceInstance>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<ServiceInstance>> create(Ref ref) {
+    final argument = this.argument as String;
+    return serviceInstance(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ServiceInstanceProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$serviceInstanceHash() => r'85f5fdf60ba25811465da75fb5469be4f7eb8ba6';
+
+/// Watches a single [ServiceInstance] by id.
+
+final class ServiceInstanceFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<Result<ServiceInstance>>, String> {
+  ServiceInstanceFamily._()
+    : super(
+        retry: null,
+        name: r'serviceInstanceProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Watches a single [ServiceInstance] by id.
+
+  ServiceInstanceProvider call(String id) =>
+      ServiceInstanceProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'serviceInstanceProvider';
+}
+
 /// App-level "home" WiFi SSIDs used by `EndpointResolver` when an instance
 /// has no per-instance override (spec §6a). Consumed by the settings screen
 /// (Phase 3) and the per-instance Dio composition (Phase 4).
@@ -202,11 +288,13 @@ final homeSsidsProvider = HomeSsidsProvider._();
 final class HomeSsidsProvider
     extends
         $FunctionalProvider<
-          AsyncValue<List<String>>,
-          List<String>,
-          FutureOr<List<String>>
+          AsyncValue<Result<List<String>>>,
+          Result<List<String>>,
+          FutureOr<Result<List<String>>>
         >
-    with $FutureModifier<List<String>>, $FutureProvider<List<String>> {
+    with
+        $FutureModifier<Result<List<String>>>,
+        $FutureProvider<Result<List<String>>> {
   /// App-level "home" WiFi SSIDs used by `EndpointResolver` when an instance
   /// has no per-instance override (spec §6a). Consumed by the settings screen
   /// (Phase 3) and the per-instance Dio composition (Phase 4).
@@ -226,17 +314,17 @@ final class HomeSsidsProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<String>> $createElement(
+  $FutureProviderElement<Result<List<String>>> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<List<String>> create(Ref ref) {
+  FutureOr<Result<List<String>>> create(Ref ref) {
     return homeSsids(ref);
   }
 }
 
-String _$homeSsidsHash() => r'a561c0b1d116daca314ad3526c0875abb563047a';
+String _$homeSsidsHash() => r'e4a947c244910f8a81468031e5757dcd64cdd564';
 
 /// The default [EndpointMode] applied to newly created instances (spec §6a).
 
@@ -248,11 +336,13 @@ final defaultEndpointModeProvider = DefaultEndpointModeProvider._();
 final class DefaultEndpointModeProvider
     extends
         $FunctionalProvider<
-          AsyncValue<EndpointMode>,
-          EndpointMode,
-          FutureOr<EndpointMode>
+          AsyncValue<Result<EndpointMode>>,
+          Result<EndpointMode>,
+          FutureOr<Result<EndpointMode>>
         >
-    with $FutureModifier<EndpointMode>, $FutureProvider<EndpointMode> {
+    with
+        $FutureModifier<Result<EndpointMode>>,
+        $FutureProvider<Result<EndpointMode>> {
   /// The default [EndpointMode] applied to newly created instances (spec §6a).
   DefaultEndpointModeProvider._()
     : super(
@@ -270,15 +360,15 @@ final class DefaultEndpointModeProvider
 
   @$internal
   @override
-  $FutureProviderElement<EndpointMode> $createElement(
+  $FutureProviderElement<Result<EndpointMode>> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<EndpointMode> create(Ref ref) {
+  FutureOr<Result<EndpointMode>> create(Ref ref) {
     return defaultEndpointMode(ref);
   }
 }
 
 String _$defaultEndpointModeHash() =>
-    r'6415948f80a2843e4fe2c9256df12eb5ac41e159';
+    r'c59c97549a7f5abe698cdab1b70ca3bef6dbba31';

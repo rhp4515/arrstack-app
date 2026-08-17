@@ -89,6 +89,14 @@ final class ValidationError extends AppError {
   final String? field;
 }
 
+/// A failure to read or write to local storage (Keychain, preferences).
+final class StorageError extends AppError {
+  const StorageError({
+    super.cause,
+    super.userMessage = 'Failed to access local storage.',
+  });
+}
+
 /// Anything that doesn't fit the categories above.
 final class UnknownError extends AppError {
   const UnknownError({

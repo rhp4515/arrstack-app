@@ -31,16 +31,39 @@ Future<Result<List<ServiceInstance>>> instances(Ref ref) {
   return repository.list();
 }
 
+/// Watches a single [ServiceInstance] by id.
+@riverpod
+Future<Result<ServiceInstance>> serviceInstance(Ref ref, String id) {
+  final repository = ref.watch(instanceRepositoryProvider);
+  return repository.getById(id);
+}
+
 /// App-level "home" WiFi SSIDs used by `EndpointResolver` when an instance
 /// has no per-instance override (spec §6a). Consumed by the settings screen
 /// (Phase 3) and the per-instance Dio composition (Phase 4).
 @riverpod
-Future<List<String>> homeSsids(Ref ref) {
-  return ref.watch(configStoreProvider).readHomeSsids();
+Future<Result<List<String>>> homeSsids(Ref ref) async {
+  try {
+    final ssids = await ref.watch(configStoreProvider).readHomeSsids();
+    return Ok(List.unmodifiable(ssids));
+  } catch (error) {
+    return Err(StorageError(
+      cause: error,
+      userMessage: 'Failed to read home SSIDs.',
+    ));
+  }
 }
 
 /// The default [EndpointMode] applied to newly created instances (spec §6a).
 @riverpod
-Future<EndpointMode> defaultEndpointMode(Ref ref) {
-  return ref.watch(configStoreProvider).readDefaultEndpointMode();
+Future<Result<EndpointMode>> defaultEndpointMode(Ref ref) async {
+  try {
+    final mode = await ref.watch(configStoreProvider).readDefaultEndpointMode();
+    return Ok(mode);
+  } catch (error) {
+    return Err(StorageError(
+      cause: error,
+      userMessage: 'Failed to read default endpoint mode.',
+    ));
+  }
 }

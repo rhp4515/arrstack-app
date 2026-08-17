@@ -66,6 +66,8 @@ class ConfigStoreInstanceRepository implements InstanceRepository {
       return _corrupted(error);
     } on ArgumentError catch (error) {
       return _corrupted(error);
+    } catch (error) {
+      return _storageError(error);
     }
   }
 
@@ -76,13 +78,19 @@ class ConfigStoreInstanceRepository implements InstanceRepository {
     ),
   );
 
+  Err<T> _storageError<T>(Object error) => Err(
+    StorageError(cause: error, userMessage: 'Failed to access local storage.'),
+  );
+
   @override
   Future<Result<ServiceInstance>> getById(String id) async {
     final listResult = await list();
-    return switch (listResult) {
-      Err<List<ServiceInstance>>(:final error) => Err(error),
-      Ok<List<ServiceInstance>>(:final value) => _findById(value, id),
-    };
+    switch (listResult) {
+      case Ok(:final value):
+        return _findById(value, id);
+      case Err(:final error):
+        return Err(error);
+    }
   }
 
   @override
@@ -91,13 +99,16 @@ class ConfigStoreInstanceRepository implements InstanceRepository {
     ServiceCredential? credential,
   }) async {
     final validation = validateServiceInstance(instance);
-    if (validation case Err<ServiceInstance>(:final error)) return Err(error);
+    if (validation case Err(:final error)) return Err(error);
 
     final listResult = await list();
-    if (listResult case Err<List<ServiceInstance>>(:final error)) {
-      return Err(error);
+    final List<ServiceInstance> current;
+    switch (listResult) {
+      case Ok(:final value):
+        current = value;
+      case Err(:final error):
+        return Err(error);
     }
-    final current = (listResult as Ok<List<ServiceInstance>>).value;
 
     if (current.any((existing) => existing.id == instance.id)) {
       return const Err(
@@ -116,11 +127,15 @@ class ConfigStoreInstanceRepository implements InstanceRepository {
     // Write the secret first so we never persist an instance that has no
     // matching credential (which would silently break auth). An orphaned
     // credential from a later persist failure is harmless and overwritten.
-    if (credential != null) {
-      await _secureStore.writeCredential(instance.id, credential);
+    try {
+      if (credential != null) {
+        await _secureStore.writeCredential(instance.id, credential);
+      }
+      await _persist(next);
+      return Ok(instance);
+    } catch (error) {
+      return _storageError(error);
     }
-    await _persist(next);
-    return Ok(instance);
   }
 
   @override
@@ -129,13 +144,16 @@ class ConfigStoreInstanceRepository implements InstanceRepository {
     ServiceCredential? credential,
   }) async {
     final validation = validateServiceInstance(instance);
-    if (validation case Err<ServiceInstance>(:final error)) return Err(error);
+    if (validation case Err(:final error)) return Err(error);
 
     final listResult = await list();
-    if (listResult case Err<List<ServiceInstance>>(:final error)) {
-      return Err(error);
+    final List<ServiceInstance> current;
+    switch (listResult) {
+      case Ok(:final value):
+        current = value;
+      case Err(:final error):
+        return Err(error);
     }
-    final current = (listResult as Ok<List<ServiceInstance>>).value;
 
     if (!current.any((existing) => existing.id == instance.id)) {
       return const Err(
@@ -152,40 +170,59 @@ class ConfigStoreInstanceRepository implements InstanceRepository {
     final next = [...cleared, instance];
 
     // Credential before config, for the same reason as add().
-    if (credential != null) {
-      await _secureStore.writeCredential(instance.id, credential);
+    try {
+      if (credential != null) {
+        await _secureStore.writeCredential(instance.id, credential);
+      }
+      await _persist(next);
+      return Ok(instance);
+    } catch (error) {
+      return _storageError(error);
     }
-    await _persist(next);
-    return Ok(instance);
   }
 
   @override
   Future<Result<void>> delete(String id) async {
     final listResult = await list();
-    if (listResult case Err<List<ServiceInstance>>(:final error)) {
-      return Err(error);
+    final List<ServiceInstance> current;
+    switch (listResult) {
+      case Ok(:final value):
+        current = value;
+      case Err(:final error):
+        return Err(error);
     }
-    final current = (listResult as Ok<List<ServiceInstance>>).value;
+
     final next = current.where((instance) => instance.id != id).toList();
 
-    await _persist(next);
-    await _secureStore.deleteCredential(id);
-    return const Ok(null);
+    try {
+      await _persist(next);
+      await _secureStore.deleteCredential(id);
+      return const Ok(null);
+    } catch (error) {
+      return _storageError(error);
+    }
   }
 
   @override
   Future<Result<ServiceInstance>> setDefault(String id) async {
     final listResult = await list();
-    if (listResult case Err<List<ServiceInstance>>(:final error)) {
-      return Err(error);
+    final List<ServiceInstance> current;
+    switch (listResult) {
+      case Ok(:final value):
+        current = value;
+      case Err(:final error):
+        return Err(error);
     }
-    final current = (listResult as Ok<List<ServiceInstance>>).value;
 
     final targetResult = _findById(current, id);
-    if (targetResult case Err<ServiceInstance>(:final error)) {
-      return Err(error);
+    final ServiceInstance target;
+    switch (targetResult) {
+      case Ok(:final value):
+        target = value;
+      case Err(:final error):
+        return Err(error);
     }
-    final target = (targetResult as Ok<ServiceInstance>).value;
+
     final updatedTarget = target.copyWith(isDefault: true);
 
     final next = current
@@ -198,8 +235,12 @@ class ConfigStoreInstanceRepository implements InstanceRepository {
         )
         .toList();
 
-    await _persist(next);
-    return Ok(updatedTarget);
+    try {
+      await _persist(next);
+      return Ok(updatedTarget);
+    } catch (error) {
+      return _storageError(error);
+    }
   }
 
   /// Clears `isDefault` on every other instance of the same service type as

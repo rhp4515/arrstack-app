@@ -7,6 +7,7 @@ import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/core/widgets/poster_card.dart';
+import 'package:arrstack/features/library/widgets/add_movie_options.dart';
 import 'package:arrstack/services/radarr/models/radarr_models.dart';
 import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:flutter/material.dart';
@@ -151,10 +152,22 @@ class _SearchResultTile extends ConsumerWidget {
     );
   }
 
-  void _showAddOptions(BuildContext context, WidgetRef ref, RadarrMovie movie) {
-    // TODO: Show bottom sheet to pick root folder and quality profile
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Add options coming soon.')),
+  void _showAddOptions(BuildContext context, WidgetRef ref, RadarrMovie movie) async {
+    final added = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: AddMovieOptionsSheet(
+          instanceId: instanceId,
+          movie: movie,
+        ),
+      ),
     );
+
+    if (added == true && context.mounted) {
+      // Return to library if added successfully
+      Navigator.pop(context);
+    }
   }
 }

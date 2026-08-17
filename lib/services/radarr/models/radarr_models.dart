@@ -21,16 +21,16 @@ abstract class RadarrMovie with _$RadarrMovie {
     required String status,
     required String overview,
     required String sortTitle,
-    required DateTime added,
+    DateTime? added,
     required List<RadarrImage> images,
-    required int qualityProfileId,
+    int? qualityProfileId,
     String? rootFolderPath,
     String? path,
     RadarrMovieFile? movieFile,
     required int tmdbId,
-    required String titleSlug,
-    required bool hasFile,
-    required int sizeOnDisk,
+    String? titleSlug,
+    @Default(false) bool hasFile,
+    @Default(0) int sizeOnDisk,
   }) = _RadarrMovie;
 
   factory RadarrMovie.fromJson(Map<String, dynamic> json) =>

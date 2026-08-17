@@ -32,6 +32,27 @@ Future<Result<List<RadarrMovie>>> radarrMovies(Ref ref, String instanceId) async
   return repository.listMovies();
 }
 
+@riverpod
+Future<Result<RadarrMovie>> radarrMovie(
+  Ref ref, {
+  required String instanceId,
+  required int movieId,
+}) async {
+  // Check if we already have it in the movies list to avoid a fetch.
+  final moviesResult = ref.read(radarrMoviesProvider(instanceId)).value;
+  if (moviesResult is Ok<List<RadarrMovie>>) {
+    try {
+      final cached = moviesResult.value.firstWhere((m) => m.id == movieId);
+      return Ok(cached);
+    } catch (_) {
+      // Not in cache, fall through to fetch
+    }
+  }
+
+  final repository = await ref.watch(radarrRepositoryProvider(instanceId).future);
+  return repository.getMovie(movieId);
+}
+
 /// Resolves a relative Radarr image URL to a full URL using the instance's
 /// current base URL and API key (via query param, as Radarr's image proxy
 /// requires it).
@@ -48,8 +69,18 @@ Future<String?> radarrFullImageUrl(
   final credential = await ref.watch(serviceCredentialProvider(instanceId).future);
   if (credential is! ApiKeyCredential) return null;
 
-  final baseUrl = resolution.baseUrl.replaceAll(RegExp(r'/api/v3/?$'), '');
-  return '$baseUrl$relativeUrl?apikey=${credential.apiKey}';
+  // Use Uri class for robust path manipulation.
+  final baseUri = Uri.parse(resolution.baseUrl);
+  // Strip /api/v3 or /api if present at the end of the path.
+  final cleanPath = baseUri.path.replaceAll(RegExp(r'/api(/v3)?/?$'), '');
+  
+  return baseUri.replace(
+    path: '$cleanPath$relativeUrl',
+    queryParameters: {
+      ...baseUri.queryParameters,
+      'apikey': credential.apiKey,
+    },
+  ).toString();
 }
 
 @riverpod

@@ -162,6 +162,96 @@ final class RadarrMoviesFamily extends $Family
   String toString() => r'radarrMoviesProvider';
 }
 
+@ProviderFor(radarrMovie)
+final radarrMovieProvider = RadarrMovieFamily._();
+
+final class RadarrMovieProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<RadarrMovie>>,
+          Result<RadarrMovie>,
+          FutureOr<Result<RadarrMovie>>
+        >
+    with
+        $FutureModifier<Result<RadarrMovie>>,
+        $FutureProvider<Result<RadarrMovie>> {
+  RadarrMovieProvider._({
+    required RadarrMovieFamily super.from,
+    required ({String instanceId, int movieId}) super.argument,
+  }) : super(
+         retry: null,
+         name: r'radarrMovieProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$radarrMovieHash();
+
+  @override
+  String toString() {
+    return r'radarrMovieProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<RadarrMovie>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<RadarrMovie>> create(Ref ref) {
+    final argument = this.argument as ({String instanceId, int movieId});
+    return radarrMovie(
+      ref,
+      instanceId: argument.instanceId,
+      movieId: argument.movieId,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is RadarrMovieProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$radarrMovieHash() => r'c80cff7f117ea04bb4d3eb7d4cc4f2781f40bb78';
+
+final class RadarrMovieFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Result<RadarrMovie>>,
+          ({String instanceId, int movieId})
+        > {
+  RadarrMovieFamily._()
+    : super(
+        retry: null,
+        name: r'radarrMovieProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  RadarrMovieProvider call({
+    required String instanceId,
+    required int movieId,
+  }) => RadarrMovieProvider._(
+    argument: (instanceId: instanceId, movieId: movieId),
+    from: this,
+  );
+
+  @override
+  String toString() => r'radarrMovieProvider';
+}
+
 /// Resolves a relative Radarr image URL to a full URL using the instance's
 /// current base URL and API key (via query param, as Radarr's image proxy
 /// requires it).
@@ -227,7 +317,7 @@ final class RadarrFullImageUrlProvider
 }
 
 String _$radarrFullImageUrlHash() =>
-    r'5b5fa4e54e8f8fe6305dd78ed6a8f5b954937244';
+    r'b2a14bcbf38a35c5679ddec6ca065fcdee63efb0';
 
 /// Resolves a relative Radarr image URL to a full URL using the instance's
 /// current base URL and API key (via query param, as Radarr's image proxy

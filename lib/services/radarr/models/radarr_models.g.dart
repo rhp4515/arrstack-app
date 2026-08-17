@@ -14,20 +14,20 @@ _RadarrMovie _$RadarrMovieFromJson(Map<String, dynamic> json) => _RadarrMovie(
   status: json['status'] as String,
   overview: json['overview'] as String,
   sortTitle: json['sortTitle'] as String,
-  added: DateTime.parse(json['added'] as String),
+  added: json['added'] == null ? null : DateTime.parse(json['added'] as String),
   images: (json['images'] as List<dynamic>)
       .map((e) => RadarrImage.fromJson(e as Map<String, dynamic>))
       .toList(),
-  qualityProfileId: (json['qualityProfileId'] as num).toInt(),
+  qualityProfileId: (json['qualityProfileId'] as num?)?.toInt(),
   rootFolderPath: json['rootFolderPath'] as String?,
   path: json['path'] as String?,
   movieFile: json['movieFile'] == null
       ? null
       : RadarrMovieFile.fromJson(json['movieFile'] as Map<String, dynamic>),
   tmdbId: (json['tmdbId'] as num).toInt(),
-  titleSlug: json['titleSlug'] as String,
-  hasFile: json['hasFile'] as bool,
-  sizeOnDisk: (json['sizeOnDisk'] as num).toInt(),
+  titleSlug: json['titleSlug'] as String?,
+  hasFile: json['hasFile'] as bool? ?? false,
+  sizeOnDisk: (json['sizeOnDisk'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$RadarrMovieToJson(_RadarrMovie instance) =>
@@ -39,7 +39,7 @@ Map<String, dynamic> _$RadarrMovieToJson(_RadarrMovie instance) =>
       'status': instance.status,
       'overview': instance.overview,
       'sortTitle': instance.sortTitle,
-      'added': instance.added.toIso8601String(),
+      'added': instance.added?.toIso8601String(),
       'images': instance.images,
       'qualityProfileId': instance.qualityProfileId,
       'rootFolderPath': instance.rootFolderPath,

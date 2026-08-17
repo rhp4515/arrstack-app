@@ -11,6 +11,7 @@ import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/features/library/library_providers.dart';
 import 'package:arrstack/features/library/widgets/movie_grid.dart';
+import 'package:arrstack/features/library/widgets/series_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -29,8 +30,12 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   @override
   void initState() {
     super.initState();
-    // Default to Movies (Radarr)
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -61,12 +66,17 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          final instanceId = ref.read(selectedLibraryInstanceIdProvider(ServiceType.radarr)).value;
+          final type = _tabController.index == 0 ? ServiceType.radarr : ServiceType.sonarr;
+          final instanceId = ref.read(selectedLibraryInstanceIdProvider(type)).value;
+          
           if (instanceId != null) {
-            context.go(RoutePaths.addMovie(instanceId));
+            context.go(_tabController.index == 0 
+              ? RoutePaths.addMovie(instanceId)
+              : RoutePaths.addSeries(instanceId));
           } else {
+            final name = type == ServiceType.radarr ? 'Radarr' : 'Sonarr';
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Please select or configure a Radarr instance first.')),
+              SnackBar(content: Text('Please select or configure a $name instance first.')),
             );
           }
         },
@@ -101,15 +111,40 @@ class _MoviesTab extends ConsumerWidget {
   }
 }
 
-class _SeriesTab extends StatelessWidget {
+class _SeriesTab extends ConsumerWidget {
   const _SeriesTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final instanceIdAsync = ref.watch(selectedLibraryInstanceIdProvider(ServiceType.sonarr));
+
+    return instanceIdAsync.when(
+      data: (id) => id == null
+          ? const _NoSonarrInstance()
+          : Column(
+              children: [
+                _InstanceSelector(
+                  type: ServiceType.sonarr,
+                  selectedId: id,
+                ),
+                Expanded(child: SeriesGrid(instanceId: id)),
+              ],
+            ),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text('Error: $err')),
+    );
+  }
+}
+
+class _NoSonarrInstance extends StatelessWidget {
+  const _NoSonarrInstance();
 
   @override
   Widget build(BuildContext context) {
     return const EmptyState(
       icon: Icons.tv_outlined,
-      title: 'Sonarr coming soon',
-      message: 'TV Series management will be available in Phase 5.',
+      title: 'No Sonarr instance',
+      message: 'Configure a Sonarr service in Settings to browse your TV library.',
     );
   }
 }

@@ -7,8 +7,10 @@ import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/features/dashboard/dashboard_page.dart';
 import 'package:arrstack/features/downloads/downloads_page.dart';
 import 'package:arrstack/features/library/add_movie_page.dart';
+import 'package:arrstack/features/library/add_series_page.dart';
 import 'package:arrstack/features/library/library_page.dart';
 import 'package:arrstack/features/library/movie_detail_page.dart';
+import 'package:arrstack/features/library/series_detail_page.dart';
 import 'package:arrstack/features/onboarding/add_instance_page.dart';
 import 'package:arrstack/features/settings/settings_page.dart';
 import 'package:arrstack/features/uptime/uptime_page.dart';
@@ -45,6 +47,19 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: 'radarr/:instanceId/add',
                   builder: (context, state) => AddMoviePage(
+                    instanceId: state.pathParameters['instanceId']!,
+                  ),
+                ),
+                GoRoute(
+                  path: 'sonarr/:instanceId/series/:seriesId',
+                  builder: (context, state) => SeriesDetailPage(
+                    instanceId: state.pathParameters['instanceId']!,
+                    seriesId: int.parse(state.pathParameters['seriesId']!),
+                  ),
+                ),
+                GoRoute(
+                  path: 'sonarr/:instanceId/add',
+                  builder: (context, state) => AddSeriesPage(
                     instanceId: state.pathParameters['instanceId']!,
                   ),
                 ),

@@ -42,31 +42,35 @@ class PosterCard extends StatelessWidget {
                 imageUrl: imageUrl,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) => Container(
-                  color: theme.colorScheme.surfaceContainerHighest,
-                  padding: AppInsets.pageMd,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.movie_outlined,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      if (title != null) ...[
-                        const SizedBox(height: AppSpacing.sm),
-                        Text(
-                          title,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
+                errorWidget: (context, url, error) {
+                  // ignore: avoid_print
+                  print('PosterCard Image Load Error: $error | URL: $url');
+                  return Container(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    padding: AppInsets.pageMd,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.movie_outlined,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
+                        if (title != null) ...[
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
               if (!monitored)
                 Positioned(

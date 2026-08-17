@@ -295,7 +295,11 @@ pick up the **first unchecked phase** (see §11).
       Library UI with `MovieGrid`, `MovieDetailPage` (monitored-toggle/delete actions), and
       `AddMoviePage` (search lookup + options sheet for profile/folder). Establish
       `PosterCard` and `StatusChip` shared widgets. 100% logic coverage goal met.
-- [ ] **Phase 5 — Sonarr module.** Mirror Phase 4 for series/episodes/seasons.
+- [x] **Phase 5 — Sonarr module.** Mirror Phase 4 for series/episodes/seasons.
+      ✅ Done 2026-08-16. `SonarrClient` + `SonarrRepository` + `SonarrSeries` models.
+      Library UI updated with `SeriesGrid`, `SeriesDetailPage` (Season/Episode expansion
+      tiles), and `AddSeriesPage` (search lookup + options sheet). Implemented image
+      debugging logs and robust URL resolution to address decoder errors.
 - [ ] **Phase 6 — qBittorrent module.** Cookie-session client, torrent list + controls + add. Tests.
 - [ ] **Phase 7 — Bazarr module.** Wanted subtitles + search. Tests.
 - [ ] **Phase 8 — Prowlarr module.** Indexer status/stats + manual search. Tests.

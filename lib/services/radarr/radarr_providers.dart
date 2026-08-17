@@ -83,13 +83,17 @@ Future<String?> radarrFullImageUrl(
     path = path.substring(cleanPath.length);
   }
 
-  return baseUri.replace(
+  final result = baseUri.replace(
     path: '$cleanPath$path',
     queryParameters: {
       ...baseUri.queryParameters,
       'apikey': credential.apiKey,
     },
   ).toString();
+
+  // ignore: avoid_print
+  print('Radarr Resolved Image URL: $result');
+  return result;
 }
 
 @riverpod

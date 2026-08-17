@@ -13,4 +13,8 @@ abstract final class RoutePaths {
   static String movieDetail(String instanceId, int movieId) =>
       '/library/radarr/$instanceId/movie/$movieId';
   static String addMovie(String instanceId) => '/library/radarr/$instanceId/add';
+
+  static String seriesDetail(String instanceId, int seriesId) =>
+      '/library/sonarr/$instanceId/series/$seriesId';
+  static String addSeries(String instanceId) => '/library/sonarr/$instanceId/add';
 }

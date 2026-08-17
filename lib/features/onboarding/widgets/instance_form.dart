@@ -9,18 +9,62 @@ import 'package:arrstack/features/onboarding/onboarding_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class InstanceForm extends ConsumerWidget {
+class InstanceForm extends ConsumerStatefulWidget {
   const InstanceForm({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<InstanceForm> createState() => _InstanceFormState();
+}
+
+class _InstanceFormState extends ConsumerState<InstanceForm> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _localUrlController;
+  late final TextEditingController _remoteUrlController;
+  late final TextEditingController _apiKeyController;
+  late final TextEditingController _usernameController;
+  late final TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    final state = ref.read(instanceFormProvider);
+    _nameController = TextEditingController(text: state.name);
+    _localUrlController = TextEditingController(text: state.localUrl);
+    _remoteUrlController = TextEditingController(text: state.remoteUrl);
+    _apiKeyController = TextEditingController(text: state.apiKey);
+    _usernameController = TextEditingController(text: state.username);
+    _passwordController = TextEditingController(text: state.password);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _localUrlController.dispose();
+    _remoteUrlController.dispose();
+    _apiKeyController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(instanceFormProvider);
     final notifier = ref.read(instanceFormProvider.notifier);
+
+    // Update controllers if state changes from outside (e.g. load)
+    _syncController(_nameController, state.name);
+    _syncController(_localUrlController, state.localUrl);
+    _syncController(_remoteUrlController, state.remoteUrl);
+    _syncController(_apiKeyController, state.apiKey);
+    _syncController(_usernameController, state.username);
+    _syncController(_passwordController, state.password);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TextFormField(
+          controller: _nameController,
           decoration: const InputDecoration(
             labelText: 'Instance Name',
             hintText: 'e.g. My Radarr',
@@ -45,6 +89,7 @@ class InstanceForm extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         _UrlField(
+          controller: _localUrlController,
           label: 'Local URL (LAN)',
           hint: 'http://192.168.1.10:7878',
           onChanged: notifier.updateLocalUrl,
@@ -54,6 +99,7 @@ class InstanceForm extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpacing.md),
         _UrlField(
+          controller: _remoteUrlController,
           label: 'Remote URL (Tailscale)',
           hint: 'http://nas.tailnet-xxxx.ts.net:7878',
           onChanged: notifier.updateRemoteUrl,
@@ -64,6 +110,7 @@ class InstanceForm extends ConsumerWidget {
         const SizedBox(height: AppSpacing.lg),
         if (state.type.defaultAuthType == AuthType.apiKey)
           TextFormField(
+            controller: _apiKeyController,
             decoration: const InputDecoration(
               labelText: 'API Key',
               prefixIcon: Icon(Icons.key_outlined),
@@ -73,6 +120,7 @@ class InstanceForm extends ConsumerWidget {
           )
         else ...[
           TextFormField(
+            controller: _usernameController,
             decoration: const InputDecoration(
               labelText: 'Username',
               prefixIcon: Icon(Icons.person_outline),
@@ -81,6 +129,7 @@ class InstanceForm extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           TextFormField(
+            controller: _passwordController,
             decoration: const InputDecoration(
               labelText: 'Password',
               prefixIcon: Icon(Icons.lock_outline),
@@ -100,10 +149,17 @@ class InstanceForm extends ConsumerWidget {
       ],
     );
   }
+
+  void _syncController(TextEditingController controller, String value) {
+    if (controller.text != value) {
+      controller.text = value;
+    }
+  }
 }
 
 class _UrlField extends StatelessWidget {
   const _UrlField({
+    required this.controller,
     required this.label,
     required this.hint,
     required this.onChanged,
@@ -112,6 +168,7 @@ class _UrlField extends StatelessWidget {
     required this.onTest,
   });
 
+  final TextEditingController controller;
   final String label;
   final String hint;
   final ValueChanged<String> onChanged;
@@ -129,6 +186,7 @@ class _UrlField extends StatelessWidget {
           children: [
             Expanded(
               child: TextFormField(
+                controller: controller,
                 decoration: InputDecoration(
                   labelText: label,
                   hintText: hint,

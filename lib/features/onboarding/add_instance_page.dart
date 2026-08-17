@@ -8,17 +8,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class AddInstancePage extends ConsumerWidget {
-  const AddInstancePage({super.key});
+class AddInstancePage extends ConsumerStatefulWidget {
+  const AddInstancePage({super.key, this.instanceId});
+
+  final String? instanceId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AddInstancePage> createState() => _AddInstancePageState();
+}
+
+class _AddInstancePageState extends ConsumerState<AddInstancePage> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.instanceId != null) {
+      Future.microtask(() {
+        ref.read(instanceFormProvider.notifier).load(widget.instanceId!);
+      });
+    } else {
+      Future.microtask(() {
+        ref.read(instanceFormProvider.notifier).reset();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(instanceFormProvider);
     final notifier = ref.read(instanceFormProvider.notifier);
+    final isEditing = state.isEditing;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Service'),
+        title: Text(isEditing ? 'Edit Service' : 'Add Service'),
       ),
       body: SingleChildScrollView(
         padding: AppInsets.pageMd,
@@ -54,8 +76,8 @@ class AddInstancePage extends ConsumerWidget {
                           color: Colors.white,
                         ),
                       )
-                    : const Icon(Icons.add),
-                label: const Text('Add Instance'),
+                    : Icon(isEditing ? Icons.save_outlined : Icons.add),
+                label: Text(isEditing ? 'Save Changes' : 'Add Instance'),
               ),
             ),
           ],

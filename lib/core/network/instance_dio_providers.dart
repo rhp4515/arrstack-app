@@ -64,13 +64,9 @@ Future<Result<EndpointResolution>> resolvedEndpoint(
 /// Provides a [Dio] instance for [instanceId], configured with the correct
 /// [EndpointResolution.baseUrl] and auth interceptors (spec §11).
 @riverpod
-Future<Dio> dioForInstance(Ref ref, String instanceId) async {
+Future<Result<Dio>> dioForInstance(Ref ref, String instanceId) async {
   final resolutionResult = await ref.watch(resolvedEndpointProvider(instanceId).future);
-  if (resolutionResult is Err<EndpointResolution>) {
-    // If the endpoint can't be resolved, we can't build a Dio. This should
-    // be handled by the caller (the repository) checking the AsyncValue.
-    throw resolutionResult.error;
-  }
+  if (resolutionResult is Err<EndpointResolution>) return Err(resolutionResult.error);
   final resolution = (resolutionResult as Ok<EndpointResolution>).value;
 
   final credential = await ref.watch(serviceCredentialProvider(instanceId).future);
@@ -85,8 +81,8 @@ Future<Dio> dioForInstance(Ref ref, String instanceId) async {
     _ => null,
   };
 
-  return const DioFactory().create(
+  return Ok(const DioFactory().create(
     baseUrl: resolution.baseUrl,
     apiKeyInterceptor: apiKeyInterceptor,
-  );
+  ));
 }

@@ -14,6 +14,7 @@ part 'onboarding_providers.g.dart';
 /// The state of the add-instance form.
 class InstanceFormState {
   const InstanceFormState({
+    this.id,
     this.name = '',
     this.type = ServiceType.radarr,
     this.localUrl = '',
@@ -30,6 +31,7 @@ class InstanceFormState {
     this.saveError,
   });
 
+  final String? id;
   final String name;
   final ServiceType type;
   final String localUrl;
@@ -48,6 +50,7 @@ class InstanceFormState {
   final AppError? saveError;
 
   InstanceFormState copyWith({
+    String? id,
     String? name,
     ServiceType? type,
     String? localUrl,
@@ -64,6 +67,7 @@ class InstanceFormState {
     AppError? saveError,
   }) {
     return InstanceFormState(
+      id: id ?? this.id,
       name: name ?? this.name,
       type: type ?? this.type,
       localUrl: localUrl ?? this.localUrl,
@@ -81,6 +85,8 @@ class InstanceFormState {
     );
   }
 
+  bool get isEditing => id != null;
+
   bool get isValid =>
       name.isNotEmpty &&
       (localUrl.isNotEmpty || remoteUrl.isNotEmpty) &&
@@ -93,6 +99,28 @@ class InstanceFormState {
 class InstanceForm extends _$InstanceForm {
   @override
   InstanceFormState build() => const InstanceFormState();
+
+  void reset() => state = const InstanceFormState();
+
+  Future<void> load(String id) async {
+    final instanceResult = await ref.read(instanceRepositoryProvider).getById(id);
+    if (instanceResult is! Ok<ServiceInstance>) return;
+    final instance = instanceResult.value;
+
+    final credential = await ref.read(secureStoreProvider).readCredential(id);
+
+    state = InstanceFormState(
+      id: instance.id,
+      name: instance.name,
+      type: instance.serviceType,
+      localUrl: instance.localBaseUrl ?? '',
+      remoteUrl: instance.remoteBaseUrl ?? '',
+      isDefault: instance.isDefault,
+      apiKey: credential is ApiKeyCredential ? credential.apiKey : '',
+      username: credential is UsernamePasswordCredential ? credential.username : '',
+      password: credential is UsernamePasswordCredential ? credential.password : '',
+    );
+  }
 
   void updateName(String name) => state = state.copyWith(name: name);
   void updateType(ServiceType type) => state = state.copyWith(type: type);
@@ -143,7 +171,9 @@ class InstanceForm extends _$InstanceForm {
     if (!state.isValid) return false;
     state = state.copyWith(isSaving: true, saveError: null);
 
-    final instanceId = const Uuid().v4();
+    final isEditing = state.isEditing;
+    final instanceId = state.id ?? const Uuid().v4();
+
     final instance = ServiceInstance(
       id: instanceId,
       name: state.name,
@@ -157,12 +187,14 @@ class InstanceForm extends _$InstanceForm {
 
     final credential = state.type.defaultAuthType == AuthType.apiKey
         ? ServiceCredential.apiKey(state.apiKey)
-        : ServiceCredential.usernamePassword(username: state.username, password: state.password);
+        : ServiceCredential.usernamePassword(
+            username: state.username,
+            password: state.password,
+          );
 
-    final result = await ref.read(instanceRepositoryProvider).add(
-      instance,
-      credential: credential,
-    );
+    final result = isEditing
+        ? await ref.read(instanceRepositoryProvider).update(instance, credential: credential)
+        : await ref.read(instanceRepositoryProvider).add(instance, credential: credential);
 
     return switch (result) {
       Ok() => true,

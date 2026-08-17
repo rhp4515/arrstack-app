@@ -7,11 +7,32 @@ import 'package:arrstack/features/settings/settings_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomeSsidSetting extends ConsumerWidget {
+class HomeSsidSetting extends ConsumerStatefulWidget {
   const HomeSsidSetting({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeSsidSetting> createState() => _HomeSsidSettingState();
+}
+
+class _HomeSsidSettingState extends ConsumerState<HomeSsidSetting> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final value = _controller.text.trim();
+    if (value.isNotEmpty) {
+      ref.read(homeSsidsSettingsProvider.notifier).addHomeSsid(value);
+      _controller.clear();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final ssidsAsync = ref.watch(homeSsidsSettingsProvider);
     final notifier = ref.read(homeSsidsSettingsProvider.notifier);
 
@@ -63,18 +84,16 @@ class HomeSsidSetting extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpacing.md),
         TextField(
+          controller: _controller,
           decoration: InputDecoration(
             hintText: 'Enter SSID manually',
             isDense: true,
             suffixIcon: IconButton(
               icon: const Icon(Icons.add),
-              onPressed: () {
-                // This would need a controller, let's keep it simple for now
-                // or just rely on the "Detect" button for most users.
-              },
+              onPressed: _submit,
             ),
           ),
-          onSubmitted: notifier.addHomeSsid,
+          onSubmitted: (_) => _submit(),
         ),
       ],
     );

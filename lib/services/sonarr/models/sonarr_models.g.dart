@@ -14,16 +14,12 @@ _SonarrSeries _$SonarrSeriesFromJson(
   sortTitle: json['sortTitle'] as String?,
   status: json['status'] as String?,
   overview: json['overview'] as String?,
-  images:
-      (json['images'] as List<dynamic>?)
-          ?.map((e) => SonarrImage.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-      const [],
-  seasons:
-      (json['seasons'] as List<dynamic>?)
-          ?.map((e) => SonarrSeason.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-      const [],
+  images: (json['images'] as List<dynamic>?)
+      ?.map((e) => SonarrImage.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  seasons: (json['seasons'] as List<dynamic>?)
+      ?.map((e) => SonarrSeason.fromJson(e as Map<String, dynamic>))
+      .toList(),
   year: (json['year'] as num?)?.toInt(),
   path: json['path'] as String?,
   rootFolderPath: json['rootFolderPath'] as String?,
@@ -37,12 +33,8 @@ _SonarrSeries _$SonarrSeriesFromJson(
   cleanTitle: json['cleanTitle'] as String?,
   titleSlug: json['titleSlug'] as String?,
   added: json['added'] == null ? null : DateTime.parse(json['added'] as String),
-  genres:
-      (json['genres'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-      const [],
-  tags:
-      (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-      const [],
+  genres: (json['genres'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList(),
   statistics: json['statistics'] == null
       ? null
       : SonarrStatistics.fromJson(json['statistics'] as Map<String, dynamic>),
@@ -93,8 +85,8 @@ Map<String, dynamic> _$SonarrAddOptionsToJson(_SonarrAddOptions instance) =>
     };
 
 _SonarrImage _$SonarrImageFromJson(Map<String, dynamic> json) => _SonarrImage(
-  coverType: json['coverType'] as String,
-  url: json['url'] as String,
+  coverType: json['coverType'] as String?,
+  url: json['url'] as String?,
   remoteUrl: json['remoteUrl'] as String?,
 );
 
@@ -107,8 +99,8 @@ Map<String, dynamic> _$SonarrImageToJson(_SonarrImage instance) =>
 
 _SonarrSeason _$SonarrSeasonFromJson(Map<String, dynamic> json) =>
     _SonarrSeason(
-      seasonNumber: (json['seasonNumber'] as num).toInt(),
-      monitored: json['monitored'] as bool,
+      seasonNumber: (json['seasonNumber'] as num?)?.toInt(),
+      monitored: json['monitored'] as bool? ?? true,
       statistics: json['statistics'] == null
           ? null
           : SonarrStatistics.fromJson(
@@ -125,12 +117,12 @@ Map<String, dynamic> _$SonarrSeasonToJson(_SonarrSeason instance) =>
 
 _SonarrStatistics _$SonarrStatisticsFromJson(Map<String, dynamic> json) =>
     _SonarrStatistics(
-      seasonCount: (json['seasonCount'] as num).toInt(),
-      episodeFileCount: (json['episodeFileCount'] as num).toInt(),
-      episodeCount: (json['episodeCount'] as num).toInt(),
-      totalEpisodeCount: (json['totalEpisodeCount'] as num).toInt(),
-      sizeOnDisk: (json['sizeOnDisk'] as num).toInt(),
-      percentOfEpisodes: (json['percentOfEpisodes'] as num).toDouble(),
+      seasonCount: (json['seasonCount'] as num?)?.toInt(),
+      episodeFileCount: (json['episodeFileCount'] as num?)?.toInt(),
+      episodeCount: (json['episodeCount'] as num?)?.toInt(),
+      totalEpisodeCount: (json['totalEpisodeCount'] as num?)?.toInt(),
+      sizeOnDisk: (json['sizeOnDisk'] as num?)?.toInt(),
+      percentOfEpisodes: (json['percentOfEpisodes'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$SonarrStatisticsToJson(_SonarrStatistics instance) =>

@@ -114,17 +114,21 @@ Future<String?> sonarrFullImageUrl(
   final baseUri = Uri.parse(resolution.baseUrl);
   final cleanPath = baseUri.path.replaceAll(RegExp(r'/api(/v3)?/?$'), '').replaceAll(RegExp(r'/$'), '');
   
-  var path = relativeUrl.startsWith('/') ? relativeUrl : '/$relativeUrl';
-  if (cleanPath.isNotEmpty && path.startsWith(cleanPath)) {
-    path = path.substring(cleanPath.length);
+  final relativeUri = Uri.parse(relativeUrl);
+  final pathOnly = relativeUri.path;
+  
+  final allParams = Map<String, dynamic>.from(baseUri.queryParameters)
+    ..addAll(relativeUri.queryParameters)
+    ..putIfAbsent('apikey', () => credential.apiKey);
+
+  var finalPath = pathOnly.startsWith('/') ? pathOnly : '/$pathOnly';
+  if (cleanPath.isNotEmpty && finalPath.startsWith(cleanPath)) {
+    finalPath = finalPath.substring(cleanPath.length);
   }
 
   final result = baseUri.replace(
-    path: '$cleanPath$path',
-    queryParameters: {
-      ...baseUri.queryParameters,
-      'apikey': credential.apiKey,
-    },
+    path: '$cleanPath$finalPath',
+    queryParameters: allParams,
   ).toString();
 
   // ignore: avoid_print

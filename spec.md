@@ -305,7 +305,9 @@ pick up the **first unchecked phase** (see §11).
       with automatic re-login. `DownloadsPage` UI with `TorrentTile` (progress, speed,
       pause/resume/delete) and `AddTorrentDialog` (magnet/URL). Established
       `FormatUtils` for data sizes and speeds.
-- [ ] **Phase 7 — Bazarr module.** Wanted subtitles + search. Tests.
+- [x] **Phase 7 — Bazarr module.** Wanted subtitles + search. Tests.
+      ✅ Done 2026-08-16. `BazarrClient` + `BazarrRepository` with lenient parsing.
+      `SubtitlesPage` UI with filtering and search actions.
 - [ ] **Phase 8 — Prowlarr module.** Indexer status/stats + manual search. Tests.
 - [x] **Phase 9 — Uptime Kuma module.** Socket.io client + monitor list + heartbeat/status UI. Tests.
       *(Confirm auth flow against a real instance first — see §6.)*

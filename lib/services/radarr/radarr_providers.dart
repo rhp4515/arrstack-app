@@ -77,18 +77,24 @@ Future<String?> radarrFullImageUrl(
   // Strip the API portion to get the web root
   final cleanPath = baseUri.path.replaceAll(RegExp(r'/api(/v3)?/?$'), '').replaceAll(RegExp(r'/$'), '');
   
-  // Ensure relativeUrl doesn't already start with the cleanPath to avoid duplication
-  var path = relativeUrl.startsWith('/') ? relativeUrl : '/$relativeUrl';
-  if (cleanPath.isNotEmpty && path.startsWith(cleanPath)) {
-    path = path.substring(cleanPath.length);
+  // Parse the relative URL to handle any existing query parameters (like ?lastWrite=...)
+  // We use Uri.parse but be careful with already encoded characters.
+  final relativeUri = Uri.parse(relativeUrl);
+  final pathOnly = relativeUri.path;
+  
+  // Combine all query parameters manually to avoid Uri.replace double-encoding issues
+  final allParams = Map<String, dynamic>.from(baseUri.queryParameters)
+    ..addAll(relativeUri.queryParameters)
+    ..putIfAbsent('apikey', () => credential.apiKey);
+
+  var finalPath = pathOnly.startsWith('/') ? pathOnly : '/$pathOnly';
+  if (cleanPath.isNotEmpty && finalPath.startsWith(cleanPath)) {
+    finalPath = finalPath.substring(cleanPath.length);
   }
 
   final result = baseUri.replace(
-    path: '$cleanPath$path',
-    queryParameters: {
-      ...baseUri.queryParameters,
-      'apikey': credential.apiKey,
-    },
+    path: '$cleanPath$finalPath',
+    queryParameters: allParams,
   ).toString();
 
   // ignore: avoid_print

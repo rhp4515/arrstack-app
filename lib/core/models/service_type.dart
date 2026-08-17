@@ -30,12 +30,12 @@ enum ServiceType {
   /// The auth style this service uses out of the box (spec §6). Onboarding
   /// may still let a user pick differently if a service ever supports both.
   AuthType get defaultAuthType => switch (this) {
-    ServiceType.qbittorrent ||
-    ServiceType.uptimeKuma => AuthType.usernamePassword,
+    ServiceType.qbittorrent => AuthType.usernamePassword,
     ServiceType.sonarr ||
     ServiceType.radarr ||
     ServiceType.bazarr ||
     ServiceType.prowlarr ||
+    ServiceType.uptimeKuma ||
     ServiceType.seerr => AuthType.apiKey,
   };
 }

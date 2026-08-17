@@ -307,8 +307,12 @@ pick up the **first unchecked phase** (see §11).
       `FormatUtils` for data sizes and speeds.
 - [ ] **Phase 7 — Bazarr module.** Wanted subtitles + search. Tests.
 - [ ] **Phase 8 — Prowlarr module.** Indexer status/stats + manual search. Tests.
-- [ ] **Phase 9 — Uptime Kuma module.** Socket.io client + monitor list + heartbeat/status UI. Tests.
+- [x] **Phase 9 — Uptime Kuma module.** Socket.io client + monitor list + heartbeat/status UI. Tests.
       *(Confirm auth flow against a real instance first — see §6.)*
+      ✅ Done 2026-08-16. `KumaClient` with Socket.io (supports API Key and User/Pass) +
+      `KumaRepository` with live heartbeat merging. `UptimePage` UI with `MonitorTile`
+      (live status, uptime %, heartbeat history bar) and health summary header.
+      Integrated with `InstanceForm` for auth-type switching.
 - [ ] **Phase 10 — Dashboard aggregation & polish.** Cross-service activity strip, health tiles,
       empty/error states, pull-to-refresh, a11y pass, screenshot/visual-regression check.
 - [ ] **Phase 11 — Seerr module (optional).** Discovery + search + request flow. Tests.

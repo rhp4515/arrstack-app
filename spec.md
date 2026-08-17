@@ -300,7 +300,11 @@ pick up the **first unchecked phase** (see §11).
       Library UI updated with `SeriesGrid`, `SeriesDetailPage` (Season/Episode expansion
       tiles), and `AddSeriesPage` (search lookup + options sheet). Implemented image
       debugging logs and robust URL resolution to address decoder errors.
-- [ ] **Phase 6 — qBittorrent module.** Cookie-session client, torrent list + controls + add. Tests.
+- [x] **Phase 6 — qBittorrent module.** Cookie-session client, torrent list + controls + add. Tests.
+      ✅ Done 2026-08-16. `QbitClient` with session/cookie interceptor + `QbitRepository`
+      with automatic re-login. `DownloadsPage` UI with `TorrentTile` (progress, speed,
+      pause/resume/delete) and `AddTorrentDialog` (magnet/URL). Established
+      `FormatUtils` for data sizes and speeds.
 - [ ] **Phase 7 — Bazarr module.** Wanted subtitles + search. Tests.
 - [ ] **Phase 8 — Prowlarr module.** Indexer status/stats + manual search. Tests.
 - [ ] **Phase 9 — Uptime Kuma module.** Socket.io client + monitor list + heartbeat/status UI. Tests.

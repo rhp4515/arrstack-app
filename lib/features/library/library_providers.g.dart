@@ -58,7 +58,7 @@ final class SelectedLibraryInstanceIdProvider
 }
 
 String _$selectedLibraryInstanceIdHash() =>
-    r'e5ce78eb1b3e2f55cc2a6a3f3855faabe2c6084c';
+    r'9dd391d3c02cea9a1e329e1b3e1358020f634191';
 
 /// The currently selected instance ID for the Library view.
 /// Defaults to the first Radarr instance marked as default, or just the first.

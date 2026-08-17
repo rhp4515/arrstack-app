@@ -17,7 +17,7 @@ T _$identity<T>(T value) => value;
 mixin _$RadarrMovie {
 
 /// Unique ID in the Radarr database (null for lookup results).
- int? get id; String get title; int get year; bool get monitored; String get status; String get overview; String get sortTitle; DateTime get added; List<RadarrImage> get images; int get qualityProfileId; String? get rootFolderPath; String? get path; RadarrMovieFile? get movieFile; int get tmdbId; String get titleSlug; bool get hasFile; int get sizeOnDisk;
+ int? get id; String get title; int get year; bool get monitored; String get status; String get overview; String get sortTitle; DateTime? get added; List<RadarrImage> get images; int? get qualityProfileId; String? get rootFolderPath; String? get path; RadarrMovieFile? get movieFile; int get tmdbId; String? get titleSlug; bool get hasFile; int get sizeOnDisk;
 /// Create a copy of RadarrMovie
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -50,7 +50,7 @@ abstract mixin class $RadarrMovieCopyWith<$Res>  {
   factory $RadarrMovieCopyWith(RadarrMovie value, $Res Function(RadarrMovie) _then) = _$RadarrMovieCopyWithImpl;
 @useResult
 $Res call({
- int? id, String title, int year, bool monitored, String status, String overview, String sortTitle, DateTime added, List<RadarrImage> images, int qualityProfileId, String? rootFolderPath, String? path, RadarrMovieFile? movieFile, int tmdbId, String titleSlug, bool hasFile, int sizeOnDisk
+ int? id, String title, int year, bool monitored, String status, String overview, String sortTitle, DateTime? added, List<RadarrImage> images, int? qualityProfileId, String? rootFolderPath, String? path, RadarrMovieFile? movieFile, int tmdbId, String? titleSlug, bool hasFile, int sizeOnDisk
 });
 
 
@@ -67,7 +67,7 @@ class _$RadarrMovieCopyWithImpl<$Res>
 
 /// Create a copy of RadarrMovie
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? year = null,Object? monitored = null,Object? status = null,Object? overview = null,Object? sortTitle = null,Object? added = null,Object? images = null,Object? qualityProfileId = null,Object? rootFolderPath = freezed,Object? path = freezed,Object? movieFile = freezed,Object? tmdbId = null,Object? titleSlug = null,Object? hasFile = null,Object? sizeOnDisk = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? year = null,Object? monitored = null,Object? status = null,Object? overview = null,Object? sortTitle = null,Object? added = freezed,Object? images = null,Object? qualityProfileId = freezed,Object? rootFolderPath = freezed,Object? path = freezed,Object? movieFile = freezed,Object? tmdbId = null,Object? titleSlug = freezed,Object? hasFile = null,Object? sizeOnDisk = null,}) {
   return _then(RadarrMovie(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -76,15 +76,15 @@ as int,monitored: null == monitored ? _self.monitored : monitored // ignore: cas
 as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,overview: null == overview ? _self.overview : overview // ignore: cast_nullable_to_non_nullable
 as String,sortTitle: null == sortTitle ? _self.sortTitle : sortTitle // ignore: cast_nullable_to_non_nullable
-as String,added: null == added ? _self.added : added // ignore: cast_nullable_to_non_nullable
-as DateTime,images: null == images ? _self.images : images // ignore: cast_nullable_to_non_nullable
-as List<RadarrImage>,qualityProfileId: null == qualityProfileId ? _self.qualityProfileId : qualityProfileId // ignore: cast_nullable_to_non_nullable
-as int,rootFolderPath: freezed == rootFolderPath ? _self.rootFolderPath : rootFolderPath // ignore: cast_nullable_to_non_nullable
+as String,added: freezed == added ? _self.added : added // ignore: cast_nullable_to_non_nullable
+as DateTime?,images: null == images ? _self.images : images // ignore: cast_nullable_to_non_nullable
+as List<RadarrImage>,qualityProfileId: freezed == qualityProfileId ? _self.qualityProfileId : qualityProfileId // ignore: cast_nullable_to_non_nullable
+as int?,rootFolderPath: freezed == rootFolderPath ? _self.rootFolderPath : rootFolderPath // ignore: cast_nullable_to_non_nullable
 as String?,path: freezed == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
 as String?,movieFile: freezed == movieFile ? _self.movieFile : movieFile // ignore: cast_nullable_to_non_nullable
 as RadarrMovieFile?,tmdbId: null == tmdbId ? _self.tmdbId : tmdbId // ignore: cast_nullable_to_non_nullable
-as int,titleSlug: null == titleSlug ? _self.titleSlug : titleSlug // ignore: cast_nullable_to_non_nullable
-as String,hasFile: null == hasFile ? _self.hasFile : hasFile // ignore: cast_nullable_to_non_nullable
+as int,titleSlug: freezed == titleSlug ? _self.titleSlug : titleSlug // ignore: cast_nullable_to_non_nullable
+as String?,hasFile: null == hasFile ? _self.hasFile : hasFile // ignore: cast_nullable_to_non_nullable
 as bool,sizeOnDisk: null == sizeOnDisk ? _self.sizeOnDisk : sizeOnDisk // ignore: cast_nullable_to_non_nullable
 as int,
   ));
@@ -183,7 +183,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String title,  int year,  bool monitored,  String status,  String overview,  String sortTitle,  DateTime added,  List<RadarrImage> images,  int qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int tmdbId,  String titleSlug,  bool hasFile,  int sizeOnDisk)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String title,  int year,  bool monitored,  String status,  String overview,  String sortTitle,  DateTime? added,  List<RadarrImage> images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int tmdbId,  String? titleSlug,  bool hasFile,  int sizeOnDisk)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RadarrMovie() when $default != null:
 return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.titleSlug,_that.hasFile,_that.sizeOnDisk);case _:
@@ -204,7 +204,7 @@ return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String title,  int year,  bool monitored,  String status,  String overview,  String sortTitle,  DateTime added,  List<RadarrImage> images,  int qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int tmdbId,  String titleSlug,  bool hasFile,  int sizeOnDisk)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String title,  int year,  bool monitored,  String status,  String overview,  String sortTitle,  DateTime? added,  List<RadarrImage> images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int tmdbId,  String? titleSlug,  bool hasFile,  int sizeOnDisk)  $default,) {final _that = this;
 switch (_that) {
 case _RadarrMovie():
 return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.titleSlug,_that.hasFile,_that.sizeOnDisk);case _:
@@ -224,7 +224,7 @@ return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String title,  int year,  bool monitored,  String status,  String overview,  String sortTitle,  DateTime added,  List<RadarrImage> images,  int qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int tmdbId,  String titleSlug,  bool hasFile,  int sizeOnDisk)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String title,  int year,  bool monitored,  String status,  String overview,  String sortTitle,  DateTime? added,  List<RadarrImage> images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int tmdbId,  String? titleSlug,  bool hasFile,  int sizeOnDisk)?  $default,) {final _that = this;
 switch (_that) {
 case _RadarrMovie() when $default != null:
 return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.titleSlug,_that.hasFile,_that.sizeOnDisk);case _:
@@ -239,7 +239,7 @@ return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_th
 @JsonSerializable()
 
 class _RadarrMovie implements RadarrMovie {
-  const _RadarrMovie({this.id, required this.title, required this.year, required this.monitored, required this.status, required this.overview, required this.sortTitle, required this.added, required  List<RadarrImage> images, required this.qualityProfileId, this.rootFolderPath, this.path, this.movieFile, required this.tmdbId, required this.titleSlug, required this.hasFile, required this.sizeOnDisk}): _images = images;
+  const _RadarrMovie({this.id, required this.title, required this.year, required this.monitored, required this.status, required this.overview, required this.sortTitle, this.added, required  List<RadarrImage> images, this.qualityProfileId, this.rootFolderPath, this.path, this.movieFile, required this.tmdbId, this.titleSlug, this.hasFile = false, this.sizeOnDisk = 0}): _images = images;
   factory _RadarrMovie.fromJson(Map<String, dynamic> json) => _$RadarrMovieFromJson(json);
 
 /// Unique ID in the Radarr database (null for lookup results).
@@ -250,7 +250,7 @@ class _RadarrMovie implements RadarrMovie {
 @override final  String status;
 @override final  String overview;
 @override final  String sortTitle;
-@override final  DateTime added;
+@override final  DateTime? added;
  final  List<RadarrImage> _images;
 @override List<RadarrImage> get images {
   if (_images is EqualUnmodifiableListView) return _images;
@@ -258,14 +258,14 @@ class _RadarrMovie implements RadarrMovie {
   return EqualUnmodifiableListView(_images);
 }
 
-@override final  int qualityProfileId;
+@override final  int? qualityProfileId;
 @override final  String? rootFolderPath;
 @override final  String? path;
 @override final  RadarrMovieFile? movieFile;
 @override final  int tmdbId;
-@override final  String titleSlug;
-@override final  bool hasFile;
-@override final  int sizeOnDisk;
+@override final  String? titleSlug;
+@override@JsonKey() final  bool hasFile;
+@override@JsonKey() final  int sizeOnDisk;
 
 /// Create a copy of RadarrMovie
 /// with the given fields replaced by the non-null parameter values.
@@ -300,7 +300,7 @@ abstract mixin class _$RadarrMovieCopyWith<$Res> implements $RadarrMovieCopyWith
   factory _$RadarrMovieCopyWith(_RadarrMovie value, $Res Function(_RadarrMovie) _then) = __$RadarrMovieCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String title, int year, bool monitored, String status, String overview, String sortTitle, DateTime added, List<RadarrImage> images, int qualityProfileId, String? rootFolderPath, String? path, RadarrMovieFile? movieFile, int tmdbId, String titleSlug, bool hasFile, int sizeOnDisk
+ int? id, String title, int year, bool monitored, String status, String overview, String sortTitle, DateTime? added, List<RadarrImage> images, int? qualityProfileId, String? rootFolderPath, String? path, RadarrMovieFile? movieFile, int tmdbId, String? titleSlug, bool hasFile, int sizeOnDisk
 });
 
 
@@ -317,7 +317,7 @@ class __$RadarrMovieCopyWithImpl<$Res>
 
 /// Create a copy of RadarrMovie
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? year = null,Object? monitored = null,Object? status = null,Object? overview = null,Object? sortTitle = null,Object? added = null,Object? images = null,Object? qualityProfileId = null,Object? rootFolderPath = freezed,Object? path = freezed,Object? movieFile = freezed,Object? tmdbId = null,Object? titleSlug = null,Object? hasFile = null,Object? sizeOnDisk = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? year = null,Object? monitored = null,Object? status = null,Object? overview = null,Object? sortTitle = null,Object? added = freezed,Object? images = null,Object? qualityProfileId = freezed,Object? rootFolderPath = freezed,Object? path = freezed,Object? movieFile = freezed,Object? tmdbId = null,Object? titleSlug = freezed,Object? hasFile = null,Object? sizeOnDisk = null,}) {
   return _then(_RadarrMovie(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -326,15 +326,15 @@ as int,monitored: null == monitored ? _self.monitored : monitored // ignore: cas
 as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,overview: null == overview ? _self.overview : overview // ignore: cast_nullable_to_non_nullable
 as String,sortTitle: null == sortTitle ? _self.sortTitle : sortTitle // ignore: cast_nullable_to_non_nullable
-as String,added: null == added ? _self.added : added // ignore: cast_nullable_to_non_nullable
-as DateTime,images: null == images ? _self._images : images // ignore: cast_nullable_to_non_nullable
-as List<RadarrImage>,qualityProfileId: null == qualityProfileId ? _self.qualityProfileId : qualityProfileId // ignore: cast_nullable_to_non_nullable
-as int,rootFolderPath: freezed == rootFolderPath ? _self.rootFolderPath : rootFolderPath // ignore: cast_nullable_to_non_nullable
+as String,added: freezed == added ? _self.added : added // ignore: cast_nullable_to_non_nullable
+as DateTime?,images: null == images ? _self._images : images // ignore: cast_nullable_to_non_nullable
+as List<RadarrImage>,qualityProfileId: freezed == qualityProfileId ? _self.qualityProfileId : qualityProfileId // ignore: cast_nullable_to_non_nullable
+as int?,rootFolderPath: freezed == rootFolderPath ? _self.rootFolderPath : rootFolderPath // ignore: cast_nullable_to_non_nullable
 as String?,path: freezed == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
 as String?,movieFile: freezed == movieFile ? _self.movieFile : movieFile // ignore: cast_nullable_to_non_nullable
 as RadarrMovieFile?,tmdbId: null == tmdbId ? _self.tmdbId : tmdbId // ignore: cast_nullable_to_non_nullable
-as int,titleSlug: null == titleSlug ? _self.titleSlug : titleSlug // ignore: cast_nullable_to_non_nullable
-as String,hasFile: null == hasFile ? _self.hasFile : hasFile // ignore: cast_nullable_to_non_nullable
+as int,titleSlug: freezed == titleSlug ? _self.titleSlug : titleSlug // ignore: cast_nullable_to_non_nullable
+as String?,hasFile: null == hasFile ? _self.hasFile : hasFile // ignore: cast_nullable_to_non_nullable
 as bool,sizeOnDisk: null == sizeOnDisk ? _self.sizeOnDisk : sizeOnDisk // ignore: cast_nullable_to_non_nullable
 as int,
   ));

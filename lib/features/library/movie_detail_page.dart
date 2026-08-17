@@ -6,6 +6,7 @@ library;
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/app/theme/service_accents.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/core/widgets/status_chip.dart';
 import 'package:arrstack/services/radarr/models/radarr_models.dart';
 import 'package:arrstack/services/radarr/radarr_providers.dart';
@@ -25,15 +26,22 @@ class MovieDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final moviesAsync = ref.watch(radarrMoviesProvider(instanceId));
+    final movieAsync = ref.watch(radarrMovieProvider(
+      instanceId: instanceId,
+      movieId: movieId,
+    ));
 
-    return moviesAsync.when(
-      data: (result) {
-        if (result case Ok(:final value)) {
-          final movie = value.firstWhere((m) => m.id == movieId);
-          return _MovieDetailContent(instanceId: instanceId, movie: movie);
-        }
-        return Scaffold(appBar: AppBar(), body: const Center(child: Text('Error')));
+    return movieAsync.when(
+      data: (result) => switch (result) {
+        Ok(:final value) => _MovieDetailContent(instanceId: instanceId, movie: value),
+        Err(:final error) => Scaffold(
+            appBar: AppBar(),
+            body: EmptyState(
+              icon: Icons.error_outline,
+              title: 'Failed to load movie',
+              message: error.userMessage,
+            ),
+          ),
       },
       loading: () => Scaffold(appBar: AppBar(), body: const Center(child: CircularProgressIndicator())),
       error: (err, stack) => Scaffold(appBar: AppBar(), body: Center(child: Text('Error: $err'))),
@@ -140,25 +148,32 @@ class _HeaderImage extends ConsumerWidget {
   }
 }
 
-class _ActionsGrid extends ConsumerWidget {
+class _ActionsGrid extends ConsumerStatefulWidget {
   const _ActionsGrid({required this.instanceId, required this.movie});
 
   final String instanceId;
   final RadarrMovie movie;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ActionsGrid> createState() => _ActionsGridState();
+}
+
+class _ActionsGridState extends ConsumerState<_ActionsGrid> {
+  bool _isProcessing = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
+        if (_isProcessing) const LinearProgressIndicator(),
+        const SizedBox(height: AppSpacing.sm),
         Row(
           children: [
             Expanded(
               child: _ActionButton(
-                icon: movie.monitored ? Icons.bookmark_remove : Icons.bookmark_add,
-                label: movie.monitored ? 'Unmonitor' : 'Monitor',
-                onTap: () {
-                  // TODO: Implement toggle monitor
-                },
+                icon: widget.movie.monitored ? Icons.bookmark_remove : Icons.bookmark_add,
+                label: widget.movie.monitored ? 'Unmonitor' : 'Monitor',
+                onTap: _toggleMonitored,
               ),
             ),
             const SizedBox(width: AppSpacing.md),
@@ -167,7 +182,11 @@ class _ActionsGrid extends ConsumerWidget {
                 icon: Icons.search,
                 label: 'Search',
                 onTap: () {
-                  // TODO: Trigger search
+                  // Radarr search command is POST /command {name: "MovieSearch", movieIds: [id]}
+                  // For now, just snackbar.
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Search command coming soon.')),
+                  );
                 },
               ),
             ),
@@ -181,7 +200,9 @@ class _ActionsGrid extends ConsumerWidget {
                 icon: Icons.edit_outlined,
                 label: 'Edit',
                 onTap: () {
-                  // TODO: Edit movie
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Edit movie options coming soon.')),
+                  );
                 },
               ),
             ),
@@ -191,15 +212,64 @@ class _ActionsGrid extends ConsumerWidget {
                 icon: Icons.delete_outline,
                 label: 'Delete',
                 color: Colors.red,
-                onTap: () {
-                  // TODO: Delete movie
-                },
+                onTap: _deleteMovie,
               ),
             ),
           ],
         ),
       ],
     );
+  }
+
+  Future<void> _toggleMonitored() async {
+    setState(() => _isProcessing = true);
+    final repo = await ref.read(radarrRepositoryProvider(widget.instanceId).future);
+    final updated = widget.movie.copyWith(monitored: !widget.movie.monitored);
+    final result = await repo.updateMovie(updated);
+    
+    if (mounted) {
+      setState(() => _isProcessing = false);
+      if (result is Ok) {
+        ref.invalidate(radarrMovieProvider(instanceId: widget.instanceId, movieId: widget.movie.id!));
+        ref.invalidate(radarrMoviesProvider(widget.instanceId));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed: ${(result as Err).error.userMessage}')),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteMovie() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Movie?'),
+        content: Text('Remove "${widget.movie.title}" from library?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      setState(() => _isProcessing = true);
+      final repo = await ref.read(radarrRepositoryProvider(widget.instanceId).future);
+      final result = await repo.deleteMovie(widget.movie.id!);
+      
+      if (mounted) {
+        setState(() => _isProcessing = false);
+        if (result is Ok) {
+          ref.invalidate(radarrMoviesProvider(widget.instanceId));
+          Navigator.pop(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed: ${(result as Err).error.userMessage}')),
+          );
+        }
+      }
+    }
   }
 }
 

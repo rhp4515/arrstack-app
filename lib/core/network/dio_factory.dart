@@ -31,9 +31,12 @@ class DioFactory {
     List<Interceptor> extraInterceptors = const [],
     LogSink? logger,
   }) {
+    // Ensure baseUrl ends with a slash for relative paths to work correctly.
+    final normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
+
     final dio = Dio(
       BaseOptions(
-        baseUrl: baseUrl,
+        baseUrl: normalizedBaseUrl,
         connectTimeout: connectTimeout,
         receiveTimeout: receiveTimeout,
         sendTimeout: sendTimeout,

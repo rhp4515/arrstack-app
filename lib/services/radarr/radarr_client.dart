@@ -17,7 +17,7 @@ class RadarrClient implements ConnectionTestClient {
   @override
   Future<Result<ServiceIdentity>> testConnection() async {
     return dioCall(
-      () => _dio.get('/system/status'),
+      () => _dio.get('api/v3/system/status'),
       map: (data) {
         final map = data as Map<String, dynamic>;
         return ServiceIdentity(
@@ -30,7 +30,7 @@ class RadarrClient implements ConnectionTestClient {
 
   Future<Result<List<RadarrMovie>>> getMovies() {
     return dioCall(
-      () => _dio.get('/movie'),
+      () => _dio.get('api/v3/movie'),
       map: (data) => (data as List)
           .cast<Map<String, dynamic>>()
           .map(RadarrMovie.fromJson)
@@ -40,14 +40,14 @@ class RadarrClient implements ConnectionTestClient {
 
   Future<Result<RadarrMovie>> getMovie(int id) {
     return dioCall(
-      () => _dio.get('/movie/$id'),
+      () => _dio.get('api/v3/movie/$id'),
       map: (data) => RadarrMovie.fromJson(data as Map<String, dynamic>),
     );
   }
 
   Future<Result<List<RadarrMovie>>> lookupMovie(String term) {
     return dioCall(
-      () => _dio.get('/movie/lookup', queryParameters: {'term': term}),
+      () => _dio.get('api/v3/movie/lookup', queryParameters: {'term': term}),
       map: (data) => (data as List)
           .cast<Map<String, dynamic>>()
           .map(RadarrMovie.fromJson)
@@ -57,14 +57,14 @@ class RadarrClient implements ConnectionTestClient {
 
   Future<Result<RadarrMovie>> addMovie(RadarrMovie movie) {
     return dioCall(
-      () => _dio.post('/movie', data: movie.toJson()),
+      () => _dio.post('api/v3/movie', data: movie.toJson()),
       map: (data) => RadarrMovie.fromJson(data as Map<String, dynamic>),
     );
   }
 
   Future<Result<void>> updateMovie(RadarrMovie movie) {
     return dioCall(
-      () => _dio.put('/movie/${movie.id}', data: movie.toJson()),
+      () => _dio.put('api/v3/movie/${movie.id}', data: movie.toJson()),
       map: (_) {},
     );
   }
@@ -72,7 +72,7 @@ class RadarrClient implements ConnectionTestClient {
   Future<Result<void>> deleteMovie(int id, {bool deleteFiles = false}) {
     return dioCall(
       () => _dio.delete(
-        '/movie/$id',
+        'api/v3/movie/$id',
         queryParameters: {'deleteFiles': deleteFiles},
       ),
       map: (_) {},
@@ -81,7 +81,7 @@ class RadarrClient implements ConnectionTestClient {
 
   Future<Result<List<RadarrQualityProfile>>> getQualityProfiles() {
     return dioCall(
-      () => _dio.get('/qualityProfile'),
+      () => _dio.get('api/v3/qualityProfile'),
       map: (data) => (data as List)
           .cast<Map<String, dynamic>>()
           .map(RadarrQualityProfile.fromJson)
@@ -91,7 +91,7 @@ class RadarrClient implements ConnectionTestClient {
 
   Future<Result<List<RadarrRootFolder>>> getRootFolders() {
     return dioCall(
-      () => _dio.get('/rootFolder'),
+      () => _dio.get('api/v3/rootFolder'),
       map: (data) => (data as List)
           .cast<Map<String, dynamic>>()
           .map(RadarrRootFolder.fromJson)

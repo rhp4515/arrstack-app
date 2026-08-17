@@ -1,7 +1,8 @@
 import 'package:arrstack/app/app.dart';
-import 'package:flutter/widgets.dart' show runApp;
+import 'package:flutter/widgets.dart' show WidgetsFlutterBinding, runApp;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const ProviderScope(child: ArrStackApp()));
 }

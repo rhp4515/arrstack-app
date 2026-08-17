@@ -8,4 +8,5 @@ abstract final class RoutePaths {
   static const String uptime = '/uptime';
   static const String settings = '/settings';
   static const String addInstance = '/settings/add';
+  static String editInstance(String id) => '/settings/$id/edit';
 }

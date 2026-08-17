@@ -113,6 +113,7 @@ class _InstanceTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
+      onTap: () => context.go(RoutePaths.editInstance(instance.id)),
       leading: CircleAvatar(
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         child: Text(instance.serviceType.displayName[0]),

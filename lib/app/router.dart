@@ -61,6 +61,12 @@ final GoRouter appRouter = GoRouter(
                   path: 'add',
                   builder: (context, state) => const AddInstancePage(),
                 ),
+                GoRoute(
+                  path: ':id/edit',
+                  builder: (context, state) => AddInstancePage(
+                    instanceId: state.pathParameters['id'],
+                  ),
+                ),
               ],
             ),
           ],

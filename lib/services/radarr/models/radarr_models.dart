@@ -47,8 +47,12 @@ extension RadarrMovieX on RadarrMovie {
         orElse: () => images.first,
       ),
     );
-    // Prioritize internal URL for library items, fallback to remoteUrl for lookups
-    return (image.url.isNotEmpty) ? image.url : image.remoteUrl;
+    // Prefer the auth-free remote (TMDB) CDN URL so posters load regardless of
+    // the server's authentication mode; fall back to the internal path (which
+    // the image provider will sign with an API key) only when it's absent.
+    final remote = image.remoteUrl;
+    if (remote != null && remote.isNotEmpty) return remote;
+    return image.url.isNotEmpty ? image.url : null;
   }
 }
 
@@ -83,9 +87,8 @@ abstract class RadarrMovieFile with _$RadarrMovieFile {
 /// Quality info for a file or profile.
 @freezed
 abstract class RadarrQualityInfo with _$RadarrQualityInfo {
-  const factory RadarrQualityInfo({
-    required RadarrQuality quality,
-  }) = _RadarrQualityInfo;
+  const factory RadarrQualityInfo({required RadarrQuality quality}) =
+      _RadarrQualityInfo;
 
   factory RadarrQualityInfo.fromJson(Map<String, dynamic> json) =>
       _$RadarrQualityInfoFromJson(json);
@@ -93,10 +96,8 @@ abstract class RadarrQualityInfo with _$RadarrQualityInfo {
 
 @freezed
 abstract class RadarrQuality with _$RadarrQuality {
-  const factory RadarrQuality({
-    required int id,
-    required String name,
-  }) = _RadarrQuality;
+  const factory RadarrQuality({required int id, required String name}) =
+      _RadarrQuality;
 
   factory RadarrQuality.fromJson(Map<String, dynamic> json) =>
       _$RadarrQualityFromJson(json);
@@ -105,10 +106,8 @@ abstract class RadarrQuality with _$RadarrQuality {
 /// A quality profile (e.g. "Any", "HD-1080p").
 @freezed
 abstract class RadarrQualityProfile with _$RadarrQualityProfile {
-  const factory RadarrQualityProfile({
-    required int id,
-    required String name,
-  }) = _RadarrQualityProfile;
+  const factory RadarrQualityProfile({required int id, required String name}) =
+      _RadarrQualityProfile;
 
   factory RadarrQualityProfile.fromJson(Map<String, dynamic> json) =>
       _$RadarrQualityProfileFromJson(json);

@@ -27,7 +27,8 @@ abstract class SonarrSeries with _$SonarrSeries {
     int? qualityProfileId,
     @Default(true) bool monitored,
     @Default(false) bool useSceneNumbering,
-    String? runtime,
+    // Sonarr returns runtime as an int (minutes), not a string.
+    int? runtime,
     @Default(0) int tvdbId,
     int? tvMazeId,
     @Default('program') String seriesType,
@@ -35,7 +36,8 @@ abstract class SonarrSeries with _$SonarrSeries {
     String? titleSlug,
     DateTime? added,
     List<String>? genres,
-    List<String>? tags,
+    // Tags are stored as int IDs in Sonarr.
+    List<int>? tags,
     SonarrStatistics? statistics,
     SonarrAddOptions? addOptions,
   }) = _SonarrSeries;
@@ -66,7 +68,12 @@ extension SonarrSeriesX on SonarrSeries {
         orElse: () => imgs.first,
       ),
     );
-    return (image.url != null && image.url!.isNotEmpty) ? image.url : image.remoteUrl;
+    // Prefer the auth-free remote (TVDB) CDN URL so posters load regardless of
+    // the server's authentication mode; fall back to the internal path (which
+    // the image provider will sign with an API key) only when it's absent.
+    final remote = image.remoteUrl;
+    if (remote != null && remote.isNotEmpty) return remote;
+    return (image.url != null && image.url!.isNotEmpty) ? image.url : null;
   }
 }
 
@@ -137,10 +144,8 @@ abstract class SonarrEpisode with _$SonarrEpisode {
 /// A quality profile (e.g. "Any", "HD-1080p").
 @freezed
 abstract class SonarrQualityProfile with _$SonarrQualityProfile {
-  const factory SonarrQualityProfile({
-    required int id,
-    required String name,
-  }) = _SonarrQualityProfile;
+  const factory SonarrQualityProfile({required int id, required String name}) =
+      _SonarrQualityProfile;
 
   factory SonarrQualityProfile.fromJson(Map<String, dynamic> json) =>
       _$SonarrQualityProfileFromJson(json);

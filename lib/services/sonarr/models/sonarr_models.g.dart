@@ -26,7 +26,7 @@ _SonarrSeries _$SonarrSeriesFromJson(
   qualityProfileId: (json['qualityProfileId'] as num?)?.toInt(),
   monitored: json['monitored'] as bool? ?? true,
   useSceneNumbering: json['useSceneNumbering'] as bool? ?? false,
-  runtime: json['runtime'] as String?,
+  runtime: (json['runtime'] as num?)?.toInt(),
   tvdbId: (json['tvdbId'] as num?)?.toInt() ?? 0,
   tvMazeId: (json['tvMazeId'] as num?)?.toInt(),
   seriesType: json['seriesType'] as String? ?? 'program',
@@ -34,7 +34,9 @@ _SonarrSeries _$SonarrSeriesFromJson(
   titleSlug: json['titleSlug'] as String?,
   added: json['added'] == null ? null : DateTime.parse(json['added'] as String),
   genres: (json['genres'] as List<dynamic>?)?.map((e) => e as String).toList(),
-  tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  tags: (json['tags'] as List<dynamic>?)
+      ?.map((e) => (e as num).toInt())
+      .toList(),
   statistics: json['statistics'] == null
       ? null
       : SonarrStatistics.fromJson(json['statistics'] as Map<String, dynamic>),

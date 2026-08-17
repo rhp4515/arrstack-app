@@ -30,12 +30,15 @@ enum ServiceType {
   /// The auth style this service uses out of the box (spec §6). Onboarding
   /// may still let a user pick differently if a service ever supports both.
   AuthType get defaultAuthType => switch (this) {
-    ServiceType.qbittorrent => AuthType.usernamePassword,
+    // Uptime Kuma's real-time socket.io API authenticates with the dashboard
+    // username/password — its API keys are REST/metrics-only and cannot log in
+    // over the socket, so username/password is the correct default here.
+    ServiceType.qbittorrent ||
+    ServiceType.uptimeKuma => AuthType.usernamePassword,
     ServiceType.sonarr ||
     ServiceType.radarr ||
     ServiceType.bazarr ||
     ServiceType.prowlarr ||
-    ServiceType.uptimeKuma ||
     ServiceType.seerr => AuthType.apiKey,
   };
 }

@@ -1,0 +1,101 @@
+/// API client for Radarr (v3).
+///
+/// Implements the endpoints needed for library management and lookup.
+library;
+
+import 'package:arrstack/core/models/models.dart';
+import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/services/contracts/contracts.dart';
+import 'package:arrstack/services/radarr/models/radarr_models.dart';
+import 'package:dio/dio.dart';
+
+class RadarrClient implements ConnectionTestClient {
+  const RadarrClient(this._dio);
+
+  final Dio _dio;
+
+  @override
+  Future<Result<ServiceIdentity>> testConnection() async {
+    return dioCall(
+      () => _dio.get('/system/status'),
+      map: (data) {
+        final map = data as Map<String, dynamic>;
+        return ServiceIdentity(
+          instanceName: map['instanceName'] as String? ?? 'Radarr',
+          version: map['version'] as String?,
+        );
+      },
+    );
+  }
+
+  Future<Result<List<RadarrMovie>>> getMovies() {
+    return dioCall(
+      () => _dio.get('/movie'),
+      map: (data) => (data as List)
+          .cast<Map<String, dynamic>>()
+          .map(RadarrMovie.fromJson)
+          .toList(),
+    );
+  }
+
+  Future<Result<RadarrMovie>> getMovie(int id) {
+    return dioCall(
+      () => _dio.get('/movie/$id'),
+      map: (data) => RadarrMovie.fromJson(data as Map<String, dynamic>),
+    );
+  }
+
+  Future<Result<List<RadarrMovie>>> lookupMovie(String term) {
+    return dioCall(
+      () => _dio.get('/movie/lookup', queryParameters: {'term': term}),
+      map: (data) => (data as List)
+          .cast<Map<String, dynamic>>()
+          .map(RadarrMovie.fromJson)
+          .toList(),
+    );
+  }
+
+  Future<Result<RadarrMovie>> addMovie(RadarrMovie movie) {
+    return dioCall(
+      () => _dio.post('/movie', data: movie.toJson()),
+      map: (data) => RadarrMovie.fromJson(data as Map<String, dynamic>),
+    );
+  }
+
+  Future<Result<void>> updateMovie(RadarrMovie movie) {
+    return dioCall(
+      () => _dio.put('/movie/${movie.id}', data: movie.toJson()),
+      map: (_) {},
+    );
+  }
+
+  Future<Result<void>> deleteMovie(int id, {bool deleteFiles = false}) {
+    return dioCall(
+      () => _dio.delete(
+        '/movie/$id',
+        queryParameters: {'deleteFiles': deleteFiles},
+      ),
+      map: (_) {},
+    );
+  }
+
+  Future<Result<List<RadarrQualityProfile>>> getQualityProfiles() {
+    return dioCall(
+      () => _dio.get('/qualityProfile'),
+      map: (data) => (data as List)
+          .cast<Map<String, dynamic>>()
+          .map(RadarrQualityProfile.fromJson)
+          .toList(),
+    );
+  }
+
+  Future<Result<List<RadarrRootFolder>>> getRootFolders() {
+    return dioCall(
+      () => _dio.get('/rootFolder'),
+      map: (data) => (data as List)
+          .cast<Map<String, dynamic>>()
+          .map(RadarrRootFolder.fromJson)
+          .toList(),
+    );
+  }
+}

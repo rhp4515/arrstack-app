@@ -226,7 +226,7 @@ final class ResolvedEndpointProvider
   }
 }
 
-String _$resolvedEndpointHash() => r'fe6cd2f3f204aca52840304f10f972d29fcfda67';
+String _$resolvedEndpointHash() => r'4d037da96f7f98f65e6eb4d4aad197433d42d625';
 
 /// Resolves the current base URL for [instanceId] based on SSID/connectivity.
 
@@ -264,8 +264,13 @@ final dioForInstanceProvider = DioForInstanceFamily._();
 /// [EndpointResolution.baseUrl] and auth interceptors (spec §11).
 
 final class DioForInstanceProvider
-    extends $FunctionalProvider<AsyncValue<Dio>, Dio, FutureOr<Dio>>
-    with $FutureModifier<Dio>, $FutureProvider<Dio> {
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<Dio>>,
+          Result<Dio>,
+          FutureOr<Result<Dio>>
+        >
+    with $FutureModifier<Result<Dio>>, $FutureProvider<Result<Dio>> {
   /// Provides a [Dio] instance for [instanceId], configured with the correct
   /// [EndpointResolution.baseUrl] and auth interceptors (spec §11).
   DioForInstanceProvider._({
@@ -291,11 +296,12 @@ final class DioForInstanceProvider
 
   @$internal
   @override
-  $FutureProviderElement<Dio> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+  $FutureProviderElement<Result<Dio>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<Dio> create(Ref ref) {
+  FutureOr<Result<Dio>> create(Ref ref) {
     final argument = this.argument as String;
     return dioForInstance(ref, argument);
   }
@@ -311,13 +317,13 @@ final class DioForInstanceProvider
   }
 }
 
-String _$dioForInstanceHash() => r'0c620283c2cde7489e4917364f9702fa3242ac30';
+String _$dioForInstanceHash() => r'18ce26fae9f39cdbfe44a86f0626c5b7ddc88bd4';
 
 /// Provides a [Dio] instance for [instanceId], configured with the correct
 /// [EndpointResolution.baseUrl] and auth interceptors (spec §11).
 
 final class DioForInstanceFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<Dio>, String> {
+    with $FunctionalFamilyOverride<FutureOr<Result<Dio>>, String> {
   DioForInstanceFamily._()
     : super(
         retry: null,

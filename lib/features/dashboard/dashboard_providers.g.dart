@@ -89,4 +89,4 @@ final class StackActivityProvider
   }
 }
 
-String _$stackActivityHash() => r'8d2b74b95a446031ff3e83531ba85ad30712ee63';
+String _$stackActivityHash() => r'cba1f14c942134000269d942f5b344e14aedbfa7';

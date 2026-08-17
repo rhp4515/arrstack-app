@@ -31,7 +31,7 @@ _SonarrSeries _$SonarrSeriesFromJson(
   monitored: json['monitored'] as bool? ?? true,
   useSceneNumbering: json['useSceneNumbering'] as bool? ?? false,
   runtime: json['runtime'] as String?,
-  tvdbId: (json['tvdbId'] as num).toInt(),
+  tvdbId: (json['tvdbId'] as num?)?.toInt() ?? 0,
   tvMazeId: (json['tvMazeId'] as num?)?.toInt(),
   seriesType: json['seriesType'] as String? ?? 'program',
   cleanTitle: json['cleanTitle'] as String?,
@@ -203,15 +203,16 @@ Map<String, dynamic> _$SonarrRootFolderToJson(_SonarrRootFolder instance) =>
 _SonarrQueueItem _$SonarrQueueItemFromJson(Map<String, dynamic> json) =>
     _SonarrQueueItem(
       id: (json['id'] as num).toInt(),
-      seriesId: (json['seriesId'] as num).toInt(),
-      episodeId: (json['episodeId'] as num).toInt(),
-      status: json['status'] as String,
-      size: (json['size'] as num).toInt(),
-      sizeleft: (json['sizeleft'] as num).toInt(),
-      title: json['title'] as String,
-      timeleft: json['timeleft'] as String,
-      estimatedCompletionTime: (json['estimatedCompletionTime'] as num)
-          .toDouble(),
+      seriesId: (json['seriesId'] as num?)?.toInt(),
+      episodeId: (json['episodeId'] as num?)?.toInt(),
+      status: json['status'] as String?,
+      size: (json['size'] as num?)?.toInt() ?? 0,
+      sizeleft: (json['sizeleft'] as num?)?.toInt() ?? 0,
+      title: json['title'] as String?,
+      timeleft: json['timeleft'] as String?,
+      estimatedCompletionTime: json['estimatedCompletionTime'] == null
+          ? null
+          : DateTime.parse(json['estimatedCompletionTime'] as String),
     );
 
 Map<String, dynamic> _$SonarrQueueItemToJson(_SonarrQueueItem instance) =>
@@ -224,5 +225,6 @@ Map<String, dynamic> _$SonarrQueueItemToJson(_SonarrQueueItem instance) =>
       'sizeleft': instance.sizeleft,
       'title': instance.title,
       'timeleft': instance.timeleft,
-      'estimatedCompletionTime': instance.estimatedCompletionTime,
+      'estimatedCompletionTime': instance.estimatedCompletionTime
+          ?.toIso8601String(),
     };

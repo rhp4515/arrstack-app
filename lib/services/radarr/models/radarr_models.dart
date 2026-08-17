@@ -132,13 +132,13 @@ abstract class RadarrRootFolder with _$RadarrRootFolder {
 abstract class RadarrQueueItem with _$RadarrQueueItem {
   const factory RadarrQueueItem({
     required int id,
-    required int movieId,
-    required String status,
-    required int size,
-    required int sizeleft,
-    required String title,
-    required String timeleft,
-    required double estimatedCompletionTime,
+    int? movieId,
+    String? status,
+    @Default(0) int size,
+    @Default(0) int sizeleft,
+    String? title,
+    String? timeleft,
+    DateTime? estimatedCompletionTime,
   }) = _RadarrQueueItem;
 
   factory RadarrQueueItem.fromJson(Map<String, dynamic> json) =>

@@ -129,14 +129,15 @@ Map<String, dynamic> _$RadarrRootFolderToJson(_RadarrRootFolder instance) =>
 _RadarrQueueItem _$RadarrQueueItemFromJson(Map<String, dynamic> json) =>
     _RadarrQueueItem(
       id: (json['id'] as num).toInt(),
-      movieId: (json['movieId'] as num).toInt(),
-      status: json['status'] as String,
-      size: (json['size'] as num).toInt(),
-      sizeleft: (json['sizeleft'] as num).toInt(),
-      title: json['title'] as String,
-      timeleft: json['timeleft'] as String,
-      estimatedCompletionTime: (json['estimatedCompletionTime'] as num)
-          .toDouble(),
+      movieId: (json['movieId'] as num?)?.toInt(),
+      status: json['status'] as String?,
+      size: (json['size'] as num?)?.toInt() ?? 0,
+      sizeleft: (json['sizeleft'] as num?)?.toInt() ?? 0,
+      title: json['title'] as String?,
+      timeleft: json['timeleft'] as String?,
+      estimatedCompletionTime: json['estimatedCompletionTime'] == null
+          ? null
+          : DateTime.parse(json['estimatedCompletionTime'] as String),
     );
 
 Map<String, dynamic> _$RadarrQueueItemToJson(_RadarrQueueItem instance) =>
@@ -148,5 +149,6 @@ Map<String, dynamic> _$RadarrQueueItemToJson(_RadarrQueueItem instance) =>
       'sizeleft': instance.sizeleft,
       'title': instance.title,
       'timeleft': instance.timeleft,
-      'estimatedCompletionTime': instance.estimatedCompletionTime,
+      'estimatedCompletionTime': instance.estimatedCompletionTime
+          ?.toIso8601String(),
     };

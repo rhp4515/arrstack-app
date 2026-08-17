@@ -197,12 +197,12 @@ Future<List<ActivityItem>> stackActivity(Ref ref) async {
       if (queueResult case Ok(:final value)) {
         allActivity.addAll(value.map((q) => ActivityItem(
               id: q.id.toString(),
-              title: q.title,
+              title: q.title ?? 'Unknown Movie',
               serviceType: ServiceType.radarr,
               instanceId: instance.id,
               progress: q.size > 0 ? (q.size - q.sizeleft) / q.size : 0,
-              speed: 0, // Radarr/Sonarr don't always expose real-time speed in queue
-              status: q.status,
+              speed: 0,
+              status: q.status ?? 'Unknown',
             )));
       }
     } else if (instance.serviceType == ServiceType.sonarr) {
@@ -210,12 +210,12 @@ Future<List<ActivityItem>> stackActivity(Ref ref) async {
       if (queueResult case Ok(:final value)) {
         allActivity.addAll(value.map((q) => ActivityItem(
               id: q.id.toString(),
-              title: q.title,
+              title: q.title ?? 'Unknown Series',
               serviceType: ServiceType.sonarr,
               instanceId: instance.id,
               progress: q.size > 0 ? (q.size - q.sizeleft) / q.size : 0,
               speed: 0,
-              status: q.status,
+              status: q.status ?? 'Unknown',
             )));
       }
     }

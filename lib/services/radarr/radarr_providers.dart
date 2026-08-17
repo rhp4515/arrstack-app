@@ -62,6 +62,9 @@ Future<String?> radarrFullImageUrl(
   required String instanceId,
   required String relativeUrl,
 }) async {
+  // If it's already a full URL (like a TMDB link in search results), return as is
+  if (relativeUrl.startsWith('http')) return relativeUrl;
+
   final resolutionResult = await ref.watch(resolvedEndpointProvider(instanceId).future);
   if (resolutionResult is! Ok<EndpointResolution>) return null;
   final resolution = resolutionResult.value;
@@ -71,11 +74,17 @@ Future<String?> radarrFullImageUrl(
 
   // Use Uri class for robust path manipulation.
   final baseUri = Uri.parse(resolution.baseUrl);
-  // Strip /api/v3 or /api if present at the end of the path.
-  final cleanPath = baseUri.path.replaceAll(RegExp(r'/api(/v3)?/?$'), '');
+  // Strip the API portion to get the web root
+  final cleanPath = baseUri.path.replaceAll(RegExp(r'/api(/v3)?/?$'), '').replaceAll(RegExp(r'/$'), '');
   
+  // Ensure relativeUrl doesn't already start with the cleanPath to avoid duplication
+  var path = relativeUrl.startsWith('/') ? relativeUrl : '/$relativeUrl';
+  if (cleanPath.isNotEmpty && path.startsWith(cleanPath)) {
+    path = path.substring(cleanPath.length);
+  }
+
   return baseUri.replace(
-    path: '$cleanPath$relativeUrl',
+    path: '$cleanPath$path',
     queryParameters: {
       ...baseUri.queryParameters,
       'apikey': credential.apiKey,

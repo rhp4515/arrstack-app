@@ -6,6 +6,7 @@ import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/services/contracts/contracts.dart';
+import 'package:arrstack/services/radarr/radarr_client.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -162,8 +163,16 @@ class InstanceForm extends _$InstanceForm {
   }
 
   ConnectionTestClient? _getTestClient(String baseUrl, ServiceCredential credential) {
-    // TODO: Wire up real clients as they are implemented.
-    // For Phase 3, return a stub that succeeds if URL contains "success".
+    if (state.type == ServiceType.radarr) {
+      final dio = const DioFactory().create(
+        baseUrl: baseUrl,
+        apiKeyInterceptor: credential is ApiKeyCredential
+            ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
+            : null,
+      );
+      return RadarrClient(dio);
+    }
+    // Fallback to stub for other services not yet fully implemented
     return StubConnectionTestClient(baseUrl: baseUrl, credential: credential);
   }
 
@@ -197,7 +206,10 @@ class InstanceForm extends _$InstanceForm {
         : await ref.read(instanceRepositoryProvider).add(instance, credential: credential);
 
     return switch (result) {
-      Ok() => true,
+      Ok() => () {
+          ref.invalidate(instancesProvider);
+          return true;
+        }(),
       Err(:final error) => () {
           state = state.copyWith(isSaving: false, saveError: error);
           return false;

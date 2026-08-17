@@ -25,7 +25,7 @@ InstanceRepository instanceRepository(Ref ref) => ConfigStoreInstanceRepository(
 
 /// The configured service instances. Exposes the [Result] directly rather
 /// than throwing, so UI decides how to render a storage failure.
-@riverpod
+@Riverpod(keepAlive: true)
 Future<Result<List<ServiceInstance>>> instances(Ref ref) {
   final repository = ref.watch(instanceRepositoryProvider);
   return repository.list();
@@ -41,7 +41,7 @@ Future<Result<ServiceInstance>> serviceInstance(Ref ref, String id) {
 /// App-level "home" WiFi SSIDs used by `EndpointResolver` when an instance
 /// has no per-instance override (spec §6a). Consumed by the settings screen
 /// (Phase 3) and the per-instance Dio composition (Phase 4).
-@riverpod
+@Riverpod(keepAlive: true)
 Future<Result<List<String>>> homeSsids(Ref ref) async {
   try {
     final ssids = await ref.watch(configStoreProvider).readHomeSsids();
@@ -55,7 +55,7 @@ Future<Result<List<String>>> homeSsids(Ref ref) async {
 }
 
 /// The default [EndpointMode] applied to newly created instances (spec §6a).
-@riverpod
+@Riverpod(keepAlive: true)
 Future<Result<EndpointMode>> defaultEndpointMode(Ref ref) async {
   try {
     final mode = await ref.watch(configStoreProvider).readDefaultEndpointMode();

@@ -166,7 +166,7 @@ final class InstancesProvider
         argument: null,
         retry: null,
         name: r'instancesProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -186,7 +186,7 @@ final class InstancesProvider
   }
 }
 
-String _$instancesHash() => r'5b381b81053b624960740fe63ecaba58565f6dae';
+String _$instancesHash() => r'9c0aab9ce0dd02470f991040a189e15d7ad0a60f';
 
 /// Watches a single [ServiceInstance] by id.
 
@@ -304,7 +304,7 @@ final class HomeSsidsProvider
         argument: null,
         retry: null,
         name: r'homeSsidsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -324,7 +324,7 @@ final class HomeSsidsProvider
   }
 }
 
-String _$homeSsidsHash() => r'e4a947c244910f8a81468031e5757dcd64cdd564';
+String _$homeSsidsHash() => r'f1d6eb26edb31d1310db4e37795afbe8c406bd1e';
 
 /// The default [EndpointMode] applied to newly created instances (spec §6a).
 
@@ -350,7 +350,7 @@ final class DefaultEndpointModeProvider
         argument: null,
         retry: null,
         name: r'defaultEndpointModeProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -371,4 +371,4 @@ final class DefaultEndpointModeProvider
 }
 
 String _$defaultEndpointModeHash() =>
-    r'c59c97549a7f5abe698cdab1b70ca3bef6dbba31';
+    r'6c922d279c796d08e7a91c7c4ca645a075fb4886';

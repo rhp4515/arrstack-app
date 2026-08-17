@@ -38,11 +38,18 @@ abstract class RadarrMovie with _$RadarrMovie {
 }
 
 extension RadarrMovieX on RadarrMovie {
-  String? get posterUrl => images
-      .firstWhere((i) => i.coverType == 'poster',
-          orElse: () => images.firstWhere((i) => i.coverType == 'fanart',
-              orElse: () => images.first))
-      .url;
+  String? get posterUrl {
+    if (images.isEmpty) return null;
+    final image = images.firstWhere(
+      (i) => i.coverType == 'poster',
+      orElse: () => images.firstWhere(
+        (i) => i.coverType == 'fanart',
+        orElse: () => images.first,
+      ),
+    );
+    // Prioritize internal URL for library items, fallback to remoteUrl for lookups
+    return (image.url.isNotEmpty) ? image.url : image.remoteUrl;
+  }
 }
 
 /// Artwork for a movie.

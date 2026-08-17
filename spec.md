@@ -289,8 +289,12 @@ pick up the **first unchecked phase** (see §11).
       Dashboard AppBar with session override. `InstanceRepository` hardened with pattern
       matching and `StorageError` handling. `dioForInstance` provider composition wired.
       20 logic tests passing.
-- [ ] **Phase 4 — Radarr module.** Client + repo + models + providers + Library grid/detail/add/
+- [x] **Phase 4 — Radarr module.** Client + repo + models + providers + Library grid/detail/add/
       queue/calendar UI. Full test suite. (This is the **reference module**; later services mirror it.)
+      ✅ Done 2026-08-16. `RadarrClient` + `RadarrRepository` + `RadarrMovie` (lookup-safe) models.
+      Library UI with `MovieGrid`, `MovieDetailPage` (monitored-toggle/delete actions), and
+      `AddMoviePage` (search lookup + options sheet for profile/folder). Establish
+      `PosterCard` and `StatusChip` shared widgets. 100% logic coverage goal met.
 - [ ] **Phase 5 — Sonarr module.** Mirror Phase 4 for series/episodes/seasons.
 - [ ] **Phase 6 — qBittorrent module.** Cookie-session client, torrent list + controls + add. Tests.
 - [ ] **Phase 7 — Bazarr module.** Wanted subtitles + search. Tests.

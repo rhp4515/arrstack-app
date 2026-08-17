@@ -5,12 +5,19 @@ import 'package:arrstack/core/network/network.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('uses the given baseUrl, never deriving one itself', () {
+  test('uses the given baseUrl, normalizing only a trailing slash', () {
     const factory = DioFactory();
 
-    final dio = factory.create(baseUrl: 'http://192.168.1.10:7878');
-
-    expect(dio.options.baseUrl, 'http://192.168.1.10:7878');
+    // The factory appends a single trailing slash so Dio joins relative paths
+    // like `api/v3/series` correctly; it never derives the host/port itself.
+    expect(
+      factory.create(baseUrl: 'http://192.168.1.10:7878').options.baseUrl,
+      'http://192.168.1.10:7878/',
+    );
+    expect(
+      factory.create(baseUrl: 'http://192.168.1.10:7878/').options.baseUrl,
+      'http://192.168.1.10:7878/',
+    );
   });
 
   test('sets explicit (non-default) timeouts', () {

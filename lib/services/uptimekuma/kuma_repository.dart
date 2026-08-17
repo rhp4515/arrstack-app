@@ -2,6 +2,7 @@
 library;
 
 import 'dart:async';
+
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/services/uptimekuma/kuma_client.dart';
@@ -18,16 +19,21 @@ class KumaRepository {
   Stream<bool> get connectionStream => _client.connectionStream;
 
   Future<Result<void>> ensureConnected() async {
-    _client.connect();
-    
-    // Wait for connection
-    final isConnected = await _client.connectionStream.firstWhere((c) => c).timeout(
-      const Duration(seconds: 5),
-      onTimeout: () => false,
-    );
+    // On a retry the socket is often already open; `connectionStream` is a
+    // broadcast stream with no buffered value, so awaiting `firstWhere` here
+    // would hang until the 5s timeout and fail. Only wait when not connected.
+    if (!_client.isConnected) {
+      _client.connect();
 
-    if (!isConnected) {
-      return const Err(NetworkError(userMessage: 'Failed to connect to socket.'));
+      final isConnected = await _client.connectionStream
+          .firstWhere((c) => c)
+          .timeout(const Duration(seconds: 5), onTimeout: () => false);
+
+      if (!isConnected) {
+        return const Err(
+          NetworkError(userMessage: 'Failed to connect to socket.'),
+        );
+      }
     }
 
     return switch (_credential) {

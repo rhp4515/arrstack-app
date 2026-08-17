@@ -30,18 +30,21 @@ class QbitClient implements ConnectionTestClient {
   }
 
   Future<Result<void>> login(String username, String password) async {
+    // qBittorrent's CSRF check requires the Referer to match the WebUI host.
+    // We deliberately send *only* Referer: also sending an Origin that the
+    // server considers cross-site is a documented cause of a 403 "Fails."
+    // (qBittorrent#21106), and Referer alone satisfies the check.
     final referer = _dio.options.baseUrl.replaceAll(RegExp(r'/$'), '');
-    final result = await guardDioCall(() => _dio.post(
-          'api/v2/auth/login',
-          data: {'username': username, 'password': password},
-          options: Options(
-            contentType: Headers.formUrlEncodedContentType,
-            headers: {
-              'Referer': referer,
-              'Origin': referer,
-            },
-          ),
-        ));
+    final result = await guardDioCall(
+      () => _dio.post(
+        'api/v2/auth/login',
+        data: {'username': username, 'password': password},
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
+          headers: {'Referer': referer},
+        ),
+      ),
+    );
 
     return result.map((response) {
       final cookies = response.headers['set-cookie'];
@@ -105,7 +108,10 @@ class QbitClient implements ConnectionTestClient {
     );
   }
 
-  Future<Result<void>> deleteTorrents(List<String> hashes, {bool deleteFiles = false}) {
+  Future<Result<void>> deleteTorrents(
+    List<String> hashes, {
+    bool deleteFiles = false,
+  }) {
     return dioCall(
       () => _dio.post(
         'api/v2/torrents/delete',
@@ -131,11 +137,11 @@ class QbitClient implements ConnectionTestClient {
 
   /// Injects the SID cookie if we have one.
   Interceptor get cookieInterceptor => InterceptorsWrapper(
-        onRequest: (options, handler) {
-          if (_sid != null) {
-            options.headers['Cookie'] = _sid;
-          }
-          handler.next(options);
-        },
-      );
+    onRequest: (options, handler) {
+      if (_sid != null) {
+        options.headers['Cookie'] = _sid;
+      }
+      handler.next(options);
+    },
+  );
 }

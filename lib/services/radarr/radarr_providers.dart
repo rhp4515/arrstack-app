@@ -16,7 +16,7 @@ part 'radarr_providers.g.dart';
 @riverpod
 Future<RadarrRepository> radarrRepository(Ref ref, String instanceId) async {
   final dioResult = await ref.watch(dioForInstanceProvider(instanceId).future);
-  
+
   // Unwrap the Result<Dio> from Phase 3 fixes
   final dio = switch (dioResult) {
     Ok(:final value) => value,
@@ -27,8 +27,13 @@ Future<RadarrRepository> radarrRepository(Ref ref, String instanceId) async {
 }
 
 @riverpod
-Future<Result<List<RadarrMovie>>> radarrMovies(Ref ref, String instanceId) async {
-  final repository = await ref.watch(radarrRepositoryProvider(instanceId).future);
+Future<Result<List<RadarrMovie>>> radarrMovies(
+  Ref ref,
+  String instanceId,
+) async {
+  final repository = await ref.watch(
+    radarrRepositoryProvider(instanceId).future,
+  );
   return repository.listMovies();
 }
 
@@ -49,7 +54,9 @@ Future<Result<RadarrMovie>> radarrMovie(
     }
   }
 
-  final repository = await ref.watch(radarrRepositoryProvider(instanceId).future);
+  final repository = await ref.watch(
+    radarrRepositoryProvider(instanceId).future,
+  );
   return repository.getMovie(movieId);
 }
 
@@ -65,23 +72,29 @@ Future<String?> radarrFullImageUrl(
   // If it's already a full URL (like a TMDB link in search results), return as is
   if (relativeUrl.startsWith('http')) return relativeUrl;
 
-  final resolutionResult = await ref.watch(resolvedEndpointProvider(instanceId).future);
+  final resolutionResult = await ref.watch(
+    resolvedEndpointProvider(instanceId).future,
+  );
   if (resolutionResult is! Ok<EndpointResolution>) return null;
   final resolution = resolutionResult.value;
 
-  final credential = await ref.watch(serviceCredentialProvider(instanceId).future);
+  final credential = await ref.watch(
+    serviceCredentialProvider(instanceId).future,
+  );
   if (credential is! ApiKeyCredential) return null;
 
   // Use Uri class for robust path manipulation.
   final baseUri = Uri.parse(resolution.baseUrl);
   // Strip the API portion to get the web root
-  final cleanPath = baseUri.path.replaceAll(RegExp(r'/api(/v3)?/?$'), '').replaceAll(RegExp(r'/$'), '');
-  
+  final cleanPath = baseUri.path
+      .replaceAll(RegExp(r'/api(/v3)?/?$'), '')
+      .replaceAll(RegExp(r'/$'), '');
+
   // Parse the relative URL to handle any existing query parameters (like ?lastWrite=...)
   // We use Uri.parse but be careful with already encoded characters.
   final relativeUri = Uri.parse(relativeUrl);
   final pathOnly = relativeUri.path;
-  
+
   // Combine all query parameters manually to avoid Uri.replace double-encoding issues
   final allParams = Map<String, dynamic>.from(baseUri.queryParameters)
     ..addAll(relativeUri.queryParameters)
@@ -92,14 +105,9 @@ Future<String?> radarrFullImageUrl(
     finalPath = finalPath.substring(cleanPath.length);
   }
 
-  final result = baseUri.replace(
-    path: '$cleanPath$finalPath',
-    queryParameters: allParams,
-  ).toString();
-
-  // ignore: avoid_print
-  print('Radarr Resolved Image URL: $result');
-  return result;
+  return baseUri
+      .replace(path: '$cleanPath$finalPath', queryParameters: allParams)
+      .toString();
 }
 
 @riverpod
@@ -107,7 +115,9 @@ Future<Result<List<RadarrQualityProfile>>> radarrQualityProfiles(
   Ref ref,
   String instanceId,
 ) async {
-  final repository = await ref.watch(radarrRepositoryProvider(instanceId).future);
+  final repository = await ref.watch(
+    radarrRepositoryProvider(instanceId).future,
+  );
   return repository.listQualityProfiles();
 }
 
@@ -116,13 +126,20 @@ Future<Result<List<RadarrRootFolder>>> radarrRootFolders(
   Ref ref,
   String instanceId,
 ) async {
-  final repository = await ref.watch(radarrRepositoryProvider(instanceId).future);
+  final repository = await ref.watch(
+    radarrRepositoryProvider(instanceId).future,
+  );
   return repository.listRootFolders();
 }
 
 @riverpod
-Future<Result<List<RadarrQueueItem>>> radarrQueue(Ref ref, String instanceId) async {
-  final repository = await ref.watch(radarrRepositoryProvider(instanceId).future);
+Future<Result<List<RadarrQueueItem>>> radarrQueue(
+  Ref ref,
+  String instanceId,
+) async {
+  final repository = await ref.watch(
+    radarrRepositoryProvider(instanceId).future,
+  );
   return repository.listQueue();
 }
 
@@ -134,6 +151,8 @@ Future<Result<List<RadarrMovie>>> radarrLookup(
   required String term,
 }) async {
   if (term.isEmpty) return const Ok([]);
-  final repository = await ref.watch(radarrRepositoryProvider(instanceId).future);
+  final repository = await ref.watch(
+    radarrRepositoryProvider(instanceId).future,
+  );
   return repository.searchLookup(term);
 }

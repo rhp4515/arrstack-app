@@ -23,6 +23,7 @@ abstract class SonarrSeries with _$SonarrSeries {
     required List<SonarrSeason> seasons,
     required int year,
     String? path,
+    String? rootFolderPath,
     int? qualityProfileId,
     required bool monitored,
     @Default(false) bool useSceneNumbering,
@@ -36,10 +37,22 @@ abstract class SonarrSeries with _$SonarrSeries {
     @Default([]) List<String> genres,
     @Default([]) List<String> tags,
     SonarrStatistics? statistics,
+    SonarrAddOptions? addOptions,
   }) = _SonarrSeries;
 
   factory SonarrSeries.fromJson(Map<String, dynamic> json) =>
       _$SonarrSeriesFromJson(json);
+}
+
+@freezed
+abstract class SonarrAddOptions with _$SonarrAddOptions {
+  const factory SonarrAddOptions({
+    @Default('all') String monitor,
+    @Default(false) bool searchForMissingEpisodes,
+  }) = _SonarrAddOptions;
+
+  factory SonarrAddOptions.fromJson(Map<String, dynamic> json) =>
+      _$SonarrAddOptionsFromJson(json);
 }
 
 extension SonarrSeriesX on SonarrSeries {

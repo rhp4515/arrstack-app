@@ -22,6 +22,7 @@ _SonarrSeries _$SonarrSeriesFromJson(
       .toList(),
   year: (json['year'] as num).toInt(),
   path: json['path'] as String?,
+  rootFolderPath: json['rootFolderPath'] as String?,
   qualityProfileId: (json['qualityProfileId'] as num?)?.toInt(),
   monitored: json['monitored'] as bool,
   useSceneNumbering: json['useSceneNumbering'] as bool? ?? false,
@@ -41,6 +42,9 @@ _SonarrSeries _$SonarrSeriesFromJson(
   statistics: json['statistics'] == null
       ? null
       : SonarrStatistics.fromJson(json['statistics'] as Map<String, dynamic>),
+  addOptions: json['addOptions'] == null
+      ? null
+      : SonarrAddOptions.fromJson(json['addOptions'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$SonarrSeriesToJson(_SonarrSeries instance) =>
@@ -54,6 +58,7 @@ Map<String, dynamic> _$SonarrSeriesToJson(_SonarrSeries instance) =>
       'seasons': instance.seasons,
       'year': instance.year,
       'path': instance.path,
+      'rootFolderPath': instance.rootFolderPath,
       'qualityProfileId': instance.qualityProfileId,
       'monitored': instance.monitored,
       'useSceneNumbering': instance.useSceneNumbering,
@@ -67,6 +72,20 @@ Map<String, dynamic> _$SonarrSeriesToJson(_SonarrSeries instance) =>
       'genres': instance.genres,
       'tags': instance.tags,
       'statistics': instance.statistics,
+      'addOptions': instance.addOptions,
+    };
+
+_SonarrAddOptions _$SonarrAddOptionsFromJson(Map<String, dynamic> json) =>
+    _SonarrAddOptions(
+      monitor: json['monitor'] as String? ?? 'all',
+      searchForMissingEpisodes:
+          json['searchForMissingEpisodes'] as bool? ?? false,
+    );
+
+Map<String, dynamic> _$SonarrAddOptionsToJson(_SonarrAddOptions instance) =>
+    <String, dynamic>{
+      'monitor': instance.monitor,
+      'searchForMissingEpisodes': instance.searchForMissingEpisodes,
     };
 
 _SonarrImage _$SonarrImageFromJson(Map<String, dynamic> json) => _SonarrImage(

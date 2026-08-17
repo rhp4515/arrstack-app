@@ -17,7 +17,7 @@ T _$identity<T>(T value) => value;
 mixin _$SonarrSeries {
 
 /// Unique ID in the Sonarr database (null for lookup results).
- int? get id; String get title; String get sortTitle; String get status; String get overview; List<SonarrImage> get images; List<SonarrSeason> get seasons; int get year; String? get path; int? get qualityProfileId; bool get monitored; bool get useSceneNumbering; String? get runtime; int get tvdbId; int? get tvMazeId; String get seriesType; String? get cleanTitle; String? get titleSlug; DateTime? get added; List<String> get genres; List<String> get tags; SonarrStatistics? get statistics;
+ int? get id; String get title; String get sortTitle; String get status; String get overview; List<SonarrImage> get images; List<SonarrSeason> get seasons; int get year; String? get path; String? get rootFolderPath; int? get qualityProfileId; bool get monitored; bool get useSceneNumbering; String? get runtime; int get tvdbId; int? get tvMazeId; String get seriesType; String? get cleanTitle; String? get titleSlug; DateTime? get added; List<String> get genres; List<String> get tags; SonarrStatistics? get statistics; SonarrAddOptions? get addOptions;
 /// Create a copy of SonarrSeries
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +30,16 @@ $SonarrSeriesCopyWith<SonarrSeries> get copyWith => _$SonarrSeriesCopyWithImpl<S
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SonarrSeries&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.sortTitle, sortTitle) || other.sortTitle == sortTitle)&&(identical(other.status, status) || other.status == status)&&(identical(other.overview, overview) || other.overview == overview)&&const DeepCollectionEquality().equals(other.images, images)&&const DeepCollectionEquality().equals(other.seasons, seasons)&&(identical(other.year, year) || other.year == year)&&(identical(other.path, path) || other.path == path)&&(identical(other.qualityProfileId, qualityProfileId) || other.qualityProfileId == qualityProfileId)&&(identical(other.monitored, monitored) || other.monitored == monitored)&&(identical(other.useSceneNumbering, useSceneNumbering) || other.useSceneNumbering == useSceneNumbering)&&(identical(other.runtime, runtime) || other.runtime == runtime)&&(identical(other.tvdbId, tvdbId) || other.tvdbId == tvdbId)&&(identical(other.tvMazeId, tvMazeId) || other.tvMazeId == tvMazeId)&&(identical(other.seriesType, seriesType) || other.seriesType == seriesType)&&(identical(other.cleanTitle, cleanTitle) || other.cleanTitle == cleanTitle)&&(identical(other.titleSlug, titleSlug) || other.titleSlug == titleSlug)&&(identical(other.added, added) || other.added == added)&&const DeepCollectionEquality().equals(other.genres, genres)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.statistics, statistics) || other.statistics == statistics));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SonarrSeries&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.sortTitle, sortTitle) || other.sortTitle == sortTitle)&&(identical(other.status, status) || other.status == status)&&(identical(other.overview, overview) || other.overview == overview)&&const DeepCollectionEquality().equals(other.images, images)&&const DeepCollectionEquality().equals(other.seasons, seasons)&&(identical(other.year, year) || other.year == year)&&(identical(other.path, path) || other.path == path)&&(identical(other.rootFolderPath, rootFolderPath) || other.rootFolderPath == rootFolderPath)&&(identical(other.qualityProfileId, qualityProfileId) || other.qualityProfileId == qualityProfileId)&&(identical(other.monitored, monitored) || other.monitored == monitored)&&(identical(other.useSceneNumbering, useSceneNumbering) || other.useSceneNumbering == useSceneNumbering)&&(identical(other.runtime, runtime) || other.runtime == runtime)&&(identical(other.tvdbId, tvdbId) || other.tvdbId == tvdbId)&&(identical(other.tvMazeId, tvMazeId) || other.tvMazeId == tvMazeId)&&(identical(other.seriesType, seriesType) || other.seriesType == seriesType)&&(identical(other.cleanTitle, cleanTitle) || other.cleanTitle == cleanTitle)&&(identical(other.titleSlug, titleSlug) || other.titleSlug == titleSlug)&&(identical(other.added, added) || other.added == added)&&const DeepCollectionEquality().equals(other.genres, genres)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.statistics, statistics) || other.statistics == statistics)&&(identical(other.addOptions, addOptions) || other.addOptions == addOptions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,title,sortTitle,status,overview,const DeepCollectionEquality().hash(images),const DeepCollectionEquality().hash(seasons),year,path,qualityProfileId,monitored,useSceneNumbering,runtime,tvdbId,tvMazeId,seriesType,cleanTitle,titleSlug,added,const DeepCollectionEquality().hash(genres),const DeepCollectionEquality().hash(tags),statistics]);
+int get hashCode => Object.hashAll([runtimeType,id,title,sortTitle,status,overview,const DeepCollectionEquality().hash(images),const DeepCollectionEquality().hash(seasons),year,path,rootFolderPath,qualityProfileId,monitored,useSceneNumbering,runtime,tvdbId,tvMazeId,seriesType,cleanTitle,titleSlug,added,const DeepCollectionEquality().hash(genres),const DeepCollectionEquality().hash(tags),statistics,addOptions]);
 
 @override
 String toString() {
-  return 'SonarrSeries(id: $id, title: $title, sortTitle: $sortTitle, status: $status, overview: $overview, images: $images, seasons: $seasons, year: $year, path: $path, qualityProfileId: $qualityProfileId, monitored: $monitored, useSceneNumbering: $useSceneNumbering, runtime: $runtime, tvdbId: $tvdbId, tvMazeId: $tvMazeId, seriesType: $seriesType, cleanTitle: $cleanTitle, titleSlug: $titleSlug, added: $added, genres: $genres, tags: $tags, statistics: $statistics)';
+  return 'SonarrSeries(id: $id, title: $title, sortTitle: $sortTitle, status: $status, overview: $overview, images: $images, seasons: $seasons, year: $year, path: $path, rootFolderPath: $rootFolderPath, qualityProfileId: $qualityProfileId, monitored: $monitored, useSceneNumbering: $useSceneNumbering, runtime: $runtime, tvdbId: $tvdbId, tvMazeId: $tvMazeId, seriesType: $seriesType, cleanTitle: $cleanTitle, titleSlug: $titleSlug, added: $added, genres: $genres, tags: $tags, statistics: $statistics, addOptions: $addOptions)';
 }
 
 
@@ -50,11 +50,11 @@ abstract mixin class $SonarrSeriesCopyWith<$Res>  {
   factory $SonarrSeriesCopyWith(SonarrSeries value, $Res Function(SonarrSeries) _then) = _$SonarrSeriesCopyWithImpl;
 @useResult
 $Res call({
- int? id, String title, String sortTitle, String status, String overview, List<SonarrImage> images, List<SonarrSeason> seasons, int year, String? path, int? qualityProfileId, bool monitored, bool useSceneNumbering, String? runtime, int tvdbId, int? tvMazeId, String seriesType, String? cleanTitle, String? titleSlug, DateTime? added, List<String> genres, List<String> tags, SonarrStatistics? statistics
+ int? id, String title, String sortTitle, String status, String overview, List<SonarrImage> images, List<SonarrSeason> seasons, int year, String? path, String? rootFolderPath, int? qualityProfileId, bool monitored, bool useSceneNumbering, String? runtime, int tvdbId, int? tvMazeId, String seriesType, String? cleanTitle, String? titleSlug, DateTime? added, List<String> genres, List<String> tags, SonarrStatistics? statistics, SonarrAddOptions? addOptions
 });
 
 
-$SonarrStatisticsCopyWith<$Res>? get statistics;
+$SonarrStatisticsCopyWith<$Res>? get statistics;$SonarrAddOptionsCopyWith<$Res>? get addOptions;
 
 }
 /// @nodoc
@@ -67,7 +67,7 @@ class _$SonarrSeriesCopyWithImpl<$Res>
 
 /// Create a copy of SonarrSeries
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? sortTitle = null,Object? status = null,Object? overview = null,Object? images = null,Object? seasons = null,Object? year = null,Object? path = freezed,Object? qualityProfileId = freezed,Object? monitored = null,Object? useSceneNumbering = null,Object? runtime = freezed,Object? tvdbId = null,Object? tvMazeId = freezed,Object? seriesType = null,Object? cleanTitle = freezed,Object? titleSlug = freezed,Object? added = freezed,Object? genres = null,Object? tags = null,Object? statistics = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? sortTitle = null,Object? status = null,Object? overview = null,Object? images = null,Object? seasons = null,Object? year = null,Object? path = freezed,Object? rootFolderPath = freezed,Object? qualityProfileId = freezed,Object? monitored = null,Object? useSceneNumbering = null,Object? runtime = freezed,Object? tvdbId = null,Object? tvMazeId = freezed,Object? seriesType = null,Object? cleanTitle = freezed,Object? titleSlug = freezed,Object? added = freezed,Object? genres = null,Object? tags = null,Object? statistics = freezed,Object? addOptions = freezed,}) {
   return _then(SonarrSeries(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -78,6 +78,7 @@ as String,images: null == images ? _self.images : images // ignore: cast_nullabl
 as List<SonarrImage>,seasons: null == seasons ? _self.seasons : seasons // ignore: cast_nullable_to_non_nullable
 as List<SonarrSeason>,year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
 as int,path: freezed == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
+as String?,rootFolderPath: freezed == rootFolderPath ? _self.rootFolderPath : rootFolderPath // ignore: cast_nullable_to_non_nullable
 as String?,qualityProfileId: freezed == qualityProfileId ? _self.qualityProfileId : qualityProfileId // ignore: cast_nullable_to_non_nullable
 as int?,monitored: null == monitored ? _self.monitored : monitored // ignore: cast_nullable_to_non_nullable
 as bool,useSceneNumbering: null == useSceneNumbering ? _self.useSceneNumbering : useSceneNumbering // ignore: cast_nullable_to_non_nullable
@@ -91,7 +92,8 @@ as String?,added: freezed == added ? _self.added : added // ignore: cast_nullabl
 as DateTime?,genres: null == genres ? _self.genres : genres // ignore: cast_nullable_to_non_nullable
 as List<String>,tags: null == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
 as List<String>,statistics: freezed == statistics ? _self.statistics : statistics // ignore: cast_nullable_to_non_nullable
-as SonarrStatistics?,
+as SonarrStatistics?,addOptions: freezed == addOptions ? _self.addOptions : addOptions // ignore: cast_nullable_to_non_nullable
+as SonarrAddOptions?,
   ));
 }
 /// Create a copy of SonarrSeries
@@ -105,6 +107,18 @@ $SonarrStatisticsCopyWith<$Res>? get statistics {
 
   return $SonarrStatisticsCopyWith<$Res>(_self.statistics!, (value) {
     return _then(_self.copyWith(statistics: value));
+  });
+}/// Create a copy of SonarrSeries
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SonarrAddOptionsCopyWith<$Res>? get addOptions {
+    if (_self.addOptions == null) {
+    return null;
+  }
+
+  return $SonarrAddOptionsCopyWith<$Res>(_self.addOptions!, (value) {
+    return _then(_self.copyWith(addOptions: value));
   });
 }
 }
@@ -188,10 +202,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String title,  String sortTitle,  String status,  String overview,  List<SonarrImage> images,  List<SonarrSeason> seasons,  int year,  String? path,  int? qualityProfileId,  bool monitored,  bool useSceneNumbering,  String? runtime,  int tvdbId,  int? tvMazeId,  String seriesType,  String? cleanTitle,  String? titleSlug,  DateTime? added,  List<String> genres,  List<String> tags,  SonarrStatistics? statistics)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String title,  String sortTitle,  String status,  String overview,  List<SonarrImage> images,  List<SonarrSeason> seasons,  int year,  String? path,  String? rootFolderPath,  int? qualityProfileId,  bool monitored,  bool useSceneNumbering,  String? runtime,  int tvdbId,  int? tvMazeId,  String seriesType,  String? cleanTitle,  String? titleSlug,  DateTime? added,  List<String> genres,  List<String> tags,  SonarrStatistics? statistics,  SonarrAddOptions? addOptions)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SonarrSeries() when $default != null:
-return $default(_that.id,_that.title,_that.sortTitle,_that.status,_that.overview,_that.images,_that.seasons,_that.year,_that.path,_that.qualityProfileId,_that.monitored,_that.useSceneNumbering,_that.runtime,_that.tvdbId,_that.tvMazeId,_that.seriesType,_that.cleanTitle,_that.titleSlug,_that.added,_that.genres,_that.tags,_that.statistics);case _:
+return $default(_that.id,_that.title,_that.sortTitle,_that.status,_that.overview,_that.images,_that.seasons,_that.year,_that.path,_that.rootFolderPath,_that.qualityProfileId,_that.monitored,_that.useSceneNumbering,_that.runtime,_that.tvdbId,_that.tvMazeId,_that.seriesType,_that.cleanTitle,_that.titleSlug,_that.added,_that.genres,_that.tags,_that.statistics,_that.addOptions);case _:
   return orElse();
 
 }
@@ -209,10 +223,10 @@ return $default(_that.id,_that.title,_that.sortTitle,_that.status,_that.overview
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String title,  String sortTitle,  String status,  String overview,  List<SonarrImage> images,  List<SonarrSeason> seasons,  int year,  String? path,  int? qualityProfileId,  bool monitored,  bool useSceneNumbering,  String? runtime,  int tvdbId,  int? tvMazeId,  String seriesType,  String? cleanTitle,  String? titleSlug,  DateTime? added,  List<String> genres,  List<String> tags,  SonarrStatistics? statistics)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String title,  String sortTitle,  String status,  String overview,  List<SonarrImage> images,  List<SonarrSeason> seasons,  int year,  String? path,  String? rootFolderPath,  int? qualityProfileId,  bool monitored,  bool useSceneNumbering,  String? runtime,  int tvdbId,  int? tvMazeId,  String seriesType,  String? cleanTitle,  String? titleSlug,  DateTime? added,  List<String> genres,  List<String> tags,  SonarrStatistics? statistics,  SonarrAddOptions? addOptions)  $default,) {final _that = this;
 switch (_that) {
 case _SonarrSeries():
-return $default(_that.id,_that.title,_that.sortTitle,_that.status,_that.overview,_that.images,_that.seasons,_that.year,_that.path,_that.qualityProfileId,_that.monitored,_that.useSceneNumbering,_that.runtime,_that.tvdbId,_that.tvMazeId,_that.seriesType,_that.cleanTitle,_that.titleSlug,_that.added,_that.genres,_that.tags,_that.statistics);case _:
+return $default(_that.id,_that.title,_that.sortTitle,_that.status,_that.overview,_that.images,_that.seasons,_that.year,_that.path,_that.rootFolderPath,_that.qualityProfileId,_that.monitored,_that.useSceneNumbering,_that.runtime,_that.tvdbId,_that.tvMazeId,_that.seriesType,_that.cleanTitle,_that.titleSlug,_that.added,_that.genres,_that.tags,_that.statistics,_that.addOptions);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -229,10 +243,10 @@ return $default(_that.id,_that.title,_that.sortTitle,_that.status,_that.overview
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String title,  String sortTitle,  String status,  String overview,  List<SonarrImage> images,  List<SonarrSeason> seasons,  int year,  String? path,  int? qualityProfileId,  bool monitored,  bool useSceneNumbering,  String? runtime,  int tvdbId,  int? tvMazeId,  String seriesType,  String? cleanTitle,  String? titleSlug,  DateTime? added,  List<String> genres,  List<String> tags,  SonarrStatistics? statistics)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String title,  String sortTitle,  String status,  String overview,  List<SonarrImage> images,  List<SonarrSeason> seasons,  int year,  String? path,  String? rootFolderPath,  int? qualityProfileId,  bool monitored,  bool useSceneNumbering,  String? runtime,  int tvdbId,  int? tvMazeId,  String seriesType,  String? cleanTitle,  String? titleSlug,  DateTime? added,  List<String> genres,  List<String> tags,  SonarrStatistics? statistics,  SonarrAddOptions? addOptions)?  $default,) {final _that = this;
 switch (_that) {
 case _SonarrSeries() when $default != null:
-return $default(_that.id,_that.title,_that.sortTitle,_that.status,_that.overview,_that.images,_that.seasons,_that.year,_that.path,_that.qualityProfileId,_that.monitored,_that.useSceneNumbering,_that.runtime,_that.tvdbId,_that.tvMazeId,_that.seriesType,_that.cleanTitle,_that.titleSlug,_that.added,_that.genres,_that.tags,_that.statistics);case _:
+return $default(_that.id,_that.title,_that.sortTitle,_that.status,_that.overview,_that.images,_that.seasons,_that.year,_that.path,_that.rootFolderPath,_that.qualityProfileId,_that.monitored,_that.useSceneNumbering,_that.runtime,_that.tvdbId,_that.tvMazeId,_that.seriesType,_that.cleanTitle,_that.titleSlug,_that.added,_that.genres,_that.tags,_that.statistics,_that.addOptions);case _:
   return null;
 
 }
@@ -244,7 +258,7 @@ return $default(_that.id,_that.title,_that.sortTitle,_that.status,_that.overview
 @JsonSerializable()
 
 class _SonarrSeries implements SonarrSeries {
-  const _SonarrSeries({this.id, required this.title, required this.sortTitle, required this.status, required this.overview, required  List<SonarrImage> images, required  List<SonarrSeason> seasons, required this.year, this.path, this.qualityProfileId, required this.monitored, this.useSceneNumbering = false, this.runtime, required this.tvdbId, this.tvMazeId, required this.seriesType, this.cleanTitle, this.titleSlug, this.added,  List<String> genres = const [],  List<String> tags = const [], this.statistics}): _images = images,_seasons = seasons,_genres = genres,_tags = tags;
+  const _SonarrSeries({this.id, required this.title, required this.sortTitle, required this.status, required this.overview, required  List<SonarrImage> images, required  List<SonarrSeason> seasons, required this.year, this.path, this.rootFolderPath, this.qualityProfileId, required this.monitored, this.useSceneNumbering = false, this.runtime, required this.tvdbId, this.tvMazeId, required this.seriesType, this.cleanTitle, this.titleSlug, this.added,  List<String> genres = const [],  List<String> tags = const [], this.statistics, this.addOptions}): _images = images,_seasons = seasons,_genres = genres,_tags = tags;
   factory _SonarrSeries.fromJson(Map<String, dynamic> json) => _$SonarrSeriesFromJson(json);
 
 /// Unique ID in the Sonarr database (null for lookup results).
@@ -269,6 +283,7 @@ class _SonarrSeries implements SonarrSeries {
 
 @override final  int year;
 @override final  String? path;
+@override final  String? rootFolderPath;
 @override final  int? qualityProfileId;
 @override final  bool monitored;
 @override@JsonKey() final  bool useSceneNumbering;
@@ -294,6 +309,7 @@ class _SonarrSeries implements SonarrSeries {
 }
 
 @override final  SonarrStatistics? statistics;
+@override final  SonarrAddOptions? addOptions;
 
 /// Create a copy of SonarrSeries
 /// with the given fields replaced by the non-null parameter values.
@@ -308,16 +324,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SonarrSeries&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.sortTitle, sortTitle) || other.sortTitle == sortTitle)&&(identical(other.status, status) || other.status == status)&&(identical(other.overview, overview) || other.overview == overview)&&const DeepCollectionEquality().equals(other._images, _images)&&const DeepCollectionEquality().equals(other._seasons, _seasons)&&(identical(other.year, year) || other.year == year)&&(identical(other.path, path) || other.path == path)&&(identical(other.qualityProfileId, qualityProfileId) || other.qualityProfileId == qualityProfileId)&&(identical(other.monitored, monitored) || other.monitored == monitored)&&(identical(other.useSceneNumbering, useSceneNumbering) || other.useSceneNumbering == useSceneNumbering)&&(identical(other.runtime, runtime) || other.runtime == runtime)&&(identical(other.tvdbId, tvdbId) || other.tvdbId == tvdbId)&&(identical(other.tvMazeId, tvMazeId) || other.tvMazeId == tvMazeId)&&(identical(other.seriesType, seriesType) || other.seriesType == seriesType)&&(identical(other.cleanTitle, cleanTitle) || other.cleanTitle == cleanTitle)&&(identical(other.titleSlug, titleSlug) || other.titleSlug == titleSlug)&&(identical(other.added, added) || other.added == added)&&const DeepCollectionEquality().equals(other._genres, _genres)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.statistics, statistics) || other.statistics == statistics));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SonarrSeries&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.sortTitle, sortTitle) || other.sortTitle == sortTitle)&&(identical(other.status, status) || other.status == status)&&(identical(other.overview, overview) || other.overview == overview)&&const DeepCollectionEquality().equals(other._images, _images)&&const DeepCollectionEquality().equals(other._seasons, _seasons)&&(identical(other.year, year) || other.year == year)&&(identical(other.path, path) || other.path == path)&&(identical(other.rootFolderPath, rootFolderPath) || other.rootFolderPath == rootFolderPath)&&(identical(other.qualityProfileId, qualityProfileId) || other.qualityProfileId == qualityProfileId)&&(identical(other.monitored, monitored) || other.monitored == monitored)&&(identical(other.useSceneNumbering, useSceneNumbering) || other.useSceneNumbering == useSceneNumbering)&&(identical(other.runtime, runtime) || other.runtime == runtime)&&(identical(other.tvdbId, tvdbId) || other.tvdbId == tvdbId)&&(identical(other.tvMazeId, tvMazeId) || other.tvMazeId == tvMazeId)&&(identical(other.seriesType, seriesType) || other.seriesType == seriesType)&&(identical(other.cleanTitle, cleanTitle) || other.cleanTitle == cleanTitle)&&(identical(other.titleSlug, titleSlug) || other.titleSlug == titleSlug)&&(identical(other.added, added) || other.added == added)&&const DeepCollectionEquality().equals(other._genres, _genres)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.statistics, statistics) || other.statistics == statistics)&&(identical(other.addOptions, addOptions) || other.addOptions == addOptions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,title,sortTitle,status,overview,const DeepCollectionEquality().hash(_images),const DeepCollectionEquality().hash(_seasons),year,path,qualityProfileId,monitored,useSceneNumbering,runtime,tvdbId,tvMazeId,seriesType,cleanTitle,titleSlug,added,const DeepCollectionEquality().hash(_genres),const DeepCollectionEquality().hash(_tags),statistics]);
+int get hashCode => Object.hashAll([runtimeType,id,title,sortTitle,status,overview,const DeepCollectionEquality().hash(_images),const DeepCollectionEquality().hash(_seasons),year,path,rootFolderPath,qualityProfileId,monitored,useSceneNumbering,runtime,tvdbId,tvMazeId,seriesType,cleanTitle,titleSlug,added,const DeepCollectionEquality().hash(_genres),const DeepCollectionEquality().hash(_tags),statistics,addOptions]);
 
 @override
 String toString() {
-  return 'SonarrSeries(id: $id, title: $title, sortTitle: $sortTitle, status: $status, overview: $overview, images: $images, seasons: $seasons, year: $year, path: $path, qualityProfileId: $qualityProfileId, monitored: $monitored, useSceneNumbering: $useSceneNumbering, runtime: $runtime, tvdbId: $tvdbId, tvMazeId: $tvMazeId, seriesType: $seriesType, cleanTitle: $cleanTitle, titleSlug: $titleSlug, added: $added, genres: $genres, tags: $tags, statistics: $statistics)';
+  return 'SonarrSeries(id: $id, title: $title, sortTitle: $sortTitle, status: $status, overview: $overview, images: $images, seasons: $seasons, year: $year, path: $path, rootFolderPath: $rootFolderPath, qualityProfileId: $qualityProfileId, monitored: $monitored, useSceneNumbering: $useSceneNumbering, runtime: $runtime, tvdbId: $tvdbId, tvMazeId: $tvMazeId, seriesType: $seriesType, cleanTitle: $cleanTitle, titleSlug: $titleSlug, added: $added, genres: $genres, tags: $tags, statistics: $statistics, addOptions: $addOptions)';
 }
 
 
@@ -328,11 +344,11 @@ abstract mixin class _$SonarrSeriesCopyWith<$Res> implements $SonarrSeriesCopyWi
   factory _$SonarrSeriesCopyWith(_SonarrSeries value, $Res Function(_SonarrSeries) _then) = __$SonarrSeriesCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String title, String sortTitle, String status, String overview, List<SonarrImage> images, List<SonarrSeason> seasons, int year, String? path, int? qualityProfileId, bool monitored, bool useSceneNumbering, String? runtime, int tvdbId, int? tvMazeId, String seriesType, String? cleanTitle, String? titleSlug, DateTime? added, List<String> genres, List<String> tags, SonarrStatistics? statistics
+ int? id, String title, String sortTitle, String status, String overview, List<SonarrImage> images, List<SonarrSeason> seasons, int year, String? path, String? rootFolderPath, int? qualityProfileId, bool monitored, bool useSceneNumbering, String? runtime, int tvdbId, int? tvMazeId, String seriesType, String? cleanTitle, String? titleSlug, DateTime? added, List<String> genres, List<String> tags, SonarrStatistics? statistics, SonarrAddOptions? addOptions
 });
 
 
-@override $SonarrStatisticsCopyWith<$Res>? get statistics;
+@override $SonarrStatisticsCopyWith<$Res>? get statistics;@override $SonarrAddOptionsCopyWith<$Res>? get addOptions;
 
 }
 /// @nodoc
@@ -345,7 +361,7 @@ class __$SonarrSeriesCopyWithImpl<$Res>
 
 /// Create a copy of SonarrSeries
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? sortTitle = null,Object? status = null,Object? overview = null,Object? images = null,Object? seasons = null,Object? year = null,Object? path = freezed,Object? qualityProfileId = freezed,Object? monitored = null,Object? useSceneNumbering = null,Object? runtime = freezed,Object? tvdbId = null,Object? tvMazeId = freezed,Object? seriesType = null,Object? cleanTitle = freezed,Object? titleSlug = freezed,Object? added = freezed,Object? genres = null,Object? tags = null,Object? statistics = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? sortTitle = null,Object? status = null,Object? overview = null,Object? images = null,Object? seasons = null,Object? year = null,Object? path = freezed,Object? rootFolderPath = freezed,Object? qualityProfileId = freezed,Object? monitored = null,Object? useSceneNumbering = null,Object? runtime = freezed,Object? tvdbId = null,Object? tvMazeId = freezed,Object? seriesType = null,Object? cleanTitle = freezed,Object? titleSlug = freezed,Object? added = freezed,Object? genres = null,Object? tags = null,Object? statistics = freezed,Object? addOptions = freezed,}) {
   return _then(_SonarrSeries(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -356,6 +372,7 @@ as String,images: null == images ? _self._images : images // ignore: cast_nullab
 as List<SonarrImage>,seasons: null == seasons ? _self._seasons : seasons // ignore: cast_nullable_to_non_nullable
 as List<SonarrSeason>,year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
 as int,path: freezed == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
+as String?,rootFolderPath: freezed == rootFolderPath ? _self.rootFolderPath : rootFolderPath // ignore: cast_nullable_to_non_nullable
 as String?,qualityProfileId: freezed == qualityProfileId ? _self.qualityProfileId : qualityProfileId // ignore: cast_nullable_to_non_nullable
 as int?,monitored: null == monitored ? _self.monitored : monitored // ignore: cast_nullable_to_non_nullable
 as bool,useSceneNumbering: null == useSceneNumbering ? _self.useSceneNumbering : useSceneNumbering // ignore: cast_nullable_to_non_nullable
@@ -369,7 +386,8 @@ as String?,added: freezed == added ? _self.added : added // ignore: cast_nullabl
 as DateTime?,genres: null == genres ? _self._genres : genres // ignore: cast_nullable_to_non_nullable
 as List<String>,tags: null == tags ? _self._tags : tags // ignore: cast_nullable_to_non_nullable
 as List<String>,statistics: freezed == statistics ? _self.statistics : statistics // ignore: cast_nullable_to_non_nullable
-as SonarrStatistics?,
+as SonarrStatistics?,addOptions: freezed == addOptions ? _self.addOptions : addOptions // ignore: cast_nullable_to_non_nullable
+as SonarrAddOptions?,
   ));
 }
 
@@ -385,7 +403,285 @@ $SonarrStatisticsCopyWith<$Res>? get statistics {
   return $SonarrStatisticsCopyWith<$Res>(_self.statistics!, (value) {
     return _then(_self.copyWith(statistics: value));
   });
+}/// Create a copy of SonarrSeries
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SonarrAddOptionsCopyWith<$Res>? get addOptions {
+    if (_self.addOptions == null) {
+    return null;
+  }
+
+  return $SonarrAddOptionsCopyWith<$Res>(_self.addOptions!, (value) {
+    return _then(_self.copyWith(addOptions: value));
+  });
 }
+}
+
+
+/// @nodoc
+mixin _$SonarrAddOptions {
+
+ String get monitor; bool get searchForMissingEpisodes;
+/// Create a copy of SonarrAddOptions
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SonarrAddOptionsCopyWith<SonarrAddOptions> get copyWith => _$SonarrAddOptionsCopyWithImpl<SonarrAddOptions>(this as SonarrAddOptions, _$identity);
+
+  /// Serializes this SonarrAddOptions to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SonarrAddOptions&&(identical(other.monitor, monitor) || other.monitor == monitor)&&(identical(other.searchForMissingEpisodes, searchForMissingEpisodes) || other.searchForMissingEpisodes == searchForMissingEpisodes));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,monitor,searchForMissingEpisodes);
+
+@override
+String toString() {
+  return 'SonarrAddOptions(monitor: $monitor, searchForMissingEpisodes: $searchForMissingEpisodes)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SonarrAddOptionsCopyWith<$Res>  {
+  factory $SonarrAddOptionsCopyWith(SonarrAddOptions value, $Res Function(SonarrAddOptions) _then) = _$SonarrAddOptionsCopyWithImpl;
+@useResult
+$Res call({
+ String monitor, bool searchForMissingEpisodes
+});
+
+
+
+
+}
+/// @nodoc
+class _$SonarrAddOptionsCopyWithImpl<$Res>
+    implements $SonarrAddOptionsCopyWith<$Res> {
+  _$SonarrAddOptionsCopyWithImpl(this._self, this._then);
+
+  final SonarrAddOptions _self;
+  final $Res Function(SonarrAddOptions) _then;
+
+/// Create a copy of SonarrAddOptions
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? monitor = null,Object? searchForMissingEpisodes = null,}) {
+  return _then(SonarrAddOptions(
+monitor: null == monitor ? _self.monitor : monitor // ignore: cast_nullable_to_non_nullable
+as String,searchForMissingEpisodes: null == searchForMissingEpisodes ? _self.searchForMissingEpisodes : searchForMissingEpisodes // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [SonarrAddOptions].
+extension SonarrAddOptionsPatterns on SonarrAddOptions {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _SonarrAddOptions value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _SonarrAddOptions() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _SonarrAddOptions value)  $default,){
+final _that = this;
+switch (_that) {
+case _SonarrAddOptions():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _SonarrAddOptions value)?  $default,){
+final _that = this;
+switch (_that) {
+case _SonarrAddOptions() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String monitor,  bool searchForMissingEpisodes)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _SonarrAddOptions() when $default != null:
+return $default(_that.monitor,_that.searchForMissingEpisodes);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String monitor,  bool searchForMissingEpisodes)  $default,) {final _that = this;
+switch (_that) {
+case _SonarrAddOptions():
+return $default(_that.monitor,_that.searchForMissingEpisodes);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String monitor,  bool searchForMissingEpisodes)?  $default,) {final _that = this;
+switch (_that) {
+case _SonarrAddOptions() when $default != null:
+return $default(_that.monitor,_that.searchForMissingEpisodes);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _SonarrAddOptions implements SonarrAddOptions {
+  const _SonarrAddOptions({this.monitor = 'all', this.searchForMissingEpisodes = false});
+  factory _SonarrAddOptions.fromJson(Map<String, dynamic> json) => _$SonarrAddOptionsFromJson(json);
+
+@override@JsonKey() final  String monitor;
+@override@JsonKey() final  bool searchForMissingEpisodes;
+
+/// Create a copy of SonarrAddOptions
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SonarrAddOptionsCopyWith<_SonarrAddOptions> get copyWith => __$SonarrAddOptionsCopyWithImpl<_SonarrAddOptions>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$SonarrAddOptionsToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SonarrAddOptions&&(identical(other.monitor, monitor) || other.monitor == monitor)&&(identical(other.searchForMissingEpisodes, searchForMissingEpisodes) || other.searchForMissingEpisodes == searchForMissingEpisodes));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,monitor,searchForMissingEpisodes);
+
+@override
+String toString() {
+  return 'SonarrAddOptions(monitor: $monitor, searchForMissingEpisodes: $searchForMissingEpisodes)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SonarrAddOptionsCopyWith<$Res> implements $SonarrAddOptionsCopyWith<$Res> {
+  factory _$SonarrAddOptionsCopyWith(_SonarrAddOptions value, $Res Function(_SonarrAddOptions) _then) = __$SonarrAddOptionsCopyWithImpl;
+@override @useResult
+$Res call({
+ String monitor, bool searchForMissingEpisodes
+});
+
+
+
+
+}
+/// @nodoc
+class __$SonarrAddOptionsCopyWithImpl<$Res>
+    implements _$SonarrAddOptionsCopyWith<$Res> {
+  __$SonarrAddOptionsCopyWithImpl(this._self, this._then);
+
+  final _SonarrAddOptions _self;
+  final $Res Function(_SonarrAddOptions) _then;
+
+/// Create a copy of SonarrAddOptions
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? monitor = null,Object? searchForMissingEpisodes = null,}) {
+  return _then(_SonarrAddOptions(
+monitor: null == monitor ? _self.monitor : monitor // ignore: cast_nullable_to_non_nullable
+as String,searchForMissingEpisodes: null == searchForMissingEpisodes ? _self.searchForMissingEpisodes : searchForMissingEpisodes // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
 }
 
 

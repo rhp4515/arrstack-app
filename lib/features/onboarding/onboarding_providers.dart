@@ -7,6 +7,8 @@ import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/services/contracts/contracts.dart';
 import 'package:arrstack/services/radarr/radarr_client.dart';
+import 'package:arrstack/services/sonarr/sonarr_client.dart';
+import 'package:arrstack/services/uptimekuma/kuma_client.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -18,6 +20,7 @@ class InstanceFormState {
     this.id,
     this.name = '',
     this.type = ServiceType.radarr,
+    this.authType = AuthType.apiKey,
     this.localUrl = '',
     this.remoteUrl = '',
     this.apiKey = '',
@@ -35,6 +38,7 @@ class InstanceFormState {
   final String? id;
   final String name;
   final ServiceType type;
+  final AuthType authType;
   final String localUrl;
   final String remoteUrl;
   final String apiKey;
@@ -54,6 +58,7 @@ class InstanceFormState {
     String? id,
     String? name,
     ServiceType? type,
+    AuthType? authType,
     String? localUrl,
     String? remoteUrl,
     String? apiKey,
@@ -71,6 +76,7 @@ class InstanceFormState {
       id: id ?? this.id,
       name: name ?? this.name,
       type: type ?? this.type,
+      authType: authType ?? this.authType,
       localUrl: localUrl ?? this.localUrl,
       remoteUrl: remoteUrl ?? this.remoteUrl,
       apiKey: apiKey ?? this.apiKey,
@@ -91,7 +97,7 @@ class InstanceFormState {
   bool get isValid =>
       name.isNotEmpty &&
       (localUrl.isNotEmpty || remoteUrl.isNotEmpty) &&
-      (type.defaultAuthType == AuthType.apiKey
+      (authType == AuthType.apiKey
           ? apiKey.isNotEmpty
           : (username.isNotEmpty && password.isNotEmpty));
 }
@@ -114,6 +120,7 @@ class InstanceForm extends _$InstanceForm {
       id: instance.id,
       name: instance.name,
       type: instance.serviceType,
+      authType: instance.authType,
       localUrl: instance.localBaseUrl ?? '',
       remoteUrl: instance.remoteBaseUrl ?? '',
       isDefault: instance.isDefault,
@@ -124,7 +131,11 @@ class InstanceForm extends _$InstanceForm {
   }
 
   void updateName(String name) => state = state.copyWith(name: name);
-  void updateType(ServiceType type) => state = state.copyWith(type: type);
+  void updateType(ServiceType type) => state = state.copyWith(
+        type: type,
+        authType: type.defaultAuthType,
+      );
+  void updateAuthType(AuthType authType) => state = state.copyWith(authType: authType);
   void updateLocalUrl(String url) => state = state.copyWith(localUrl: url, localTestResult: null);
   void updateRemoteUrl(String url) => state = state.copyWith(remoteUrl: url, remoteTestResult: null);
   void updateApiKey(String key) => state = state.copyWith(apiKey: key);
@@ -147,14 +158,10 @@ class InstanceForm extends _$InstanceForm {
   }
 
   Future<Result<ServiceIdentity>> _test(String baseUrl) async {
-    final credential = state.type.defaultAuthType == AuthType.apiKey
+    final credential = state.authType == AuthType.apiKey
         ? ServiceCredential.apiKey(state.apiKey)
         : ServiceCredential.usernamePassword(username: state.username, password: state.password);
 
-    // In Phase 3, we don't have real clients yet. Use a stub or look up
-    // via a factory if we implement one.
-    // For now, let's assume we'll implement a MockConnectionTestClient
-    // or eventually use the real one once Phase 4+ lands.
     final client = _getTestClient(baseUrl, credential);
     if (client == null) {
       return const Err(UnknownError(userMessage: 'Test connection not yet implemented for this service.'));
@@ -172,7 +179,19 @@ class InstanceForm extends _$InstanceForm {
       );
       return RadarrClient(dio);
     }
-    // Fallback to stub for other services not yet fully implemented
+    if (state.type == ServiceType.sonarr) {
+      final dio = const DioFactory().create(
+        baseUrl: baseUrl,
+        apiKeyInterceptor: credential is ApiKeyCredential
+            ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
+            : null,
+      );
+      return SonarrClient(dio);
+    }
+    if (state.type == ServiceType.uptimeKuma) {
+      final cleanBaseUrl = baseUrl.replaceAll(RegExp(r'/socket\.io/?$'), '');
+      return KumaTestClient(cleanBaseUrl, credential);
+    }
     return StubConnectionTestClient(baseUrl: baseUrl, credential: credential);
   }
 
@@ -187,14 +206,14 @@ class InstanceForm extends _$InstanceForm {
       id: instanceId,
       name: state.name,
       serviceType: state.type,
-      authType: state.type.defaultAuthType,
+      authType: state.authType,
       localBaseUrl: state.localUrl.isNotEmpty ? state.localUrl : null,
       remoteBaseUrl: state.remoteUrl.isNotEmpty ? state.remoteUrl : null,
       isDefault: state.isDefault,
       endpointMode: EndpointMode.auto,
     );
 
-    final credential = state.type.defaultAuthType == AuthType.apiKey
+    final credential = state.authType == AuthType.apiKey
         ? ServiceCredential.apiKey(state.apiKey)
         : ServiceCredential.usernamePassword(
             username: state.username,
@@ -215,6 +234,40 @@ class InstanceForm extends _$InstanceForm {
           return false;
         }(),
     };
+  }
+}
+
+/// A wrapper for Uptime Kuma to implement [ConnectionTestClient].
+class KumaTestClient implements ConnectionTestClient {
+  KumaTestClient(this.baseUrl, this.credential);
+  final String baseUrl;
+  final ServiceCredential credential;
+
+  @override
+  Future<Result<ServiceIdentity>> testConnection() async {
+    final client = KumaClient(baseUrl: baseUrl);
+    try {
+      client.connect();
+      final isConnected = await client.connectionStream.firstWhere((c) => c).timeout(
+        const Duration(seconds: 5),
+        onTimeout: () => false,
+      );
+      if (!isConnected) return const Err(NetworkError(userMessage: 'Could not connect to socket.'));
+
+      final cred = credential;
+      final Result<void> loginResult;
+      if (cred is ApiKeyCredential) {
+        loginResult = await client.loginWithApiKey(cred.apiKey);
+      } else if (cred is UsernamePasswordCredential) {
+        loginResult = await client.login(cred.username, cred.password);
+      } else {
+        return const Err(AuthError(userMessage: 'Invalid credentials.'));
+      }
+      
+      return loginResult.map((_) => const ServiceIdentity(instanceName: 'Uptime Kuma'));
+    } finally {
+      client.dispose();
+    }
   }
 }
 

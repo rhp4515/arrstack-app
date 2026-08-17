@@ -87,6 +87,17 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
           }).toList(),
           onChanged: (type) => type != null ? notifier.updateType(type) : null,
         ),
+        if (state.type == ServiceType.uptimeKuma) ...[
+          const SizedBox(height: AppSpacing.md),
+          SegmentedButton<AuthType>(
+            segments: const [
+              ButtonSegment(value: AuthType.apiKey, label: Text('API Key')),
+              ButtonSegment(value: AuthType.usernamePassword, label: Text('User/Pass')),
+            ],
+            selected: {state.authType},
+            onSelectionChanged: (types) => notifier.updateAuthType(types.first),
+          ),
+        ],
         const SizedBox(height: AppSpacing.lg),
         _UrlField(
           controller: _localUrlController,
@@ -108,7 +119,7 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
           onTest: notifier.testRemote,
         ),
         const SizedBox(height: AppSpacing.lg),
-        if (state.type.defaultAuthType == AuthType.apiKey)
+        if (state.authType == AuthType.apiKey)
           TextFormField(
             controller: _apiKeyController,
             decoration: const InputDecoration(

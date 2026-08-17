@@ -30,13 +30,15 @@ class QbitClient implements ConnectionTestClient {
   }
 
   Future<Result<void>> login(String username, String password) async {
+    final referer = _dio.options.baseUrl.replaceAll(RegExp(r'/$'), '');
     final result = await guardDioCall(() => _dio.post(
           'api/v2/auth/login',
           data: {'username': username, 'password': password},
           options: Options(
             contentType: Headers.formUrlEncodedContentType,
             headers: {
-              'Referer': _dio.options.baseUrl,
+              'Referer': referer,
+              'Origin': referer,
             },
           ),
         ));

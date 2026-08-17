@@ -42,7 +42,6 @@ class DioFactory {
         sendTimeout: sendTimeout,
         headers: {
           'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
         },
       ),
     );

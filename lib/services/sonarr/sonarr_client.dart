@@ -31,19 +31,28 @@ class SonarrClient implements ConnectionTestClient {
   Future<Result<List<SonarrSeries>>> getSeries() {
     return dioCall(
       () => _dio.get('api/v3/series'),
-      map: (data) => (data as List)
-          .cast<Map<String, dynamic>>()
-          .map((json) {
-            try {
-              return SonarrSeries.fromJson(json);
-            } catch (e) {
-              // ignore: avoid_print
-              print('SonarrSeries parse error: $e');
-              return null;
-            }
-          })
-          .whereType<SonarrSeries>()
-          .toList(),
+      map: (data) {
+        if (data is! List) {
+          // ignore: avoid_print
+          print('Sonarr getSeries: expected List but got ${data.runtimeType}');
+          return [];
+        }
+        // ignore: avoid_print
+        print('Sonarr getSeries: received ${data.length} items');
+        return data
+            .cast<Map<String, dynamic>>()
+            .map((json) {
+              try {
+                return SonarrSeries.fromJson(json);
+              } catch (e) {
+                // ignore: avoid_print
+                print('SonarrSeries parse error for "${json['title']}": $e');
+                return null;
+              }
+            })
+            .whereType<SonarrSeries>()
+            .toList();
+      },
     );
   }
 

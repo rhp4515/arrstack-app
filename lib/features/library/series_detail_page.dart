@@ -55,10 +55,12 @@ class _SeriesDetailContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final images = series.images;
+    final images = series.images ?? [];
     final fanartUrl = images.isNotEmpty 
         ? images.firstWhere((i) => i.coverType == 'fanart', orElse: () => images.first).url
         : null;
+
+    final seasons = series.seasons ?? [];
 
     return Scaffold(
       body: CustomScrollView(
@@ -120,10 +122,10 @@ class _SeriesDetailContent extends ConsumerWidget {
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-                final season = series.seasons.reversed.toList()[index];
+                final season = seasons.reversed.toList()[index];
                 return _SeasonTile(instanceId: instanceId, seriesId: series.id!, season: season);
               },
-              childCount: series.seasons.length,
+              childCount: seasons.length,
             ),
           ),
           SliverToBoxAdapter(
@@ -151,13 +153,14 @@ class _SeasonTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final seasonNumber = season.seasonNumber ?? 0;
     return ExpansionTile(
-      title: Text('Season ${season.seasonNumber == 0 ? 'Specials' : season.seasonNumber}'),
+      title: Text('Season ${seasonNumber == 0 ? 'Specials' : seasonNumber}'),
       subtitle: season.statistics != null
-          ? Text('${season.statistics!.episodeFileCount}/${season.statistics!.totalEpisodeCount} episodes')
+          ? Text('${season.statistics!.episodeFileCount ?? 0}/${season.statistics!.totalEpisodeCount ?? 0} episodes')
           : null,
       children: [
-        _EpisodeList(instanceId: instanceId, seriesId: seriesId, seasonNumber: season.seasonNumber),
+        _EpisodeList(instanceId: instanceId, seriesId: seriesId, seasonNumber: seasonNumber),
       ],
     );
   }

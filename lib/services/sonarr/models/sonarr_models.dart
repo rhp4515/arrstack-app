@@ -19,8 +19,8 @@ abstract class SonarrSeries with _$SonarrSeries {
     String? sortTitle,
     String? status,
     String? overview,
-    @Default([]) List<SonarrImage> images,
-    @Default([]) List<SonarrSeason> seasons,
+    List<SonarrImage>? images,
+    List<SonarrSeason>? seasons,
     int? year,
     String? path,
     String? rootFolderPath,
@@ -34,8 +34,8 @@ abstract class SonarrSeries with _$SonarrSeries {
     String? cleanTitle,
     String? titleSlug,
     DateTime? added,
-    @Default([]) List<String> genres,
-    @Default([]) List<String> tags,
+    List<String>? genres,
+    List<String>? tags,
     SonarrStatistics? statistics,
     SonarrAddOptions? addOptions,
   }) = _SonarrSeries;
@@ -57,15 +57,16 @@ abstract class SonarrAddOptions with _$SonarrAddOptions {
 
 extension SonarrSeriesX on SonarrSeries {
   String? get posterUrl {
-    if (images.isEmpty) return null;
-    final image = images.firstWhere(
+    final imgs = images;
+    if (imgs == null || imgs.isEmpty) return null;
+    final image = imgs.firstWhere(
       (i) => i.coverType == 'poster',
-      orElse: () => images.firstWhere(
+      orElse: () => imgs.firstWhere(
         (i) => i.coverType == 'fanart',
-        orElse: () => images.first,
+        orElse: () => imgs.first,
       ),
     );
-    return (image.url.isNotEmpty) ? image.url : image.remoteUrl;
+    return (image.url != null && image.url!.isNotEmpty) ? image.url : image.remoteUrl;
   }
 }
 
@@ -73,8 +74,8 @@ extension SonarrSeriesX on SonarrSeries {
 @freezed
 abstract class SonarrImage with _$SonarrImage {
   const factory SonarrImage({
-    required String coverType,
-    required String url,
+    String? coverType,
+    String? url,
     String? remoteUrl,
   }) = _SonarrImage;
 
@@ -86,8 +87,8 @@ abstract class SonarrImage with _$SonarrImage {
 @freezed
 abstract class SonarrSeason with _$SonarrSeason {
   const factory SonarrSeason({
-    required int seasonNumber,
-    required bool monitored,
+    int? seasonNumber,
+    @Default(true) bool monitored,
     SonarrStatistics? statistics,
   }) = _SonarrSeason;
 
@@ -99,12 +100,12 @@ abstract class SonarrSeason with _$SonarrSeason {
 @freezed
 abstract class SonarrStatistics with _$SonarrStatistics {
   const factory SonarrStatistics({
-    required int seasonCount,
-    required int episodeFileCount,
-    required int episodeCount,
-    required int totalEpisodeCount,
-    required int sizeOnDisk,
-    required double percentOfEpisodes,
+    int? seasonCount,
+    int? episodeFileCount,
+    int? episodeCount,
+    int? totalEpisodeCount,
+    int? sizeOnDisk,
+    double? percentOfEpisodes,
   }) = _SonarrStatistics;
 
   factory SonarrStatistics.fromJson(Map<String, dynamic> json) =>

@@ -280,9 +280,15 @@ pick up the **first unchecked phase** (see §11).
       rather than letting them throw. (c) LOW: in `InstanceRepository`, replace `as Ok<..>` casts with
       `case Ok(:final value)` destructuring; set `needsManualOverride` when a *forced* endpoint mode
       falls back to the other URL.
-- [ ] **Phase 3 — Onboarding & Settings.** Add/edit/delete instances, per-type forms with **dual
+- [x] **Phase 3 — Onboarding & Settings.** Add/edit/delete instances, per-type forms with **dual
       URL + per-endpoint Test connection**, **home SSID setting** + permission flow + endpoint
       override UI, default selection, theme setting. Tests (form validation + storage + resolver UX).
+      ✅ Done 2026-08-16. `AddInstancePage` + `InstanceForm` (dual URL, per-endpoint testing with
+      Stub client); `SettingsPage` with Instance CRUD, Home SSID management (auto-detect via
+      `SsidSource`), and Theme selection (persisted to `ConfigStore`). `EndpointIndicator` in
+      Dashboard AppBar with session override. `InstanceRepository` hardened with pattern
+      matching and `StorageError` handling. `dioForInstance` provider composition wired.
+      20 logic tests passing.
 - [ ] **Phase 4 — Radarr module.** Client + repo + models + providers + Library grid/detail/add/
       queue/calendar UI. Full test suite. (This is the **reference module**; later services mirror it.)
 - [ ] **Phase 5 — Sonarr module.** Mirror Phase 4 for series/episodes/seasons.

@@ -7,6 +7,7 @@ import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/features/dashboard/dashboard_page.dart';
 import 'package:arrstack/features/downloads/downloads_page.dart';
 import 'package:arrstack/features/library/library_page.dart';
+import 'package:arrstack/features/onboarding/add_instance_page.dart';
 import 'package:arrstack/features/settings/settings_page.dart';
 import 'package:arrstack/features/uptime/uptime_page.dart';
 import 'package:go_router/go_router.dart';
@@ -55,6 +56,12 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: RoutePaths.settings,
               builder: (context, state) => const SettingsPage(),
+              routes: [
+                GoRoute(
+                  path: 'add',
+                  builder: (context, state) => const AddInstancePage(),
+                ),
+              ],
             ),
           ],
         ),

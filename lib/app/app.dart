@@ -8,7 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ArrStackApp extends ConsumerWidget {
-  const ArrStackApp({super.key});
+  const ArrStackApp({super.key, this.routerConfig});
+
+  final RouterConfig<Object>? routerConfig;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,7 +22,7 @@ class ArrStackApp extends ConsumerWidget {
       themeMode: themeMode,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      routerConfig: appRouter,
+      routerConfig: routerConfig ?? appRouter,
     );
   }
 }

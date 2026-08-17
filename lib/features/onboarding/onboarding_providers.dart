@@ -2,10 +2,13 @@
 /// connection testing status (spec §7).
 library;
 
+import 'dart:async';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
+import 'package:arrstack/services/bazarr/bazarr_client.dart';
 import 'package:arrstack/services/contracts/contracts.dart';
+import 'package:arrstack/services/qbittorrent/qbit_client.dart';
 import 'package:arrstack/services/radarr/radarr_client.dart';
 import 'package:arrstack/services/sonarr/sonarr_client.dart';
 import 'package:arrstack/services/uptimekuma/kuma_client.dart';
@@ -192,6 +195,18 @@ class InstanceForm extends _$InstanceForm {
       final cleanBaseUrl = baseUrl.replaceAll(RegExp(r'/socket\.io/?$'), '');
       return KumaTestClient(cleanBaseUrl, credential);
     }
+    if (state.type == ServiceType.qbittorrent) {
+      return QbitTestClient(baseUrl, credential);
+    }
+    if (state.type == ServiceType.bazarr) {
+      final dio = const DioFactory().create(
+        baseUrl: baseUrl,
+        apiKeyInterceptor: credential is ApiKeyCredential
+            ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
+            : null,
+      );
+      return BazarrClient(dio);
+    }
     return StubConnectionTestClient(baseUrl: baseUrl, credential: credential);
   }
 
@@ -237,6 +252,30 @@ class InstanceForm extends _$InstanceForm {
   }
 }
 
+/// A wrapper for qBittorrent to implement [ConnectionTestClient].
+class QbitTestClient implements ConnectionTestClient {
+  QbitTestClient(this.baseUrl, this.credential);
+  final String baseUrl;
+  final ServiceCredential credential;
+
+  @override
+  Future<Result<ServiceIdentity>> testConnection() async {
+    final dio = const DioFactory().create(baseUrl: baseUrl);
+    final client = QbitClient(dio);
+    dio.interceptors.add(client.cookieInterceptor);
+
+    final cred = credential;
+    if (cred is! UsernamePasswordCredential) {
+      return const Err(AuthError(userMessage: 'Username and password required.'));
+    }
+    
+    final loginResult = await client.login(cred.username, cred.password);
+    if (loginResult is Err<void>) return Err(loginResult.error);
+
+    return client.testConnection();
+  }
+}
+
 /// A wrapper for Uptime Kuma to implement [ConnectionTestClient].
 class KumaTestClient implements ConnectionTestClient {
   KumaTestClient(this.baseUrl, this.credential);
@@ -255,14 +294,11 @@ class KumaTestClient implements ConnectionTestClient {
       if (!isConnected) return const Err(NetworkError(userMessage: 'Could not connect to socket.'));
 
       final cred = credential;
-      final Result<void> loginResult;
-      if (cred is ApiKeyCredential) {
-        loginResult = await client.loginWithApiKey(cred.apiKey);
-      } else if (cred is UsernamePasswordCredential) {
-        loginResult = await client.login(cred.username, cred.password);
-      } else {
-        return const Err(AuthError(userMessage: 'Invalid credentials.'));
-      }
+      final Result<void> loginResult = await switch (cred) {
+        ApiKeyCredential(:final apiKey) => client.loginWithApiKey(apiKey),
+        UsernamePasswordCredential(:final username, :final password) =>
+          client.login(username, password),
+      };
       
       return loginResult.map((_) => const ServiceIdentity(instanceName: 'Uptime Kuma'));
     } finally {

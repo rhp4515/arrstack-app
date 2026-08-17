@@ -11,25 +11,29 @@ _SonarrSeries _$SonarrSeriesFromJson(
 ) => _SonarrSeries(
   id: (json['id'] as num?)?.toInt(),
   title: json['title'] as String,
-  sortTitle: json['sortTitle'] as String,
-  status: json['status'] as String,
-  overview: json['overview'] as String,
-  images: (json['images'] as List<dynamic>)
-      .map((e) => SonarrImage.fromJson(e as Map<String, dynamic>))
-      .toList(),
-  seasons: (json['seasons'] as List<dynamic>)
-      .map((e) => SonarrSeason.fromJson(e as Map<String, dynamic>))
-      .toList(),
-  year: (json['year'] as num).toInt(),
+  sortTitle: json['sortTitle'] as String?,
+  status: json['status'] as String?,
+  overview: json['overview'] as String?,
+  images:
+      (json['images'] as List<dynamic>?)
+          ?.map((e) => SonarrImage.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  seasons:
+      (json['seasons'] as List<dynamic>?)
+          ?.map((e) => SonarrSeason.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  year: (json['year'] as num?)?.toInt(),
   path: json['path'] as String?,
   rootFolderPath: json['rootFolderPath'] as String?,
   qualityProfileId: (json['qualityProfileId'] as num?)?.toInt(),
-  monitored: json['monitored'] as bool,
+  monitored: json['monitored'] as bool? ?? true,
   useSceneNumbering: json['useSceneNumbering'] as bool? ?? false,
   runtime: json['runtime'] as String?,
   tvdbId: (json['tvdbId'] as num).toInt(),
   tvMazeId: (json['tvMazeId'] as num?)?.toInt(),
-  seriesType: json['seriesType'] as String,
+  seriesType: json['seriesType'] as String? ?? 'program',
   cleanTitle: json['cleanTitle'] as String?,
   titleSlug: json['titleSlug'] as String?,
   added: json['added'] == null ? null : DateTime.parse(json['added'] as String),

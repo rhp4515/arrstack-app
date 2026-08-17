@@ -48,6 +48,13 @@ class DashboardPage extends ConsumerWidget {
                           if (instance.serviceType == ServiceType.radarr) {
                             ref.read(selectedLibraryInstanceIdProvider(ServiceType.radarr).notifier).selectInstance(instance.id);
                             context.go(RoutePaths.library);
+                          } else if (instance.serviceType == ServiceType.sonarr) {
+                            ref.read(selectedLibraryInstanceIdProvider(ServiceType.sonarr).notifier).selectInstance(instance.id);
+                            // We need to switch tab manually or just go to library
+                            // TabController is inside LibraryPage, context.go('/library') will work.
+                            context.go(RoutePaths.library);
+                          } else if (instance.serviceType == ServiceType.bazarr) {
+                            context.go(RoutePaths.subtitles(instance.id));
                           }
                         },
                       ),

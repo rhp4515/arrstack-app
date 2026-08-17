@@ -517,6 +517,87 @@ final class RadarrRootFoldersFamily extends $Family
   String toString() => r'radarrRootFoldersProvider';
 }
 
+@ProviderFor(radarrQueue)
+final radarrQueueProvider = RadarrQueueFamily._();
+
+final class RadarrQueueProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<List<RadarrQueueItem>>>,
+          Result<List<RadarrQueueItem>>,
+          FutureOr<Result<List<RadarrQueueItem>>>
+        >
+    with
+        $FutureModifier<Result<List<RadarrQueueItem>>>,
+        $FutureProvider<Result<List<RadarrQueueItem>>> {
+  RadarrQueueProvider._({
+    required RadarrQueueFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'radarrQueueProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$radarrQueueHash();
+
+  @override
+  String toString() {
+    return r'radarrQueueProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<List<RadarrQueueItem>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<List<RadarrQueueItem>>> create(Ref ref) {
+    final argument = this.argument as String;
+    return radarrQueue(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is RadarrQueueProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$radarrQueueHash() => r'626c77990a7f747d27400dd6953368ab2207e1be';
+
+final class RadarrQueueFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Result<List<RadarrQueueItem>>>,
+          String
+        > {
+  RadarrQueueFamily._()
+    : super(
+        retry: null,
+        name: r'radarrQueueProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  RadarrQueueProvider call(String instanceId) =>
+      RadarrQueueProvider._(argument: instanceId, from: this);
+
+  @override
+  String toString() => r'radarrQueueProvider';
+}
+
 /// Search results for a lookup term.
 
 @ProviderFor(radarrLookup)

@@ -35,7 +35,7 @@ class _SubtitlesPageState extends ConsumerState<SubtitlesPage> {
             onPressed: () async {
               final repo = await ref.read(bazarrRepositoryProvider(widget.instanceId).future);
               final result = await repo.searchAllSubtitles();
-              if (mounted) {
+              if (context.mounted) {
                 if (result.isOk) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Global search triggered.')),

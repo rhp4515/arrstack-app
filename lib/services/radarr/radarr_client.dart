@@ -98,4 +98,14 @@ class RadarrClient implements ConnectionTestClient {
           .toList(),
     );
   }
+
+  Future<Result<List<RadarrQueueItem>>> getQueue() {
+    return dioCall(
+      () => _dio.get('api/v3/queue'),
+      map: (data) => ((data as Map)['records'] as List)
+          .cast<Map<String, dynamic>>()
+          .map(RadarrQueueItem.fromJson)
+          .toList(),
+    );
+  }
 }

@@ -37,4 +37,6 @@ class SonarrRepository {
 
   Future<Result<List<SonarrRootFolder>>> listRootFolders() =>
       _client.getRootFolders();
+
+  Future<Result<List<SonarrQueueItem>>> listQueue() => _client.getQueue();
 }

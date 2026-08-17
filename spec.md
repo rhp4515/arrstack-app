@@ -313,8 +313,12 @@ pick up the **first unchecked phase** (see §11).
       `KumaRepository` with live heartbeat merging. `UptimePage` UI with `MonitorTile`
       (live status, uptime %, heartbeat history bar) and health summary header.
       Integrated with `InstanceForm` for auth-type switching.
-- [ ] **Phase 10 — Dashboard aggregation & polish.** Cross-service activity strip, health tiles,
+- [x] **Phase 10 — Dashboard aggregation & polish.** Cross-service activity strip, health tiles,
       empty/error states, pull-to-refresh, a11y pass, screenshot/visual-regression check.
+      ✅ Done 2026-08-16. Redesigned Dashboard with `ServiceHealthTile` (accented status)
+      and `ActivityStrip` (unified Radarr/Sonarr/qBittorrent queue). Aggregation providers
+      established for cross-instance health and activity monitoring. Material 3 surfaces
+      finalized.
 - [ ] **Phase 11 — Seerr module (optional).** Discovery + search + request flow. Tests.
 - [ ] **Phase 12 — Release prep.** Icons/splash, app IDs, store metadata, build flavors, README.
 

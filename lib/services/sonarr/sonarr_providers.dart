@@ -77,6 +77,12 @@ Future<Result<List<SonarrRootFolder>>> sonarrRootFolders(
   return repository.listRootFolders();
 }
 
+@riverpod
+Future<Result<List<SonarrQueueItem>>> sonarrQueue(Ref ref, String instanceId) async {
+  final repository = await ref.watch(sonarrRepositoryProvider(instanceId).future);
+  return repository.listQueue();
+}
+
 /// Search results for a lookup term.
 @riverpod
 Future<Result<List<SonarrSeries>>> sonarrLookup(

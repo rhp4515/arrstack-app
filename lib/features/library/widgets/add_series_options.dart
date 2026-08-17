@@ -123,12 +123,13 @@ class _AddSeriesOptionsSheetState extends ConsumerState<AddSeriesOptionsSheet> {
     final seriesToAdd = widget.series.copyWith(
       monitored: true,
       qualityProfileId: profileId,
-      path: '$rootPath${widget.series.title}', // Simplistic path join
+      rootFolderPath: rootPath,
+      addOptions: SonarrAddOptions(
+        monitor: _selectedMonitorMode,
+        searchForMissingEpisodes: true,
+      ),
     );
 
-    // Note: Sonarr Add API requires a complex object including 'addOptions'.
-    // For now we'll just try to send the basic fields and hope for the best,
-    // or we might need to adjust the model to include addOptions.
     final result = await repository.addSeries(seriesToAdd);
     
     if (mounted) {

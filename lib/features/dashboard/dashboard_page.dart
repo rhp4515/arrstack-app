@@ -172,8 +172,10 @@ class _InstanceListTile extends StatelessWidget {
         } else if (instance.serviceType == ServiceType.bazarr) {
           context.go(RoutePaths.subtitles(instance.id));
         } else if (instance.serviceType == ServiceType.qbittorrent) {
+          ref.read(selectedDownloadInstanceIdProvider.notifier).selectInstance(instance.id);
           context.go(RoutePaths.downloads);
         } else if (instance.serviceType == ServiceType.uptimeKuma) {
+          ref.read(selectedUptimeInstanceIdProvider.notifier).selectInstance(instance.id);
           context.go(RoutePaths.uptime);
         }
       },

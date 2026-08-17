@@ -55,7 +55,10 @@ class _SeriesDetailContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final fanartUrl = series.images.firstWhere((i) => i.coverType == 'fanart', orElse: () => series.images.first).url;
+    final images = series.images;
+    final fanartUrl = images.isNotEmpty 
+        ? images.firstWhere((i) => i.coverType == 'fanart', orElse: () => images.first).url
+        : null;
 
     return Scaffold(
       body: CustomScrollView(
@@ -80,7 +83,7 @@ class _SeriesDetailContent extends ConsumerWidget {
                   Row(
                     children: [
                       StatusChip(
-                        label: series.status,
+                        label: series.status ?? 'Unknown',
                         color: series.status == 'continuing' ? Colors.green : Colors.grey,
                         icon: series.status == 'continuing' ? Icons.play_circle_outline : Icons.stop_circle,
                       ),
@@ -95,7 +98,7 @@ class _SeriesDetailContent extends ConsumerWidget {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    '${series.year} • ${series.seriesType} • ${series.runtime} min',
+                    '${series.year ?? 'N/A'} • ${series.seriesType} • ${series.runtime ?? '??'} min',
                     style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
                   ),
                   const SizedBox(height: AppSpacing.lg),
@@ -104,7 +107,7 @@ class _SeriesDetailContent extends ConsumerWidget {
                     style: theme.textTheme.titleMedium,
                   ),
                   const SizedBox(height: AppSpacing.sm),
-                  Text(series.overview),
+                  Text(series.overview ?? 'No overview available.'),
                   const SizedBox(height: AppSpacing.lg),
                   Text(
                     'Seasons',
@@ -205,13 +208,16 @@ class _HeaderImage extends ConsumerWidget {
   const _HeaderImage({required this.instanceId, required this.relativeUrl});
 
   final String instanceId;
-  final String relativeUrl;
+  final String? relativeUrl;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final relUrl = relativeUrl;
+    if (relUrl == null || relUrl.isEmpty) return Container(color: Colors.grey);
+
     final fullUrlAsync = ref.watch(sonarrFullImageUrlProvider(
       instanceId: instanceId,
-      relativeUrl: relativeUrl,
+      relativeUrl: relUrl,
     ));
 
     return fullUrlAsync.when(

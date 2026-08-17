@@ -33,7 +33,12 @@ class QbitClient implements ConnectionTestClient {
     final result = await guardDioCall(() => _dio.post(
           'api/v2/auth/login',
           data: {'username': username, 'password': password},
-          options: Options(contentType: Headers.formUrlEncodedContentType),
+          options: Options(
+            contentType: Headers.formUrlEncodedContentType,
+            headers: {
+              'Referer': _dio.options.baseUrl,
+            },
+          ),
         ));
 
     return result.map((response) {
@@ -52,10 +57,22 @@ class QbitClient implements ConnectionTestClient {
   Future<Result<List<QbitTorrent>>> getTorrents() {
     return dioCall(
       () => _dio.get('api/v2/torrents/info'),
-      map: (data) => (data as List)
-          .cast<Map<String, dynamic>>()
-          .map(QbitTorrent.fromJson)
-          .toList(),
+      map: (data) {
+        if (data is! List) return [];
+        return data
+            .cast<Map<String, dynamic>>()
+            .map((json) {
+              try {
+                return QbitTorrent.fromJson(json);
+              } catch (e) {
+                // ignore: avoid_print
+                print('QbitTorrent parse error: $e');
+                return null;
+              }
+            })
+            .whereType<QbitTorrent>()
+            .toList();
+      },
     );
   }
 

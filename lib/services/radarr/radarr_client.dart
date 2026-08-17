@@ -31,10 +31,22 @@ class RadarrClient implements ConnectionTestClient {
   Future<Result<List<RadarrMovie>>> getMovies() {
     return dioCall(
       () => _dio.get('api/v3/movie'),
-      map: (data) => (data as List)
-          .cast<Map<String, dynamic>>()
-          .map(RadarrMovie.fromJson)
-          .toList(),
+      map: (data) {
+        if (data is! List) return [];
+        return data
+            .cast<Map<String, dynamic>>()
+            .map((json) {
+              try {
+                return RadarrMovie.fromJson(json);
+              } catch (e) {
+                // ignore: avoid_print
+                print('RadarrMovie parse error: $e');
+                return null;
+              }
+            })
+            .whereType<RadarrMovie>()
+            .toList();
+      },
     );
   }
 
@@ -48,10 +60,22 @@ class RadarrClient implements ConnectionTestClient {
   Future<Result<List<RadarrMovie>>> lookupMovie(String term) {
     return dioCall(
       () => _dio.get('api/v3/movie/lookup', queryParameters: {'term': term}),
-      map: (data) => (data as List)
-          .cast<Map<String, dynamic>>()
-          .map(RadarrMovie.fromJson)
-          .toList(),
+      map: (data) {
+        if (data is! List) return [];
+        return data
+            .cast<Map<String, dynamic>>()
+            .map((json) {
+              try {
+                return RadarrMovie.fromJson(json);
+              } catch (e) {
+                // ignore: avoid_print
+                print('RadarrMovie lookup parse error: $e');
+                return null;
+              }
+            })
+            .whereType<RadarrMovie>()
+            .toList();
+      },
     );
   }
 
@@ -102,10 +126,24 @@ class RadarrClient implements ConnectionTestClient {
   Future<Result<List<RadarrQueueItem>>> getQueue() {
     return dioCall(
       () => _dio.get('api/v3/queue'),
-      map: (data) => ((data as Map)['records'] as List)
-          .cast<Map<String, dynamic>>()
-          .map(RadarrQueueItem.fromJson)
-          .toList(),
+      map: (data) {
+        if (data is! Map) return [];
+        final records = data['records'];
+        if (records is! List) return [];
+        return records
+            .cast<Map<String, dynamic>>()
+            .map((json) {
+              try {
+                return RadarrQueueItem.fromJson(json);
+              } catch (e) {
+                // ignore: avoid_print
+                print('RadarrQueueItem parse error: $e');
+                return null;
+              }
+            })
+            .whereType<RadarrQueueItem>()
+            .toList();
+      },
     );
   }
 }

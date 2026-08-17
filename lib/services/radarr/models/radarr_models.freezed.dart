@@ -2003,7 +2003,7 @@ as int,
 /// @nodoc
 mixin _$RadarrQueueItem {
 
- int get id; int get movieId; String get status; int get size; int get sizeleft; String get title; String get timeleft; double get estimatedCompletionTime;
+ int get id; int? get movieId; String? get status; int get size; int get sizeleft; String? get title; String? get timeleft; DateTime? get estimatedCompletionTime;
 /// Create a copy of RadarrQueueItem
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2036,7 +2036,7 @@ abstract mixin class $RadarrQueueItemCopyWith<$Res>  {
   factory $RadarrQueueItemCopyWith(RadarrQueueItem value, $Res Function(RadarrQueueItem) _then) = _$RadarrQueueItemCopyWithImpl;
 @useResult
 $Res call({
- int id, int movieId, String status, int size, int sizeleft, String title, String timeleft, double estimatedCompletionTime
+ int id, int? movieId, String? status, int size, int sizeleft, String? title, String? timeleft, DateTime? estimatedCompletionTime
 });
 
 
@@ -2053,17 +2053,17 @@ class _$RadarrQueueItemCopyWithImpl<$Res>
 
 /// Create a copy of RadarrQueueItem
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? movieId = null,Object? status = null,Object? size = null,Object? sizeleft = null,Object? title = null,Object? timeleft = null,Object? estimatedCompletionTime = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? movieId = freezed,Object? status = freezed,Object? size = null,Object? sizeleft = null,Object? title = freezed,Object? timeleft = freezed,Object? estimatedCompletionTime = freezed,}) {
   return _then(RadarrQueueItem(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,movieId: null == movieId ? _self.movieId : movieId // ignore: cast_nullable_to_non_nullable
-as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as String,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as int,movieId: freezed == movieId ? _self.movieId : movieId // ignore: cast_nullable_to_non_nullable
+as int?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String?,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
 as int,sizeleft: null == sizeleft ? _self.sizeleft : sizeleft // ignore: cast_nullable_to_non_nullable
-as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
-as String,timeleft: null == timeleft ? _self.timeleft : timeleft // ignore: cast_nullable_to_non_nullable
-as String,estimatedCompletionTime: null == estimatedCompletionTime ? _self.estimatedCompletionTime : estimatedCompletionTime // ignore: cast_nullable_to_non_nullable
-as double,
+as int,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String?,timeleft: freezed == timeleft ? _self.timeleft : timeleft // ignore: cast_nullable_to_non_nullable
+as String?,estimatedCompletionTime: freezed == estimatedCompletionTime ? _self.estimatedCompletionTime : estimatedCompletionTime // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -2148,7 +2148,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int movieId,  String status,  int size,  int sizeleft,  String title,  String timeleft,  double estimatedCompletionTime)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int? movieId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RadarrQueueItem() when $default != null:
 return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime);case _:
@@ -2169,7 +2169,7 @@ return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int movieId,  String status,  int size,  int sizeleft,  String title,  String timeleft,  double estimatedCompletionTime)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int? movieId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime)  $default,) {final _that = this;
 switch (_that) {
 case _RadarrQueueItem():
 return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime);case _:
@@ -2189,7 +2189,7 @@ return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int movieId,  String status,  int size,  int sizeleft,  String title,  String timeleft,  double estimatedCompletionTime)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int? movieId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime)?  $default,) {final _that = this;
 switch (_that) {
 case _RadarrQueueItem() when $default != null:
 return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime);case _:
@@ -2204,17 +2204,17 @@ return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_t
 @JsonSerializable()
 
 class _RadarrQueueItem implements RadarrQueueItem {
-  const _RadarrQueueItem({required this.id, required this.movieId, required this.status, required this.size, required this.sizeleft, required this.title, required this.timeleft, required this.estimatedCompletionTime});
+  const _RadarrQueueItem({required this.id, this.movieId, this.status, this.size = 0, this.sizeleft = 0, this.title, this.timeleft, this.estimatedCompletionTime});
   factory _RadarrQueueItem.fromJson(Map<String, dynamic> json) => _$RadarrQueueItemFromJson(json);
 
 @override final  int id;
-@override final  int movieId;
-@override final  String status;
-@override final  int size;
-@override final  int sizeleft;
-@override final  String title;
-@override final  String timeleft;
-@override final  double estimatedCompletionTime;
+@override final  int? movieId;
+@override final  String? status;
+@override@JsonKey() final  int size;
+@override@JsonKey() final  int sizeleft;
+@override final  String? title;
+@override final  String? timeleft;
+@override final  DateTime? estimatedCompletionTime;
 
 /// Create a copy of RadarrQueueItem
 /// with the given fields replaced by the non-null parameter values.
@@ -2249,7 +2249,7 @@ abstract mixin class _$RadarrQueueItemCopyWith<$Res> implements $RadarrQueueItem
   factory _$RadarrQueueItemCopyWith(_RadarrQueueItem value, $Res Function(_RadarrQueueItem) _then) = __$RadarrQueueItemCopyWithImpl;
 @override @useResult
 $Res call({
- int id, int movieId, String status, int size, int sizeleft, String title, String timeleft, double estimatedCompletionTime
+ int id, int? movieId, String? status, int size, int sizeleft, String? title, String? timeleft, DateTime? estimatedCompletionTime
 });
 
 
@@ -2266,17 +2266,17 @@ class __$RadarrQueueItemCopyWithImpl<$Res>
 
 /// Create a copy of RadarrQueueItem
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? movieId = null,Object? status = null,Object? size = null,Object? sizeleft = null,Object? title = null,Object? timeleft = null,Object? estimatedCompletionTime = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? movieId = freezed,Object? status = freezed,Object? size = null,Object? sizeleft = null,Object? title = freezed,Object? timeleft = freezed,Object? estimatedCompletionTime = freezed,}) {
   return _then(_RadarrQueueItem(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,movieId: null == movieId ? _self.movieId : movieId // ignore: cast_nullable_to_non_nullable
-as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as String,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as int,movieId: freezed == movieId ? _self.movieId : movieId // ignore: cast_nullable_to_non_nullable
+as int?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String?,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
 as int,sizeleft: null == sizeleft ? _self.sizeleft : sizeleft // ignore: cast_nullable_to_non_nullable
-as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
-as String,timeleft: null == timeleft ? _self.timeleft : timeleft // ignore: cast_nullable_to_non_nullable
-as String,estimatedCompletionTime: null == estimatedCompletionTime ? _self.estimatedCompletionTime : estimatedCompletionTime // ignore: cast_nullable_to_non_nullable
-as double,
+as int,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String?,timeleft: freezed == timeleft ? _self.timeleft : timeleft // ignore: cast_nullable_to_non_nullable
+as String?,estimatedCompletionTime: freezed == estimatedCompletionTime ? _self.estimatedCompletionTime : estimatedCompletionTime // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 

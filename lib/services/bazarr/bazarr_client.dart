@@ -29,26 +29,50 @@ class BazarrClient implements ConnectionTestClient {
   Future<Result<List<BazarrWantedSubtitle>>> getWantedEpisodes() {
     return dioCall(
       () => _dio.get('api/episodes/wanted'),
-      map: (data) => (data as List)
-          .cast<Map<String, dynamic>>()
-          .map((json) => BazarrWantedSubtitle.fromJson({
-                ...json,
-                'type': 'episode',
-              }))
-          .toList(),
+      map: (data) {
+        if (data is! List) return [];
+        return data
+            .cast<Map<String, dynamic>>()
+            .map((json) {
+              try {
+                return BazarrWantedSubtitle.fromJson({
+                  ...json,
+                  'type': 'episode',
+                });
+              } catch (e) {
+                // ignore: avoid_print
+                print('Bazarr episode parse error: $e');
+                return null;
+              }
+            })
+            .whereType<BazarrWantedSubtitle>()
+            .toList();
+      },
     );
   }
 
   Future<Result<List<BazarrWantedSubtitle>>> getWantedMovies() {
     return dioCall(
       () => _dio.get('api/movies/wanted'),
-      map: (data) => (data as List)
-          .cast<Map<String, dynamic>>()
-          .map((json) => BazarrWantedSubtitle.fromJson({
-                ...json,
-                'type': 'movie',
-              }))
-          .toList(),
+      map: (data) {
+        if (data is! List) return [];
+        return data
+            .cast<Map<String, dynamic>>()
+            .map((json) {
+              try {
+                return BazarrWantedSubtitle.fromJson({
+                  ...json,
+                  'type': 'movie',
+                });
+              } catch (e) {
+                // ignore: avoid_print
+                print('Bazarr movie parse error: $e');
+                return null;
+              }
+            })
+            .whereType<BazarrWantedSubtitle>()
+            .toList();
+      },
     );
   }
 

@@ -28,7 +28,7 @@ abstract class SonarrSeries with _$SonarrSeries {
     @Default(true) bool monitored,
     @Default(false) bool useSceneNumbering,
     String? runtime,
-    required int tvdbId,
+    @Default(0) int tvdbId,
     int? tvMazeId,
     @Default('program') String seriesType,
     String? cleanTitle,
@@ -162,14 +162,14 @@ abstract class SonarrRootFolder with _$SonarrRootFolder {
 abstract class SonarrQueueItem with _$SonarrQueueItem {
   const factory SonarrQueueItem({
     required int id,
-    required int seriesId,
-    required int episodeId,
-    required String status,
-    required int size,
-    required int sizeleft,
-    required String title,
-    required String timeleft,
-    required double estimatedCompletionTime,
+    int? seriesId,
+    int? episodeId,
+    String? status,
+    @Default(0) int size,
+    @Default(0) int sizeleft,
+    String? title,
+    String? timeleft,
+    DateTime? estimatedCompletionTime,
   }) = _SonarrQueueItem;
 
   factory SonarrQueueItem.fromJson(Map<String, dynamic> json) =>

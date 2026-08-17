@@ -33,7 +33,16 @@ class SonarrClient implements ConnectionTestClient {
       () => _dio.get('api/v3/series'),
       map: (data) => (data as List)
           .cast<Map<String, dynamic>>()
-          .map(SonarrSeries.fromJson)
+          .map((json) {
+            try {
+              return SonarrSeries.fromJson(json);
+            } catch (e) {
+              // ignore: avoid_print
+              print('SonarrSeries parse error: $e');
+              return null;
+            }
+          })
+          .whereType<SonarrSeries>()
           .toList(),
     );
   }
@@ -48,10 +57,22 @@ class SonarrClient implements ConnectionTestClient {
   Future<Result<List<SonarrSeries>>> lookupSeries(String term) {
     return dioCall(
       () => _dio.get('api/v3/series/lookup', queryParameters: {'term': term}),
-      map: (data) => (data as List)
-          .cast<Map<String, dynamic>>()
-          .map(SonarrSeries.fromJson)
-          .toList(),
+      map: (data) {
+        if (data is! List) return [];
+        return data
+            .cast<Map<String, dynamic>>()
+            .map((json) {
+              try {
+                return SonarrSeries.fromJson(json);
+              } catch (e) {
+                // ignore: avoid_print
+                print('SonarrSeries lookup parse error: $e');
+                return null;
+              }
+            })
+            .whereType<SonarrSeries>()
+            .toList();
+      },
     );
   }
 
@@ -112,10 +133,24 @@ class SonarrClient implements ConnectionTestClient {
   Future<Result<List<SonarrQueueItem>>> getQueue() {
     return dioCall(
       () => _dio.get('api/v3/queue'),
-      map: (data) => ((data as Map)['records'] as List)
-          .cast<Map<String, dynamic>>()
-          .map(SonarrQueueItem.fromJson)
-          .toList(),
+      map: (data) {
+        if (data is! Map) return [];
+        final records = data['records'];
+        if (records is! List) return [];
+        return records
+            .cast<Map<String, dynamic>>()
+            .map((json) {
+              try {
+                return SonarrQueueItem.fromJson(json);
+              } catch (e) {
+                // ignore: avoid_print
+                print('SonarrQueueItem parse error: $e');
+                return null;
+              }
+            })
+            .whereType<SonarrQueueItem>()
+            .toList();
+      },
     );
   }
 }

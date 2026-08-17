@@ -40,6 +40,10 @@ class DioFactory {
         connectTimeout: connectTimeout,
         receiveTimeout: receiveTimeout,
         sendTimeout: sendTimeout,
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
       ),
     );
     dio.interceptors.addAll([

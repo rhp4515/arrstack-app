@@ -157,3 +157,21 @@ abstract class SonarrRootFolder with _$SonarrRootFolder {
   factory SonarrRootFolder.fromJson(Map<String, dynamic> json) =>
       _$SonarrRootFolderFromJson(json);
 }
+
+@freezed
+abstract class SonarrQueueItem with _$SonarrQueueItem {
+  const factory SonarrQueueItem({
+    required int id,
+    required int seriesId,
+    required int episodeId,
+    required String status,
+    required int size,
+    required int sizeleft,
+    required String title,
+    required String timeleft,
+    required double estimatedCompletionTime,
+  }) = _SonarrQueueItem;
+
+  factory SonarrQueueItem.fromJson(Map<String, dynamic> json) =>
+      _$SonarrQueueItemFromJson(json);
+}

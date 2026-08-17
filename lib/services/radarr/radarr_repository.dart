@@ -34,4 +34,6 @@ class RadarrRepository {
 
   Future<Result<List<RadarrRootFolder>>> listRootFolders() =>
       _client.getRootFolders();
+
+  Future<Result<List<RadarrQueueItem>>> listQueue() => _client.getQueue();
 }

@@ -509,6 +509,87 @@ final class SonarrRootFoldersFamily extends $Family
   String toString() => r'sonarrRootFoldersProvider';
 }
 
+@ProviderFor(sonarrQueue)
+final sonarrQueueProvider = SonarrQueueFamily._();
+
+final class SonarrQueueProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<List<SonarrQueueItem>>>,
+          Result<List<SonarrQueueItem>>,
+          FutureOr<Result<List<SonarrQueueItem>>>
+        >
+    with
+        $FutureModifier<Result<List<SonarrQueueItem>>>,
+        $FutureProvider<Result<List<SonarrQueueItem>>> {
+  SonarrQueueProvider._({
+    required SonarrQueueFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'sonarrQueueProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$sonarrQueueHash();
+
+  @override
+  String toString() {
+    return r'sonarrQueueProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<List<SonarrQueueItem>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<List<SonarrQueueItem>>> create(Ref ref) {
+    final argument = this.argument as String;
+    return sonarrQueue(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SonarrQueueProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$sonarrQueueHash() => r'172e3818a68681fd560a1646dc6451f4382b1c62';
+
+final class SonarrQueueFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Result<List<SonarrQueueItem>>>,
+          String
+        > {
+  SonarrQueueFamily._()
+    : super(
+        retry: null,
+        name: r'sonarrQueueProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  SonarrQueueProvider call(String instanceId) =>
+      SonarrQueueProvider._(argument: instanceId, from: this);
+
+  @override
+  String toString() => r'sonarrQueueProvider';
+}
+
 /// Search results for a lookup term.
 
 @ProviderFor(sonarrLookup)

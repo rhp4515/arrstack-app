@@ -63,7 +63,7 @@ final class KumaClientProvider
   }
 }
 
-String _$kumaClientHash() => r'd2300a0b9132f02e2207d765500765e67d6638ed';
+String _$kumaClientHash() => r'cfe724713a3bdf6645d88a0dec61e8dbdaf12ba8';
 
 final class KumaClientFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<KumaClient>, String> {
@@ -203,7 +203,7 @@ final class KumaMonitorsProvider
   }
 }
 
-String _$kumaMonitorsHash() => r'2759f7d5aa317e3e0ca4269c30b807c5b887104b';
+String _$kumaMonitorsHash() => r'b0f77cef871ecb13e5910fbcb33ed6c5da567c22';
 
 /// The live state of all monitors for a Kuma instance.
 

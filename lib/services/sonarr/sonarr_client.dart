@@ -108,4 +108,14 @@ class SonarrClient implements ConnectionTestClient {
           .toList(),
     );
   }
+
+  Future<Result<List<SonarrQueueItem>>> getQueue() {
+    return dioCall(
+      () => _dio.get('api/v3/queue'),
+      map: (data) => ((data as Map)['records'] as List)
+          .cast<Map<String, dynamic>>()
+          .map(SonarrQueueItem.fromJson)
+          .toList(),
+    );
+  }
 }

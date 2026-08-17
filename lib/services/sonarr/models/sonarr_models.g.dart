@@ -195,3 +195,30 @@ Map<String, dynamic> _$SonarrRootFolderToJson(_SonarrRootFolder instance) =>
       'path': instance.path,
       'freeSpace': instance.freeSpace,
     };
+
+_SonarrQueueItem _$SonarrQueueItemFromJson(Map<String, dynamic> json) =>
+    _SonarrQueueItem(
+      id: (json['id'] as num).toInt(),
+      seriesId: (json['seriesId'] as num).toInt(),
+      episodeId: (json['episodeId'] as num).toInt(),
+      status: json['status'] as String,
+      size: (json['size'] as num).toInt(),
+      sizeleft: (json['sizeleft'] as num).toInt(),
+      title: json['title'] as String,
+      timeleft: json['timeleft'] as String,
+      estimatedCompletionTime: (json['estimatedCompletionTime'] as num)
+          .toDouble(),
+    );
+
+Map<String, dynamic> _$SonarrQueueItemToJson(_SonarrQueueItem instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'seriesId': instance.seriesId,
+      'episodeId': instance.episodeId,
+      'status': instance.status,
+      'size': instance.size,
+      'sizeleft': instance.sizeleft,
+      'title': instance.title,
+      'timeleft': instance.timeleft,
+      'estimatedCompletionTime': instance.estimatedCompletionTime,
+    };

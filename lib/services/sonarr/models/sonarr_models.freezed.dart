@@ -2355,4 +2355,291 @@ as int,
 
 }
 
+
+/// @nodoc
+mixin _$SonarrQueueItem {
+
+ int get id; int get seriesId; int get episodeId; String get status; int get size; int get sizeleft; String get title; String get timeleft; double get estimatedCompletionTime;
+/// Create a copy of SonarrQueueItem
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SonarrQueueItemCopyWith<SonarrQueueItem> get copyWith => _$SonarrQueueItemCopyWithImpl<SonarrQueueItem>(this as SonarrQueueItem, _$identity);
+
+  /// Serializes this SonarrQueueItem to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SonarrQueueItem&&(identical(other.id, id) || other.id == id)&&(identical(other.seriesId, seriesId) || other.seriesId == seriesId)&&(identical(other.episodeId, episodeId) || other.episodeId == episodeId)&&(identical(other.status, status) || other.status == status)&&(identical(other.size, size) || other.size == size)&&(identical(other.sizeleft, sizeleft) || other.sizeleft == sizeleft)&&(identical(other.title, title) || other.title == title)&&(identical(other.timeleft, timeleft) || other.timeleft == timeleft)&&(identical(other.estimatedCompletionTime, estimatedCompletionTime) || other.estimatedCompletionTime == estimatedCompletionTime));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,seriesId,episodeId,status,size,sizeleft,title,timeleft,estimatedCompletionTime);
+
+@override
+String toString() {
+  return 'SonarrQueueItem(id: $id, seriesId: $seriesId, episodeId: $episodeId, status: $status, size: $size, sizeleft: $sizeleft, title: $title, timeleft: $timeleft, estimatedCompletionTime: $estimatedCompletionTime)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SonarrQueueItemCopyWith<$Res>  {
+  factory $SonarrQueueItemCopyWith(SonarrQueueItem value, $Res Function(SonarrQueueItem) _then) = _$SonarrQueueItemCopyWithImpl;
+@useResult
+$Res call({
+ int id, int seriesId, int episodeId, String status, int size, int sizeleft, String title, String timeleft, double estimatedCompletionTime
+});
+
+
+
+
+}
+/// @nodoc
+class _$SonarrQueueItemCopyWithImpl<$Res>
+    implements $SonarrQueueItemCopyWith<$Res> {
+  _$SonarrQueueItemCopyWithImpl(this._self, this._then);
+
+  final SonarrQueueItem _self;
+  final $Res Function(SonarrQueueItem) _then;
+
+/// Create a copy of SonarrQueueItem
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? seriesId = null,Object? episodeId = null,Object? status = null,Object? size = null,Object? sizeleft = null,Object? title = null,Object? timeleft = null,Object? estimatedCompletionTime = null,}) {
+  return _then(SonarrQueueItem(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,seriesId: null == seriesId ? _self.seriesId : seriesId // ignore: cast_nullable_to_non_nullable
+as int,episodeId: null == episodeId ? _self.episodeId : episodeId // ignore: cast_nullable_to_non_nullable
+as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as int,sizeleft: null == sizeleft ? _self.sizeleft : sizeleft // ignore: cast_nullable_to_non_nullable
+as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,timeleft: null == timeleft ? _self.timeleft : timeleft // ignore: cast_nullable_to_non_nullable
+as String,estimatedCompletionTime: null == estimatedCompletionTime ? _self.estimatedCompletionTime : estimatedCompletionTime // ignore: cast_nullable_to_non_nullable
+as double,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [SonarrQueueItem].
+extension SonarrQueueItemPatterns on SonarrQueueItem {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _SonarrQueueItem value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _SonarrQueueItem() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _SonarrQueueItem value)  $default,){
+final _that = this;
+switch (_that) {
+case _SonarrQueueItem():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _SonarrQueueItem value)?  $default,){
+final _that = this;
+switch (_that) {
+case _SonarrQueueItem() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int seriesId,  int episodeId,  String status,  int size,  int sizeleft,  String title,  String timeleft,  double estimatedCompletionTime)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _SonarrQueueItem() when $default != null:
+return $default(_that.id,_that.seriesId,_that.episodeId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int seriesId,  int episodeId,  String status,  int size,  int sizeleft,  String title,  String timeleft,  double estimatedCompletionTime)  $default,) {final _that = this;
+switch (_that) {
+case _SonarrQueueItem():
+return $default(_that.id,_that.seriesId,_that.episodeId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int seriesId,  int episodeId,  String status,  int size,  int sizeleft,  String title,  String timeleft,  double estimatedCompletionTime)?  $default,) {final _that = this;
+switch (_that) {
+case _SonarrQueueItem() when $default != null:
+return $default(_that.id,_that.seriesId,_that.episodeId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _SonarrQueueItem implements SonarrQueueItem {
+  const _SonarrQueueItem({required this.id, required this.seriesId, required this.episodeId, required this.status, required this.size, required this.sizeleft, required this.title, required this.timeleft, required this.estimatedCompletionTime});
+  factory _SonarrQueueItem.fromJson(Map<String, dynamic> json) => _$SonarrQueueItemFromJson(json);
+
+@override final  int id;
+@override final  int seriesId;
+@override final  int episodeId;
+@override final  String status;
+@override final  int size;
+@override final  int sizeleft;
+@override final  String title;
+@override final  String timeleft;
+@override final  double estimatedCompletionTime;
+
+/// Create a copy of SonarrQueueItem
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SonarrQueueItemCopyWith<_SonarrQueueItem> get copyWith => __$SonarrQueueItemCopyWithImpl<_SonarrQueueItem>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$SonarrQueueItemToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SonarrQueueItem&&(identical(other.id, id) || other.id == id)&&(identical(other.seriesId, seriesId) || other.seriesId == seriesId)&&(identical(other.episodeId, episodeId) || other.episodeId == episodeId)&&(identical(other.status, status) || other.status == status)&&(identical(other.size, size) || other.size == size)&&(identical(other.sizeleft, sizeleft) || other.sizeleft == sizeleft)&&(identical(other.title, title) || other.title == title)&&(identical(other.timeleft, timeleft) || other.timeleft == timeleft)&&(identical(other.estimatedCompletionTime, estimatedCompletionTime) || other.estimatedCompletionTime == estimatedCompletionTime));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,seriesId,episodeId,status,size,sizeleft,title,timeleft,estimatedCompletionTime);
+
+@override
+String toString() {
+  return 'SonarrQueueItem(id: $id, seriesId: $seriesId, episodeId: $episodeId, status: $status, size: $size, sizeleft: $sizeleft, title: $title, timeleft: $timeleft, estimatedCompletionTime: $estimatedCompletionTime)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SonarrQueueItemCopyWith<$Res> implements $SonarrQueueItemCopyWith<$Res> {
+  factory _$SonarrQueueItemCopyWith(_SonarrQueueItem value, $Res Function(_SonarrQueueItem) _then) = __$SonarrQueueItemCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, int seriesId, int episodeId, String status, int size, int sizeleft, String title, String timeleft, double estimatedCompletionTime
+});
+
+
+
+
+}
+/// @nodoc
+class __$SonarrQueueItemCopyWithImpl<$Res>
+    implements _$SonarrQueueItemCopyWith<$Res> {
+  __$SonarrQueueItemCopyWithImpl(this._self, this._then);
+
+  final _SonarrQueueItem _self;
+  final $Res Function(_SonarrQueueItem) _then;
+
+/// Create a copy of SonarrQueueItem
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? seriesId = null,Object? episodeId = null,Object? status = null,Object? size = null,Object? sizeleft = null,Object? title = null,Object? timeleft = null,Object? estimatedCompletionTime = null,}) {
+  return _then(_SonarrQueueItem(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,seriesId: null == seriesId ? _self.seriesId : seriesId // ignore: cast_nullable_to_non_nullable
+as int,episodeId: null == episodeId ? _self.episodeId : episodeId // ignore: cast_nullable_to_non_nullable
+as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as int,sizeleft: null == sizeleft ? _self.sizeleft : sizeleft // ignore: cast_nullable_to_non_nullable
+as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,timeleft: null == timeleft ? _self.timeleft : timeleft // ignore: cast_nullable_to_non_nullable
+as String,estimatedCompletionTime: null == estimatedCompletionTime ? _self.estimatedCompletionTime : estimatedCompletionTime // ignore: cast_nullable_to_non_nullable
+as double,
+  ));
+}
+
+
+}
+
 // dart format on

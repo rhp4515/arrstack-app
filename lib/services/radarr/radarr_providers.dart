@@ -114,6 +114,12 @@ Future<Result<List<RadarrRootFolder>>> radarrRootFolders(
   return repository.listRootFolders();
 }
 
+@riverpod
+Future<Result<List<RadarrQueueItem>>> radarrQueue(Ref ref, String instanceId) async {
+  final repository = await ref.watch(radarrRepositoryProvider(instanceId).future);
+  return repository.listQueue();
+}
+
 /// Search results for a lookup term.
 @riverpod
 Future<Result<List<RadarrMovie>>> radarrLookup(

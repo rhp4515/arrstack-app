@@ -13,12 +13,19 @@ import 'package:arrstack/features/library/movie_detail_page.dart';
 import 'package:arrstack/features/library/series_detail_page.dart';
 import 'package:arrstack/features/onboarding/add_instance_page.dart';
 import 'package:arrstack/features/settings/settings_page.dart';
+import 'package:arrstack/features/subtitles/subtitles_page.dart';
 import 'package:arrstack/features/uptime/uptime_page.dart';
 import 'package:go_router/go_router.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: RoutePaths.dashboard,
   routes: [
+    GoRoute(
+      path: '/subtitles/:instanceId',
+      builder: (context, state) => SubtitlesPage(
+        instanceId: state.pathParameters['instanceId']!,
+      ),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
           AppShell(navigationShell: navigationShell),

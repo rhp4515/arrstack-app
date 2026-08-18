@@ -17,7 +17,7 @@ T _$identity<T>(T value) => value;
 mixin _$RadarrMovie {
 
 /// Unique ID in the Radarr database (null for lookup results).
- int? get id; String get title; int get year; bool get monitored; String get status; String get overview; String get sortTitle; DateTime? get added; List<RadarrImage> get images; int? get qualityProfileId; String? get rootFolderPath; String? get path; RadarrMovieFile? get movieFile; int get tmdbId; String? get titleSlug; bool get hasFile; int get sizeOnDisk;
+ int? get id; String get title; int get year; bool get monitored; String get status; String get overview; String get sortTitle; DateTime? get added; List<RadarrImage> get images; int? get qualityProfileId; String? get rootFolderPath; String? get path; RadarrMovieFile? get movieFile; int get tmdbId; String? get imdbId; String? get titleSlug; String? get studio; String? get certification; int? get runtime; List<String> get genres; RadarrRatings? get ratings; DateTime? get inCinemas; DateTime? get physicalRelease; DateTime? get digitalRelease; bool get hasFile; int get sizeOnDisk;
 /// Create a copy of RadarrMovie
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +30,16 @@ $RadarrMovieCopyWith<RadarrMovie> get copyWith => _$RadarrMovieCopyWithImpl<Rada
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RadarrMovie&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.year, year) || other.year == year)&&(identical(other.monitored, monitored) || other.monitored == monitored)&&(identical(other.status, status) || other.status == status)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.sortTitle, sortTitle) || other.sortTitle == sortTitle)&&(identical(other.added, added) || other.added == added)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.qualityProfileId, qualityProfileId) || other.qualityProfileId == qualityProfileId)&&(identical(other.rootFolderPath, rootFolderPath) || other.rootFolderPath == rootFolderPath)&&(identical(other.path, path) || other.path == path)&&(identical(other.movieFile, movieFile) || other.movieFile == movieFile)&&(identical(other.tmdbId, tmdbId) || other.tmdbId == tmdbId)&&(identical(other.titleSlug, titleSlug) || other.titleSlug == titleSlug)&&(identical(other.hasFile, hasFile) || other.hasFile == hasFile)&&(identical(other.sizeOnDisk, sizeOnDisk) || other.sizeOnDisk == sizeOnDisk));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RadarrMovie&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.year, year) || other.year == year)&&(identical(other.monitored, monitored) || other.monitored == monitored)&&(identical(other.status, status) || other.status == status)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.sortTitle, sortTitle) || other.sortTitle == sortTitle)&&(identical(other.added, added) || other.added == added)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.qualityProfileId, qualityProfileId) || other.qualityProfileId == qualityProfileId)&&(identical(other.rootFolderPath, rootFolderPath) || other.rootFolderPath == rootFolderPath)&&(identical(other.path, path) || other.path == path)&&(identical(other.movieFile, movieFile) || other.movieFile == movieFile)&&(identical(other.tmdbId, tmdbId) || other.tmdbId == tmdbId)&&(identical(other.imdbId, imdbId) || other.imdbId == imdbId)&&(identical(other.titleSlug, titleSlug) || other.titleSlug == titleSlug)&&(identical(other.studio, studio) || other.studio == studio)&&(identical(other.certification, certification) || other.certification == certification)&&(identical(other.runtime, runtime) || other.runtime == runtime)&&const DeepCollectionEquality().equals(other.genres, genres)&&(identical(other.ratings, ratings) || other.ratings == ratings)&&(identical(other.inCinemas, inCinemas) || other.inCinemas == inCinemas)&&(identical(other.physicalRelease, physicalRelease) || other.physicalRelease == physicalRelease)&&(identical(other.digitalRelease, digitalRelease) || other.digitalRelease == digitalRelease)&&(identical(other.hasFile, hasFile) || other.hasFile == hasFile)&&(identical(other.sizeOnDisk, sizeOnDisk) || other.sizeOnDisk == sizeOnDisk));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,year,monitored,status,overview,sortTitle,added,const DeepCollectionEquality().hash(images),qualityProfileId,rootFolderPath,path,movieFile,tmdbId,titleSlug,hasFile,sizeOnDisk);
+int get hashCode => Object.hashAll([runtimeType,id,title,year,monitored,status,overview,sortTitle,added,const DeepCollectionEquality().hash(images),qualityProfileId,rootFolderPath,path,movieFile,tmdbId,imdbId,titleSlug,studio,certification,runtime,const DeepCollectionEquality().hash(genres),ratings,inCinemas,physicalRelease,digitalRelease,hasFile,sizeOnDisk]);
 
 @override
 String toString() {
-  return 'RadarrMovie(id: $id, title: $title, year: $year, monitored: $monitored, status: $status, overview: $overview, sortTitle: $sortTitle, added: $added, images: $images, qualityProfileId: $qualityProfileId, rootFolderPath: $rootFolderPath, path: $path, movieFile: $movieFile, tmdbId: $tmdbId, titleSlug: $titleSlug, hasFile: $hasFile, sizeOnDisk: $sizeOnDisk)';
+  return 'RadarrMovie(id: $id, title: $title, year: $year, monitored: $monitored, status: $status, overview: $overview, sortTitle: $sortTitle, added: $added, images: $images, qualityProfileId: $qualityProfileId, rootFolderPath: $rootFolderPath, path: $path, movieFile: $movieFile, tmdbId: $tmdbId, imdbId: $imdbId, titleSlug: $titleSlug, studio: $studio, certification: $certification, runtime: $runtime, genres: $genres, ratings: $ratings, inCinemas: $inCinemas, physicalRelease: $physicalRelease, digitalRelease: $digitalRelease, hasFile: $hasFile, sizeOnDisk: $sizeOnDisk)';
 }
 
 
@@ -50,11 +50,11 @@ abstract mixin class $RadarrMovieCopyWith<$Res>  {
   factory $RadarrMovieCopyWith(RadarrMovie value, $Res Function(RadarrMovie) _then) = _$RadarrMovieCopyWithImpl;
 @useResult
 $Res call({
- int? id, String title, int year, bool monitored, String status, String overview, String sortTitle, DateTime? added, List<RadarrImage> images, int? qualityProfileId, String? rootFolderPath, String? path, RadarrMovieFile? movieFile, int tmdbId, String? titleSlug, bool hasFile, int sizeOnDisk
+ int? id, String title, int year, bool monitored, String status, String overview, String sortTitle, DateTime? added, List<RadarrImage> images, int? qualityProfileId, String? rootFolderPath, String? path, RadarrMovieFile? movieFile, int tmdbId, String? imdbId, String? titleSlug, String? studio, String? certification, int? runtime, List<String> genres, RadarrRatings? ratings, DateTime? inCinemas, DateTime? physicalRelease, DateTime? digitalRelease, bool hasFile, int sizeOnDisk
 });
 
 
-$RadarrMovieFileCopyWith<$Res>? get movieFile;
+$RadarrMovieFileCopyWith<$Res>? get movieFile;$RadarrRatingsCopyWith<$Res>? get ratings;
 
 }
 /// @nodoc
@@ -67,7 +67,7 @@ class _$RadarrMovieCopyWithImpl<$Res>
 
 /// Create a copy of RadarrMovie
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? year = null,Object? monitored = null,Object? status = null,Object? overview = null,Object? sortTitle = null,Object? added = freezed,Object? images = null,Object? qualityProfileId = freezed,Object? rootFolderPath = freezed,Object? path = freezed,Object? movieFile = freezed,Object? tmdbId = null,Object? titleSlug = freezed,Object? hasFile = null,Object? sizeOnDisk = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? year = null,Object? monitored = null,Object? status = null,Object? overview = null,Object? sortTitle = null,Object? added = freezed,Object? images = null,Object? qualityProfileId = freezed,Object? rootFolderPath = freezed,Object? path = freezed,Object? movieFile = freezed,Object? tmdbId = null,Object? imdbId = freezed,Object? titleSlug = freezed,Object? studio = freezed,Object? certification = freezed,Object? runtime = freezed,Object? genres = null,Object? ratings = freezed,Object? inCinemas = freezed,Object? physicalRelease = freezed,Object? digitalRelease = freezed,Object? hasFile = null,Object? sizeOnDisk = null,}) {
   return _then(RadarrMovie(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -83,8 +83,17 @@ as int?,rootFolderPath: freezed == rootFolderPath ? _self.rootFolderPath : rootF
 as String?,path: freezed == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
 as String?,movieFile: freezed == movieFile ? _self.movieFile : movieFile // ignore: cast_nullable_to_non_nullable
 as RadarrMovieFile?,tmdbId: null == tmdbId ? _self.tmdbId : tmdbId // ignore: cast_nullable_to_non_nullable
-as int,titleSlug: freezed == titleSlug ? _self.titleSlug : titleSlug // ignore: cast_nullable_to_non_nullable
-as String?,hasFile: null == hasFile ? _self.hasFile : hasFile // ignore: cast_nullable_to_non_nullable
+as int,imdbId: freezed == imdbId ? _self.imdbId : imdbId // ignore: cast_nullable_to_non_nullable
+as String?,titleSlug: freezed == titleSlug ? _self.titleSlug : titleSlug // ignore: cast_nullable_to_non_nullable
+as String?,studio: freezed == studio ? _self.studio : studio // ignore: cast_nullable_to_non_nullable
+as String?,certification: freezed == certification ? _self.certification : certification // ignore: cast_nullable_to_non_nullable
+as String?,runtime: freezed == runtime ? _self.runtime : runtime // ignore: cast_nullable_to_non_nullable
+as int?,genres: null == genres ? _self.genres : genres // ignore: cast_nullable_to_non_nullable
+as List<String>,ratings: freezed == ratings ? _self.ratings : ratings // ignore: cast_nullable_to_non_nullable
+as RadarrRatings?,inCinemas: freezed == inCinemas ? _self.inCinemas : inCinemas // ignore: cast_nullable_to_non_nullable
+as DateTime?,physicalRelease: freezed == physicalRelease ? _self.physicalRelease : physicalRelease // ignore: cast_nullable_to_non_nullable
+as DateTime?,digitalRelease: freezed == digitalRelease ? _self.digitalRelease : digitalRelease // ignore: cast_nullable_to_non_nullable
+as DateTime?,hasFile: null == hasFile ? _self.hasFile : hasFile // ignore: cast_nullable_to_non_nullable
 as bool,sizeOnDisk: null == sizeOnDisk ? _self.sizeOnDisk : sizeOnDisk // ignore: cast_nullable_to_non_nullable
 as int,
   ));
@@ -100,6 +109,18 @@ $RadarrMovieFileCopyWith<$Res>? get movieFile {
 
   return $RadarrMovieFileCopyWith<$Res>(_self.movieFile!, (value) {
     return _then(_self.copyWith(movieFile: value));
+  });
+}/// Create a copy of RadarrMovie
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RadarrRatingsCopyWith<$Res>? get ratings {
+    if (_self.ratings == null) {
+    return null;
+  }
+
+  return $RadarrRatingsCopyWith<$Res>(_self.ratings!, (value) {
+    return _then(_self.copyWith(ratings: value));
   });
 }
 }
@@ -183,10 +204,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String title,  int year,  bool monitored,  String status,  String overview,  String sortTitle,  DateTime? added,  List<RadarrImage> images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int tmdbId,  String? titleSlug,  bool hasFile,  int sizeOnDisk)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String title,  int year,  bool monitored,  String status,  String overview,  String sortTitle,  DateTime? added,  List<RadarrImage> images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int tmdbId,  String? imdbId,  String? titleSlug,  String? studio,  String? certification,  int? runtime,  List<String> genres,  RadarrRatings? ratings,  DateTime? inCinemas,  DateTime? physicalRelease,  DateTime? digitalRelease,  bool hasFile,  int sizeOnDisk)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RadarrMovie() when $default != null:
-return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.titleSlug,_that.hasFile,_that.sizeOnDisk);case _:
+return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.imdbId,_that.titleSlug,_that.studio,_that.certification,_that.runtime,_that.genres,_that.ratings,_that.inCinemas,_that.physicalRelease,_that.digitalRelease,_that.hasFile,_that.sizeOnDisk);case _:
   return orElse();
 
 }
@@ -204,10 +225,10 @@ return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String title,  int year,  bool monitored,  String status,  String overview,  String sortTitle,  DateTime? added,  List<RadarrImage> images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int tmdbId,  String? titleSlug,  bool hasFile,  int sizeOnDisk)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String title,  int year,  bool monitored,  String status,  String overview,  String sortTitle,  DateTime? added,  List<RadarrImage> images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int tmdbId,  String? imdbId,  String? titleSlug,  String? studio,  String? certification,  int? runtime,  List<String> genres,  RadarrRatings? ratings,  DateTime? inCinemas,  DateTime? physicalRelease,  DateTime? digitalRelease,  bool hasFile,  int sizeOnDisk)  $default,) {final _that = this;
 switch (_that) {
 case _RadarrMovie():
-return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.titleSlug,_that.hasFile,_that.sizeOnDisk);case _:
+return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.imdbId,_that.titleSlug,_that.studio,_that.certification,_that.runtime,_that.genres,_that.ratings,_that.inCinemas,_that.physicalRelease,_that.digitalRelease,_that.hasFile,_that.sizeOnDisk);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -224,10 +245,10 @@ return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String title,  int year,  bool monitored,  String status,  String overview,  String sortTitle,  DateTime? added,  List<RadarrImage> images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int tmdbId,  String? titleSlug,  bool hasFile,  int sizeOnDisk)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String title,  int year,  bool monitored,  String status,  String overview,  String sortTitle,  DateTime? added,  List<RadarrImage> images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int tmdbId,  String? imdbId,  String? titleSlug,  String? studio,  String? certification,  int? runtime,  List<String> genres,  RadarrRatings? ratings,  DateTime? inCinemas,  DateTime? physicalRelease,  DateTime? digitalRelease,  bool hasFile,  int sizeOnDisk)?  $default,) {final _that = this;
 switch (_that) {
 case _RadarrMovie() when $default != null:
-return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.titleSlug,_that.hasFile,_that.sizeOnDisk);case _:
+return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.imdbId,_that.titleSlug,_that.studio,_that.certification,_that.runtime,_that.genres,_that.ratings,_that.inCinemas,_that.physicalRelease,_that.digitalRelease,_that.hasFile,_that.sizeOnDisk);case _:
   return null;
 
 }
@@ -239,7 +260,7 @@ return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_th
 @JsonSerializable()
 
 class _RadarrMovie implements RadarrMovie {
-  const _RadarrMovie({this.id, required this.title, required this.year, required this.monitored, required this.status, required this.overview, required this.sortTitle, this.added, required  List<RadarrImage> images, this.qualityProfileId, this.rootFolderPath, this.path, this.movieFile, required this.tmdbId, this.titleSlug, this.hasFile = false, this.sizeOnDisk = 0}): _images = images;
+  const _RadarrMovie({this.id, required this.title, required this.year, required this.monitored, required this.status, required this.overview, required this.sortTitle, this.added, required  List<RadarrImage> images, this.qualityProfileId, this.rootFolderPath, this.path, this.movieFile, required this.tmdbId, this.imdbId, this.titleSlug, this.studio, this.certification, this.runtime,  List<String> genres = const [], this.ratings, this.inCinemas, this.physicalRelease, this.digitalRelease, this.hasFile = false, this.sizeOnDisk = 0}): _images = images,_genres = genres;
   factory _RadarrMovie.fromJson(Map<String, dynamic> json) => _$RadarrMovieFromJson(json);
 
 /// Unique ID in the Radarr database (null for lookup results).
@@ -263,7 +284,22 @@ class _RadarrMovie implements RadarrMovie {
 @override final  String? path;
 @override final  RadarrMovieFile? movieFile;
 @override final  int tmdbId;
+@override final  String? imdbId;
 @override final  String? titleSlug;
+@override final  String? studio;
+@override final  String? certification;
+@override final  int? runtime;
+ final  List<String> _genres;
+@override@JsonKey() List<String> get genres {
+  if (_genres is EqualUnmodifiableListView) return _genres;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_genres);
+}
+
+@override final  RadarrRatings? ratings;
+@override final  DateTime? inCinemas;
+@override final  DateTime? physicalRelease;
+@override final  DateTime? digitalRelease;
 @override@JsonKey() final  bool hasFile;
 @override@JsonKey() final  int sizeOnDisk;
 
@@ -280,16 +316,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RadarrMovie&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.year, year) || other.year == year)&&(identical(other.monitored, monitored) || other.monitored == monitored)&&(identical(other.status, status) || other.status == status)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.sortTitle, sortTitle) || other.sortTitle == sortTitle)&&(identical(other.added, added) || other.added == added)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.qualityProfileId, qualityProfileId) || other.qualityProfileId == qualityProfileId)&&(identical(other.rootFolderPath, rootFolderPath) || other.rootFolderPath == rootFolderPath)&&(identical(other.path, path) || other.path == path)&&(identical(other.movieFile, movieFile) || other.movieFile == movieFile)&&(identical(other.tmdbId, tmdbId) || other.tmdbId == tmdbId)&&(identical(other.titleSlug, titleSlug) || other.titleSlug == titleSlug)&&(identical(other.hasFile, hasFile) || other.hasFile == hasFile)&&(identical(other.sizeOnDisk, sizeOnDisk) || other.sizeOnDisk == sizeOnDisk));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RadarrMovie&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.year, year) || other.year == year)&&(identical(other.monitored, monitored) || other.monitored == monitored)&&(identical(other.status, status) || other.status == status)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.sortTitle, sortTitle) || other.sortTitle == sortTitle)&&(identical(other.added, added) || other.added == added)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.qualityProfileId, qualityProfileId) || other.qualityProfileId == qualityProfileId)&&(identical(other.rootFolderPath, rootFolderPath) || other.rootFolderPath == rootFolderPath)&&(identical(other.path, path) || other.path == path)&&(identical(other.movieFile, movieFile) || other.movieFile == movieFile)&&(identical(other.tmdbId, tmdbId) || other.tmdbId == tmdbId)&&(identical(other.imdbId, imdbId) || other.imdbId == imdbId)&&(identical(other.titleSlug, titleSlug) || other.titleSlug == titleSlug)&&(identical(other.studio, studio) || other.studio == studio)&&(identical(other.certification, certification) || other.certification == certification)&&(identical(other.runtime, runtime) || other.runtime == runtime)&&const DeepCollectionEquality().equals(other._genres, _genres)&&(identical(other.ratings, ratings) || other.ratings == ratings)&&(identical(other.inCinemas, inCinemas) || other.inCinemas == inCinemas)&&(identical(other.physicalRelease, physicalRelease) || other.physicalRelease == physicalRelease)&&(identical(other.digitalRelease, digitalRelease) || other.digitalRelease == digitalRelease)&&(identical(other.hasFile, hasFile) || other.hasFile == hasFile)&&(identical(other.sizeOnDisk, sizeOnDisk) || other.sizeOnDisk == sizeOnDisk));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,year,monitored,status,overview,sortTitle,added,const DeepCollectionEquality().hash(_images),qualityProfileId,rootFolderPath,path,movieFile,tmdbId,titleSlug,hasFile,sizeOnDisk);
+int get hashCode => Object.hashAll([runtimeType,id,title,year,monitored,status,overview,sortTitle,added,const DeepCollectionEquality().hash(_images),qualityProfileId,rootFolderPath,path,movieFile,tmdbId,imdbId,titleSlug,studio,certification,runtime,const DeepCollectionEquality().hash(_genres),ratings,inCinemas,physicalRelease,digitalRelease,hasFile,sizeOnDisk]);
 
 @override
 String toString() {
-  return 'RadarrMovie(id: $id, title: $title, year: $year, monitored: $monitored, status: $status, overview: $overview, sortTitle: $sortTitle, added: $added, images: $images, qualityProfileId: $qualityProfileId, rootFolderPath: $rootFolderPath, path: $path, movieFile: $movieFile, tmdbId: $tmdbId, titleSlug: $titleSlug, hasFile: $hasFile, sizeOnDisk: $sizeOnDisk)';
+  return 'RadarrMovie(id: $id, title: $title, year: $year, monitored: $monitored, status: $status, overview: $overview, sortTitle: $sortTitle, added: $added, images: $images, qualityProfileId: $qualityProfileId, rootFolderPath: $rootFolderPath, path: $path, movieFile: $movieFile, tmdbId: $tmdbId, imdbId: $imdbId, titleSlug: $titleSlug, studio: $studio, certification: $certification, runtime: $runtime, genres: $genres, ratings: $ratings, inCinemas: $inCinemas, physicalRelease: $physicalRelease, digitalRelease: $digitalRelease, hasFile: $hasFile, sizeOnDisk: $sizeOnDisk)';
 }
 
 
@@ -300,11 +336,11 @@ abstract mixin class _$RadarrMovieCopyWith<$Res> implements $RadarrMovieCopyWith
   factory _$RadarrMovieCopyWith(_RadarrMovie value, $Res Function(_RadarrMovie) _then) = __$RadarrMovieCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String title, int year, bool monitored, String status, String overview, String sortTitle, DateTime? added, List<RadarrImage> images, int? qualityProfileId, String? rootFolderPath, String? path, RadarrMovieFile? movieFile, int tmdbId, String? titleSlug, bool hasFile, int sizeOnDisk
+ int? id, String title, int year, bool monitored, String status, String overview, String sortTitle, DateTime? added, List<RadarrImage> images, int? qualityProfileId, String? rootFolderPath, String? path, RadarrMovieFile? movieFile, int tmdbId, String? imdbId, String? titleSlug, String? studio, String? certification, int? runtime, List<String> genres, RadarrRatings? ratings, DateTime? inCinemas, DateTime? physicalRelease, DateTime? digitalRelease, bool hasFile, int sizeOnDisk
 });
 
 
-@override $RadarrMovieFileCopyWith<$Res>? get movieFile;
+@override $RadarrMovieFileCopyWith<$Res>? get movieFile;@override $RadarrRatingsCopyWith<$Res>? get ratings;
 
 }
 /// @nodoc
@@ -317,7 +353,7 @@ class __$RadarrMovieCopyWithImpl<$Res>
 
 /// Create a copy of RadarrMovie
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? year = null,Object? monitored = null,Object? status = null,Object? overview = null,Object? sortTitle = null,Object? added = freezed,Object? images = null,Object? qualityProfileId = freezed,Object? rootFolderPath = freezed,Object? path = freezed,Object? movieFile = freezed,Object? tmdbId = null,Object? titleSlug = freezed,Object? hasFile = null,Object? sizeOnDisk = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? year = null,Object? monitored = null,Object? status = null,Object? overview = null,Object? sortTitle = null,Object? added = freezed,Object? images = null,Object? qualityProfileId = freezed,Object? rootFolderPath = freezed,Object? path = freezed,Object? movieFile = freezed,Object? tmdbId = null,Object? imdbId = freezed,Object? titleSlug = freezed,Object? studio = freezed,Object? certification = freezed,Object? runtime = freezed,Object? genres = null,Object? ratings = freezed,Object? inCinemas = freezed,Object? physicalRelease = freezed,Object? digitalRelease = freezed,Object? hasFile = null,Object? sizeOnDisk = null,}) {
   return _then(_RadarrMovie(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -333,8 +369,17 @@ as int?,rootFolderPath: freezed == rootFolderPath ? _self.rootFolderPath : rootF
 as String?,path: freezed == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
 as String?,movieFile: freezed == movieFile ? _self.movieFile : movieFile // ignore: cast_nullable_to_non_nullable
 as RadarrMovieFile?,tmdbId: null == tmdbId ? _self.tmdbId : tmdbId // ignore: cast_nullable_to_non_nullable
-as int,titleSlug: freezed == titleSlug ? _self.titleSlug : titleSlug // ignore: cast_nullable_to_non_nullable
-as String?,hasFile: null == hasFile ? _self.hasFile : hasFile // ignore: cast_nullable_to_non_nullable
+as int,imdbId: freezed == imdbId ? _self.imdbId : imdbId // ignore: cast_nullable_to_non_nullable
+as String?,titleSlug: freezed == titleSlug ? _self.titleSlug : titleSlug // ignore: cast_nullable_to_non_nullable
+as String?,studio: freezed == studio ? _self.studio : studio // ignore: cast_nullable_to_non_nullable
+as String?,certification: freezed == certification ? _self.certification : certification // ignore: cast_nullable_to_non_nullable
+as String?,runtime: freezed == runtime ? _self.runtime : runtime // ignore: cast_nullable_to_non_nullable
+as int?,genres: null == genres ? _self._genres : genres // ignore: cast_nullable_to_non_nullable
+as List<String>,ratings: freezed == ratings ? _self.ratings : ratings // ignore: cast_nullable_to_non_nullable
+as RadarrRatings?,inCinemas: freezed == inCinemas ? _self.inCinemas : inCinemas // ignore: cast_nullable_to_non_nullable
+as DateTime?,physicalRelease: freezed == physicalRelease ? _self.physicalRelease : physicalRelease // ignore: cast_nullable_to_non_nullable
+as DateTime?,digitalRelease: freezed == digitalRelease ? _self.digitalRelease : digitalRelease // ignore: cast_nullable_to_non_nullable
+as DateTime?,hasFile: null == hasFile ? _self.hasFile : hasFile // ignore: cast_nullable_to_non_nullable
 as bool,sizeOnDisk: null == sizeOnDisk ? _self.sizeOnDisk : sizeOnDisk // ignore: cast_nullable_to_non_nullable
 as int,
   ));
@@ -351,6 +396,18 @@ $RadarrMovieFileCopyWith<$Res>? get movieFile {
 
   return $RadarrMovieFileCopyWith<$Res>(_self.movieFile!, (value) {
     return _then(_self.copyWith(movieFile: value));
+  });
+}/// Create a copy of RadarrMovie
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RadarrRatingsCopyWith<$Res>? get ratings {
+    if (_self.ratings == null) {
+    return null;
+  }
+
+  return $RadarrRatingsCopyWith<$Res>(_self.ratings!, (value) {
+    return _then(_self.copyWith(ratings: value));
   });
 }
 }
@@ -1458,6 +1515,613 @@ class __$RadarrQualityCopyWithImpl<$Res>
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$RadarrRatings {
+
+ RadarrRatingValue? get imdb; RadarrRatingValue? get tmdb; RadarrRatingValue? get rottenTomatoes;
+/// Create a copy of RadarrRatings
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RadarrRatingsCopyWith<RadarrRatings> get copyWith => _$RadarrRatingsCopyWithImpl<RadarrRatings>(this as RadarrRatings, _$identity);
+
+  /// Serializes this RadarrRatings to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RadarrRatings&&(identical(other.imdb, imdb) || other.imdb == imdb)&&(identical(other.tmdb, tmdb) || other.tmdb == tmdb)&&(identical(other.rottenTomatoes, rottenTomatoes) || other.rottenTomatoes == rottenTomatoes));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,imdb,tmdb,rottenTomatoes);
+
+@override
+String toString() {
+  return 'RadarrRatings(imdb: $imdb, tmdb: $tmdb, rottenTomatoes: $rottenTomatoes)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RadarrRatingsCopyWith<$Res>  {
+  factory $RadarrRatingsCopyWith(RadarrRatings value, $Res Function(RadarrRatings) _then) = _$RadarrRatingsCopyWithImpl;
+@useResult
+$Res call({
+ RadarrRatingValue? imdb, RadarrRatingValue? tmdb, RadarrRatingValue? rottenTomatoes
+});
+
+
+$RadarrRatingValueCopyWith<$Res>? get imdb;$RadarrRatingValueCopyWith<$Res>? get tmdb;$RadarrRatingValueCopyWith<$Res>? get rottenTomatoes;
+
+}
+/// @nodoc
+class _$RadarrRatingsCopyWithImpl<$Res>
+    implements $RadarrRatingsCopyWith<$Res> {
+  _$RadarrRatingsCopyWithImpl(this._self, this._then);
+
+  final RadarrRatings _self;
+  final $Res Function(RadarrRatings) _then;
+
+/// Create a copy of RadarrRatings
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? imdb = freezed,Object? tmdb = freezed,Object? rottenTomatoes = freezed,}) {
+  return _then(RadarrRatings(
+imdb: freezed == imdb ? _self.imdb : imdb // ignore: cast_nullable_to_non_nullable
+as RadarrRatingValue?,tmdb: freezed == tmdb ? _self.tmdb : tmdb // ignore: cast_nullable_to_non_nullable
+as RadarrRatingValue?,rottenTomatoes: freezed == rottenTomatoes ? _self.rottenTomatoes : rottenTomatoes // ignore: cast_nullable_to_non_nullable
+as RadarrRatingValue?,
+  ));
+}
+/// Create a copy of RadarrRatings
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RadarrRatingValueCopyWith<$Res>? get imdb {
+    if (_self.imdb == null) {
+    return null;
+  }
+
+  return $RadarrRatingValueCopyWith<$Res>(_self.imdb!, (value) {
+    return _then(_self.copyWith(imdb: value));
+  });
+}/// Create a copy of RadarrRatings
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RadarrRatingValueCopyWith<$Res>? get tmdb {
+    if (_self.tmdb == null) {
+    return null;
+  }
+
+  return $RadarrRatingValueCopyWith<$Res>(_self.tmdb!, (value) {
+    return _then(_self.copyWith(tmdb: value));
+  });
+}/// Create a copy of RadarrRatings
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RadarrRatingValueCopyWith<$Res>? get rottenTomatoes {
+    if (_self.rottenTomatoes == null) {
+    return null;
+  }
+
+  return $RadarrRatingValueCopyWith<$Res>(_self.rottenTomatoes!, (value) {
+    return _then(_self.copyWith(rottenTomatoes: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [RadarrRatings].
+extension RadarrRatingsPatterns on RadarrRatings {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RadarrRatings value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RadarrRatings() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RadarrRatings value)  $default,){
+final _that = this;
+switch (_that) {
+case _RadarrRatings():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RadarrRatings value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RadarrRatings() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( RadarrRatingValue? imdb,  RadarrRatingValue? tmdb,  RadarrRatingValue? rottenTomatoes)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RadarrRatings() when $default != null:
+return $default(_that.imdb,_that.tmdb,_that.rottenTomatoes);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( RadarrRatingValue? imdb,  RadarrRatingValue? tmdb,  RadarrRatingValue? rottenTomatoes)  $default,) {final _that = this;
+switch (_that) {
+case _RadarrRatings():
+return $default(_that.imdb,_that.tmdb,_that.rottenTomatoes);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( RadarrRatingValue? imdb,  RadarrRatingValue? tmdb,  RadarrRatingValue? rottenTomatoes)?  $default,) {final _that = this;
+switch (_that) {
+case _RadarrRatings() when $default != null:
+return $default(_that.imdb,_that.tmdb,_that.rottenTomatoes);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _RadarrRatings implements RadarrRatings {
+  const _RadarrRatings({this.imdb, this.tmdb, this.rottenTomatoes});
+  factory _RadarrRatings.fromJson(Map<String, dynamic> json) => _$RadarrRatingsFromJson(json);
+
+@override final  RadarrRatingValue? imdb;
+@override final  RadarrRatingValue? tmdb;
+@override final  RadarrRatingValue? rottenTomatoes;
+
+/// Create a copy of RadarrRatings
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RadarrRatingsCopyWith<_RadarrRatings> get copyWith => __$RadarrRatingsCopyWithImpl<_RadarrRatings>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$RadarrRatingsToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RadarrRatings&&(identical(other.imdb, imdb) || other.imdb == imdb)&&(identical(other.tmdb, tmdb) || other.tmdb == tmdb)&&(identical(other.rottenTomatoes, rottenTomatoes) || other.rottenTomatoes == rottenTomatoes));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,imdb,tmdb,rottenTomatoes);
+
+@override
+String toString() {
+  return 'RadarrRatings(imdb: $imdb, tmdb: $tmdb, rottenTomatoes: $rottenTomatoes)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RadarrRatingsCopyWith<$Res> implements $RadarrRatingsCopyWith<$Res> {
+  factory _$RadarrRatingsCopyWith(_RadarrRatings value, $Res Function(_RadarrRatings) _then) = __$RadarrRatingsCopyWithImpl;
+@override @useResult
+$Res call({
+ RadarrRatingValue? imdb, RadarrRatingValue? tmdb, RadarrRatingValue? rottenTomatoes
+});
+
+
+@override $RadarrRatingValueCopyWith<$Res>? get imdb;@override $RadarrRatingValueCopyWith<$Res>? get tmdb;@override $RadarrRatingValueCopyWith<$Res>? get rottenTomatoes;
+
+}
+/// @nodoc
+class __$RadarrRatingsCopyWithImpl<$Res>
+    implements _$RadarrRatingsCopyWith<$Res> {
+  __$RadarrRatingsCopyWithImpl(this._self, this._then);
+
+  final _RadarrRatings _self;
+  final $Res Function(_RadarrRatings) _then;
+
+/// Create a copy of RadarrRatings
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? imdb = freezed,Object? tmdb = freezed,Object? rottenTomatoes = freezed,}) {
+  return _then(_RadarrRatings(
+imdb: freezed == imdb ? _self.imdb : imdb // ignore: cast_nullable_to_non_nullable
+as RadarrRatingValue?,tmdb: freezed == tmdb ? _self.tmdb : tmdb // ignore: cast_nullable_to_non_nullable
+as RadarrRatingValue?,rottenTomatoes: freezed == rottenTomatoes ? _self.rottenTomatoes : rottenTomatoes // ignore: cast_nullable_to_non_nullable
+as RadarrRatingValue?,
+  ));
+}
+
+/// Create a copy of RadarrRatings
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RadarrRatingValueCopyWith<$Res>? get imdb {
+    if (_self.imdb == null) {
+    return null;
+  }
+
+  return $RadarrRatingValueCopyWith<$Res>(_self.imdb!, (value) {
+    return _then(_self.copyWith(imdb: value));
+  });
+}/// Create a copy of RadarrRatings
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RadarrRatingValueCopyWith<$Res>? get tmdb {
+    if (_self.tmdb == null) {
+    return null;
+  }
+
+  return $RadarrRatingValueCopyWith<$Res>(_self.tmdb!, (value) {
+    return _then(_self.copyWith(tmdb: value));
+  });
+}/// Create a copy of RadarrRatings
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RadarrRatingValueCopyWith<$Res>? get rottenTomatoes {
+    if (_self.rottenTomatoes == null) {
+    return null;
+  }
+
+  return $RadarrRatingValueCopyWith<$Res>(_self.rottenTomatoes!, (value) {
+    return _then(_self.copyWith(rottenTomatoes: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$RadarrRatingValue {
+
+ int get votes; double get value;
+/// Create a copy of RadarrRatingValue
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RadarrRatingValueCopyWith<RadarrRatingValue> get copyWith => _$RadarrRatingValueCopyWithImpl<RadarrRatingValue>(this as RadarrRatingValue, _$identity);
+
+  /// Serializes this RadarrRatingValue to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RadarrRatingValue&&(identical(other.votes, votes) || other.votes == votes)&&(identical(other.value, value) || other.value == value));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,votes,value);
+
+@override
+String toString() {
+  return 'RadarrRatingValue(votes: $votes, value: $value)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RadarrRatingValueCopyWith<$Res>  {
+  factory $RadarrRatingValueCopyWith(RadarrRatingValue value, $Res Function(RadarrRatingValue) _then) = _$RadarrRatingValueCopyWithImpl;
+@useResult
+$Res call({
+ int votes, double value
+});
+
+
+
+
+}
+/// @nodoc
+class _$RadarrRatingValueCopyWithImpl<$Res>
+    implements $RadarrRatingValueCopyWith<$Res> {
+  _$RadarrRatingValueCopyWithImpl(this._self, this._then);
+
+  final RadarrRatingValue _self;
+  final $Res Function(RadarrRatingValue) _then;
+
+/// Create a copy of RadarrRatingValue
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? votes = null,Object? value = null,}) {
+  return _then(RadarrRatingValue(
+votes: null == votes ? _self.votes : votes // ignore: cast_nullable_to_non_nullable
+as int,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as double,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [RadarrRatingValue].
+extension RadarrRatingValuePatterns on RadarrRatingValue {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RadarrRatingValue value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RadarrRatingValue() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RadarrRatingValue value)  $default,){
+final _that = this;
+switch (_that) {
+case _RadarrRatingValue():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RadarrRatingValue value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RadarrRatingValue() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int votes,  double value)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RadarrRatingValue() when $default != null:
+return $default(_that.votes,_that.value);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int votes,  double value)  $default,) {final _that = this;
+switch (_that) {
+case _RadarrRatingValue():
+return $default(_that.votes,_that.value);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int votes,  double value)?  $default,) {final _that = this;
+switch (_that) {
+case _RadarrRatingValue() when $default != null:
+return $default(_that.votes,_that.value);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _RadarrRatingValue implements RadarrRatingValue {
+  const _RadarrRatingValue({this.votes = 0, this.value = 0});
+  factory _RadarrRatingValue.fromJson(Map<String, dynamic> json) => _$RadarrRatingValueFromJson(json);
+
+@override@JsonKey() final  int votes;
+@override@JsonKey() final  double value;
+
+/// Create a copy of RadarrRatingValue
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RadarrRatingValueCopyWith<_RadarrRatingValue> get copyWith => __$RadarrRatingValueCopyWithImpl<_RadarrRatingValue>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$RadarrRatingValueToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RadarrRatingValue&&(identical(other.votes, votes) || other.votes == votes)&&(identical(other.value, value) || other.value == value));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,votes,value);
+
+@override
+String toString() {
+  return 'RadarrRatingValue(votes: $votes, value: $value)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RadarrRatingValueCopyWith<$Res> implements $RadarrRatingValueCopyWith<$Res> {
+  factory _$RadarrRatingValueCopyWith(_RadarrRatingValue value, $Res Function(_RadarrRatingValue) _then) = __$RadarrRatingValueCopyWithImpl;
+@override @useResult
+$Res call({
+ int votes, double value
+});
+
+
+
+
+}
+/// @nodoc
+class __$RadarrRatingValueCopyWithImpl<$Res>
+    implements _$RadarrRatingValueCopyWith<$Res> {
+  __$RadarrRatingValueCopyWithImpl(this._self, this._then);
+
+  final _RadarrRatingValue _self;
+  final $Res Function(_RadarrRatingValue) _then;
+
+/// Create a copy of RadarrRatingValue
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? votes = null,Object? value = null,}) {
+  return _then(_RadarrRatingValue(
+votes: null == votes ? _self.votes : votes // ignore: cast_nullable_to_non_nullable
+as int,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as double,
   ));
 }
 

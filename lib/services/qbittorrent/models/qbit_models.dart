@@ -26,6 +26,7 @@ abstract class QbitTorrent with _$QbitTorrent {
     required double ratio,
     required int eta,
     required String state,
+    @Default('') String tracker,
     @JsonKey(name: 'seq_dl') required int seqDl,
     @JsonKey(name: 'seq_up') required int seqUp,
     @JsonKey(name: 'added_on') required int addedOn,

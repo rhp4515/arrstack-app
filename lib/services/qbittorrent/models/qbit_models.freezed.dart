@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$QbitTorrent {
 
- String get hash; String get name; int get size; double get progress; int get dlspeed; int get upspeed; int get priority;@JsonKey(name: 'num_seeds') int get numSeeds;@JsonKey(name: 'num_leechs') int get numLeechs;@JsonKey(name: 'num_incomplete') int get numIncomplete; double get ratio; int get eta; String get state;@JsonKey(name: 'seq_dl') int get seqDl;@JsonKey(name: 'seq_up') int get seqUp;@JsonKey(name: 'added_on') int get addedOn;@JsonKey(name: 'completion_on') int get completionOn; String get category; String get tags;@JsonKey(name: 'save_path') String get savePath;@JsonKey(name: 'time_active') int get timeActive;@JsonKey(name: 'last_activity') int get lastActivity;
+ String get hash; String get name; int get size; double get progress; int get dlspeed; int get upspeed; int get priority;@JsonKey(name: 'num_seeds') int get numSeeds;@JsonKey(name: 'num_leechs') int get numLeechs;@JsonKey(name: 'num_incomplete') int get numIncomplete; double get ratio; int get eta; String get state; String get tracker;@JsonKey(name: 'seq_dl') int get seqDl;@JsonKey(name: 'seq_up') int get seqUp;@JsonKey(name: 'added_on') int get addedOn;@JsonKey(name: 'completion_on') int get completionOn; String get category; String get tags;@JsonKey(name: 'save_path') String get savePath;@JsonKey(name: 'time_active') int get timeActive;@JsonKey(name: 'last_activity') int get lastActivity;
 /// Create a copy of QbitTorrent
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,16 +29,16 @@ $QbitTorrentCopyWith<QbitTorrent> get copyWith => _$QbitTorrentCopyWithImpl<Qbit
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is QbitTorrent&&(identical(other.hash, hash) || other.hash == hash)&&(identical(other.name, name) || other.name == name)&&(identical(other.size, size) || other.size == size)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.dlspeed, dlspeed) || other.dlspeed == dlspeed)&&(identical(other.upspeed, upspeed) || other.upspeed == upspeed)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.numSeeds, numSeeds) || other.numSeeds == numSeeds)&&(identical(other.numLeechs, numLeechs) || other.numLeechs == numLeechs)&&(identical(other.numIncomplete, numIncomplete) || other.numIncomplete == numIncomplete)&&(identical(other.ratio, ratio) || other.ratio == ratio)&&(identical(other.eta, eta) || other.eta == eta)&&(identical(other.state, state) || other.state == state)&&(identical(other.seqDl, seqDl) || other.seqDl == seqDl)&&(identical(other.seqUp, seqUp) || other.seqUp == seqUp)&&(identical(other.addedOn, addedOn) || other.addedOn == addedOn)&&(identical(other.completionOn, completionOn) || other.completionOn == completionOn)&&(identical(other.category, category) || other.category == category)&&(identical(other.tags, tags) || other.tags == tags)&&(identical(other.savePath, savePath) || other.savePath == savePath)&&(identical(other.timeActive, timeActive) || other.timeActive == timeActive)&&(identical(other.lastActivity, lastActivity) || other.lastActivity == lastActivity));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QbitTorrent&&(identical(other.hash, hash) || other.hash == hash)&&(identical(other.name, name) || other.name == name)&&(identical(other.size, size) || other.size == size)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.dlspeed, dlspeed) || other.dlspeed == dlspeed)&&(identical(other.upspeed, upspeed) || other.upspeed == upspeed)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.numSeeds, numSeeds) || other.numSeeds == numSeeds)&&(identical(other.numLeechs, numLeechs) || other.numLeechs == numLeechs)&&(identical(other.numIncomplete, numIncomplete) || other.numIncomplete == numIncomplete)&&(identical(other.ratio, ratio) || other.ratio == ratio)&&(identical(other.eta, eta) || other.eta == eta)&&(identical(other.state, state) || other.state == state)&&(identical(other.tracker, tracker) || other.tracker == tracker)&&(identical(other.seqDl, seqDl) || other.seqDl == seqDl)&&(identical(other.seqUp, seqUp) || other.seqUp == seqUp)&&(identical(other.addedOn, addedOn) || other.addedOn == addedOn)&&(identical(other.completionOn, completionOn) || other.completionOn == completionOn)&&(identical(other.category, category) || other.category == category)&&(identical(other.tags, tags) || other.tags == tags)&&(identical(other.savePath, savePath) || other.savePath == savePath)&&(identical(other.timeActive, timeActive) || other.timeActive == timeActive)&&(identical(other.lastActivity, lastActivity) || other.lastActivity == lastActivity));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,hash,name,size,progress,dlspeed,upspeed,priority,numSeeds,numLeechs,numIncomplete,ratio,eta,state,seqDl,seqUp,addedOn,completionOn,category,tags,savePath,timeActive,lastActivity]);
+int get hashCode => Object.hashAll([runtimeType,hash,name,size,progress,dlspeed,upspeed,priority,numSeeds,numLeechs,numIncomplete,ratio,eta,state,tracker,seqDl,seqUp,addedOn,completionOn,category,tags,savePath,timeActive,lastActivity]);
 
 @override
 String toString() {
-  return 'QbitTorrent(hash: $hash, name: $name, size: $size, progress: $progress, dlspeed: $dlspeed, upspeed: $upspeed, priority: $priority, numSeeds: $numSeeds, numLeechs: $numLeechs, numIncomplete: $numIncomplete, ratio: $ratio, eta: $eta, state: $state, seqDl: $seqDl, seqUp: $seqUp, addedOn: $addedOn, completionOn: $completionOn, category: $category, tags: $tags, savePath: $savePath, timeActive: $timeActive, lastActivity: $lastActivity)';
+  return 'QbitTorrent(hash: $hash, name: $name, size: $size, progress: $progress, dlspeed: $dlspeed, upspeed: $upspeed, priority: $priority, numSeeds: $numSeeds, numLeechs: $numLeechs, numIncomplete: $numIncomplete, ratio: $ratio, eta: $eta, state: $state, tracker: $tracker, seqDl: $seqDl, seqUp: $seqUp, addedOn: $addedOn, completionOn: $completionOn, category: $category, tags: $tags, savePath: $savePath, timeActive: $timeActive, lastActivity: $lastActivity)';
 }
 
 
@@ -49,7 +49,7 @@ abstract mixin class $QbitTorrentCopyWith<$Res>  {
   factory $QbitTorrentCopyWith(QbitTorrent value, $Res Function(QbitTorrent) _then) = _$QbitTorrentCopyWithImpl;
 @useResult
 $Res call({
- String hash, String name, int size, double progress, int dlspeed, int upspeed, int priority,@JsonKey(name: 'num_seeds') int numSeeds,@JsonKey(name: 'num_leechs') int numLeechs,@JsonKey(name: 'num_incomplete') int numIncomplete, double ratio, int eta, String state,@JsonKey(name: 'seq_dl') int seqDl,@JsonKey(name: 'seq_up') int seqUp,@JsonKey(name: 'added_on') int addedOn,@JsonKey(name: 'completion_on') int completionOn, String category, String tags,@JsonKey(name: 'save_path') String savePath,@JsonKey(name: 'time_active') int timeActive,@JsonKey(name: 'last_activity') int lastActivity
+ String hash, String name, int size, double progress, int dlspeed, int upspeed, int priority,@JsonKey(name: 'num_seeds') int numSeeds,@JsonKey(name: 'num_leechs') int numLeechs,@JsonKey(name: 'num_incomplete') int numIncomplete, double ratio, int eta, String state, String tracker,@JsonKey(name: 'seq_dl') int seqDl,@JsonKey(name: 'seq_up') int seqUp,@JsonKey(name: 'added_on') int addedOn,@JsonKey(name: 'completion_on') int completionOn, String category, String tags,@JsonKey(name: 'save_path') String savePath,@JsonKey(name: 'time_active') int timeActive,@JsonKey(name: 'last_activity') int lastActivity
 });
 
 
@@ -66,7 +66,7 @@ class _$QbitTorrentCopyWithImpl<$Res>
 
 /// Create a copy of QbitTorrent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? hash = null,Object? name = null,Object? size = null,Object? progress = null,Object? dlspeed = null,Object? upspeed = null,Object? priority = null,Object? numSeeds = null,Object? numLeechs = null,Object? numIncomplete = null,Object? ratio = null,Object? eta = null,Object? state = null,Object? seqDl = null,Object? seqUp = null,Object? addedOn = null,Object? completionOn = null,Object? category = null,Object? tags = null,Object? savePath = null,Object? timeActive = null,Object? lastActivity = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? hash = null,Object? name = null,Object? size = null,Object? progress = null,Object? dlspeed = null,Object? upspeed = null,Object? priority = null,Object? numSeeds = null,Object? numLeechs = null,Object? numIncomplete = null,Object? ratio = null,Object? eta = null,Object? state = null,Object? tracker = null,Object? seqDl = null,Object? seqUp = null,Object? addedOn = null,Object? completionOn = null,Object? category = null,Object? tags = null,Object? savePath = null,Object? timeActive = null,Object? lastActivity = null,}) {
   return _then(QbitTorrent(
 hash: null == hash ? _self.hash : hash // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -81,6 +81,7 @@ as int,numIncomplete: null == numIncomplete ? _self.numIncomplete : numIncomplet
 as int,ratio: null == ratio ? _self.ratio : ratio // ignore: cast_nullable_to_non_nullable
 as double,eta: null == eta ? _self.eta : eta // ignore: cast_nullable_to_non_nullable
 as int,state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
+as String,tracker: null == tracker ? _self.tracker : tracker // ignore: cast_nullable_to_non_nullable
 as String,seqDl: null == seqDl ? _self.seqDl : seqDl // ignore: cast_nullable_to_non_nullable
 as int,seqUp: null == seqUp ? _self.seqUp : seqUp // ignore: cast_nullable_to_non_nullable
 as int,addedOn: null == addedOn ? _self.addedOn : addedOn // ignore: cast_nullable_to_non_nullable
@@ -175,10 +176,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String hash,  String name,  int size,  double progress,  int dlspeed,  int upspeed,  int priority, @JsonKey(name: 'num_seeds')  int numSeeds, @JsonKey(name: 'num_leechs')  int numLeechs, @JsonKey(name: 'num_incomplete')  int numIncomplete,  double ratio,  int eta,  String state, @JsonKey(name: 'seq_dl')  int seqDl, @JsonKey(name: 'seq_up')  int seqUp, @JsonKey(name: 'added_on')  int addedOn, @JsonKey(name: 'completion_on')  int completionOn,  String category,  String tags, @JsonKey(name: 'save_path')  String savePath, @JsonKey(name: 'time_active')  int timeActive, @JsonKey(name: 'last_activity')  int lastActivity)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String hash,  String name,  int size,  double progress,  int dlspeed,  int upspeed,  int priority, @JsonKey(name: 'num_seeds')  int numSeeds, @JsonKey(name: 'num_leechs')  int numLeechs, @JsonKey(name: 'num_incomplete')  int numIncomplete,  double ratio,  int eta,  String state,  String tracker, @JsonKey(name: 'seq_dl')  int seqDl, @JsonKey(name: 'seq_up')  int seqUp, @JsonKey(name: 'added_on')  int addedOn, @JsonKey(name: 'completion_on')  int completionOn,  String category,  String tags, @JsonKey(name: 'save_path')  String savePath, @JsonKey(name: 'time_active')  int timeActive, @JsonKey(name: 'last_activity')  int lastActivity)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _QbitTorrent() when $default != null:
-return $default(_that.hash,_that.name,_that.size,_that.progress,_that.dlspeed,_that.upspeed,_that.priority,_that.numSeeds,_that.numLeechs,_that.numIncomplete,_that.ratio,_that.eta,_that.state,_that.seqDl,_that.seqUp,_that.addedOn,_that.completionOn,_that.category,_that.tags,_that.savePath,_that.timeActive,_that.lastActivity);case _:
+return $default(_that.hash,_that.name,_that.size,_that.progress,_that.dlspeed,_that.upspeed,_that.priority,_that.numSeeds,_that.numLeechs,_that.numIncomplete,_that.ratio,_that.eta,_that.state,_that.tracker,_that.seqDl,_that.seqUp,_that.addedOn,_that.completionOn,_that.category,_that.tags,_that.savePath,_that.timeActive,_that.lastActivity);case _:
   return orElse();
 
 }
@@ -196,10 +197,10 @@ return $default(_that.hash,_that.name,_that.size,_that.progress,_that.dlspeed,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String hash,  String name,  int size,  double progress,  int dlspeed,  int upspeed,  int priority, @JsonKey(name: 'num_seeds')  int numSeeds, @JsonKey(name: 'num_leechs')  int numLeechs, @JsonKey(name: 'num_incomplete')  int numIncomplete,  double ratio,  int eta,  String state, @JsonKey(name: 'seq_dl')  int seqDl, @JsonKey(name: 'seq_up')  int seqUp, @JsonKey(name: 'added_on')  int addedOn, @JsonKey(name: 'completion_on')  int completionOn,  String category,  String tags, @JsonKey(name: 'save_path')  String savePath, @JsonKey(name: 'time_active')  int timeActive, @JsonKey(name: 'last_activity')  int lastActivity)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String hash,  String name,  int size,  double progress,  int dlspeed,  int upspeed,  int priority, @JsonKey(name: 'num_seeds')  int numSeeds, @JsonKey(name: 'num_leechs')  int numLeechs, @JsonKey(name: 'num_incomplete')  int numIncomplete,  double ratio,  int eta,  String state,  String tracker, @JsonKey(name: 'seq_dl')  int seqDl, @JsonKey(name: 'seq_up')  int seqUp, @JsonKey(name: 'added_on')  int addedOn, @JsonKey(name: 'completion_on')  int completionOn,  String category,  String tags, @JsonKey(name: 'save_path')  String savePath, @JsonKey(name: 'time_active')  int timeActive, @JsonKey(name: 'last_activity')  int lastActivity)  $default,) {final _that = this;
 switch (_that) {
 case _QbitTorrent():
-return $default(_that.hash,_that.name,_that.size,_that.progress,_that.dlspeed,_that.upspeed,_that.priority,_that.numSeeds,_that.numLeechs,_that.numIncomplete,_that.ratio,_that.eta,_that.state,_that.seqDl,_that.seqUp,_that.addedOn,_that.completionOn,_that.category,_that.tags,_that.savePath,_that.timeActive,_that.lastActivity);case _:
+return $default(_that.hash,_that.name,_that.size,_that.progress,_that.dlspeed,_that.upspeed,_that.priority,_that.numSeeds,_that.numLeechs,_that.numIncomplete,_that.ratio,_that.eta,_that.state,_that.tracker,_that.seqDl,_that.seqUp,_that.addedOn,_that.completionOn,_that.category,_that.tags,_that.savePath,_that.timeActive,_that.lastActivity);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -216,10 +217,10 @@ return $default(_that.hash,_that.name,_that.size,_that.progress,_that.dlspeed,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String hash,  String name,  int size,  double progress,  int dlspeed,  int upspeed,  int priority, @JsonKey(name: 'num_seeds')  int numSeeds, @JsonKey(name: 'num_leechs')  int numLeechs, @JsonKey(name: 'num_incomplete')  int numIncomplete,  double ratio,  int eta,  String state, @JsonKey(name: 'seq_dl')  int seqDl, @JsonKey(name: 'seq_up')  int seqUp, @JsonKey(name: 'added_on')  int addedOn, @JsonKey(name: 'completion_on')  int completionOn,  String category,  String tags, @JsonKey(name: 'save_path')  String savePath, @JsonKey(name: 'time_active')  int timeActive, @JsonKey(name: 'last_activity')  int lastActivity)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String hash,  String name,  int size,  double progress,  int dlspeed,  int upspeed,  int priority, @JsonKey(name: 'num_seeds')  int numSeeds, @JsonKey(name: 'num_leechs')  int numLeechs, @JsonKey(name: 'num_incomplete')  int numIncomplete,  double ratio,  int eta,  String state,  String tracker, @JsonKey(name: 'seq_dl')  int seqDl, @JsonKey(name: 'seq_up')  int seqUp, @JsonKey(name: 'added_on')  int addedOn, @JsonKey(name: 'completion_on')  int completionOn,  String category,  String tags, @JsonKey(name: 'save_path')  String savePath, @JsonKey(name: 'time_active')  int timeActive, @JsonKey(name: 'last_activity')  int lastActivity)?  $default,) {final _that = this;
 switch (_that) {
 case _QbitTorrent() when $default != null:
-return $default(_that.hash,_that.name,_that.size,_that.progress,_that.dlspeed,_that.upspeed,_that.priority,_that.numSeeds,_that.numLeechs,_that.numIncomplete,_that.ratio,_that.eta,_that.state,_that.seqDl,_that.seqUp,_that.addedOn,_that.completionOn,_that.category,_that.tags,_that.savePath,_that.timeActive,_that.lastActivity);case _:
+return $default(_that.hash,_that.name,_that.size,_that.progress,_that.dlspeed,_that.upspeed,_that.priority,_that.numSeeds,_that.numLeechs,_that.numIncomplete,_that.ratio,_that.eta,_that.state,_that.tracker,_that.seqDl,_that.seqUp,_that.addedOn,_that.completionOn,_that.category,_that.tags,_that.savePath,_that.timeActive,_that.lastActivity);case _:
   return null;
 
 }
@@ -231,7 +232,7 @@ return $default(_that.hash,_that.name,_that.size,_that.progress,_that.dlspeed,_t
 @JsonSerializable()
 
 class _QbitTorrent implements QbitTorrent {
-  const _QbitTorrent({required this.hash, required this.name, required this.size, required this.progress, required this.dlspeed, required this.upspeed, required this.priority, @JsonKey(name: 'num_seeds') required this.numSeeds, @JsonKey(name: 'num_leechs') required this.numLeechs, @JsonKey(name: 'num_incomplete') required this.numIncomplete, required this.ratio, required this.eta, required this.state, @JsonKey(name: 'seq_dl') required this.seqDl, @JsonKey(name: 'seq_up') required this.seqUp, @JsonKey(name: 'added_on') required this.addedOn, @JsonKey(name: 'completion_on') required this.completionOn, required this.category, required this.tags, @JsonKey(name: 'save_path') required this.savePath, @JsonKey(name: 'time_active') required this.timeActive, @JsonKey(name: 'last_activity') required this.lastActivity});
+  const _QbitTorrent({required this.hash, required this.name, required this.size, required this.progress, required this.dlspeed, required this.upspeed, required this.priority, @JsonKey(name: 'num_seeds') required this.numSeeds, @JsonKey(name: 'num_leechs') required this.numLeechs, @JsonKey(name: 'num_incomplete') required this.numIncomplete, required this.ratio, required this.eta, required this.state, this.tracker = '', @JsonKey(name: 'seq_dl') required this.seqDl, @JsonKey(name: 'seq_up') required this.seqUp, @JsonKey(name: 'added_on') required this.addedOn, @JsonKey(name: 'completion_on') required this.completionOn, required this.category, required this.tags, @JsonKey(name: 'save_path') required this.savePath, @JsonKey(name: 'time_active') required this.timeActive, @JsonKey(name: 'last_activity') required this.lastActivity});
   factory _QbitTorrent.fromJson(Map<String, dynamic> json) => _$QbitTorrentFromJson(json);
 
 @override final  String hash;
@@ -247,6 +248,7 @@ class _QbitTorrent implements QbitTorrent {
 @override final  double ratio;
 @override final  int eta;
 @override final  String state;
+@override@JsonKey() final  String tracker;
 @override@JsonKey(name: 'seq_dl') final  int seqDl;
 @override@JsonKey(name: 'seq_up') final  int seqUp;
 @override@JsonKey(name: 'added_on') final  int addedOn;
@@ -270,16 +272,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QbitTorrent&&(identical(other.hash, hash) || other.hash == hash)&&(identical(other.name, name) || other.name == name)&&(identical(other.size, size) || other.size == size)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.dlspeed, dlspeed) || other.dlspeed == dlspeed)&&(identical(other.upspeed, upspeed) || other.upspeed == upspeed)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.numSeeds, numSeeds) || other.numSeeds == numSeeds)&&(identical(other.numLeechs, numLeechs) || other.numLeechs == numLeechs)&&(identical(other.numIncomplete, numIncomplete) || other.numIncomplete == numIncomplete)&&(identical(other.ratio, ratio) || other.ratio == ratio)&&(identical(other.eta, eta) || other.eta == eta)&&(identical(other.state, state) || other.state == state)&&(identical(other.seqDl, seqDl) || other.seqDl == seqDl)&&(identical(other.seqUp, seqUp) || other.seqUp == seqUp)&&(identical(other.addedOn, addedOn) || other.addedOn == addedOn)&&(identical(other.completionOn, completionOn) || other.completionOn == completionOn)&&(identical(other.category, category) || other.category == category)&&(identical(other.tags, tags) || other.tags == tags)&&(identical(other.savePath, savePath) || other.savePath == savePath)&&(identical(other.timeActive, timeActive) || other.timeActive == timeActive)&&(identical(other.lastActivity, lastActivity) || other.lastActivity == lastActivity));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QbitTorrent&&(identical(other.hash, hash) || other.hash == hash)&&(identical(other.name, name) || other.name == name)&&(identical(other.size, size) || other.size == size)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.dlspeed, dlspeed) || other.dlspeed == dlspeed)&&(identical(other.upspeed, upspeed) || other.upspeed == upspeed)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.numSeeds, numSeeds) || other.numSeeds == numSeeds)&&(identical(other.numLeechs, numLeechs) || other.numLeechs == numLeechs)&&(identical(other.numIncomplete, numIncomplete) || other.numIncomplete == numIncomplete)&&(identical(other.ratio, ratio) || other.ratio == ratio)&&(identical(other.eta, eta) || other.eta == eta)&&(identical(other.state, state) || other.state == state)&&(identical(other.tracker, tracker) || other.tracker == tracker)&&(identical(other.seqDl, seqDl) || other.seqDl == seqDl)&&(identical(other.seqUp, seqUp) || other.seqUp == seqUp)&&(identical(other.addedOn, addedOn) || other.addedOn == addedOn)&&(identical(other.completionOn, completionOn) || other.completionOn == completionOn)&&(identical(other.category, category) || other.category == category)&&(identical(other.tags, tags) || other.tags == tags)&&(identical(other.savePath, savePath) || other.savePath == savePath)&&(identical(other.timeActive, timeActive) || other.timeActive == timeActive)&&(identical(other.lastActivity, lastActivity) || other.lastActivity == lastActivity));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,hash,name,size,progress,dlspeed,upspeed,priority,numSeeds,numLeechs,numIncomplete,ratio,eta,state,seqDl,seqUp,addedOn,completionOn,category,tags,savePath,timeActive,lastActivity]);
+int get hashCode => Object.hashAll([runtimeType,hash,name,size,progress,dlspeed,upspeed,priority,numSeeds,numLeechs,numIncomplete,ratio,eta,state,tracker,seqDl,seqUp,addedOn,completionOn,category,tags,savePath,timeActive,lastActivity]);
 
 @override
 String toString() {
-  return 'QbitTorrent(hash: $hash, name: $name, size: $size, progress: $progress, dlspeed: $dlspeed, upspeed: $upspeed, priority: $priority, numSeeds: $numSeeds, numLeechs: $numLeechs, numIncomplete: $numIncomplete, ratio: $ratio, eta: $eta, state: $state, seqDl: $seqDl, seqUp: $seqUp, addedOn: $addedOn, completionOn: $completionOn, category: $category, tags: $tags, savePath: $savePath, timeActive: $timeActive, lastActivity: $lastActivity)';
+  return 'QbitTorrent(hash: $hash, name: $name, size: $size, progress: $progress, dlspeed: $dlspeed, upspeed: $upspeed, priority: $priority, numSeeds: $numSeeds, numLeechs: $numLeechs, numIncomplete: $numIncomplete, ratio: $ratio, eta: $eta, state: $state, tracker: $tracker, seqDl: $seqDl, seqUp: $seqUp, addedOn: $addedOn, completionOn: $completionOn, category: $category, tags: $tags, savePath: $savePath, timeActive: $timeActive, lastActivity: $lastActivity)';
 }
 
 
@@ -290,7 +292,7 @@ abstract mixin class _$QbitTorrentCopyWith<$Res> implements $QbitTorrentCopyWith
   factory _$QbitTorrentCopyWith(_QbitTorrent value, $Res Function(_QbitTorrent) _then) = __$QbitTorrentCopyWithImpl;
 @override @useResult
 $Res call({
- String hash, String name, int size, double progress, int dlspeed, int upspeed, int priority,@JsonKey(name: 'num_seeds') int numSeeds,@JsonKey(name: 'num_leechs') int numLeechs,@JsonKey(name: 'num_incomplete') int numIncomplete, double ratio, int eta, String state,@JsonKey(name: 'seq_dl') int seqDl,@JsonKey(name: 'seq_up') int seqUp,@JsonKey(name: 'added_on') int addedOn,@JsonKey(name: 'completion_on') int completionOn, String category, String tags,@JsonKey(name: 'save_path') String savePath,@JsonKey(name: 'time_active') int timeActive,@JsonKey(name: 'last_activity') int lastActivity
+ String hash, String name, int size, double progress, int dlspeed, int upspeed, int priority,@JsonKey(name: 'num_seeds') int numSeeds,@JsonKey(name: 'num_leechs') int numLeechs,@JsonKey(name: 'num_incomplete') int numIncomplete, double ratio, int eta, String state, String tracker,@JsonKey(name: 'seq_dl') int seqDl,@JsonKey(name: 'seq_up') int seqUp,@JsonKey(name: 'added_on') int addedOn,@JsonKey(name: 'completion_on') int completionOn, String category, String tags,@JsonKey(name: 'save_path') String savePath,@JsonKey(name: 'time_active') int timeActive,@JsonKey(name: 'last_activity') int lastActivity
 });
 
 
@@ -307,7 +309,7 @@ class __$QbitTorrentCopyWithImpl<$Res>
 
 /// Create a copy of QbitTorrent
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? hash = null,Object? name = null,Object? size = null,Object? progress = null,Object? dlspeed = null,Object? upspeed = null,Object? priority = null,Object? numSeeds = null,Object? numLeechs = null,Object? numIncomplete = null,Object? ratio = null,Object? eta = null,Object? state = null,Object? seqDl = null,Object? seqUp = null,Object? addedOn = null,Object? completionOn = null,Object? category = null,Object? tags = null,Object? savePath = null,Object? timeActive = null,Object? lastActivity = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? hash = null,Object? name = null,Object? size = null,Object? progress = null,Object? dlspeed = null,Object? upspeed = null,Object? priority = null,Object? numSeeds = null,Object? numLeechs = null,Object? numIncomplete = null,Object? ratio = null,Object? eta = null,Object? state = null,Object? tracker = null,Object? seqDl = null,Object? seqUp = null,Object? addedOn = null,Object? completionOn = null,Object? category = null,Object? tags = null,Object? savePath = null,Object? timeActive = null,Object? lastActivity = null,}) {
   return _then(_QbitTorrent(
 hash: null == hash ? _self.hash : hash // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -322,6 +324,7 @@ as int,numIncomplete: null == numIncomplete ? _self.numIncomplete : numIncomplet
 as int,ratio: null == ratio ? _self.ratio : ratio // ignore: cast_nullable_to_non_nullable
 as double,eta: null == eta ? _self.eta : eta // ignore: cast_nullable_to_non_nullable
 as int,state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
+as String,tracker: null == tracker ? _self.tracker : tracker // ignore: cast_nullable_to_non_nullable
 as String,seqDl: null == seqDl ? _self.seqDl : seqDl // ignore: cast_nullable_to_non_nullable
 as int,seqUp: null == seqUp ? _self.seqUp : seqUp // ignore: cast_nullable_to_non_nullable
 as int,addedOn: null == addedOn ? _self.addedOn : addedOn // ignore: cast_nullable_to_non_nullable

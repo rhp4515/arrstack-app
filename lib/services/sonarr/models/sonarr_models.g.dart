@@ -32,6 +32,15 @@ _SonarrSeries _$SonarrSeriesFromJson(
   seriesType: json['seriesType'] as String? ?? 'program',
   cleanTitle: json['cleanTitle'] as String?,
   titleSlug: json['titleSlug'] as String?,
+  imdbId: json['imdbId'] as String?,
+  network: json['network'] as String?,
+  certification: json['certification'] as String?,
+  firstAired: json['firstAired'] == null
+      ? null
+      : DateTime.parse(json['firstAired'] as String),
+  ratings: json['ratings'] == null
+      ? null
+      : SonarrRatings.fromJson(json['ratings'] as Map<String, dynamic>),
   added: json['added'] == null ? null : DateTime.parse(json['added'] as String),
   genres: (json['genres'] as List<dynamic>?)?.map((e) => e as String).toList(),
   tags: (json['tags'] as List<dynamic>?)
@@ -66,6 +75,11 @@ Map<String, dynamic> _$SonarrSeriesToJson(_SonarrSeries instance) =>
       'seriesType': instance.seriesType,
       'cleanTitle': instance.cleanTitle,
       'titleSlug': instance.titleSlug,
+      'imdbId': instance.imdbId,
+      'network': instance.network,
+      'certification': instance.certification,
+      'firstAired': instance.firstAired?.toIso8601String(),
+      'ratings': instance.ratings,
       'added': instance.added?.toIso8601String(),
       'genres': instance.genres,
       'tags': instance.tags,
@@ -137,21 +151,30 @@ Map<String, dynamic> _$SonarrStatisticsToJson(_SonarrStatistics instance) =>
       'percentOfEpisodes': instance.percentOfEpisodes,
     };
 
-_SonarrEpisode _$SonarrEpisodeFromJson(Map<String, dynamic> json) =>
-    _SonarrEpisode(
-      id: (json['id'] as num).toInt(),
-      seriesId: (json['seriesId'] as num).toInt(),
-      seasonNumber: (json['seasonNumber'] as num).toInt(),
-      episodeNumber: (json['episodeNumber'] as num).toInt(),
-      title: json['title'] as String,
-      overview: json['overview'] as String?,
-      hasFile: json['hasFile'] as bool,
-      monitored: json['monitored'] as bool,
-      absoluteEpisodeNumber: (json['absoluteEpisodeNumber'] as num?)?.toInt(),
-      sceneEpisodeNumber: (json['sceneEpisodeNumber'] as num?)?.toInt(),
-      sceneSeasonNumber: (json['sceneSeasonNumber'] as num?)?.toInt(),
-      unverifiedSceneNumbering: json['unverifiedSceneNumbering'] as bool,
-    );
+_SonarrEpisode _$SonarrEpisodeFromJson(
+  Map<String, dynamic> json,
+) => _SonarrEpisode(
+  id: (json['id'] as num).toInt(),
+  seriesId: (json['seriesId'] as num).toInt(),
+  seasonNumber: (json['seasonNumber'] as num).toInt(),
+  episodeNumber: (json['episodeNumber'] as num).toInt(),
+  title: json['title'] as String,
+  overview: json['overview'] as String?,
+  hasFile: json['hasFile'] as bool,
+  monitored: json['monitored'] as bool,
+  airDateUtc: json['airDateUtc'] == null
+      ? null
+      : DateTime.parse(json['airDateUtc'] as String),
+  runtime: (json['runtime'] as num?)?.toInt(),
+  episodeFileId: (json['episodeFileId'] as num?)?.toInt(),
+  episodeFile: json['episodeFile'] == null
+      ? null
+      : SonarrEpisodeFile.fromJson(json['episodeFile'] as Map<String, dynamic>),
+  absoluteEpisodeNumber: (json['absoluteEpisodeNumber'] as num?)?.toInt(),
+  sceneEpisodeNumber: (json['sceneEpisodeNumber'] as num?)?.toInt(),
+  sceneSeasonNumber: (json['sceneSeasonNumber'] as num?)?.toInt(),
+  unverifiedSceneNumbering: json['unverifiedSceneNumbering'] as bool? ?? false,
+);
 
 Map<String, dynamic> _$SonarrEpisodeToJson(_SonarrEpisode instance) =>
     <String, dynamic>{
@@ -163,11 +186,95 @@ Map<String, dynamic> _$SonarrEpisodeToJson(_SonarrEpisode instance) =>
       'overview': instance.overview,
       'hasFile': instance.hasFile,
       'monitored': instance.monitored,
+      'airDateUtc': instance.airDateUtc?.toIso8601String(),
+      'runtime': instance.runtime,
+      'episodeFileId': instance.episodeFileId,
+      'episodeFile': instance.episodeFile,
       'absoluteEpisodeNumber': instance.absoluteEpisodeNumber,
       'sceneEpisodeNumber': instance.sceneEpisodeNumber,
       'sceneSeasonNumber': instance.sceneSeasonNumber,
       'unverifiedSceneNumbering': instance.unverifiedSceneNumbering,
     };
+
+_SonarrEpisodeFile _$SonarrEpisodeFileFromJson(Map<String, dynamic> json) =>
+    _SonarrEpisodeFile(
+      id: (json['id'] as num).toInt(),
+      relativePath: json['relativePath'] as String?,
+      size: (json['size'] as num?)?.toInt() ?? 0,
+      dateAdded: json['dateAdded'] == null
+          ? null
+          : DateTime.parse(json['dateAdded'] as String),
+      quality: json['quality'] == null
+          ? null
+          : SonarrQualityInfo.fromJson(json['quality'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$SonarrEpisodeFileToJson(_SonarrEpisodeFile instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'relativePath': instance.relativePath,
+      'size': instance.size,
+      'dateAdded': instance.dateAdded?.toIso8601String(),
+      'quality': instance.quality,
+    };
+
+_SonarrQualityInfo _$SonarrQualityInfoFromJson(Map<String, dynamic> json) =>
+    _SonarrQualityInfo(
+      quality: SonarrQuality.fromJson(json['quality'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$SonarrQualityInfoToJson(_SonarrQualityInfo instance) =>
+    <String, dynamic>{'quality': instance.quality};
+
+_SonarrQuality _$SonarrQualityFromJson(Map<String, dynamic> json) =>
+    _SonarrQuality(
+      id: (json['id'] as num).toInt(),
+      name: json['name'] as String,
+    );
+
+Map<String, dynamic> _$SonarrQualityToJson(_SonarrQuality instance) =>
+    <String, dynamic>{'id': instance.id, 'name': instance.name};
+
+_SonarrRatings _$SonarrRatingsFromJson(Map<String, dynamic> json) =>
+    _SonarrRatings(
+      votes: (json['votes'] as num?)?.toInt() ?? 0,
+      value: (json['value'] as num?)?.toDouble() ?? 0,
+    );
+
+Map<String, dynamic> _$SonarrRatingsToJson(_SonarrRatings instance) =>
+    <String, dynamic>{'votes': instance.votes, 'value': instance.value};
+
+_SonarrCalendarEpisode _$SonarrCalendarEpisodeFromJson(
+  Map<String, dynamic> json,
+) => _SonarrCalendarEpisode(
+  id: (json['id'] as num).toInt(),
+  seriesId: (json['seriesId'] as num).toInt(),
+  seasonNumber: (json['seasonNumber'] as num).toInt(),
+  episodeNumber: (json['episodeNumber'] as num).toInt(),
+  title: json['title'] as String?,
+  airDateUtc: json['airDateUtc'] == null
+      ? null
+      : DateTime.parse(json['airDateUtc'] as String),
+  hasFile: json['hasFile'] as bool? ?? false,
+  monitored: json['monitored'] as bool? ?? true,
+  series: json['series'] == null
+      ? null
+      : SonarrSeries.fromJson(json['series'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$SonarrCalendarEpisodeToJson(
+  _SonarrCalendarEpisode instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'seriesId': instance.seriesId,
+  'seasonNumber': instance.seasonNumber,
+  'episodeNumber': instance.episodeNumber,
+  'title': instance.title,
+  'airDateUtc': instance.airDateUtc?.toIso8601String(),
+  'hasFile': instance.hasFile,
+  'monitored': instance.monitored,
+  'series': instance.series,
+};
 
 _SonarrQualityProfile _$SonarrQualityProfileFromJson(
   Map<String, dynamic> json,

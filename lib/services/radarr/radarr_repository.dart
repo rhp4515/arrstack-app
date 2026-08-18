@@ -29,6 +29,11 @@ class RadarrRepository {
   Future<Result<void>> deleteMovie(int id, {bool deleteFiles = false}) =>
       _client.deleteMovie(id, deleteFiles: deleteFiles);
 
+  Future<Result<List<RadarrMovie>>> listCalendar(
+    DateTime start,
+    DateTime end,
+  ) => _client.getCalendar(start, end);
+
   Future<Result<List<RadarrQualityProfile>>> listQualityProfiles() =>
       _client.getQualityProfiles();
 

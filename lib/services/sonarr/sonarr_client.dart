@@ -109,13 +109,63 @@ class SonarrClient implements ConnectionTestClient {
     );
   }
 
+  /// Scheduled episodes airing between [start] and [end]. `includeSeries`
+  /// embeds the parent series (title, network, images) so the calendar can
+  /// render a row without a second round-trip per episode.
+  Future<Result<List<SonarrCalendarEpisode>>> getCalendar(
+    DateTime start,
+    DateTime end,
+  ) {
+    return dioCall(
+      () => _dio.get(
+        'api/v3/calendar',
+        queryParameters: {
+          'start': start.toUtc().toIso8601String(),
+          'end': end.toUtc().toIso8601String(),
+          'includeSeries': true,
+        },
+      ),
+      map: (data) {
+        if (data is! List) return [];
+        return data
+            .cast<Map<String, dynamic>>()
+            .map((json) {
+              try {
+                return SonarrCalendarEpisode.fromJson(json);
+              } catch (e) {
+                // ignore: avoid_print
+                print('SonarrCalendarEpisode parse error: $e');
+                return null;
+              }
+            })
+            .whereType<SonarrCalendarEpisode>()
+            .toList();
+      },
+    );
+  }
+
   Future<Result<List<SonarrEpisode>>> getEpisodes(int seriesId) {
     return dioCall(
-      () => _dio.get('api/v3/episode', queryParameters: {'seriesId': seriesId}),
-      map: (data) => (data as List)
-          .cast<Map<String, dynamic>>()
-          .map(SonarrEpisode.fromJson)
-          .toList(),
+      () => _dio.get(
+        'api/v3/episode',
+        queryParameters: {'seriesId': seriesId, 'includeEpisodeFile': true},
+      ),
+      map: (data) {
+        if (data is! List) return [];
+        return data
+            .cast<Map<String, dynamic>>()
+            .map((json) {
+              try {
+                return SonarrEpisode.fromJson(json);
+              } catch (e) {
+                // ignore: avoid_print
+                print('SonarrEpisode parse error: $e');
+                return null;
+              }
+            })
+            .whereType<SonarrEpisode>()
+            .toList();
+      },
     );
   }
 

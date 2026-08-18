@@ -28,7 +28,16 @@ abstract class RadarrMovie with _$RadarrMovie {
     String? path,
     RadarrMovieFile? movieFile,
     required int tmdbId,
+    String? imdbId,
     String? titleSlug,
+    String? studio,
+    String? certification,
+    int? runtime,
+    @Default([]) List<String> genres,
+    RadarrRatings? ratings,
+    DateTime? inCinemas,
+    DateTime? physicalRelease,
+    DateTime? digitalRelease,
     @Default(false) bool hasFile,
     @Default(0) int sizeOnDisk,
   }) = _RadarrMovie;
@@ -38,6 +47,25 @@ abstract class RadarrMovie with _$RadarrMovie {
 }
 
 extension RadarrMovieX on RadarrMovie {
+  /// Human-readable quality of the downloaded file (e.g. "Bluray-1080p"),
+  /// or null when the movie has no file yet.
+  String? get displayQuality => movieFile?.quality.quality.name;
+
+  /// Best single rating (0–10) to surface, preferring TMDB then IMDb.
+  double? get displayRating => ratings?.tmdb?.value ?? ratings?.imdb?.value;
+
+  /// The most relevant release date for scheduling: digital, then physical,
+  /// then theatrical. Used by the Calendar to place the movie on a day.
+  DateTime? get calendarDate => digitalRelease ?? physicalRelease ?? inCinemas;
+
+  /// The kind of release [calendarDate] refers to, for a subtitle label.
+  String? get calendarReleaseLabel {
+    if (digitalRelease != null) return 'Digital Release';
+    if (physicalRelease != null) return 'Physical Release';
+    if (inCinemas != null) return 'In Cinemas';
+    return null;
+  }
+
   String? get posterUrl {
     if (images.isEmpty) return null;
     final image = images.firstWhere(
@@ -101,6 +129,31 @@ abstract class RadarrQuality with _$RadarrQuality {
 
   factory RadarrQuality.fromJson(Map<String, dynamic> json) =>
       _$RadarrQualityFromJson(json);
+}
+
+/// Aggregate ratings for a movie from various providers.
+@freezed
+abstract class RadarrRatings with _$RadarrRatings {
+  const factory RadarrRatings({
+    RadarrRatingValue? imdb,
+    RadarrRatingValue? tmdb,
+    RadarrRatingValue? rottenTomatoes,
+  }) = _RadarrRatings;
+
+  factory RadarrRatings.fromJson(Map<String, dynamic> json) =>
+      _$RadarrRatingsFromJson(json);
+}
+
+/// A single rating source's value and vote count.
+@freezed
+abstract class RadarrRatingValue with _$RadarrRatingValue {
+  const factory RadarrRatingValue({
+    @Default(0) int votes,
+    @Default(0) double value,
+  }) = _RadarrRatingValue;
+
+  factory RadarrRatingValue.fromJson(Map<String, dynamic> json) =>
+      _$RadarrRatingValueFromJson(json);
 }
 
 /// A quality profile (e.g. "Any", "HD-1080p").

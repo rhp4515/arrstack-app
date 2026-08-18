@@ -4,6 +4,7 @@ library;
 
 import 'package:arrstack/app/app_shell.dart';
 import 'package:arrstack/app/route_paths.dart';
+import 'package:arrstack/features/calendar/calendar_page.dart';
 import 'package:arrstack/features/dashboard/dashboard_page.dart';
 import 'package:arrstack/features/downloads/downloads_page.dart';
 import 'package:arrstack/features/library/add_movie_page.dart';
@@ -71,6 +72,14 @@ final GoRouter appRouter = GoRouter(
                   ),
                 ),
               ],
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: RoutePaths.calendar,
+              builder: (context, state) => const CalendarPage(),
             ),
           ],
         ),

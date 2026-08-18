@@ -203,7 +203,7 @@ final class KumaMonitorsProvider
   }
 }
 
-String _$kumaMonitorsHash() => r'b0f77cef871ecb13e5910fbcb33ed6c5da567c22';
+String _$kumaMonitorsHash() => r'63e0309b7848d8fb7bdfc8d060e57eba5783446c';
 
 /// The live state of all monitors for a Kuma instance.
 

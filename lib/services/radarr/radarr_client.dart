@@ -103,6 +103,37 @@ class RadarrClient implements ConnectionTestClient {
     );
   }
 
+  /// Movies with a release date between [start] and [end]. Radarr returns full
+  /// movie objects, so the calendar reuses [RadarrMovie] (with its release-date
+  /// and studio fields) directly.
+  Future<Result<List<RadarrMovie>>> getCalendar(DateTime start, DateTime end) {
+    return dioCall(
+      () => _dio.get(
+        'api/v3/calendar',
+        queryParameters: {
+          'start': start.toUtc().toIso8601String(),
+          'end': end.toUtc().toIso8601String(),
+        },
+      ),
+      map: (data) {
+        if (data is! List) return [];
+        return data
+            .cast<Map<String, dynamic>>()
+            .map((json) {
+              try {
+                return RadarrMovie.fromJson(json);
+              } catch (e) {
+                // ignore: avoid_print
+                print('RadarrMovie calendar parse error: $e');
+                return null;
+              }
+            })
+            .whereType<RadarrMovie>()
+            .toList();
+      },
+    );
+  }
+
   Future<Result<List<RadarrQualityProfile>>> getQualityProfiles() {
     return dioCall(
       () => _dio.get('api/v3/qualityProfile'),

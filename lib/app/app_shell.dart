@@ -28,6 +28,11 @@ class AppShell extends StatelessWidget {
             label: 'Library',
           ),
           NavigationDestination(
+            icon: Icon(Icons.calendar_month_outlined),
+            selectedIcon: Icon(Icons.calendar_month),
+            label: 'Calendar',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.download_outlined),
             selectedIcon: Icon(Icons.download),
             label: 'Downloads',

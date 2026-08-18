@@ -748,7 +748,7 @@ final class SonarrFullImageUrlProvider
 }
 
 String _$sonarrFullImageUrlHash() =>
-    r'b49b6bc41d675411150d4c7c1672e8f0a2f22aa6';
+    r'ebdb39afca089eeb883da2e9dec95693cad474ed';
 
 /// Resolves a relative Sonarr image URL to a full URL.
 

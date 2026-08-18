@@ -8,6 +8,7 @@ import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/features/downloads/downloads_providers.dart';
 import 'package:arrstack/features/downloads/widgets/add_torrent_dialog.dart';
 import 'package:arrstack/features/downloads/widgets/torrent_tile.dart';
+import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';
 import 'package:arrstack/services/qbittorrent/qbit_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -71,14 +72,7 @@ class _TorrentList extends ConsumerWidget {
                   title: 'No active downloads',
                   message: 'Your download queue is empty.',
                 )
-              : ListView.builder(
-                  padding: AppInsets.pageMd,
-                  itemCount: value.length,
-                  itemBuilder: (context, index) => TorrentTile(
-                    instanceId: instanceId,
-                    torrent: value[index],
-                  ),
-                ),
+              : _SectionedTorrents(instanceId: instanceId, torrents: value),
           Err(:final error) => EmptyState(
               icon: Icons.error_outline,
               title: 'Failed to load torrents',
@@ -91,6 +85,78 @@ class _TorrentList extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text('Unexpected error: $err')),
+      ),
+    );
+  }
+}
+
+/// Splits torrents into "Downloading" and "History" (completed) sections,
+/// each with a counted header, matching the downloads mockup.
+class _SectionedTorrents extends StatelessWidget {
+  const _SectionedTorrents({required this.instanceId, required this.torrents});
+
+  final String instanceId;
+  final List<QbitTorrent> torrents;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = torrents.where((t) => !torrentIsComplete(t)).toList();
+    final history = torrents.where(torrentIsComplete).toList();
+
+    return ListView(
+      padding: AppInsets.pageMd,
+      children: [
+        if (active.isNotEmpty) ...[
+          _SectionHeader(
+            icon: Icons.download,
+            label: 'Downloading',
+            count: active.length,
+          ),
+          for (final t in active)
+            TorrentTile(instanceId: instanceId, torrent: t),
+        ],
+        if (history.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.md),
+          _SectionHeader(
+            icon: Icons.history,
+            label: 'History',
+            count: history.length,
+          ),
+          for (final t in history)
+            TorrentTile(instanceId: instanceId, torrent: t),
+        ],
+      ],
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
+    required this.icon,
+    required this.label,
+    required this.count,
+  });
+
+  final IconData icon;
+  final String label;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: theme.colorScheme.primary),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            '$label ($count)',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }

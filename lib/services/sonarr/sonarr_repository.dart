@@ -32,6 +32,11 @@ class SonarrRepository {
   Future<Result<List<SonarrEpisode>>> listEpisodes(int seriesId) =>
       _client.getEpisodes(seriesId);
 
+  Future<Result<List<SonarrCalendarEpisode>>> listCalendar(
+    DateTime start,
+    DateTime end,
+  ) => _client.getCalendar(start, end);
+
   Future<Result<List<SonarrQualityProfile>>> listQualityProfiles() =>
       _client.getQualityProfiles();
 

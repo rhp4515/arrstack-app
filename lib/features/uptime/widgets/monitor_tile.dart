@@ -1,9 +1,15 @@
-/// A tile for a single Uptime Kuma monitor (spec §7).
+/// A monitor card for the Uptime Kuma view, matching the mockup: a status dot
+/// and name with an overflow menu, the monitored URL, a heartbeat bar, and a
+/// "Up · latency · uptime% · 24h" footer with a type badge (HTTP, etc.).
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/services/uptimekuma/models/kuma_models.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+/// Number of heartbeat bars to render.
+const int _heartbeatCount = 34;
 
 class MonitorTile extends StatelessWidget {
   const MonitorTile({required this.monitor, super.key});
@@ -13,74 +19,103 @@ class MonitorTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final status = monitor.status;
-    
-    final statusColor = switch (status) {
-      1 => Colors.green,
-      0 => Colors.red,
-      2 => Colors.orange,
-      3 => Colors.blue,
-      _ => Colors.grey,
-    };
+    final muted = theme.colorScheme.onSurfaceVariant;
+    final statusColor = _statusColor(monitor.status);
+    final latestPing = monitor.heartbeats.isNotEmpty
+        ? monitor.heartbeats.first.ping
+        : null;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      color: theme.colorScheme.surfaceContainerHigh,
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Padding(
         padding: AppInsets.pageMd,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                _StatusIndicator(color: statusColor),
-                const SizedBox(width: AppSpacing.md),
+                _StatusDot(color: statusColor),
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        monitor.name,
-                        style: theme.textTheme.titleSmall,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (monitor.url != null)
-                        Text(
-                          monitor.url!,
-                          style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                    ],
+                  child: Text(
+                    monitor.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '${(monitor.uptime * 100).toStringAsFixed(1)}%',
-                      style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'UPTIME',
-                      style: theme.textTheme.labelSmall?.copyWith(fontSize: 8, color: Colors.grey),
-                    ),
-                  ],
-                ),
+                if (monitor.url != null && monitor.url!.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.more_horiz),
+                    visualDensity: VisualDensity.compact,
+                    onPressed: () => _copyUrl(context),
+                    tooltip: 'Copy URL',
+                  ),
               ],
             ),
-            if (monitor.heartbeats.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.md),
-              _HeartbeatBar(heartbeats: monitor.heartbeats),
-            ],
+            if (monitor.url != null && monitor.url!.isNotEmpty)
+              Text(
+                monitor.url!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(color: muted),
+              ),
+            const SizedBox(height: AppSpacing.md),
+            _HeartbeatBar(heartbeats: monitor.heartbeats, upColor: statusColor),
+            const SizedBox(height: AppSpacing.sm),
+            Row(
+              children: [
+                Text(
+                  monitor.status.statusLabel,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: statusColor,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                if (latestPing != null) ...[
+                  const SizedBox(width: AppSpacing.md),
+                  Text(
+                    '$latestPing ms',
+                    style: theme.textTheme.bodyMedium?.copyWith(color: muted),
+                  ),
+                ],
+                const SizedBox(width: AppSpacing.md),
+                Text(
+                  '${(monitor.uptime * 100).toStringAsFixed(2)}% 24h',
+                  style: theme.textTheme.bodyMedium?.copyWith(color: muted),
+                ),
+                const Spacer(),
+                _TypeBadge(type: monitor.type),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
+
+  Future<void> _copyUrl(BuildContext context) async {
+    await Clipboard.setData(ClipboardData(text: monitor.url!));
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Monitor URL copied')),
+    );
+  }
+
+  Color _statusColor(int status) => switch (status) {
+    1 => const Color(0xFF5CDD8B),
+    0 => Colors.red,
+    2 => Colors.orange,
+    3 => Colors.blue,
+    _ => Colors.grey,
+  };
 }
 
-class _StatusIndicator extends StatelessWidget {
-  const _StatusIndicator({required this.color});
+class _StatusDot extends StatelessWidget {
+  const _StatusDot({required this.color});
   final Color color;
 
   @override
@@ -103,31 +138,66 @@ class _StatusIndicator extends StatelessWidget {
   }
 }
 
-class _HeartbeatBar extends StatelessWidget {
-  const _HeartbeatBar({required this.heartbeats});
-  final List<KumaHeartbeat> heartbeats;
+class _TypeBadge extends StatelessWidget {
+  const _TypeBadge({required this.type});
+  final String type;
 
   @override
   Widget build(BuildContext context) {
-    // Show last 30 heartbeats
-    final displayHeartbeats = heartbeats.take(30).toList().reversed.toList();
-
-    return SizedBox(
-      height: 20,
-      child: Row(
-        children: displayHeartbeats.map((hb) {
-          final color = hb.status == 1 ? Colors.green : Colors.red;
-          return Expanded(
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 1),
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          );
-        }).toList(),
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: 4,
+      ),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
+      child: Text(
+        type.toUpperCase(),
+        style: theme.textTheme.labelMedium?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
+}
+
+class _HeartbeatBar extends StatelessWidget {
+  const _HeartbeatBar({required this.heartbeats, required this.upColor});
+
+  final List<KumaHeartbeat> heartbeats;
+  final Color upColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    // Heartbeats are stored newest-first; show oldest→newest left→right.
+    final recent = heartbeats.take(_heartbeatCount).toList().reversed.toList();
+    final empty = _heartbeatCount - recent.length;
+
+    return SizedBox(
+      height: 28,
+      child: Row(
+        children: [
+          for (var i = 0; i < empty; i++)
+            _bar(theme.colorScheme.surfaceContainerHighest),
+          for (final hb in recent)
+            _bar(hb.status == 1 ? upColor : Colors.red),
+        ],
+      ),
+    );
+  }
+
+  Widget _bar(Color color) => Expanded(
+    child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 1),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(2),
+      ),
+    ),
+  );
 }

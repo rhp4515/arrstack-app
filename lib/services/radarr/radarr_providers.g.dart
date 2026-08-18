@@ -317,7 +317,7 @@ final class RadarrFullImageUrlProvider
 }
 
 String _$radarrFullImageUrlHash() =>
-    r'e04fd9c08a4f1dbb080ef63fdeee374ce5a26ca5';
+    r'10d48bc2538526ec2527de6a75b4958811b5a653';
 
 /// Resolves a relative Radarr image URL to a full URL using the instance's
 /// current base URL and API key (via query param, as Radarr's image proxy

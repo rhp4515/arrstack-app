@@ -14,15 +14,13 @@ class BazarrClient implements ConnectionTestClient {
 
   @override
   Future<Result<ServiceIdentity>> testConnection() async {
+    // `system/health` is Bazarr's health-check endpoint: a 200 confirms the
+    // server is reachable and the API key is accepted. It returns a list of
+    // health issues (not version info), so identity is a fixed label here;
+    // richer status/version comes from [getSystemStatus].
     return dioCall(
-      () => _dio.get('api/system/status'),
-      map: (data) {
-        final map = data as Map<String, dynamic>;
-        return ServiceIdentity(
-          instanceName: map['app_name'] as String? ?? 'Bazarr',
-          version: map['version'] as String?,
-        );
-      },
+      () => _dio.get('api/system/health'),
+      map: (_) => const ServiceIdentity(instanceName: 'Bazarr'),
     );
   }
 

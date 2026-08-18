@@ -34,6 +34,11 @@ abstract class SonarrSeries with _$SonarrSeries {
     @Default('program') String seriesType,
     String? cleanTitle,
     String? titleSlug,
+    String? imdbId,
+    String? network,
+    String? certification,
+    DateTime? firstAired,
+    SonarrRatings? ratings,
     DateTime? added,
     List<String>? genres,
     // Tags are stored as int IDs in Sonarr.
@@ -58,6 +63,15 @@ abstract class SonarrAddOptions with _$SonarrAddOptions {
 }
 
 extension SonarrSeriesX on SonarrSeries {
+  /// Downloaded-vs-total episode count, e.g. "30/296". Falls back to "0/0"
+  /// when statistics are absent so the row still renders a stable label.
+  String get episodeProgressLabel {
+    final stats = statistics;
+    final have = stats?.episodeFileCount ?? 0;
+    final total = stats?.totalEpisodeCount ?? stats?.episodeCount ?? 0;
+    return '$have/$total';
+  }
+
   String? get posterUrl {
     final imgs = images;
     if (imgs == null || imgs.isEmpty) return null;
@@ -131,14 +145,94 @@ abstract class SonarrEpisode with _$SonarrEpisode {
     String? overview,
     required bool hasFile,
     required bool monitored,
+    DateTime? airDateUtc,
+    int? runtime,
+    int? episodeFileId,
+    SonarrEpisodeFile? episodeFile,
     int? absoluteEpisodeNumber,
     int? sceneEpisodeNumber,
     int? sceneSeasonNumber,
-    required bool unverifiedSceneNumbering,
+    @Default(false) bool unverifiedSceneNumbering,
   }) = _SonarrEpisode;
 
   factory SonarrEpisode.fromJson(Map<String, dynamic> json) =>
       _$SonarrEpisodeFromJson(json);
+}
+
+extension SonarrEpisodeX on SonarrEpisode {
+  /// "S01E01" style code for display.
+  String get episodeCode =>
+      'S${seasonNumber.toString().padLeft(2, '0')}'
+      'E${episodeNumber.toString().padLeft(2, '0')}';
+
+  /// Quality name of the downloaded file (e.g. "Bluray-1080p"), if present.
+  String? get qualityName => episodeFile?.quality?.quality.name;
+}
+
+/// The downloaded file for an episode, with its quality and technical info.
+@freezed
+abstract class SonarrEpisodeFile with _$SonarrEpisodeFile {
+  const factory SonarrEpisodeFile({
+    required int id,
+    String? relativePath,
+    @Default(0) int size,
+    DateTime? dateAdded,
+    SonarrQualityInfo? quality,
+  }) = _SonarrEpisodeFile;
+
+  factory SonarrEpisodeFile.fromJson(Map<String, dynamic> json) =>
+      _$SonarrEpisodeFileFromJson(json);
+}
+
+/// Quality wrapper matching Sonarr's `quality: { quality: { name } }` shape.
+@freezed
+abstract class SonarrQualityInfo with _$SonarrQualityInfo {
+  const factory SonarrQualityInfo({required SonarrQuality quality}) =
+      _SonarrQualityInfo;
+
+  factory SonarrQualityInfo.fromJson(Map<String, dynamic> json) =>
+      _$SonarrQualityInfoFromJson(json);
+}
+
+@freezed
+abstract class SonarrQuality with _$SonarrQuality {
+  const factory SonarrQuality({required int id, required String name}) =
+      _SonarrQuality;
+
+  factory SonarrQuality.fromJson(Map<String, dynamic> json) =>
+      _$SonarrQualityFromJson(json);
+}
+
+/// Aggregate rating for a series (Sonarr returns a single value/votes pair).
+@freezed
+abstract class SonarrRatings with _$SonarrRatings {
+  const factory SonarrRatings({
+    @Default(0) int votes,
+    @Default(0) double value,
+  }) = _SonarrRatings;
+
+  factory SonarrRatings.fromJson(Map<String, dynamic> json) =>
+      _$SonarrRatingsFromJson(json);
+}
+
+/// One entry from Sonarr's `/api/v3/calendar` feed: a scheduled episode with
+/// its parent series embedded (when requested with `includeSeries=true`).
+@freezed
+abstract class SonarrCalendarEpisode with _$SonarrCalendarEpisode {
+  const factory SonarrCalendarEpisode({
+    required int id,
+    required int seriesId,
+    required int seasonNumber,
+    required int episodeNumber,
+    String? title,
+    DateTime? airDateUtc,
+    @Default(false) bool hasFile,
+    @Default(true) bool monitored,
+    SonarrSeries? series,
+  }) = _SonarrCalendarEpisode;
+
+  factory SonarrCalendarEpisode.fromJson(Map<String, dynamic> json) =>
+      _$SonarrCalendarEpisodeFromJson(json);
 }
 
 /// A quality profile (e.g. "Any", "HD-1080p").

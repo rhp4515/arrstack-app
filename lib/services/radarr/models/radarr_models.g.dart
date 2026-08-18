@@ -25,7 +25,26 @@ _RadarrMovie _$RadarrMovieFromJson(Map<String, dynamic> json) => _RadarrMovie(
       ? null
       : RadarrMovieFile.fromJson(json['movieFile'] as Map<String, dynamic>),
   tmdbId: (json['tmdbId'] as num).toInt(),
+  imdbId: json['imdbId'] as String?,
   titleSlug: json['titleSlug'] as String?,
+  studio: json['studio'] as String?,
+  certification: json['certification'] as String?,
+  runtime: (json['runtime'] as num?)?.toInt(),
+  genres:
+      (json['genres'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  ratings: json['ratings'] == null
+      ? null
+      : RadarrRatings.fromJson(json['ratings'] as Map<String, dynamic>),
+  inCinemas: json['inCinemas'] == null
+      ? null
+      : DateTime.parse(json['inCinemas'] as String),
+  physicalRelease: json['physicalRelease'] == null
+      ? null
+      : DateTime.parse(json['physicalRelease'] as String),
+  digitalRelease: json['digitalRelease'] == null
+      ? null
+      : DateTime.parse(json['digitalRelease'] as String),
   hasFile: json['hasFile'] as bool? ?? false,
   sizeOnDisk: (json['sizeOnDisk'] as num?)?.toInt() ?? 0,
 );
@@ -46,7 +65,16 @@ Map<String, dynamic> _$RadarrMovieToJson(_RadarrMovie instance) =>
       'path': instance.path,
       'movieFile': instance.movieFile,
       'tmdbId': instance.tmdbId,
+      'imdbId': instance.imdbId,
       'titleSlug': instance.titleSlug,
+      'studio': instance.studio,
+      'certification': instance.certification,
+      'runtime': instance.runtime,
+      'genres': instance.genres,
+      'ratings': instance.ratings,
+      'inCinemas': instance.inCinemas?.toIso8601String(),
+      'physicalRelease': instance.physicalRelease?.toIso8601String(),
+      'digitalRelease': instance.digitalRelease?.toIso8601String(),
       'hasFile': instance.hasFile,
       'sizeOnDisk': instance.sizeOnDisk,
     };
@@ -100,6 +128,37 @@ _RadarrQuality _$RadarrQualityFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$RadarrQualityToJson(_RadarrQuality instance) =>
     <String, dynamic>{'id': instance.id, 'name': instance.name};
+
+_RadarrRatings _$RadarrRatingsFromJson(Map<String, dynamic> json) =>
+    _RadarrRatings(
+      imdb: json['imdb'] == null
+          ? null
+          : RadarrRatingValue.fromJson(json['imdb'] as Map<String, dynamic>),
+      tmdb: json['tmdb'] == null
+          ? null
+          : RadarrRatingValue.fromJson(json['tmdb'] as Map<String, dynamic>),
+      rottenTomatoes: json['rottenTomatoes'] == null
+          ? null
+          : RadarrRatingValue.fromJson(
+              json['rottenTomatoes'] as Map<String, dynamic>,
+            ),
+    );
+
+Map<String, dynamic> _$RadarrRatingsToJson(_RadarrRatings instance) =>
+    <String, dynamic>{
+      'imdb': instance.imdb,
+      'tmdb': instance.tmdb,
+      'rottenTomatoes': instance.rottenTomatoes,
+    };
+
+_RadarrRatingValue _$RadarrRatingValueFromJson(Map<String, dynamic> json) =>
+    _RadarrRatingValue(
+      votes: (json['votes'] as num?)?.toInt() ?? 0,
+      value: (json['value'] as num?)?.toDouble() ?? 0,
+    );
+
+Map<String, dynamic> _$RadarrRatingValueToJson(_RadarrRatingValue instance) =>
+    <String, dynamic>{'votes': instance.votes, 'value': instance.value};
 
 _RadarrQualityProfile _$RadarrQualityProfileFromJson(
   Map<String, dynamic> json,

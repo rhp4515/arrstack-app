@@ -40,17 +40,39 @@ class _HomeSsidSettingState extends ConsumerState<HomeSsidSetting> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Home WiFi SSIDs', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Icon(Icons.wifi_outlined, size: 24),
+            const SizedBox(width: AppSpacing.md),
+            const Expanded(
+              child: Text(
+                'Home WiFi SSIDs',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
             TextButton.icon(
               onPressed: () async {
                 final current = await notifier.detectCurrentSsid();
-                if (current != null && context.mounted) {
-                  await notifier.addHomeSsid(current);
-                } else if (context.mounted) {
+                if (!context.mounted) return;
+
+                if (current != null) {
+                  final ssids = ssidsAsync.value ?? [];
+                  if (ssids.contains(current)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('"$current" is already in your home networks.')),
+                    );
+                  } else {
+                    await notifier.addHomeSsid(current);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Added "$current" to home networks.')),
+                      );
+                    }
+                  }
+                } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Could not detect SSID. Ensure location is on and permission granted.')),
+                    const SnackBar(
+                      content: Text('Could not detect SSID. Ensure WiFi and Location are on.'),
+                    ),
                   );
                 }
               },

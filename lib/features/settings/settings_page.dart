@@ -59,16 +59,20 @@ class SettingsPage extends ConsumerWidget {
           const Divider(height: AppSpacing.xxl),
           const _SectionHeader(title: 'Appearance'),
           ListTile(
+            leading: const Icon(Icons.palette_outlined),
             title: const Text('Theme Mode'),
-            trailing: SegmentedButton<ThemeMode>(
-              segments: const [
-                ButtonSegment(value: ThemeMode.system, label: Text('System')),
-                ButtonSegment(value: ThemeMode.light, label: Text('Light')),
-                ButtonSegment(value: ThemeMode.dark, label: Text('Dark')),
+            subtitle: const Text('Adjust app colors and contrast'),
+            trailing: DropdownButton<ThemeMode>(
+              value: themeMode,
+              underline: const SizedBox.shrink(),
+              items: const [
+                DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
+                DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
+                DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
               ],
-              selected: {themeMode},
-              onSelectionChanged: (modes) =>
-                  ref.read(appThemeModeProvider.notifier).update(modes.first),
+              onChanged: (mode) => mode != null
+                  ? ref.read(appThemeModeProvider.notifier).update(mode)
+                  : null,
             ),
           ),
           const SizedBox(height: AppSpacing.xxl),
@@ -99,7 +103,7 @@ class _SectionHeader extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
           ),
-          ?action,
+          if (action != null) action,
         ],
       ),
     );
@@ -180,10 +184,12 @@ class _DefaultEndpointModeSetting extends ConsumerWidget {
 
     return modeAsync.when(
       data: (mode) => ListTile(
+        leading: const Icon(Icons.hub_outlined),
         title: const Text('Default Endpoint Mode'),
-        subtitle: const Text('Preferred connection for new instances.'),
+        subtitle: const Text('Preferred connection for new instances'),
         trailing: DropdownButton<EndpointMode>(
           value: mode,
+          underline: const SizedBox.shrink(),
           items: EndpointMode.values.map((m) {
             return DropdownMenuItem(
               value: m,

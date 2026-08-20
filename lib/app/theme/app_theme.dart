@@ -39,9 +39,18 @@ abstract final class AppTheme {
         ),
         margin: EdgeInsets.zero,
       ),
-      navigationBarTheme: const NavigationBarThemeData(
+      navigationBarTheme: NavigationBarThemeData(
         elevation: AppElevation.medium,
         height: AppSizes.navBarHeight,
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          return TextStyle(
+            fontSize: 10, // Aggressively smaller to fit long words in 6 tabs
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.bold
+                : FontWeight.normal,
+            letterSpacing: -0.3, // Tighten letter spacing to prevent wrapping
+          );
+        }),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(

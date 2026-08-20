@@ -44,7 +44,8 @@ abstract final class AppElevation {
 /// radius scales — e.g. bespoke widget heights and icon sizes.
 abstract final class AppSizes {
   /// Height of the bottom [NavigationBar] shell.
-  static const double navBarHeight = 64;
+  /// Standard Material 3 height is 80.
+  static const double navBarHeight = 80;
 
   /// Icon size used by the shared [EmptyState] illustration.
   static const double emptyStateIcon = 56;

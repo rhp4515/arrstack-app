@@ -14,9 +14,17 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'core/storage/fakes.dart';
 
+import 'package:permission_handler/permission_handler.dart';
+
 class FakeSsidSource implements SsidSource {
   @override
   Future<String?> currentSsid() async => 'Home-WiFi';
+
+  @override
+  Future<bool> requestPermission() async => true;
+
+  @override
+  Future<PermissionStatus> permissionStatus() async => PermissionStatus.granted;
 }
 
 void main() {

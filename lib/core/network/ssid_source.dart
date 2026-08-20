@@ -4,16 +4,22 @@
 library;
 
 import 'package:network_info_plus/network_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 /// Source of the currently connected WiFi SSID.
 abstract interface class SsidSource {
-  /// Returns the current SSID, or null when unavailable: no permission,
-  /// not connected to WiFi, location services disabled, or the platform
-  /// (e.g. desktop) doesn't support it. Never throws.
+  /// Returns the current SSID, or null when unavailable.
   Future<String?> currentSsid();
+
+  /// Requests the necessary location permissions to read the SSID.
+  /// Returns true if granted.
+  Future<bool> requestPermission();
+
+  /// Returns the current permission status.
+  Future<PermissionStatus> permissionStatus();
 }
 
-/// [SsidSource] backed by `network_info_plus`.
+/// [SsidSource] backed by `network_info_plus` and `permission_handler`.
 class NetworkInfoSsidSource implements SsidSource {
   const NetworkInfoSsidSource([NetworkInfo? networkInfo])
     : _networkInfo = networkInfo;
@@ -25,14 +31,36 @@ class NetworkInfoSsidSource implements SsidSource {
   @override
   Future<String?> currentSsid() async {
     try {
+      final locationStatus = await Permission.locationWhenInUse.status;
+      final nearbyStatus = await Permission.nearbyWifiDevices.status;
+
+      if (!locationStatus.isGranted && !nearbyStatus.isGranted) {
+        return null;
+      }
+
       final raw = await _instance.getWifiName();
       return _normalize(raw);
     } on Exception {
-      // Permission denied, location services off, platform unsupported,
-      // etc. — degrade to "unavailable" rather than surfacing an error;
-      // EndpointResolver treats null as "fall back to remote" (spec §6a).
       return null;
     }
+  }
+
+  @override
+  Future<bool> requestPermission() async {
+    final statuses = await [
+      Permission.locationWhenInUse,
+      Permission.nearbyWifiDevices,
+    ].request();
+    
+    return statuses[Permission.locationWhenInUse]?.isGranted == true ||
+           statuses[Permission.nearbyWifiDevices]?.isGranted == true;
+  }
+
+  @override
+  Future<PermissionStatus> permissionStatus() async {
+    final status = await Permission.nearbyWifiDevices.status;
+    if (status.isGranted) return status;
+    return Permission.locationWhenInUse.status;
   }
 
   /// Android/iOS sometimes wrap the SSID in double quotes (e.g. `"Home"`)

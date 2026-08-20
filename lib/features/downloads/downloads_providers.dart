@@ -23,3 +23,21 @@ class SelectedDownloadInstanceId extends _$SelectedDownloadInstanceId {
 
   void selectInstance(String id) => state = AsyncData(id);
 }
+
+enum TorrentFilter {
+  all,
+  downloading,
+  seeding,
+  completed,
+  stalled,
+  inactive,
+  errored,
+}
+
+@riverpod
+class DownloadFilter extends _$DownloadFilter {
+  @override
+  TorrentFilter build() => TorrentFilter.all;
+
+  void setFilter(TorrentFilter filter) => state = filter;
+}

@@ -23,6 +23,13 @@ class DownloadsPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Downloads'),
+        actions: [
+          instanceIdAsync.when(
+            data: (id) => id != null ? const _FilterMenu() : const SizedBox.shrink(),
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
+        ],
         bottom: instanceIdAsync.when(
           data: (id) => id != null ? _GlobalStatsBar(instanceId: id) : null,
           loading: () => null,
@@ -61,18 +68,13 @@ class _TorrentList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final torrentsAsync = ref.watch(qbitTorrentsProvider(instanceId));
+    final filter = ref.watch(downloadFilterProvider);
 
     return RefreshIndicator(
-      onRefresh: () async => ref.invalidate(qbitTorrentsProvider(instanceId)),
+      onRefresh: () => ref.refresh(qbitTorrentsProvider(instanceId).future),
       child: torrentsAsync.when(
         data: (result) => switch (result) {
-          Ok(:final value) => value.isEmpty
-              ? const EmptyState(
-                  icon: Icons.download_done_outlined,
-                  title: 'No active downloads',
-                  message: 'Your download queue is empty.',
-                )
-              : _SectionedTorrents(instanceId: instanceId, torrents: value),
+          Ok(:final value) => _buildFilteredList(value, filter, instanceId),
           Err(:final error) => EmptyState(
               icon: Icons.error_outline,
               title: 'Failed to load torrents',
@@ -85,6 +87,110 @@ class _TorrentList extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text('Unexpected error: $err')),
+      ),
+    );
+  }
+
+  Widget _buildFilteredList(List<QbitTorrent> all, TorrentFilter filter, String instanceId) {
+    final filtered = switch (filter) {
+      TorrentFilter.all => all,
+      TorrentFilter.downloading => all.where((t) => const {
+            'downloading',
+            'stalledDL',
+            'metaDL',
+            'allocating',
+            'checkingDL',
+            'queuedDL',
+            'forcedDL'
+          }.contains(t.state)).toList(),
+      TorrentFilter.seeding => all.where((t) => const {
+            'uploading',
+            'stalledUP',
+            'checkingUP',
+            'queuedUP',
+            'forcedUP'
+          }.contains(t.state)).toList(),
+      TorrentFilter.completed => all.where(torrentIsComplete).toList(),
+      TorrentFilter.stalled =>
+        all.where((t) => t.state == 'stalledDL' || t.state == 'stalledUP').toList(),
+      TorrentFilter.inactive => all.where((t) => t.state == 'pausedDL' || t.state == 'pausedUP').toList(),
+      TorrentFilter.errored => all.where((t) => t.state == 'error' || t.state == 'missingFiles').toList(),
+    };
+
+    if (filtered.isEmpty) {
+      return const EmptyState(
+        icon: Icons.download_done_outlined,
+        title: 'No matches found',
+        message: 'Try changing your filter settings.',
+      );
+    }
+
+    if (filter == TorrentFilter.all) {
+      return _SectionedTorrents(instanceId: instanceId, torrents: filtered);
+    }
+
+    return ListView.builder(
+      padding: AppInsets.pageMd,
+      itemCount: filtered.length,
+      itemBuilder: (context, index) => TorrentTile(
+        instanceId: instanceId,
+        torrent: filtered[index],
+      ),
+    );
+  }
+}
+
+class _FilterMenu extends ConsumerWidget {
+  const _FilterMenu();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final activeFilter = ref.watch(downloadFilterProvider);
+
+    return PopupMenuButton<TorrentFilter>(
+      icon: const Icon(Icons.filter_list),
+      onSelected: (filter) => ref.read(downloadFilterProvider.notifier).setFilter(filter),
+      itemBuilder: (context) => [
+        _buildItem(TorrentFilter.all, 'All Torrents', Icons.list, activeFilter),
+        _buildItem(TorrentFilter.downloading, 'Downloading', Icons.download, activeFilter),
+        _buildItem(TorrentFilter.seeding, 'Seeding', Icons.upload, activeFilter),
+        _buildItem(TorrentFilter.completed, 'Completed', Icons.check_circle, activeFilter),
+        _buildItem(TorrentFilter.stalled, 'Stalled', Icons.pause_circle_outline, activeFilter),
+        _buildItem(TorrentFilter.inactive, 'Paused', Icons.pause_outlined, activeFilter),
+        _buildItem(TorrentFilter.errored, 'Errored', Icons.error_outline, activeFilter),
+      ],
+    );
+  }
+
+  PopupMenuItem<TorrentFilter> _buildItem(
+    TorrentFilter value,
+    String label,
+    IconData icon,
+    TorrentFilter active,
+  ) {
+    final isSelected = value == active;
+    return PopupMenuItem(
+      value: value,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 20,
+            color: isSelected ? Colors.blue : null,
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.bold : null,
+              color: isSelected ? Colors.blue : null,
+            ),
+          ),
+          if (isSelected) ...[
+            const Spacer(),
+            const Icon(Icons.check, size: 16, color: Colors.blue),
+          ],
+        ],
       ),
     );
   }

@@ -7,6 +7,7 @@ import 'package:arrstack/core/network/network_providers.dart';
 import 'package:arrstack/core/network/result.dart';
 import 'package:arrstack/core/storage/storage.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'settings_providers.g.dart';
@@ -38,6 +39,11 @@ class HomeSsidsSettings extends _$HomeSsidsSettings {
 
   Future<String?> detectCurrentSsid() async {
     final ssidSource = ref.read(ssidSourceProvider);
+    final status = await ssidSource.permissionStatus();
+    if (!status.isGranted) {
+      final granted = await ssidSource.requestPermission();
+      if (!granted) return null;
+    }
     return ssidSource.currentSsid();
   }
 }

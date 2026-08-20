@@ -16,11 +16,12 @@ class AppShell extends StatelessWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: _onDestinationSelected,
+        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.dashboard_outlined),
             selectedIcon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+            label: 'Home',
           ),
           NavigationDestination(
             icon: Icon(Icons.video_library_outlined),
@@ -35,7 +36,7 @@ class AppShell extends StatelessWidget {
           NavigationDestination(
             icon: Icon(Icons.download_outlined),
             selectedIcon: Icon(Icons.download),
-            label: 'Downloads',
+            label: 'Active',
           ),
           NavigationDestination(
             icon: Icon(Icons.monitor_heart_outlined),

@@ -33,7 +33,7 @@ final class HomeSsidsSettingsProvider
   HomeSsidsSettings create() => HomeSsidsSettings();
 }
 
-String _$homeSsidsSettingsHash() => r'cd57f2792009773f63e56a5e1840750c2ad25a08';
+String _$homeSsidsSettingsHash() => r'8d61ac0d6fd0bea3899bacc24842b814a2782994';
 
 abstract class _$HomeSsidsSettings extends $AsyncNotifier<List<String>> {
   FutureOr<List<String>> build();

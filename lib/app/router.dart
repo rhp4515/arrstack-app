@@ -9,6 +9,7 @@ import 'package:arrstack/features/dashboard/dashboard_page.dart';
 import 'package:arrstack/features/downloads/downloads_page.dart';
 import 'package:arrstack/features/library/add_movie_page.dart';
 import 'package:arrstack/features/library/add_series_page.dart';
+import 'package:arrstack/features/library/episode_detail_page.dart';
 import 'package:arrstack/features/library/library_page.dart';
 import 'package:arrstack/features/library/movie_detail_page.dart';
 import 'package:arrstack/features/library/series_detail_page.dart';
@@ -21,12 +22,6 @@ import 'package:go_router/go_router.dart';
 final GoRouter appRouter = GoRouter(
   initialLocation: RoutePaths.dashboard,
   routes: [
-    GoRoute(
-      path: '/subtitles/:instanceId',
-      builder: (context, state) => SubtitlesPage(
-        instanceId: state.pathParameters['instanceId']!,
-      ),
-    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
           AppShell(navigationShell: navigationShell),
@@ -36,6 +31,14 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: RoutePaths.dashboard,
               builder: (context, state) => const DashboardPage(),
+              routes: [
+                GoRoute(
+                  path: 'subtitles/:instanceId',
+                  builder: (context, state) => SubtitlesPage(
+                    instanceId: state.pathParameters['instanceId']!,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -64,6 +67,16 @@ final GoRouter appRouter = GoRouter(
                     instanceId: state.pathParameters['instanceId']!,
                     seriesId: int.parse(state.pathParameters['seriesId']!),
                   ),
+                  routes: [
+                    GoRoute(
+                      path: 'episode/:episodeId',
+                      builder: (context, state) => EpisodeDetailPage(
+                        instanceId: state.pathParameters['instanceId']!,
+                        seriesId: int.parse(state.pathParameters['seriesId']!),
+                        episodeId: int.parse(state.pathParameters['episodeId']!),
+                      ),
+                    ),
+                  ],
                 ),
                 GoRoute(
                   path: 'sonarr/:instanceId/add',

@@ -6,7 +6,6 @@ import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
-import 'package:arrstack/services/qbittorrent/qbit_providers.dart';
 import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
 import 'package:arrstack/services/uptimekuma/kuma_providers.dart';
@@ -38,7 +37,6 @@ Future<ServiceHealth> _getHealthForInstance(Ref ref, ServiceInstance instance) a
   return switch (type) {
     ServiceType.radarr => _getRadarrHealth(ref, instance),
     ServiceType.sonarr => _getSonarrHealth(ref, instance),
-    ServiceType.qbittorrent => _getQbitHealth(ref, instance),
     ServiceType.bazarr => _getBazarrHealth(ref, instance),
     ServiceType.uptimeKuma => _getKumaHealth(ref, instance),
     _ => ServiceHealth(
@@ -112,26 +110,6 @@ Future<ServiceHealth> _getBazarrHealth(Ref ref, ServiceInstance instance) async 
   );
 }
 
-Future<ServiceHealth> _getQbitHealth(Ref ref, ServiceInstance instance) async {
-  final mainDataAsync = ref.watch(qbitMainDataProvider(instance.id));
-
-  return mainDataAsync.when(
-    data: (result) => switch (result) {
-      Ok(:final value) => ServiceHealth(
-          instanceId: instance.id,
-          instanceName: instance.name,
-          serviceType: instance.serviceType,
-          isReachable: true,
-          headlineStat: '${value.torrents.length} Torrents',
-          statusColor: ServiceAccents.qbittorrent,
-        ),
-      Err() => _offlineHealth(instance),
-    },
-    loading: () => _loadingHealth(instance),
-    error: (_, __) => _offlineHealth(instance),
-  );
-}
-
 Future<ServiceHealth> _getKumaHealth(Ref ref, ServiceInstance instance) async {
   final monitorsAsync = ref.watch(kumaMonitorsProvider(instance.id));
 
@@ -169,58 +147,3 @@ ServiceHealth _loadingHealth(ServiceInstance instance) => ServiceHealth(
       headlineStat: 'Loading...',
       statusColor: Colors.grey,
     );
-
-@riverpod
-Future<List<ActivityItem>> stackActivity(Ref ref) async {
-  final instancesResult = await ref.watch(instancesProvider.future);
-  if (instancesResult is! Ok<List<ServiceInstance>>) return [];
-  final instances = instancesResult.value;
-
-  final allActivity = <ActivityItem>[];
-
-  for (final instance in instances) {
-    if (instance.serviceType == ServiceType.qbittorrent) {
-      final torrentsResult = await ref.watch(qbitTorrentsProvider(instance.id).future);
-      if (torrentsResult case Ok(:final value)) {
-        allActivity.addAll(value.map((t) => ActivityItem(
-              id: t.hash,
-              title: t.name,
-              serviceType: ServiceType.qbittorrent,
-              instanceId: instance.id,
-              progress: t.progress,
-              speed: t.dlspeed,
-              status: t.state,
-            )));
-      }
-    } else if (instance.serviceType == ServiceType.radarr) {
-      final queueResult = await ref.watch(radarrQueueProvider(instance.id).future);
-      if (queueResult case Ok(:final value)) {
-        allActivity.addAll(value.map((q) => ActivityItem(
-              id: q.id.toString(),
-              title: q.title ?? 'Unknown Movie',
-              serviceType: ServiceType.radarr,
-              instanceId: instance.id,
-              progress: q.size > 0 ? (q.size - q.sizeleft) / q.size : 0,
-              speed: 0,
-              status: q.status ?? 'Unknown',
-            )));
-      }
-    } else if (instance.serviceType == ServiceType.sonarr) {
-      final queueResult = await ref.watch(sonarrQueueProvider(instance.id).future);
-      if (queueResult case Ok(:final value)) {
-        allActivity.addAll(value.map((q) => ActivityItem(
-              id: q.id.toString(),
-              title: q.title ?? 'Unknown Series',
-              serviceType: ServiceType.sonarr,
-              instanceId: instance.id,
-              progress: q.size > 0 ? (q.size - q.sizeleft) / q.size : 0,
-              speed: 0,
-              status: q.status ?? 'Unknown',
-            )));
-      }
-    }
-  }
-
-  // Sort by progress descending (active ones first)
-  return allActivity..sort((a, b) => b.progress.compareTo(a.progress));
-}

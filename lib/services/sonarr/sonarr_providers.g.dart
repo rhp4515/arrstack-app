@@ -346,6 +346,103 @@ final class SonarrEpisodesFamily extends $Family
   String toString() => r'sonarrEpisodesProvider';
 }
 
+@ProviderFor(sonarrEpisode)
+final sonarrEpisodeProvider = SonarrEpisodeFamily._();
+
+final class SonarrEpisodeProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<SonarrEpisode>>,
+          Result<SonarrEpisode>,
+          FutureOr<Result<SonarrEpisode>>
+        >
+    with
+        $FutureModifier<Result<SonarrEpisode>>,
+        $FutureProvider<Result<SonarrEpisode>> {
+  SonarrEpisodeProvider._({
+    required SonarrEpisodeFamily super.from,
+    required ({String instanceId, int seriesId, int episodeId}) super.argument,
+  }) : super(
+         retry: null,
+         name: r'sonarrEpisodeProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$sonarrEpisodeHash();
+
+  @override
+  String toString() {
+    return r'sonarrEpisodeProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<SonarrEpisode>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<SonarrEpisode>> create(Ref ref) {
+    final argument =
+        this.argument as ({String instanceId, int seriesId, int episodeId});
+    return sonarrEpisode(
+      ref,
+      instanceId: argument.instanceId,
+      seriesId: argument.seriesId,
+      episodeId: argument.episodeId,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SonarrEpisodeProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$sonarrEpisodeHash() => r'e15391d5d5019f8e0a3f31064a4336b7197176ff';
+
+final class SonarrEpisodeFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Result<SonarrEpisode>>,
+          ({String instanceId, int seriesId, int episodeId})
+        > {
+  SonarrEpisodeFamily._()
+    : super(
+        retry: null,
+        name: r'sonarrEpisodeProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  SonarrEpisodeProvider call({
+    required String instanceId,
+    required int seriesId,
+    required int episodeId,
+  }) => SonarrEpisodeProvider._(
+    argument: (
+      instanceId: instanceId,
+      seriesId: seriesId,
+      episodeId: episodeId,
+    ),
+    from: this,
+  );
+
+  @override
+  String toString() => r'sonarrEpisodeProvider';
+}
+
 @ProviderFor(sonarrQualityProfiles)
 final sonarrQualityProfilesProvider = SonarrQualityProfilesFamily._();
 

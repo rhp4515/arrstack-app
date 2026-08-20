@@ -69,6 +69,24 @@ Future<Result<List<SonarrEpisode>>> sonarrEpisodes(
 }
 
 @riverpod
+Future<Result<SonarrEpisode>> sonarrEpisode(
+  Ref ref, {
+  required String instanceId,
+  required int seriesId,
+  required int episodeId,
+}) async {
+  final episodesResult =
+      await ref.watch(sonarrEpisodesProvider(instanceId: instanceId, seriesId: seriesId).future);
+  if (episodesResult case Ok(:final value)) {
+    try {
+      final ep = value.firstWhere((e) => e.id == episodeId);
+      return Ok(ep);
+    } catch (_) {}
+  }
+  return const Err(UnknownError(userMessage: 'Episode not found.'));
+}
+
+@riverpod
 Future<Result<List<SonarrQualityProfile>>> sonarrQualityProfiles(
   Ref ref,
   String instanceId,

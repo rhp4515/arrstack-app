@@ -5,9 +5,9 @@ import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/core/widgets/poster_card.dart';
+import 'package:arrstack/features/library/widgets/add_series_options.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
-import 'package:arrstack/features/library/widgets/add_series_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

@@ -331,12 +331,12 @@ class _OverviewCard extends StatelessWidget {
                 ),
               ),
             ),
-            if (movie.genres.isNotEmpty) ...[
+            if (movie.genres != null && movie.genres!.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.md),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  movie.genres.join(' · '),
+                  movie.genres!.join(' · '),
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w600,

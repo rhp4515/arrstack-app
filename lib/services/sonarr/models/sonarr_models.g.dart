@@ -27,7 +27,7 @@ _SonarrSeries _$SonarrSeriesFromJson(
   monitored: json['monitored'] as bool? ?? true,
   useSceneNumbering: json['useSceneNumbering'] as bool? ?? false,
   runtime: (json['runtime'] as num?)?.toInt(),
-  tvdbId: (json['tvdbId'] as num?)?.toInt() ?? 0,
+  tvdbId: (json['tvdbId'] as num?)?.toInt(),
   tvMazeId: (json['tvMazeId'] as num?)?.toInt(),
   seriesType: json['seriesType'] as String? ?? 'program',
   cleanTitle: json['cleanTitle'] as String?,
@@ -155,13 +155,13 @@ _SonarrEpisode _$SonarrEpisodeFromJson(
   Map<String, dynamic> json,
 ) => _SonarrEpisode(
   id: (json['id'] as num).toInt(),
-  seriesId: (json['seriesId'] as num).toInt(),
-  seasonNumber: (json['seasonNumber'] as num).toInt(),
-  episodeNumber: (json['episodeNumber'] as num).toInt(),
-  title: json['title'] as String,
+  seriesId: (json['seriesId'] as num?)?.toInt(),
+  seasonNumber: (json['seasonNumber'] as num?)?.toInt(),
+  episodeNumber: (json['episodeNumber'] as num?)?.toInt(),
+  title: json['title'] as String?,
   overview: json['overview'] as String?,
-  hasFile: json['hasFile'] as bool,
-  monitored: json['monitored'] as bool,
+  hasFile: json['hasFile'] as bool? ?? false,
+  monitored: json['monitored'] as bool? ?? true,
   airDateUtc: json['airDateUtc'] == null
       ? null
       : DateTime.parse(json['airDateUtc'] as String),
@@ -220,7 +220,9 @@ Map<String, dynamic> _$SonarrEpisodeFileToJson(_SonarrEpisodeFile instance) =>
 
 _SonarrQualityInfo _$SonarrQualityInfoFromJson(Map<String, dynamic> json) =>
     _SonarrQualityInfo(
-      quality: SonarrQuality.fromJson(json['quality'] as Map<String, dynamic>),
+      quality: json['quality'] == null
+          ? null
+          : SonarrQuality.fromJson(json['quality'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$SonarrQualityInfoToJson(_SonarrQualityInfo instance) =>
@@ -228,8 +230,8 @@ Map<String, dynamic> _$SonarrQualityInfoToJson(_SonarrQualityInfo instance) =>
 
 _SonarrQuality _$SonarrQualityFromJson(Map<String, dynamic> json) =>
     _SonarrQuality(
-      id: (json['id'] as num).toInt(),
-      name: json['name'] as String,
+      id: (json['id'] as num?)?.toInt(),
+      name: json['name'] as String?,
     );
 
 Map<String, dynamic> _$SonarrQualityToJson(_SonarrQuality instance) =>
@@ -280,7 +282,7 @@ _SonarrQualityProfile _$SonarrQualityProfileFromJson(
   Map<String, dynamic> json,
 ) => _SonarrQualityProfile(
   id: (json['id'] as num).toInt(),
-  name: json['name'] as String,
+  name: json['name'] as String?,
 );
 
 Map<String, dynamic> _$SonarrQualityProfileToJson(
@@ -290,8 +292,8 @@ Map<String, dynamic> _$SonarrQualityProfileToJson(
 _SonarrRootFolder _$SonarrRootFolderFromJson(Map<String, dynamic> json) =>
     _SonarrRootFolder(
       id: (json['id'] as num).toInt(),
-      path: json['path'] as String,
-      freeSpace: (json['freeSpace'] as num).toInt(),
+      path: json['path'] as String?,
+      freeSpace: (json['freeSpace'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$SonarrRootFolderToJson(_SonarrRootFolder instance) =>

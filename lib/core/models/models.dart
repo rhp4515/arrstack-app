@@ -2,7 +2,6 @@
 /// at the storage boundary, never trusted raw.
 library;
 
-export 'package:arrstack/core/models/activity_item.dart';
 export 'package:arrstack/core/models/auth_type.dart';
 export 'package:arrstack/core/models/endpoint_mode.dart';
 export 'package:arrstack/core/models/service_credential.dart';

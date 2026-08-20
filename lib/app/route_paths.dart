@@ -17,7 +17,9 @@ abstract final class RoutePaths {
 
   static String seriesDetail(String instanceId, int seriesId) =>
       '/library/sonarr/$instanceId/series/$seriesId';
+  static String episodeDetail(String instanceId, int seriesId, int episodeId) =>
+      '/library/sonarr/$instanceId/series/$seriesId/episode/$episodeId';
   static String addSeries(String instanceId) => '/library/sonarr/$instanceId/add';
 
-  static String subtitles(String instanceId) => '/subtitles/$instanceId';
+  static String subtitles(String instanceId) => '/dashboard/subtitles/$instanceId';
 }

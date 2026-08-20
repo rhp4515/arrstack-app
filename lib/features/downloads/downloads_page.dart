@@ -94,15 +94,12 @@ class _TorrentList extends ConsumerWidget {
   Widget _buildFilteredList(List<QbitTorrent> all, TorrentFilter filter, String instanceId) {
     final filtered = switch (filter) {
       TorrentFilter.all => all,
-      TorrentFilter.downloading => all.where((t) => const {
-            'downloading',
-            'stalledDL',
-            'metaDL',
-            'allocating',
-            'checkingDL',
-            'queuedDL',
-            'forcedDL'
-          }.contains(t.state)).toList(),
+      TorrentFilter.active => all.where((t) {
+          final isComplete = torrentIsComplete(t);
+          final isStalled = t.state == 'stalledDL' || t.state == 'stalledUP';
+          final isPaused = t.state == 'pausedDL' || t.state == 'pausedUP';
+          return !isComplete && !isStalled && !isPaused;
+        }).toList(),
       TorrentFilter.seeding => all.where((t) => const {
             'uploading',
             'stalledUP',
@@ -113,7 +110,7 @@ class _TorrentList extends ConsumerWidget {
       TorrentFilter.completed => all.where(torrentIsComplete).toList(),
       TorrentFilter.stalled =>
         all.where((t) => t.state == 'stalledDL' || t.state == 'stalledUP').toList(),
-      TorrentFilter.inactive => all.where((t) => t.state == 'pausedDL' || t.state == 'pausedUP').toList(),
+      TorrentFilter.paused => all.where((t) => t.state == 'pausedDL' || t.state == 'pausedUP').toList(),
       TorrentFilter.errored => all.where((t) => t.state == 'error' || t.state == 'missingFiles').toList(),
     };
 
@@ -152,11 +149,11 @@ class _FilterMenu extends ConsumerWidget {
       onSelected: (filter) => ref.read(downloadFilterProvider.notifier).setFilter(filter),
       itemBuilder: (context) => [
         _buildItem(TorrentFilter.all, 'All Torrents', Icons.list, activeFilter),
-        _buildItem(TorrentFilter.downloading, 'Downloading', Icons.download, activeFilter),
+        _buildItem(TorrentFilter.active, 'Active', Icons.download, activeFilter),
         _buildItem(TorrentFilter.seeding, 'Seeding', Icons.upload, activeFilter),
         _buildItem(TorrentFilter.completed, 'Completed', Icons.check_circle, activeFilter),
         _buildItem(TorrentFilter.stalled, 'Stalled', Icons.pause_circle_outline, activeFilter),
-        _buildItem(TorrentFilter.inactive, 'Paused', Icons.pause_outlined, activeFilter),
+        _buildItem(TorrentFilter.paused, 'Paused', Icons.pause_outlined, activeFilter),
         _buildItem(TorrentFilter.errored, 'Errored', Icons.error_outline, activeFilter),
       ],
     );
@@ -280,37 +277,39 @@ class _GlobalStatsBar extends ConsumerWidget implements PreferredSizeWidget {
     final mainDataAsync = ref.watch(qbitMainDataProvider(instanceId));
     final theme = Theme.of(context);
 
-    return Container(
-      height: 40,
-      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-      child: mainDataAsync.when(
-        data: (result) {
-          if (result case Ok(:final value)) {
-            final stats = value.serverState;
-            return Row(
+    return mainDataAsync.when(
+      data: (result) {
+        if (result case Ok(:final value)) {
+          final stats = value.serverState;
+          return Container(
+            height: 40,
+            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   '↓ ${FormatUtils.formatSpeed(stats.dlInfoSpeed)}',
-                  style: theme.textTheme.labelMedium?.copyWith(color: Colors.blue, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.labelMedium
+                      ?.copyWith(color: Colors.blue, fontWeight: FontWeight.bold),
                 ),
                 Text(
                   '↑ ${FormatUtils.formatSpeed(stats.upInfoSpeed)}',
-                  style: theme.textTheme.labelMedium?.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.labelMedium
+                      ?.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
                 ),
                 Text(
                   stats.connectionStatus.toUpperCase(),
                   style: theme.textTheme.labelSmall?.copyWith(color: Colors.grey),
                 ),
               ],
-            );
-          }
-          return const SizedBox.shrink();
-        },
-        loading: () => const SizedBox.shrink(),
-        error: (_, __) => const SizedBox.shrink(),
-      ),
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      },
+      loading: () => const SizedBox(height: 40, child: LinearProgressIndicator(minHeight: 2)),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 }

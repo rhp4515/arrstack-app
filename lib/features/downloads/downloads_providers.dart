@@ -26,18 +26,18 @@ class SelectedDownloadInstanceId extends _$SelectedDownloadInstanceId {
 
 enum TorrentFilter {
   all,
-  downloading,
+  active, // Renamed from downloading to match user terminology
   seeding,
   completed,
   stalled,
-  inactive,
+  paused, // Renamed from inactive
   errored,
 }
 
 @riverpod
 class DownloadFilter extends _$DownloadFilter {
   @override
-  TorrentFilter build() => TorrentFilter.all;
+  TorrentFilter build() => TorrentFilter.active;
 
   void setFilter(TorrentFilter filter) => state = filter;
 }

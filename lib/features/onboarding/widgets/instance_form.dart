@@ -87,12 +87,16 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
           }).toList(),
           onChanged: (type) => type != null ? notifier.updateType(type) : null,
         ),
-        if (state.type == ServiceType.uptimeKuma) ...[
+        if (state.type == ServiceType.uptimeKuma ||
+            state.type == ServiceType.qbittorrent) ...[
           const SizedBox(height: AppSpacing.md),
           SegmentedButton<AuthType>(
             segments: const [
               ButtonSegment(value: AuthType.apiKey, label: Text('API Key')),
-              ButtonSegment(value: AuthType.usernamePassword, label: Text('User/Pass')),
+              ButtonSegment(
+                value: AuthType.usernamePassword,
+                label: Text('User/Pass'),
+              ),
             ],
             selected: {state.authType},
             onSelectionChanged: (types) => notifier.updateAuthType(types.first),

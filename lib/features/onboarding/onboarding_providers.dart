@@ -262,17 +262,19 @@ class QbitTestClient implements ConnectionTestClient {
   Future<Result<ServiceIdentity>> testConnection() async {
     final dio = const DioFactory().create(baseUrl: baseUrl);
     final client = QbitClient(dio);
-    dio.interceptors.add(client.cookieInterceptor);
 
-    final cred = credential;
-    if (cred is! UsernamePasswordCredential) {
-      return const Err(AuthError(userMessage: 'Username and password required.'));
+    switch (credential) {
+      // 5.2.0+ API keys authenticate statelessly via a Bearer header, so a
+      // successful app/version call is the whole test — no login needed.
+      case ApiKeyCredential(:final apiKey):
+        dio.interceptors.add(QbitClient.bearerInterceptor(apiKey));
+        return client.testConnection();
+      case UsernamePasswordCredential(:final username, :final password):
+        dio.interceptors.add(client.cookieInterceptor);
+        final loginResult = await client.login(username, password);
+        if (loginResult is Err<void>) return Err(loginResult.error);
+        return client.testConnection();
     }
-    
-    final loginResult = await client.login(cred.username, cred.password);
-    if (loginResult is Err<void>) return Err(loginResult.error);
-
-    return client.testConnection();
   }
 }
 

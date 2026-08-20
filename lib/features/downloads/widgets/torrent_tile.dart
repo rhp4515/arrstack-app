@@ -125,7 +125,7 @@ class TorrentTile extends ConsumerWidget {
   }
 
   Future<void> _showActions(BuildContext context, WidgetRef ref) async {
-    final isPaused = torrent.state == 'pausedDL' || torrent.state == 'pausedUP';
+    final (icon, label) = _toggleAction(torrent.state);
     await showModalBottomSheet<void>(
       context: context,
       builder: (sheetContext) => SafeArea(
@@ -133,8 +133,8 @@ class TorrentTile extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(isPaused ? Icons.play_arrow : Icons.pause),
-              title: Text(isPaused ? 'Resume' : 'Pause'),
+              leading: Icon(icon),
+              title: Text(label),
               onTap: () {
                 Navigator.pop(sheetContext);
                 _toggleStatus(ref);
@@ -154,13 +154,27 @@ class TorrentTile extends ConsumerWidget {
     );
   }
 
+  /// Torrent actions map onto the same `torrents/stop` call for both a
+  /// downloading and a seeding torrent, but the two read very differently to
+  /// a user — "Pause" implies a download will continue later, "Stop Seeding"
+  /// is the accurate label once the file is complete and just uploading.
+  (IconData, String) _toggleAction(String state) {
+    if (state == 'pausedDL' || state == 'pausedUP') {
+      return (Icons.play_arrow, 'Resume');
+    }
+    if (state == 'uploading' || state == 'forcedUP' || state == 'stalledUP') {
+      return (Icons.stop_circle_outlined, 'Stop Seeding');
+    }
+    return (Icons.pause, 'Pause');
+  }
+
   Future<void> _toggleStatus(WidgetRef ref) async {
     final repository = await ref.read(qbitRepositoryProvider(instanceId).future);
     final isPaused = torrent.state == 'pausedDL' || torrent.state == 'pausedUP';
     if (isPaused) {
-      await repository.resumeTorrents([torrent.hash]);
+      await repository.startTorrents([torrent.hash]);
     } else {
-      await repository.pauseTorrents([torrent.hash]);
+      await repository.stopTorrents([torrent.hash]);
     }
     ref.invalidate(qbitTorrentsProvider(instanceId));
   }

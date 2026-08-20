@@ -275,12 +275,12 @@ return $default(_that.id,_that.title,_that.sortTitle,_that.status,_that.overview
 @JsonSerializable()
 
 class _SonarrSeries implements SonarrSeries {
-  const _SonarrSeries({this.id, required this.title, this.sortTitle, this.status, this.overview,  List<SonarrImage>? images,  List<SonarrSeason>? seasons, this.year, this.path, this.rootFolderPath, this.qualityProfileId, this.monitored = true, this.useSceneNumbering = false, this.runtime, this.tvdbId = 0, this.tvMazeId, this.seriesType = 'program', this.cleanTitle, this.titleSlug, this.imdbId, this.network, this.certification, this.firstAired, this.ratings, this.added,  List<String>? genres,  List<int>? tags, this.statistics, this.addOptions}): _images = images,_seasons = seasons,_genres = genres,_tags = tags;
+  const _SonarrSeries({this.id, this.title = 'Unknown', this.sortTitle, this.status, this.overview,  List<SonarrImage>? images,  List<SonarrSeason>? seasons, this.year, this.path, this.rootFolderPath, this.qualityProfileId, this.monitored = true, this.useSceneNumbering = false, this.runtime, this.tvdbId = 0, this.tvMazeId, this.seriesType = 'program', this.cleanTitle, this.titleSlug, this.imdbId, this.network, this.certification, this.firstAired, this.ratings, this.added,  List<String>? genres,  List<int>? tags, this.statistics, this.addOptions}): _images = images,_seasons = seasons,_genres = genres,_tags = tags;
   factory _SonarrSeries.fromJson(Map<String, dynamic> json) => _$SonarrSeriesFromJson(json);
 
 /// Unique ID in the Sonarr database (null for lookup results).
 @override final  int? id;
-@override final  String title;
+@override@JsonKey() final  String title;
 @override final  String? sortTitle;
 @override final  String? status;
 @override final  String? overview;
@@ -3019,7 +3019,7 @@ as double,
 /// @nodoc
 mixin _$SonarrCalendarEpisode {
 
- int get id; int get seriesId; int get seasonNumber; int get episodeNumber; String? get title; DateTime? get airDateUtc; bool get hasFile; bool get monitored; SonarrSeries? get series;
+ int get id; int? get seriesId; int? get seasonNumber; int? get episodeNumber; String? get title; DateTime? get airDateUtc; bool get hasFile; bool get monitored; SonarrSeries? get series;
 /// Create a copy of SonarrCalendarEpisode
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3052,7 +3052,7 @@ abstract mixin class $SonarrCalendarEpisodeCopyWith<$Res>  {
   factory $SonarrCalendarEpisodeCopyWith(SonarrCalendarEpisode value, $Res Function(SonarrCalendarEpisode) _then) = _$SonarrCalendarEpisodeCopyWithImpl;
 @useResult
 $Res call({
- int id, int seriesId, int seasonNumber, int episodeNumber, String? title, DateTime? airDateUtc, bool hasFile, bool monitored, SonarrSeries? series
+ int id, int? seriesId, int? seasonNumber, int? episodeNumber, String? title, DateTime? airDateUtc, bool hasFile, bool monitored, SonarrSeries? series
 });
 
 
@@ -3069,13 +3069,13 @@ class _$SonarrCalendarEpisodeCopyWithImpl<$Res>
 
 /// Create a copy of SonarrCalendarEpisode
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? seriesId = null,Object? seasonNumber = null,Object? episodeNumber = null,Object? title = freezed,Object? airDateUtc = freezed,Object? hasFile = null,Object? monitored = null,Object? series = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? seriesId = freezed,Object? seasonNumber = freezed,Object? episodeNumber = freezed,Object? title = freezed,Object? airDateUtc = freezed,Object? hasFile = null,Object? monitored = null,Object? series = freezed,}) {
   return _then(SonarrCalendarEpisode(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,seriesId: null == seriesId ? _self.seriesId : seriesId // ignore: cast_nullable_to_non_nullable
-as int,seasonNumber: null == seasonNumber ? _self.seasonNumber : seasonNumber // ignore: cast_nullable_to_non_nullable
-as int,episodeNumber: null == episodeNumber ? _self.episodeNumber : episodeNumber // ignore: cast_nullable_to_non_nullable
-as int,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as int,seriesId: freezed == seriesId ? _self.seriesId : seriesId // ignore: cast_nullable_to_non_nullable
+as int?,seasonNumber: freezed == seasonNumber ? _self.seasonNumber : seasonNumber // ignore: cast_nullable_to_non_nullable
+as int?,episodeNumber: freezed == episodeNumber ? _self.episodeNumber : episodeNumber // ignore: cast_nullable_to_non_nullable
+as int?,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,airDateUtc: freezed == airDateUtc ? _self.airDateUtc : airDateUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,hasFile: null == hasFile ? _self.hasFile : hasFile // ignore: cast_nullable_to_non_nullable
 as bool,monitored: null == monitored ? _self.monitored : monitored // ignore: cast_nullable_to_non_nullable
@@ -3177,7 +3177,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int seriesId,  int seasonNumber,  int episodeNumber,  String? title,  DateTime? airDateUtc,  bool hasFile,  bool monitored,  SonarrSeries? series)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int? seriesId,  int? seasonNumber,  int? episodeNumber,  String? title,  DateTime? airDateUtc,  bool hasFile,  bool monitored,  SonarrSeries? series)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SonarrCalendarEpisode() when $default != null:
 return $default(_that.id,_that.seriesId,_that.seasonNumber,_that.episodeNumber,_that.title,_that.airDateUtc,_that.hasFile,_that.monitored,_that.series);case _:
@@ -3198,7 +3198,7 @@ return $default(_that.id,_that.seriesId,_that.seasonNumber,_that.episodeNumber,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int seriesId,  int seasonNumber,  int episodeNumber,  String? title,  DateTime? airDateUtc,  bool hasFile,  bool monitored,  SonarrSeries? series)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int? seriesId,  int? seasonNumber,  int? episodeNumber,  String? title,  DateTime? airDateUtc,  bool hasFile,  bool monitored,  SonarrSeries? series)  $default,) {final _that = this;
 switch (_that) {
 case _SonarrCalendarEpisode():
 return $default(_that.id,_that.seriesId,_that.seasonNumber,_that.episodeNumber,_that.title,_that.airDateUtc,_that.hasFile,_that.monitored,_that.series);case _:
@@ -3218,7 +3218,7 @@ return $default(_that.id,_that.seriesId,_that.seasonNumber,_that.episodeNumber,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int seriesId,  int seasonNumber,  int episodeNumber,  String? title,  DateTime? airDateUtc,  bool hasFile,  bool monitored,  SonarrSeries? series)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int? seriesId,  int? seasonNumber,  int? episodeNumber,  String? title,  DateTime? airDateUtc,  bool hasFile,  bool monitored,  SonarrSeries? series)?  $default,) {final _that = this;
 switch (_that) {
 case _SonarrCalendarEpisode() when $default != null:
 return $default(_that.id,_that.seriesId,_that.seasonNumber,_that.episodeNumber,_that.title,_that.airDateUtc,_that.hasFile,_that.monitored,_that.series);case _:
@@ -3233,13 +3233,13 @@ return $default(_that.id,_that.seriesId,_that.seasonNumber,_that.episodeNumber,_
 @JsonSerializable()
 
 class _SonarrCalendarEpisode implements SonarrCalendarEpisode {
-  const _SonarrCalendarEpisode({required this.id, required this.seriesId, required this.seasonNumber, required this.episodeNumber, this.title, this.airDateUtc, this.hasFile = false, this.monitored = true, this.series});
+  const _SonarrCalendarEpisode({required this.id, this.seriesId, this.seasonNumber, this.episodeNumber, this.title, this.airDateUtc, this.hasFile = false, this.monitored = true, this.series});
   factory _SonarrCalendarEpisode.fromJson(Map<String, dynamic> json) => _$SonarrCalendarEpisodeFromJson(json);
 
 @override final  int id;
-@override final  int seriesId;
-@override final  int seasonNumber;
-@override final  int episodeNumber;
+@override final  int? seriesId;
+@override final  int? seasonNumber;
+@override final  int? episodeNumber;
 @override final  String? title;
 @override final  DateTime? airDateUtc;
 @override@JsonKey() final  bool hasFile;
@@ -3279,7 +3279,7 @@ abstract mixin class _$SonarrCalendarEpisodeCopyWith<$Res> implements $SonarrCal
   factory _$SonarrCalendarEpisodeCopyWith(_SonarrCalendarEpisode value, $Res Function(_SonarrCalendarEpisode) _then) = __$SonarrCalendarEpisodeCopyWithImpl;
 @override @useResult
 $Res call({
- int id, int seriesId, int seasonNumber, int episodeNumber, String? title, DateTime? airDateUtc, bool hasFile, bool monitored, SonarrSeries? series
+ int id, int? seriesId, int? seasonNumber, int? episodeNumber, String? title, DateTime? airDateUtc, bool hasFile, bool monitored, SonarrSeries? series
 });
 
 
@@ -3296,13 +3296,13 @@ class __$SonarrCalendarEpisodeCopyWithImpl<$Res>
 
 /// Create a copy of SonarrCalendarEpisode
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? seriesId = null,Object? seasonNumber = null,Object? episodeNumber = null,Object? title = freezed,Object? airDateUtc = freezed,Object? hasFile = null,Object? monitored = null,Object? series = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? seriesId = freezed,Object? seasonNumber = freezed,Object? episodeNumber = freezed,Object? title = freezed,Object? airDateUtc = freezed,Object? hasFile = null,Object? monitored = null,Object? series = freezed,}) {
   return _then(_SonarrCalendarEpisode(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,seriesId: null == seriesId ? _self.seriesId : seriesId // ignore: cast_nullable_to_non_nullable
-as int,seasonNumber: null == seasonNumber ? _self.seasonNumber : seasonNumber // ignore: cast_nullable_to_non_nullable
-as int,episodeNumber: null == episodeNumber ? _self.episodeNumber : episodeNumber // ignore: cast_nullable_to_non_nullable
-as int,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as int,seriesId: freezed == seriesId ? _self.seriesId : seriesId // ignore: cast_nullable_to_non_nullable
+as int?,seasonNumber: freezed == seasonNumber ? _self.seasonNumber : seasonNumber // ignore: cast_nullable_to_non_nullable
+as int?,episodeNumber: freezed == episodeNumber ? _self.episodeNumber : episodeNumber // ignore: cast_nullable_to_non_nullable
+as int?,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,airDateUtc: freezed == airDateUtc ? _self.airDateUtc : airDateUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,hasFile: null == hasFile ? _self.hasFile : hasFile // ignore: cast_nullable_to_non_nullable
 as bool,monitored: null == monitored ? _self.monitored : monitored // ignore: cast_nullable_to_non_nullable

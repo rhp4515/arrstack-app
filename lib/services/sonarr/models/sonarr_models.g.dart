@@ -10,7 +10,7 @@ _SonarrSeries _$SonarrSeriesFromJson(
   Map<String, dynamic> json,
 ) => _SonarrSeries(
   id: (json['id'] as num?)?.toInt(),
-  title: json['title'] as String,
+  title: json['title'] as String? ?? 'Unknown',
   sortTitle: json['sortTitle'] as String?,
   status: json['status'] as String?,
   overview: json['overview'] as String?,
@@ -248,9 +248,9 @@ _SonarrCalendarEpisode _$SonarrCalendarEpisodeFromJson(
   Map<String, dynamic> json,
 ) => _SonarrCalendarEpisode(
   id: (json['id'] as num).toInt(),
-  seriesId: (json['seriesId'] as num).toInt(),
-  seasonNumber: (json['seasonNumber'] as num).toInt(),
-  episodeNumber: (json['episodeNumber'] as num).toInt(),
+  seriesId: (json['seriesId'] as num?)?.toInt(),
+  seasonNumber: (json['seasonNumber'] as num?)?.toInt(),
+  episodeNumber: (json['episodeNumber'] as num?)?.toInt(),
   title: json['title'] as String?,
   airDateUtc: json['airDateUtc'] == null
       ? null

@@ -8,7 +8,6 @@ import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/features/dashboard/dashboard_providers.dart';
-import 'package:arrstack/features/dashboard/widgets/activity_strip.dart';
 import 'package:arrstack/features/dashboard/widgets/endpoint_indicator.dart';
 import 'package:arrstack/features/dashboard/widgets/service_health_tile.dart';
 import 'package:arrstack/features/downloads/downloads_providers.dart';
@@ -24,7 +23,6 @@ class DashboardPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final healthAsync = ref.watch(stackHealthProvider);
-    final activityAsync = ref.watch(stackActivityProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -36,14 +34,11 @@ class DashboardPage extends ConsumerWidget {
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(stackHealthProvider);
-          ref.invalidate(stackActivityProvider);
         },
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
           children: [
             _HealthSection(healthAsync: healthAsync),
-            const SizedBox(height: AppSpacing.lg),
-            _ActivitySection(activityAsync: activityAsync),
             const SizedBox(height: AppSpacing.xxl),
             _InstancesSection(ref: ref),
           ],
@@ -92,20 +87,6 @@ class _HealthSection extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ActivitySection extends StatelessWidget {
-  const _ActivitySection({required this.activityAsync});
-  final AsyncValue<List<ActivityItem>> activityAsync;
-
-  @override
-  Widget build(BuildContext context) {
-    return activityAsync.when(
-      data: (items) => ActivityStrip(items: items),
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, _) => Center(child: Text('Error loading activity: $err')),
     );
   }
 }

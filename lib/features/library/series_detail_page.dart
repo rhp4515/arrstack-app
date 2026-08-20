@@ -5,6 +5,7 @@
 /// Overview and Details, then a Seasons list that expands into episode cards.
 library;
 
+import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/network/network.dart';
@@ -17,6 +18,7 @@ import 'package:arrstack/services/sonarr/sonarr_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class SeriesDetailPage extends ConsumerWidget {
   const SeriesDetailPage({
@@ -290,7 +292,7 @@ class _ChipRow extends StatelessWidget {
               'IMDb',
             ),
           ),
-        if (series.tvdbId > 0)
+        if (series.tvdbId != null && series.tvdbId! > 0)
           DetailChip(
             label: 'TVDB',
             color: const Color(0xFF6DA13A),
@@ -574,8 +576,12 @@ class _SeasonEpisodes extends ConsumerWidget {
           children: [
             for (final episode
                 in value.where((e) => e.seasonNumber == seasonNumber).toList()
-                  ..sort((a, b) => a.episodeNumber.compareTo(b.episodeNumber)))
-              _EpisodeCard(episode: episode),
+                  ..sort((a, b) => (a.episodeNumber ?? 0).compareTo(b.episodeNumber ?? 0)))
+              _EpisodeCard(
+                instanceId: instanceId,
+                seriesId: seriesId,
+                episode: episode,
+              ),
           ],
         ),
         Err() => const Padding(
@@ -596,8 +602,14 @@ class _SeasonEpisodes extends ConsumerWidget {
 }
 
 class _EpisodeCard extends StatelessWidget {
-  const _EpisodeCard({required this.episode});
+  const _EpisodeCard({
+    required this.instanceId,
+    required this.seriesId,
+    required this.episode,
+  });
 
+  final String instanceId;
+  final int seriesId;
   final SonarrEpisode episode;
 
   @override
@@ -613,83 +625,91 @@ class _EpisodeCard extends StatelessWidget {
         '${episode.runtime}m',
     ];
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(
-          alpha: 0.5,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: InkWell(
+        onTap: () => context.go(
+          RoutePaths.episodeDetail(instanceId, seriesId, episode.id),
         ),
         borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest.withValues(
+              alpha: 0.5,
+            ),
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                children: [
+                  Text(
+                    episode.episodeCode,
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: accent,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const Spacer(),
+                  if (quality != null && quality.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                      ),
+                      child: Text(
+                        quality,
+                        style: const TextStyle(
+                          color: Colors.green,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.xs),
               Text(
-                episode.episodeCode,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: accent,
+                episode.title ?? 'Unknown Episode',
+                style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const Spacer(),
-              if (quality != null && quality.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.16),
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                  ),
-                  child: Text(
-                    quality,
-                    style: const TextStyle(
-                      color: Colors.green,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+              if (metaParts.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  metaParts.join('  ·  '),
+                  style: theme.textTheme.bodySmall?.copyWith(color: muted),
                 ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            episode.title,
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          if (metaParts.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              metaParts.join('  ·  '),
-              style: theme.textTheme.bodySmall?.copyWith(color: muted),
-            ),
-          ],
-          if (episode.overview != null && episode.overview!.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              episode.overview!,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall?.copyWith(color: muted),
-            ),
-          ],
-          Row(
-            children: [
-              const Spacer(),
-              Icon(
-                episode.monitored ? Icons.bookmark : Icons.bookmark_border,
-                size: 18,
-                color: episode.monitored ? accent : muted,
+              ],
+              if (episode.overview != null && episode.overview!.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  episode.overview!,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(color: muted),
+                ),
+              ],
+              Row(
+                children: [
+                  const Spacer(),
+                  Icon(
+                    episode.monitored ? Icons.bookmark : Icons.bookmark_border,
+                    size: 18,
+                    color: episode.monitored ? accent : muted,
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

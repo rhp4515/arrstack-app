@@ -48,7 +48,7 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
               Ok(:final value) => DropdownButtonFormField<int>(
                   decoration: const InputDecoration(labelText: 'Quality Profile'),
                   initialValue: _selectedProfileId ?? (value.isNotEmpty ? value.first.id : null),
-                  items: value.map((p) => DropdownMenuItem(value: p.id, child: Text(p.name))).toList(),
+                  items: value.map((p) => DropdownMenuItem(value: p.id, child: Text(p.name ?? 'Unknown'))).toList(),
                   onChanged: (id) => setState(() => _selectedProfileId = id),
                 ),
               Err(:final error) => Text('Error loading profiles: ${error.userMessage}'),
@@ -62,7 +62,7 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
               Ok(:final value) => DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Root Folder'),
                   initialValue: _selectedPath ?? (value.isNotEmpty ? value.first.path : null),
-                  items: value.map((f) => DropdownMenuItem(value: f.path, child: Text(f.path))).toList(),
+                  items: value.map((f) => DropdownMenuItem(value: f.path, child: Text(f.path ?? 'Unknown'))).toList(),
                   onChanged: (p) => setState(() => _selectedPath = p),
                 ),
               Err(:final error) => Text('Error loading folders: ${error.userMessage}'),

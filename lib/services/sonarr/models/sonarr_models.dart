@@ -29,7 +29,7 @@ abstract class SonarrSeries with _$SonarrSeries {
     @Default(false) bool useSceneNumbering,
     // Sonarr returns runtime as an int (minutes), not a string.
     int? runtime,
-    @Default(0) int tvdbId,
+    int? tvdbId,
     int? tvMazeId,
     @Default('program') String seriesType,
     String? cleanTitle,
@@ -138,13 +138,13 @@ abstract class SonarrStatistics with _$SonarrStatistics {
 abstract class SonarrEpisode with _$SonarrEpisode {
   const factory SonarrEpisode({
     required int id,
-    required int seriesId,
-    required int seasonNumber,
-    required int episodeNumber,
-    required String title,
+    int? seriesId,
+    int? seasonNumber,
+    int? episodeNumber,
+    String? title,
     String? overview,
-    required bool hasFile,
-    required bool monitored,
+    @Default(false) bool hasFile,
+    @Default(true) bool monitored,
     DateTime? airDateUtc,
     int? runtime,
     int? episodeFileId,
@@ -161,12 +161,15 @@ abstract class SonarrEpisode with _$SonarrEpisode {
 
 extension SonarrEpisodeX on SonarrEpisode {
   /// "S01E01" style code for display.
-  String get episodeCode =>
-      'S${seasonNumber.toString().padLeft(2, '0')}'
-      'E${episodeNumber.toString().padLeft(2, '0')}';
+  String get episodeCode {
+    final s = seasonNumber ?? 0;
+    final e = episodeNumber ?? 0;
+    return 'S${s.toString().padLeft(2, '0')}'
+        'E${e.toString().padLeft(2, '0')}';
+  }
 
   /// Quality name of the downloaded file (e.g. "Bluray-1080p"), if present.
-  String? get qualityName => episodeFile?.quality?.quality.name;
+  String? get qualityName => episodeFile?.quality?.quality?.name;
 }
 
 /// The downloaded file for an episode, with its quality and technical info.
@@ -187,7 +190,7 @@ abstract class SonarrEpisodeFile with _$SonarrEpisodeFile {
 /// Quality wrapper matching Sonarr's `quality: { quality: { name } }` shape.
 @freezed
 abstract class SonarrQualityInfo with _$SonarrQualityInfo {
-  const factory SonarrQualityInfo({required SonarrQuality quality}) =
+  const factory SonarrQualityInfo({SonarrQuality? quality}) =
       _SonarrQualityInfo;
 
   factory SonarrQualityInfo.fromJson(Map<String, dynamic> json) =>
@@ -196,7 +199,7 @@ abstract class SonarrQualityInfo with _$SonarrQualityInfo {
 
 @freezed
 abstract class SonarrQuality with _$SonarrQuality {
-  const factory SonarrQuality({required int id, required String name}) =
+  const factory SonarrQuality({int? id, String? name}) =
       _SonarrQuality;
 
   factory SonarrQuality.fromJson(Map<String, dynamic> json) =>
@@ -238,7 +241,7 @@ abstract class SonarrCalendarEpisode with _$SonarrCalendarEpisode {
 /// A quality profile (e.g. "Any", "HD-1080p").
 @freezed
 abstract class SonarrQualityProfile with _$SonarrQualityProfile {
-  const factory SonarrQualityProfile({required int id, required String name}) =
+  const factory SonarrQualityProfile({required int id, String? name}) =
       _SonarrQualityProfile;
 
   factory SonarrQualityProfile.fromJson(Map<String, dynamic> json) =>
@@ -250,8 +253,8 @@ abstract class SonarrQualityProfile with _$SonarrQualityProfile {
 abstract class SonarrRootFolder with _$SonarrRootFolder {
   const factory SonarrRootFolder({
     required int id,
-    required String path,
-    required int freeSpace,
+    String? path,
+    int? freeSpace,
   }) = _SonarrRootFolder;
 
   factory SonarrRootFolder.fromJson(Map<String, dynamic> json) =>

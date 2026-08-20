@@ -16,24 +16,24 @@ abstract class RadarrMovie with _$RadarrMovie {
     /// Unique ID in the Radarr database (null for lookup results).
     int? id,
     @Default('Unknown') String title,
-    @Default(0) int year,
+    int? year,
     @Default(true) bool monitored,
     String? status,
     String? overview,
     String? sortTitle,
     DateTime? added,
-    @Default([]) List<RadarrImage> images,
+    List<RadarrImage>? images,
     int? qualityProfileId,
     String? rootFolderPath,
     String? path,
     RadarrMovieFile? movieFile,
-    @Default(0) int tmdbId,
+    int? tmdbId,
     String? imdbId,
     String? titleSlug,
     String? studio,
     String? certification,
     int? runtime,
-    @Default([]) List<String> genres,
+    List<String>? genres,
     RadarrRatings? ratings,
     DateTime? inCinemas,
     DateTime? physicalRelease,
@@ -49,7 +49,7 @@ abstract class RadarrMovie with _$RadarrMovie {
 extension RadarrMovieX on RadarrMovie {
   /// Human-readable quality of the downloaded file (e.g. "Bluray-1080p"),
   /// or null when the movie has no file yet.
-  String? get displayQuality => movieFile?.quality.quality.name;
+  String? get displayQuality => movieFile?.quality?.quality?.name;
 
   /// Best single rating (0–10) to surface, preferring TMDB then IMDb.
   double? get displayRating => ratings?.tmdb?.value ?? ratings?.imdb?.value;
@@ -67,12 +67,13 @@ extension RadarrMovieX on RadarrMovie {
   }
 
   String? get posterUrl {
-    if (images.isEmpty) return null;
-    final image = images.firstWhere(
+    final imgs = images;
+    if (imgs == null || imgs.isEmpty) return null;
+    final image = imgs.firstWhere(
       (i) => i.coverType == 'poster',
-      orElse: () => images.firstWhere(
+      orElse: () => imgs.firstWhere(
         (i) => i.coverType == 'fanart',
-        orElse: () => images.first,
+        orElse: () => imgs.first,
       ),
     );
     // Prefer the auth-free remote (TMDB) CDN URL so posters load regardless of
@@ -80,7 +81,7 @@ extension RadarrMovieX on RadarrMovie {
     // the image provider will sign with an API key) only when it's absent.
     final remote = image.remoteUrl;
     if (remote != null && remote.isNotEmpty) return remote;
-    return image.url.isNotEmpty ? image.url : null;
+    return (image.url != null && image.url!.isNotEmpty) ? image.url : null;
   }
 }
 
@@ -88,8 +89,8 @@ extension RadarrMovieX on RadarrMovie {
 @freezed
 abstract class RadarrImage with _$RadarrImage {
   const factory RadarrImage({
-    required String coverType,
-    required String url,
+    String? coverType,
+    String? url,
     String? remoteUrl,
   }) = _RadarrImage;
 
@@ -102,20 +103,20 @@ abstract class RadarrImage with _$RadarrImage {
 abstract class RadarrMovieFile with _$RadarrMovieFile {
   const factory RadarrMovieFile({
     required int id,
-    required String relativePath,
-    required int size,
-    required DateTime dateAdded,
-    required RadarrQualityInfo quality,
+    String? relativePath,
+    int? size,
+    DateTime? dateAdded,
+    RadarrQualityInfo? quality,
   }) = _RadarrMovieFile;
 
   factory RadarrMovieFile.fromJson(Map<String, dynamic> json) =>
       _$RadarrMovieFileFromJson(json);
 }
 
-/// Quality info for a file or profile.
+/// Quality wrapper matching Radarr's `quality: { quality: { name } }` shape.
 @freezed
 abstract class RadarrQualityInfo with _$RadarrQualityInfo {
-  const factory RadarrQualityInfo({required RadarrQuality quality}) =
+  const factory RadarrQualityInfo({RadarrQuality? quality}) =
       _RadarrQualityInfo;
 
   factory RadarrQualityInfo.fromJson(Map<String, dynamic> json) =>
@@ -124,7 +125,7 @@ abstract class RadarrQualityInfo with _$RadarrQualityInfo {
 
 @freezed
 abstract class RadarrQuality with _$RadarrQuality {
-  const factory RadarrQuality({required int id, required String name}) =
+  const factory RadarrQuality({int? id, String? name}) =
       _RadarrQuality;
 
   factory RadarrQuality.fromJson(Map<String, dynamic> json) =>
@@ -159,7 +160,7 @@ abstract class RadarrRatingValue with _$RadarrRatingValue {
 /// A quality profile (e.g. "Any", "HD-1080p").
 @freezed
 abstract class RadarrQualityProfile with _$RadarrQualityProfile {
-  const factory RadarrQualityProfile({required int id, required String name}) =
+  const factory RadarrQualityProfile({required int id, String? name}) =
       _RadarrQualityProfile;
 
   factory RadarrQualityProfile.fromJson(Map<String, dynamic> json) =>
@@ -171,8 +172,8 @@ abstract class RadarrQualityProfile with _$RadarrQualityProfile {
 abstract class RadarrRootFolder with _$RadarrRootFolder {
   const factory RadarrRootFolder({
     required int id,
-    required String path,
-    required int freeSpace,
+    String? path,
+    int? freeSpace,
   }) = _RadarrRootFolder;
 
   factory RadarrRootFolder.fromJson(Map<String, dynamic> json) =>

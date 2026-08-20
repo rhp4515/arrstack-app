@@ -9,32 +9,28 @@ part of 'radarr_models.dart';
 _RadarrMovie _$RadarrMovieFromJson(Map<String, dynamic> json) => _RadarrMovie(
   id: (json['id'] as num?)?.toInt(),
   title: json['title'] as String? ?? 'Unknown',
-  year: (json['year'] as num?)?.toInt() ?? 0,
+  year: (json['year'] as num?)?.toInt(),
   monitored: json['monitored'] as bool? ?? true,
   status: json['status'] as String?,
   overview: json['overview'] as String?,
   sortTitle: json['sortTitle'] as String?,
   added: json['added'] == null ? null : DateTime.parse(json['added'] as String),
-  images:
-      (json['images'] as List<dynamic>?)
-          ?.map((e) => RadarrImage.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-      const [],
+  images: (json['images'] as List<dynamic>?)
+      ?.map((e) => RadarrImage.fromJson(e as Map<String, dynamic>))
+      .toList(),
   qualityProfileId: (json['qualityProfileId'] as num?)?.toInt(),
   rootFolderPath: json['rootFolderPath'] as String?,
   path: json['path'] as String?,
   movieFile: json['movieFile'] == null
       ? null
       : RadarrMovieFile.fromJson(json['movieFile'] as Map<String, dynamic>),
-  tmdbId: (json['tmdbId'] as num?)?.toInt() ?? 0,
+  tmdbId: (json['tmdbId'] as num?)?.toInt(),
   imdbId: json['imdbId'] as String?,
   titleSlug: json['titleSlug'] as String?,
   studio: json['studio'] as String?,
   certification: json['certification'] as String?,
   runtime: (json['runtime'] as num?)?.toInt(),
-  genres:
-      (json['genres'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-      const [],
+  genres: (json['genres'] as List<dynamic>?)?.map((e) => e as String).toList(),
   ratings: json['ratings'] == null
       ? null
       : RadarrRatings.fromJson(json['ratings'] as Map<String, dynamic>),
@@ -82,8 +78,8 @@ Map<String, dynamic> _$RadarrMovieToJson(_RadarrMovie instance) =>
     };
 
 _RadarrImage _$RadarrImageFromJson(Map<String, dynamic> json) => _RadarrImage(
-  coverType: json['coverType'] as String,
-  url: json['url'] as String,
+  coverType: json['coverType'] as String?,
+  url: json['url'] as String?,
   remoteUrl: json['remoteUrl'] as String?,
 );
 
@@ -97,12 +93,14 @@ Map<String, dynamic> _$RadarrImageToJson(_RadarrImage instance) =>
 _RadarrMovieFile _$RadarrMovieFileFromJson(Map<String, dynamic> json) =>
     _RadarrMovieFile(
       id: (json['id'] as num).toInt(),
-      relativePath: json['relativePath'] as String,
-      size: (json['size'] as num).toInt(),
-      dateAdded: DateTime.parse(json['dateAdded'] as String),
-      quality: RadarrQualityInfo.fromJson(
-        json['quality'] as Map<String, dynamic>,
-      ),
+      relativePath: json['relativePath'] as String?,
+      size: (json['size'] as num?)?.toInt(),
+      dateAdded: json['dateAdded'] == null
+          ? null
+          : DateTime.parse(json['dateAdded'] as String),
+      quality: json['quality'] == null
+          ? null
+          : RadarrQualityInfo.fromJson(json['quality'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$RadarrMovieFileToJson(_RadarrMovieFile instance) =>
@@ -110,13 +108,15 @@ Map<String, dynamic> _$RadarrMovieFileToJson(_RadarrMovieFile instance) =>
       'id': instance.id,
       'relativePath': instance.relativePath,
       'size': instance.size,
-      'dateAdded': instance.dateAdded.toIso8601String(),
+      'dateAdded': instance.dateAdded?.toIso8601String(),
       'quality': instance.quality,
     };
 
 _RadarrQualityInfo _$RadarrQualityInfoFromJson(Map<String, dynamic> json) =>
     _RadarrQualityInfo(
-      quality: RadarrQuality.fromJson(json['quality'] as Map<String, dynamic>),
+      quality: json['quality'] == null
+          ? null
+          : RadarrQuality.fromJson(json['quality'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$RadarrQualityInfoToJson(_RadarrQualityInfo instance) =>
@@ -124,8 +124,8 @@ Map<String, dynamic> _$RadarrQualityInfoToJson(_RadarrQualityInfo instance) =>
 
 _RadarrQuality _$RadarrQualityFromJson(Map<String, dynamic> json) =>
     _RadarrQuality(
-      id: (json['id'] as num).toInt(),
-      name: json['name'] as String,
+      id: (json['id'] as num?)?.toInt(),
+      name: json['name'] as String?,
     );
 
 Map<String, dynamic> _$RadarrQualityToJson(_RadarrQuality instance) =>
@@ -166,7 +166,7 @@ _RadarrQualityProfile _$RadarrQualityProfileFromJson(
   Map<String, dynamic> json,
 ) => _RadarrQualityProfile(
   id: (json['id'] as num).toInt(),
-  name: json['name'] as String,
+  name: json['name'] as String?,
 );
 
 Map<String, dynamic> _$RadarrQualityProfileToJson(
@@ -176,8 +176,8 @@ Map<String, dynamic> _$RadarrQualityProfileToJson(
 _RadarrRootFolder _$RadarrRootFolderFromJson(Map<String, dynamic> json) =>
     _RadarrRootFolder(
       id: (json['id'] as num).toInt(),
-      path: json['path'] as String,
-      freeSpace: (json['freeSpace'] as num).toInt(),
+      path: json['path'] as String?,
+      freeSpace: (json['freeSpace'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$RadarrRootFolderToJson(_RadarrRootFolder instance) =>

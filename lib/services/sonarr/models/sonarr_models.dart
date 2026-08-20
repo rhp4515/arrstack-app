@@ -15,7 +15,7 @@ abstract class SonarrSeries with _$SonarrSeries {
   const factory SonarrSeries({
     /// Unique ID in the Sonarr database (null for lookup results).
     int? id,
-    required String title,
+    @Default('Unknown') String title,
     String? sortTitle,
     String? status,
     String? overview,
@@ -221,9 +221,9 @@ abstract class SonarrRatings with _$SonarrRatings {
 abstract class SonarrCalendarEpisode with _$SonarrCalendarEpisode {
   const factory SonarrCalendarEpisode({
     required int id,
-    required int seriesId,
-    required int seasonNumber,
-    required int episodeNumber,
+    int? seriesId,
+    int? seasonNumber,
+    int? episodeNumber,
     String? title,
     DateTime? airDateUtc,
     @Default(false) bool hasFile,

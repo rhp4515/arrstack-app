@@ -8,23 +8,25 @@ part of 'radarr_models.dart';
 
 _RadarrMovie _$RadarrMovieFromJson(Map<String, dynamic> json) => _RadarrMovie(
   id: (json['id'] as num?)?.toInt(),
-  title: json['title'] as String,
-  year: (json['year'] as num).toInt(),
-  monitored: json['monitored'] as bool,
-  status: json['status'] as String,
-  overview: json['overview'] as String,
-  sortTitle: json['sortTitle'] as String,
+  title: json['title'] as String? ?? 'Unknown',
+  year: (json['year'] as num?)?.toInt() ?? 0,
+  monitored: json['monitored'] as bool? ?? true,
+  status: json['status'] as String?,
+  overview: json['overview'] as String?,
+  sortTitle: json['sortTitle'] as String?,
   added: json['added'] == null ? null : DateTime.parse(json['added'] as String),
-  images: (json['images'] as List<dynamic>)
-      .map((e) => RadarrImage.fromJson(e as Map<String, dynamic>))
-      .toList(),
+  images:
+      (json['images'] as List<dynamic>?)
+          ?.map((e) => RadarrImage.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
   qualityProfileId: (json['qualityProfileId'] as num?)?.toInt(),
   rootFolderPath: json['rootFolderPath'] as String?,
   path: json['path'] as String?,
   movieFile: json['movieFile'] == null
       ? null
       : RadarrMovieFile.fromJson(json['movieFile'] as Map<String, dynamic>),
-  tmdbId: (json['tmdbId'] as num).toInt(),
+  tmdbId: (json['tmdbId'] as num?)?.toInt() ?? 0,
   imdbId: json['imdbId'] as String?,
   titleSlug: json['titleSlug'] as String?,
   studio: json['studio'] as String?,

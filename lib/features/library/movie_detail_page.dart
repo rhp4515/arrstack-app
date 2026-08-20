@@ -323,9 +323,9 @@ class _OverviewCard extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                movie.overview.isEmpty
+                (movie.overview == null || movie.overview!.isEmpty)
                     ? 'No overview available.'
-                    : movie.overview,
+                    : movie.overview!,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -362,7 +362,7 @@ class _DetailsCard extends StatelessWidget {
     final theme = Theme.of(context);
     final rows = <(String, String)>[
       ('Quality', movie.displayQuality ?? '—'),
-      ('Status', movie.status),
+      ('Status', movie.status ?? 'Unknown'),
       if (movie.runtime != null && movie.runtime! > 0)
         ('Runtime', '${movie.runtime} min'),
       (

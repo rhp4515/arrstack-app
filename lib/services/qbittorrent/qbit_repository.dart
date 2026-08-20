@@ -15,32 +15,18 @@ class QbitRepository {
   final QbitClient _client;
   final ServiceCredential _credential;
 
-  Future<Result<List<QbitTorrent>>> listTorrents() async {
-    final result = await _client.getTorrents();
-    if (result is Err<List<QbitTorrent>> && result.error is AuthError) {
-      final loginResult = await _ensureLoggedIn();
-      if (loginResult is Err) return Err(loginResult.error);
-      return _client.getTorrents();
-    }
-    return result;
+  Future<Result<List<QbitTorrent>>> listTorrents() =>
+      _authenticatedCall(_client.getTorrents);
+
+  Future<Result<QbitMainData>> getMainData() =>
+      _authenticatedCall(_client.getMainData);
+
+  Future<Result<void>> stopTorrents(List<String> hashes) async {
+    return _authenticatedCall(() => _client.stopTorrents(hashes));
   }
 
-  Future<Result<QbitMainData>> getMainData() async {
-    final result = await _client.getMainData();
-    if (result is Err<QbitMainData> && result.error is AuthError) {
-      final loginResult = await _ensureLoggedIn();
-      if (loginResult is Err) return Err(loginResult.error);
-      return _client.getMainData();
-    }
-    return result;
-  }
-
-  Future<Result<void>> pauseTorrents(List<String> hashes) async {
-    return _authenticatedCall(() => _client.pauseTorrents(hashes));
-  }
-
-  Future<Result<void>> resumeTorrents(List<String> hashes) async {
-    return _authenticatedCall(() => _client.resumeTorrents(hashes));
+  Future<Result<void>> startTorrents(List<String> hashes) async {
+    return _authenticatedCall(() => _client.startTorrents(hashes));
   }
 
   Future<Result<void>> deleteTorrents(List<String> hashes, {bool deleteFiles = false}) async {
@@ -51,9 +37,17 @@ class QbitRepository {
     return _authenticatedCall(() => _client.addTorrent(url));
   }
 
-  Future<Result<T>> _authenticatedCall<T>(Future<Result<T>> Function() call) async {
+  Future<Result<T>> _authenticatedCall<T>(
+    Future<Result<T>> Function() call,
+  ) async {
     final result = await call();
-    if (result is Err<T> && result.error is AuthError) {
+    // Only a cookie session can be recovered by logging in again. API-key
+    // (Bearer) auth is stateless, so an AuthError there means a bad/missing
+    // key — retrying login is pointless and can trip qBittorrent's
+    // failed-attempt IP ban, so surface the error directly instead.
+    if (result is Err<T> &&
+        result.error is AuthError &&
+        _credential is UsernamePasswordCredential) {
       final loginResult = await _ensureLoggedIn();
       if (loginResult is Err) return Err(loginResult.error);
       return call();

@@ -93,21 +93,27 @@ class QbitClient implements ConnectionTestClient {
     );
   }
 
-  Future<Result<void>> pauseTorrents(List<String> hashes) {
+  /// Stops (pauses) torrents. qBittorrent 5.0 hard-renamed this endpoint from
+  /// `torrents/pause` to `torrents/stop` — the old path 404s on 5.0+.
+  Future<Result<void>> stopTorrents(List<String> hashes) {
     return dioCall(
       () => _dio.post(
-        'api/v2/torrents/pause',
-        queryParameters: {'hashes': hashes.join('|')},
+        'api/v2/torrents/stop',
+        data: {'hashes': hashes.join('|')},
+        options: Options(contentType: Headers.formUrlEncodedContentType),
       ),
       map: (_) {},
     );
   }
 
-  Future<Result<void>> resumeTorrents(List<String> hashes) {
+  /// Starts (resumes) torrents. Renamed from `torrents/resume` in qBittorrent
+  /// 5.0 — see [stopTorrents].
+  Future<Result<void>> startTorrents(List<String> hashes) {
     return dioCall(
       () => _dio.post(
-        'api/v2/torrents/resume',
-        queryParameters: {'hashes': hashes.join('|')},
+        'api/v2/torrents/start',
+        data: {'hashes': hashes.join('|')},
+        options: Options(contentType: Headers.formUrlEncodedContentType),
       ),
       map: (_) {},
     );
@@ -117,13 +123,14 @@ class QbitClient implements ConnectionTestClient {
     List<String> hashes, {
     bool deleteFiles = false,
   }) {
+    // qBittorrent reads state-changing params from the POST body, not the
+    // query string — sending them as queryParameters yields a 400 because
+    // the server sees `hashes` as missing.
     return dioCall(
       () => _dio.post(
         'api/v2/torrents/delete',
-        queryParameters: {
-          'hashes': hashes.join('|'),
-          'deleteFiles': deleteFiles,
-        },
+        data: {'hashes': hashes.join('|'), 'deleteFiles': deleteFiles},
+        options: Options(contentType: Headers.formUrlEncodedContentType),
       ),
       map: (_) {},
     );
@@ -146,6 +153,16 @@ class QbitClient implements ConnectionTestClient {
       if (_sid != null) {
         options.headers['Cookie'] = _sid;
       }
+      handler.next(options);
+    },
+  );
+
+  /// Injects `Authorization: Bearer <key>` for qBittorrent 5.2.0+ API-key auth.
+  /// API keys are stateless and bypass the cookie/`login` flow entirely, so a
+  /// client using this never needs to call [login].
+  static Interceptor bearerInterceptor(String apiKey) => InterceptorsWrapper(
+    onRequest: (options, handler) {
+      options.headers['Authorization'] = 'Bearer $apiKey';
       handler.next(options);
     },
   );

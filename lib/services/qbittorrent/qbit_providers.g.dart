@@ -63,7 +63,7 @@ final class QbitClientProvider
   }
 }
 
-String _$qbitClientHash() => r'28154d4d401aa0dfbb024a5a36516e56a39df92c';
+String _$qbitClientHash() => r'518c5c3d7255b10cb9aaa05b64bacccdd4c077d0';
 
 final class QbitClientFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<QbitClient>, String> {

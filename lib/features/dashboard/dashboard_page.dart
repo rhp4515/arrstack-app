@@ -124,7 +124,7 @@ class _InstancesSection extends StatelessWidget {
             Err(:final error) => Center(child: Text('Error: ${error.userMessage}')),
           },
           loading: () => const SizedBox.shrink(),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
         ),
       ],
     );

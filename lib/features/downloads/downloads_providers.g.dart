@@ -87,7 +87,7 @@ final class DownloadFilterProvider
   }
 }
 
-String _$downloadFilterHash() => r'740ebc7d86a6b96e8967cbe7cf8e3c379ab40de0';
+String _$downloadFilterHash() => r'c6042a008b35dce719cae4dfcb2a38bfe9712afa';
 
 abstract class _$DownloadFilter extends $Notifier<TorrentFilter> {
   TorrentFilter build();

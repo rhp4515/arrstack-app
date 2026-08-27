@@ -25,6 +25,7 @@ class AddMovieOptionsSheet extends ConsumerStatefulWidget {
 class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
   int? _selectedProfileId;
   String? _selectedPath;
+  bool _searchNow = true;
   bool _isSaving = false;
 
   @override
@@ -70,6 +71,13 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
             loading: () => const LinearProgressIndicator(),
             error: (err, _) => Text('Error: $err'),
           ),
+          const SizedBox(height: AppSpacing.md),
+          SwitchListTile(
+            title: const Text('Search for movie now'),
+            value: _searchNow,
+            onChanged: (val) => setState(() => _searchNow = val),
+            contentPadding: EdgeInsets.zero,
+          ),
           const SizedBox(height: AppSpacing.xl),
           FilledButton.icon(
             onPressed: _isSaving ? null : _save,
@@ -107,6 +115,10 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
       monitored: true,
       qualityProfileId: profileId,
       rootFolderPath: rootPath,
+      addOptions: RadarrAddOptions(
+        searchForMovie: _searchNow,
+        monitor: 'movieOnly',
+      ),
     );
 
     final result = await repository.addMovie(movieToAdd);

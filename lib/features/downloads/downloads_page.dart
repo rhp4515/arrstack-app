@@ -27,13 +27,13 @@ class DownloadsPage extends ConsumerWidget {
           instanceIdAsync.when(
             data: (id) => id != null ? const _FilterMenu() : const SizedBox.shrink(),
             loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
           ),
         ],
         bottom: instanceIdAsync.when(
           data: (id) => id != null ? _GlobalStatsBar(instanceId: id) : null,
           loading: () => null,
-          error: (_, __) => null,
+          error: (_, _) => null,
         ),
       ),
       body: instanceIdAsync.when(
@@ -309,7 +309,7 @@ class _GlobalStatsBar extends ConsumerWidget implements PreferredSizeWidget {
         return const SizedBox.shrink();
       },
       loading: () => const SizedBox(height: 40, child: LinearProgressIndicator(minHeight: 2)),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 }

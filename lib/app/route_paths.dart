@@ -22,4 +22,7 @@ abstract final class RoutePaths {
   static String addSeries(String instanceId) => '/library/sonarr/$instanceId/add';
 
   static String subtitles(String instanceId) => '/dashboard/subtitles/$instanceId';
+  static String discover(String instanceId) => '/dashboard/seerr/$instanceId';
+  static String discoverDetail(String instanceId, int id, String type) =>
+      '/dashboard/seerr/$instanceId/detail/$id/$type';
 }

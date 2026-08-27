@@ -10,6 +10,7 @@ import 'package:arrstack/services/bazarr/bazarr_client.dart';
 import 'package:arrstack/services/contracts/contracts.dart';
 import 'package:arrstack/services/qbittorrent/qbit_client.dart';
 import 'package:arrstack/services/radarr/radarr_client.dart';
+import 'package:arrstack/services/seerr/seerr_client.dart';
 import 'package:arrstack/services/sonarr/sonarr_client.dart';
 import 'package:arrstack/services/uptimekuma/kuma_client.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -206,6 +207,15 @@ class InstanceForm extends _$InstanceForm {
             : null,
       );
       return BazarrClient(dio);
+    }
+    if (state.type == ServiceType.seerr) {
+      final dio = const DioFactory().create(
+        baseUrl: baseUrl,
+        apiKeyInterceptor: credential is ApiKeyCredential
+            ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
+            : null,
+      );
+      return SeerrClient(dio);
     }
     return StubConnectionTestClient(baseUrl: baseUrl, credential: credential);
   }

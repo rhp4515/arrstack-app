@@ -66,7 +66,7 @@ Future<ServiceHealth> _getRadarrHealth(Ref ref, ServiceInstance instance) async 
       Err() => _offlineHealth(instance),
     },
     loading: () => _loadingHealth(instance),
-    error: (_, __) => _offlineHealth(instance),
+    error: (_, _) => _offlineHealth(instance),
   );
 }
 
@@ -86,7 +86,7 @@ Future<ServiceHealth> _getSonarrHealth(Ref ref, ServiceInstance instance) async 
       Err() => _offlineHealth(instance),
     },
     loading: () => _loadingHealth(instance),
-    error: (_, __) => _offlineHealth(instance),
+    error: (_, _) => _offlineHealth(instance),
   );
 }
 
@@ -106,7 +106,7 @@ Future<ServiceHealth> _getBazarrHealth(Ref ref, ServiceInstance instance) async 
       Err() => _offlineHealth(instance),
     },
     loading: () => _loadingHealth(instance),
-    error: (_, __) => _offlineHealth(instance),
+    error: (_, _) => _offlineHealth(instance),
   );
 }
 
@@ -126,7 +126,7 @@ Future<ServiceHealth> _getKumaHealth(Ref ref, ServiceInstance instance) async {
       Err() => _offlineHealth(instance),
     },
     loading: () => _loadingHealth(instance),
-    error: (_, __) => _offlineHealth(instance),
+    error: (_, _) => _offlineHealth(instance),
   );
 }
 

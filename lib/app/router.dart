@@ -6,6 +6,8 @@ import 'package:arrstack/app/app_shell.dart';
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/features/calendar/calendar_page.dart';
 import 'package:arrstack/features/dashboard/dashboard_page.dart';
+import 'package:arrstack/features/discover/discover_detail_page.dart';
+import 'package:arrstack/features/discover/discover_page.dart';
 import 'package:arrstack/features/downloads/downloads_page.dart';
 import 'package:arrstack/features/library/add_movie_page.dart';
 import 'package:arrstack/features/library/add_series_page.dart';
@@ -37,6 +39,22 @@ final GoRouter appRouter = GoRouter(
                   builder: (context, state) => SubtitlesPage(
                     instanceId: state.pathParameters['instanceId']!,
                   ),
+                ),
+                GoRoute(
+                  path: 'seerr/:instanceId',
+                  builder: (context, state) => DiscoverPage(
+                    instanceId: state.pathParameters['instanceId']!,
+                  ),
+                  routes: [
+                    GoRoute(
+                      path: 'detail/:id/:type',
+                      builder: (context, state) => DiscoverDetailPage(
+                        instanceId: state.pathParameters['instanceId']!,
+                        id: int.parse(state.pathParameters['id']!),
+                        mediaType: state.pathParameters['type']!,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

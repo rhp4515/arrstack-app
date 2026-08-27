@@ -2,6 +2,7 @@ import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/widgets/detail_chip.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
+import 'package:arrstack/features/discover/discover_providers.dart';
 import 'package:arrstack/services/seerr/models/seerr_models.dart';
 import 'package:arrstack/services/seerr/seerr_providers.dart';
 import 'package:flutter/material.dart';
@@ -21,32 +22,44 @@ class DiscoverDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final detailAsync = ref.watch(seerrDetailProvider(
-      instanceId: instanceId,
-      id: id,
-      mediaType: mediaType,
-    ));
+    final effectiveIdAsync = instanceId.isNotEmpty 
+        ? AsyncData(instanceId)
+        : ref.watch(selectedSeerrInstanceIdProvider);
 
-    return detailAsync.when(
-      data: (result) => switch (result) {
-        Ok(:final value) => _DetailContent(instanceId: instanceId, item: value),
-        Err(:final error) => Scaffold(
+    return effectiveIdAsync.when(
+      data: (finalId) {
+        if (finalId == null) return const Scaffold(body: Center(child: Text('No instance selected')));
+        
+        final detailAsync = ref.watch(seerrDetailProvider(
+          instanceId: finalId,
+          id: id,
+          mediaType: mediaType,
+        ));
+
+        return detailAsync.when(
+          data: (result) => switch (result) {
+            Ok(:final value) => _DetailContent(instanceId: finalId, item: value),
+            Err(:final error) => Scaffold(
+                appBar: AppBar(),
+                body: EmptyState(
+                  icon: Icons.error_outline,
+                  title: 'Failed to load details',
+                  message: error.userMessage,
+                ),
+              ),
+          },
+          loading: () => Scaffold(
             appBar: AppBar(),
-            body: EmptyState(
-              icon: Icons.error_outline,
-              title: 'Failed to load details',
-              message: error.userMessage,
-            ),
+            body: const Center(child: CircularProgressIndicator()),
           ),
+          error: (err, _) => Scaffold(
+            appBar: AppBar(),
+            body: Center(child: Text('Error: $err')),
+          ),
+        );
       },
-      loading: () => Scaffold(
-        appBar: AppBar(),
-        body: const Center(child: CircularProgressIndicator()),
-      ),
-      error: (err, _) => Scaffold(
-        appBar: AppBar(),
-        body: Center(child: Text('Error: $err')),
-      ),
+      loading: () => Scaffold(appBar: AppBar(), body: const Center(child: CircularProgressIndicator())),
+      error: (err, _) => Scaffold(appBar: AppBar(), body: Center(child: Text('Error: $err'))),
     );
   }
 }

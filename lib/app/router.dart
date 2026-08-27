@@ -40,22 +40,6 @@ final GoRouter appRouter = GoRouter(
                     instanceId: state.pathParameters['instanceId']!,
                   ),
                 ),
-                GoRoute(
-                  path: 'seerr/:instanceId',
-                  builder: (context, state) => DiscoverPage(
-                    instanceId: state.pathParameters['instanceId']!,
-                  ),
-                  routes: [
-                    GoRoute(
-                      path: 'detail/:id/:type',
-                      builder: (context, state) => DiscoverDetailPage(
-                        instanceId: state.pathParameters['instanceId']!,
-                        id: int.parse(state.pathParameters['id']!),
-                        mediaType: state.pathParameters['type']!,
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ],
@@ -127,6 +111,24 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: RoutePaths.uptime,
               builder: (context, state) => const UptimePage(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: RoutePaths.discover,
+              builder: (context, state) => const DiscoverPage(),
+              routes: [
+                GoRoute(
+                  path: 'detail/:id/:type',
+                  builder: (context, state) => DiscoverDetailPage(
+                    instanceId: '', // Logic inside page will use provider if empty
+                    id: int.parse(state.pathParameters['id']!),
+                    mediaType: state.pathParameters['type']!,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

@@ -10,6 +10,7 @@ import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/features/dashboard/dashboard_providers.dart';
 import 'package:arrstack/features/dashboard/widgets/endpoint_indicator.dart';
 import 'package:arrstack/features/dashboard/widgets/service_health_tile.dart';
+import 'package:arrstack/features/discover/discover_providers.dart';
 import 'package:arrstack/features/downloads/downloads_providers.dart';
 import 'package:arrstack/features/library/library_providers.dart';
 import 'package:arrstack/features/uptime/uptime_providers.dart';
@@ -160,6 +161,9 @@ class _InstanceListTile extends StatelessWidget {
         } else if (instance.serviceType == ServiceType.uptimeKuma) {
           ref.read(selectedUptimeInstanceIdProvider.notifier).selectInstance(instance.id);
           context.go(RoutePaths.uptime);
+        } else if (instance.serviceType == ServiceType.seerr) {
+          ref.read(selectedSeerrInstanceIdProvider.notifier).selectInstance(instance.id);
+          context.go(RoutePaths.discover);
         }
       },
     );

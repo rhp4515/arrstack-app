@@ -138,7 +138,7 @@ class _SearchResultTile extends ConsumerWidget {
         child: fullUrlAsync.when(
           data: (url) => PosterCard(imageUrl: url ?? '', monitored: true),
           loading: () => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-          error: (_, __) => const Icon(Icons.movie_outlined),
+          error: (_, _) => const Icon(Icons.movie_outlined),
         ),
       ),
       title: Text(movie.title),

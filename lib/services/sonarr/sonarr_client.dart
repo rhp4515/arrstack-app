@@ -86,8 +86,11 @@ class SonarrClient implements ConnectionTestClient {
   }
 
   Future<Result<SonarrSeries>> addSeries(SonarrSeries series) {
+    final payload = series.toJson();
+    payload.remove('id');
+
     return dioCall(
-      () => _dio.post('api/v3/series', data: series.toJson()),
+      () => _dio.post('api/v3/series', data: payload),
       map: (data) => SonarrSeries.fromJson(data as Map<String, dynamic>),
     );
   }

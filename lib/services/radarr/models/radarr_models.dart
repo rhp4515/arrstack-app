@@ -35,15 +35,28 @@ abstract class RadarrMovie with _$RadarrMovie {
     int? runtime,
     List<String>? genres,
     RadarrRatings? ratings,
+    @Default('announced') String minimumAvailability,
     DateTime? inCinemas,
     DateTime? physicalRelease,
     DateTime? digitalRelease,
     @Default(false) bool hasFile,
     @Default(0) int sizeOnDisk,
+    RadarrAddOptions? addOptions,
   }) = _RadarrMovie;
 
   factory RadarrMovie.fromJson(Map<String, dynamic> json) =>
       _$RadarrMovieFromJson(json);
+}
+
+@freezed
+abstract class RadarrAddOptions with _$RadarrAddOptions {
+  const factory RadarrAddOptions({
+    @Default(false) bool searchForMovie,
+    @Default('movieOnly') String monitor,
+  }) = _RadarrAddOptions;
+
+  factory RadarrAddOptions.fromJson(Map<String, dynamic> json) =>
+      _$RadarrAddOptionsFromJson(json);
 }
 
 extension RadarrMovieX on RadarrMovie {

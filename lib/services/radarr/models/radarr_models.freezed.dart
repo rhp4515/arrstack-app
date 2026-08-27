@@ -17,7 +17,7 @@ T _$identity<T>(T value) => value;
 mixin _$RadarrMovie {
 
 /// Unique ID in the Radarr database (null for lookup results).
- int? get id; String get title; int? get year; bool get monitored; String? get status; String? get overview; String? get sortTitle; DateTime? get added; List<RadarrImage>? get images; int? get qualityProfileId; String? get rootFolderPath; String? get path; RadarrMovieFile? get movieFile; int? get tmdbId; String? get imdbId; String? get titleSlug; String? get studio; String? get certification; int? get runtime; List<String>? get genres; RadarrRatings? get ratings; DateTime? get inCinemas; DateTime? get physicalRelease; DateTime? get digitalRelease; bool get hasFile; int get sizeOnDisk;
+ int? get id; String get title; int? get year; bool get monitored; String? get status; String? get overview; String? get sortTitle; DateTime? get added; List<RadarrImage>? get images; int? get qualityProfileId; String? get rootFolderPath; String? get path; RadarrMovieFile? get movieFile; int? get tmdbId; String? get imdbId; String? get titleSlug; String? get studio; String? get certification; int? get runtime; List<String>? get genres; RadarrRatings? get ratings; String get minimumAvailability; DateTime? get inCinemas; DateTime? get physicalRelease; DateTime? get digitalRelease; bool get hasFile; int get sizeOnDisk; RadarrAddOptions? get addOptions;
 /// Create a copy of RadarrMovie
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +30,16 @@ $RadarrMovieCopyWith<RadarrMovie> get copyWith => _$RadarrMovieCopyWithImpl<Rada
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RadarrMovie&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.year, year) || other.year == year)&&(identical(other.monitored, monitored) || other.monitored == monitored)&&(identical(other.status, status) || other.status == status)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.sortTitle, sortTitle) || other.sortTitle == sortTitle)&&(identical(other.added, added) || other.added == added)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.qualityProfileId, qualityProfileId) || other.qualityProfileId == qualityProfileId)&&(identical(other.rootFolderPath, rootFolderPath) || other.rootFolderPath == rootFolderPath)&&(identical(other.path, path) || other.path == path)&&(identical(other.movieFile, movieFile) || other.movieFile == movieFile)&&(identical(other.tmdbId, tmdbId) || other.tmdbId == tmdbId)&&(identical(other.imdbId, imdbId) || other.imdbId == imdbId)&&(identical(other.titleSlug, titleSlug) || other.titleSlug == titleSlug)&&(identical(other.studio, studio) || other.studio == studio)&&(identical(other.certification, certification) || other.certification == certification)&&(identical(other.runtime, runtime) || other.runtime == runtime)&&const DeepCollectionEquality().equals(other.genres, genres)&&(identical(other.ratings, ratings) || other.ratings == ratings)&&(identical(other.inCinemas, inCinemas) || other.inCinemas == inCinemas)&&(identical(other.physicalRelease, physicalRelease) || other.physicalRelease == physicalRelease)&&(identical(other.digitalRelease, digitalRelease) || other.digitalRelease == digitalRelease)&&(identical(other.hasFile, hasFile) || other.hasFile == hasFile)&&(identical(other.sizeOnDisk, sizeOnDisk) || other.sizeOnDisk == sizeOnDisk));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RadarrMovie&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.year, year) || other.year == year)&&(identical(other.monitored, monitored) || other.monitored == monitored)&&(identical(other.status, status) || other.status == status)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.sortTitle, sortTitle) || other.sortTitle == sortTitle)&&(identical(other.added, added) || other.added == added)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.qualityProfileId, qualityProfileId) || other.qualityProfileId == qualityProfileId)&&(identical(other.rootFolderPath, rootFolderPath) || other.rootFolderPath == rootFolderPath)&&(identical(other.path, path) || other.path == path)&&(identical(other.movieFile, movieFile) || other.movieFile == movieFile)&&(identical(other.tmdbId, tmdbId) || other.tmdbId == tmdbId)&&(identical(other.imdbId, imdbId) || other.imdbId == imdbId)&&(identical(other.titleSlug, titleSlug) || other.titleSlug == titleSlug)&&(identical(other.studio, studio) || other.studio == studio)&&(identical(other.certification, certification) || other.certification == certification)&&(identical(other.runtime, runtime) || other.runtime == runtime)&&const DeepCollectionEquality().equals(other.genres, genres)&&(identical(other.ratings, ratings) || other.ratings == ratings)&&(identical(other.minimumAvailability, minimumAvailability) || other.minimumAvailability == minimumAvailability)&&(identical(other.inCinemas, inCinemas) || other.inCinemas == inCinemas)&&(identical(other.physicalRelease, physicalRelease) || other.physicalRelease == physicalRelease)&&(identical(other.digitalRelease, digitalRelease) || other.digitalRelease == digitalRelease)&&(identical(other.hasFile, hasFile) || other.hasFile == hasFile)&&(identical(other.sizeOnDisk, sizeOnDisk) || other.sizeOnDisk == sizeOnDisk)&&(identical(other.addOptions, addOptions) || other.addOptions == addOptions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,title,year,monitored,status,overview,sortTitle,added,const DeepCollectionEquality().hash(images),qualityProfileId,rootFolderPath,path,movieFile,tmdbId,imdbId,titleSlug,studio,certification,runtime,const DeepCollectionEquality().hash(genres),ratings,inCinemas,physicalRelease,digitalRelease,hasFile,sizeOnDisk]);
+int get hashCode => Object.hashAll([runtimeType,id,title,year,monitored,status,overview,sortTitle,added,const DeepCollectionEquality().hash(images),qualityProfileId,rootFolderPath,path,movieFile,tmdbId,imdbId,titleSlug,studio,certification,runtime,const DeepCollectionEquality().hash(genres),ratings,minimumAvailability,inCinemas,physicalRelease,digitalRelease,hasFile,sizeOnDisk,addOptions]);
 
 @override
 String toString() {
-  return 'RadarrMovie(id: $id, title: $title, year: $year, monitored: $monitored, status: $status, overview: $overview, sortTitle: $sortTitle, added: $added, images: $images, qualityProfileId: $qualityProfileId, rootFolderPath: $rootFolderPath, path: $path, movieFile: $movieFile, tmdbId: $tmdbId, imdbId: $imdbId, titleSlug: $titleSlug, studio: $studio, certification: $certification, runtime: $runtime, genres: $genres, ratings: $ratings, inCinemas: $inCinemas, physicalRelease: $physicalRelease, digitalRelease: $digitalRelease, hasFile: $hasFile, sizeOnDisk: $sizeOnDisk)';
+  return 'RadarrMovie(id: $id, title: $title, year: $year, monitored: $monitored, status: $status, overview: $overview, sortTitle: $sortTitle, added: $added, images: $images, qualityProfileId: $qualityProfileId, rootFolderPath: $rootFolderPath, path: $path, movieFile: $movieFile, tmdbId: $tmdbId, imdbId: $imdbId, titleSlug: $titleSlug, studio: $studio, certification: $certification, runtime: $runtime, genres: $genres, ratings: $ratings, minimumAvailability: $minimumAvailability, inCinemas: $inCinemas, physicalRelease: $physicalRelease, digitalRelease: $digitalRelease, hasFile: $hasFile, sizeOnDisk: $sizeOnDisk, addOptions: $addOptions)';
 }
 
 
@@ -50,11 +50,11 @@ abstract mixin class $RadarrMovieCopyWith<$Res>  {
   factory $RadarrMovieCopyWith(RadarrMovie value, $Res Function(RadarrMovie) _then) = _$RadarrMovieCopyWithImpl;
 @useResult
 $Res call({
- int? id, String title, int? year, bool monitored, String? status, String? overview, String? sortTitle, DateTime? added, List<RadarrImage>? images, int? qualityProfileId, String? rootFolderPath, String? path, RadarrMovieFile? movieFile, int? tmdbId, String? imdbId, String? titleSlug, String? studio, String? certification, int? runtime, List<String>? genres, RadarrRatings? ratings, DateTime? inCinemas, DateTime? physicalRelease, DateTime? digitalRelease, bool hasFile, int sizeOnDisk
+ int? id, String title, int? year, bool monitored, String? status, String? overview, String? sortTitle, DateTime? added, List<RadarrImage>? images, int? qualityProfileId, String? rootFolderPath, String? path, RadarrMovieFile? movieFile, int? tmdbId, String? imdbId, String? titleSlug, String? studio, String? certification, int? runtime, List<String>? genres, RadarrRatings? ratings, String minimumAvailability, DateTime? inCinemas, DateTime? physicalRelease, DateTime? digitalRelease, bool hasFile, int sizeOnDisk, RadarrAddOptions? addOptions
 });
 
 
-$RadarrMovieFileCopyWith<$Res>? get movieFile;$RadarrRatingsCopyWith<$Res>? get ratings;
+$RadarrMovieFileCopyWith<$Res>? get movieFile;$RadarrRatingsCopyWith<$Res>? get ratings;$RadarrAddOptionsCopyWith<$Res>? get addOptions;
 
 }
 /// @nodoc
@@ -67,7 +67,7 @@ class _$RadarrMovieCopyWithImpl<$Res>
 
 /// Create a copy of RadarrMovie
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? year = freezed,Object? monitored = null,Object? status = freezed,Object? overview = freezed,Object? sortTitle = freezed,Object? added = freezed,Object? images = freezed,Object? qualityProfileId = freezed,Object? rootFolderPath = freezed,Object? path = freezed,Object? movieFile = freezed,Object? tmdbId = freezed,Object? imdbId = freezed,Object? titleSlug = freezed,Object? studio = freezed,Object? certification = freezed,Object? runtime = freezed,Object? genres = freezed,Object? ratings = freezed,Object? inCinemas = freezed,Object? physicalRelease = freezed,Object? digitalRelease = freezed,Object? hasFile = null,Object? sizeOnDisk = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? year = freezed,Object? monitored = null,Object? status = freezed,Object? overview = freezed,Object? sortTitle = freezed,Object? added = freezed,Object? images = freezed,Object? qualityProfileId = freezed,Object? rootFolderPath = freezed,Object? path = freezed,Object? movieFile = freezed,Object? tmdbId = freezed,Object? imdbId = freezed,Object? titleSlug = freezed,Object? studio = freezed,Object? certification = freezed,Object? runtime = freezed,Object? genres = freezed,Object? ratings = freezed,Object? minimumAvailability = null,Object? inCinemas = freezed,Object? physicalRelease = freezed,Object? digitalRelease = freezed,Object? hasFile = null,Object? sizeOnDisk = null,Object? addOptions = freezed,}) {
   return _then(RadarrMovie(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -90,12 +90,14 @@ as String?,certification: freezed == certification ? _self.certification : certi
 as String?,runtime: freezed == runtime ? _self.runtime : runtime // ignore: cast_nullable_to_non_nullable
 as int?,genres: freezed == genres ? _self.genres : genres // ignore: cast_nullable_to_non_nullable
 as List<String>?,ratings: freezed == ratings ? _self.ratings : ratings // ignore: cast_nullable_to_non_nullable
-as RadarrRatings?,inCinemas: freezed == inCinemas ? _self.inCinemas : inCinemas // ignore: cast_nullable_to_non_nullable
+as RadarrRatings?,minimumAvailability: null == minimumAvailability ? _self.minimumAvailability : minimumAvailability // ignore: cast_nullable_to_non_nullable
+as String,inCinemas: freezed == inCinemas ? _self.inCinemas : inCinemas // ignore: cast_nullable_to_non_nullable
 as DateTime?,physicalRelease: freezed == physicalRelease ? _self.physicalRelease : physicalRelease // ignore: cast_nullable_to_non_nullable
 as DateTime?,digitalRelease: freezed == digitalRelease ? _self.digitalRelease : digitalRelease // ignore: cast_nullable_to_non_nullable
 as DateTime?,hasFile: null == hasFile ? _self.hasFile : hasFile // ignore: cast_nullable_to_non_nullable
 as bool,sizeOnDisk: null == sizeOnDisk ? _self.sizeOnDisk : sizeOnDisk // ignore: cast_nullable_to_non_nullable
-as int,
+as int,addOptions: freezed == addOptions ? _self.addOptions : addOptions // ignore: cast_nullable_to_non_nullable
+as RadarrAddOptions?,
   ));
 }
 /// Create a copy of RadarrMovie
@@ -121,6 +123,18 @@ $RadarrRatingsCopyWith<$Res>? get ratings {
 
   return $RadarrRatingsCopyWith<$Res>(_self.ratings!, (value) {
     return _then(_self.copyWith(ratings: value));
+  });
+}/// Create a copy of RadarrMovie
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RadarrAddOptionsCopyWith<$Res>? get addOptions {
+    if (_self.addOptions == null) {
+    return null;
+  }
+
+  return $RadarrAddOptionsCopyWith<$Res>(_self.addOptions!, (value) {
+    return _then(_self.copyWith(addOptions: value));
   });
 }
 }
@@ -204,10 +218,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String title,  int? year,  bool monitored,  String? status,  String? overview,  String? sortTitle,  DateTime? added,  List<RadarrImage>? images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int? tmdbId,  String? imdbId,  String? titleSlug,  String? studio,  String? certification,  int? runtime,  List<String>? genres,  RadarrRatings? ratings,  DateTime? inCinemas,  DateTime? physicalRelease,  DateTime? digitalRelease,  bool hasFile,  int sizeOnDisk)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String title,  int? year,  bool monitored,  String? status,  String? overview,  String? sortTitle,  DateTime? added,  List<RadarrImage>? images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int? tmdbId,  String? imdbId,  String? titleSlug,  String? studio,  String? certification,  int? runtime,  List<String>? genres,  RadarrRatings? ratings,  String minimumAvailability,  DateTime? inCinemas,  DateTime? physicalRelease,  DateTime? digitalRelease,  bool hasFile,  int sizeOnDisk,  RadarrAddOptions? addOptions)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RadarrMovie() when $default != null:
-return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.imdbId,_that.titleSlug,_that.studio,_that.certification,_that.runtime,_that.genres,_that.ratings,_that.inCinemas,_that.physicalRelease,_that.digitalRelease,_that.hasFile,_that.sizeOnDisk);case _:
+return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.imdbId,_that.titleSlug,_that.studio,_that.certification,_that.runtime,_that.genres,_that.ratings,_that.minimumAvailability,_that.inCinemas,_that.physicalRelease,_that.digitalRelease,_that.hasFile,_that.sizeOnDisk,_that.addOptions);case _:
   return orElse();
 
 }
@@ -225,10 +239,10 @@ return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String title,  int? year,  bool monitored,  String? status,  String? overview,  String? sortTitle,  DateTime? added,  List<RadarrImage>? images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int? tmdbId,  String? imdbId,  String? titleSlug,  String? studio,  String? certification,  int? runtime,  List<String>? genres,  RadarrRatings? ratings,  DateTime? inCinemas,  DateTime? physicalRelease,  DateTime? digitalRelease,  bool hasFile,  int sizeOnDisk)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String title,  int? year,  bool monitored,  String? status,  String? overview,  String? sortTitle,  DateTime? added,  List<RadarrImage>? images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int? tmdbId,  String? imdbId,  String? titleSlug,  String? studio,  String? certification,  int? runtime,  List<String>? genres,  RadarrRatings? ratings,  String minimumAvailability,  DateTime? inCinemas,  DateTime? physicalRelease,  DateTime? digitalRelease,  bool hasFile,  int sizeOnDisk,  RadarrAddOptions? addOptions)  $default,) {final _that = this;
 switch (_that) {
 case _RadarrMovie():
-return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.imdbId,_that.titleSlug,_that.studio,_that.certification,_that.runtime,_that.genres,_that.ratings,_that.inCinemas,_that.physicalRelease,_that.digitalRelease,_that.hasFile,_that.sizeOnDisk);case _:
+return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.imdbId,_that.titleSlug,_that.studio,_that.certification,_that.runtime,_that.genres,_that.ratings,_that.minimumAvailability,_that.inCinemas,_that.physicalRelease,_that.digitalRelease,_that.hasFile,_that.sizeOnDisk,_that.addOptions);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -245,10 +259,10 @@ return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String title,  int? year,  bool monitored,  String? status,  String? overview,  String? sortTitle,  DateTime? added,  List<RadarrImage>? images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int? tmdbId,  String? imdbId,  String? titleSlug,  String? studio,  String? certification,  int? runtime,  List<String>? genres,  RadarrRatings? ratings,  DateTime? inCinemas,  DateTime? physicalRelease,  DateTime? digitalRelease,  bool hasFile,  int sizeOnDisk)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String title,  int? year,  bool monitored,  String? status,  String? overview,  String? sortTitle,  DateTime? added,  List<RadarrImage>? images,  int? qualityProfileId,  String? rootFolderPath,  String? path,  RadarrMovieFile? movieFile,  int? tmdbId,  String? imdbId,  String? titleSlug,  String? studio,  String? certification,  int? runtime,  List<String>? genres,  RadarrRatings? ratings,  String minimumAvailability,  DateTime? inCinemas,  DateTime? physicalRelease,  DateTime? digitalRelease,  bool hasFile,  int sizeOnDisk,  RadarrAddOptions? addOptions)?  $default,) {final _that = this;
 switch (_that) {
 case _RadarrMovie() when $default != null:
-return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.imdbId,_that.titleSlug,_that.studio,_that.certification,_that.runtime,_that.genres,_that.ratings,_that.inCinemas,_that.physicalRelease,_that.digitalRelease,_that.hasFile,_that.sizeOnDisk);case _:
+return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_that.overview,_that.sortTitle,_that.added,_that.images,_that.qualityProfileId,_that.rootFolderPath,_that.path,_that.movieFile,_that.tmdbId,_that.imdbId,_that.titleSlug,_that.studio,_that.certification,_that.runtime,_that.genres,_that.ratings,_that.minimumAvailability,_that.inCinemas,_that.physicalRelease,_that.digitalRelease,_that.hasFile,_that.sizeOnDisk,_that.addOptions);case _:
   return null;
 
 }
@@ -260,7 +274,7 @@ return $default(_that.id,_that.title,_that.year,_that.monitored,_that.status,_th
 @JsonSerializable()
 
 class _RadarrMovie implements RadarrMovie {
-  const _RadarrMovie({this.id, this.title = 'Unknown', this.year, this.monitored = true, this.status, this.overview, this.sortTitle, this.added,  List<RadarrImage>? images, this.qualityProfileId, this.rootFolderPath, this.path, this.movieFile, this.tmdbId, this.imdbId, this.titleSlug, this.studio, this.certification, this.runtime,  List<String>? genres, this.ratings, this.inCinemas, this.physicalRelease, this.digitalRelease, this.hasFile = false, this.sizeOnDisk = 0}): _images = images,_genres = genres;
+  const _RadarrMovie({this.id, this.title = 'Unknown', this.year, this.monitored = true, this.status, this.overview, this.sortTitle, this.added,  List<RadarrImage>? images, this.qualityProfileId, this.rootFolderPath, this.path, this.movieFile, this.tmdbId, this.imdbId, this.titleSlug, this.studio, this.certification, this.runtime,  List<String>? genres, this.ratings, this.minimumAvailability = 'announced', this.inCinemas, this.physicalRelease, this.digitalRelease, this.hasFile = false, this.sizeOnDisk = 0, this.addOptions}): _images = images,_genres = genres;
   factory _RadarrMovie.fromJson(Map<String, dynamic> json) => _$RadarrMovieFromJson(json);
 
 /// Unique ID in the Radarr database (null for lookup results).
@@ -301,11 +315,13 @@ class _RadarrMovie implements RadarrMovie {
 }
 
 @override final  RadarrRatings? ratings;
+@override@JsonKey() final  String minimumAvailability;
 @override final  DateTime? inCinemas;
 @override final  DateTime? physicalRelease;
 @override final  DateTime? digitalRelease;
 @override@JsonKey() final  bool hasFile;
 @override@JsonKey() final  int sizeOnDisk;
+@override final  RadarrAddOptions? addOptions;
 
 /// Create a copy of RadarrMovie
 /// with the given fields replaced by the non-null parameter values.
@@ -320,16 +336,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RadarrMovie&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.year, year) || other.year == year)&&(identical(other.monitored, monitored) || other.monitored == monitored)&&(identical(other.status, status) || other.status == status)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.sortTitle, sortTitle) || other.sortTitle == sortTitle)&&(identical(other.added, added) || other.added == added)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.qualityProfileId, qualityProfileId) || other.qualityProfileId == qualityProfileId)&&(identical(other.rootFolderPath, rootFolderPath) || other.rootFolderPath == rootFolderPath)&&(identical(other.path, path) || other.path == path)&&(identical(other.movieFile, movieFile) || other.movieFile == movieFile)&&(identical(other.tmdbId, tmdbId) || other.tmdbId == tmdbId)&&(identical(other.imdbId, imdbId) || other.imdbId == imdbId)&&(identical(other.titleSlug, titleSlug) || other.titleSlug == titleSlug)&&(identical(other.studio, studio) || other.studio == studio)&&(identical(other.certification, certification) || other.certification == certification)&&(identical(other.runtime, runtime) || other.runtime == runtime)&&const DeepCollectionEquality().equals(other._genres, _genres)&&(identical(other.ratings, ratings) || other.ratings == ratings)&&(identical(other.inCinemas, inCinemas) || other.inCinemas == inCinemas)&&(identical(other.physicalRelease, physicalRelease) || other.physicalRelease == physicalRelease)&&(identical(other.digitalRelease, digitalRelease) || other.digitalRelease == digitalRelease)&&(identical(other.hasFile, hasFile) || other.hasFile == hasFile)&&(identical(other.sizeOnDisk, sizeOnDisk) || other.sizeOnDisk == sizeOnDisk));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RadarrMovie&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.year, year) || other.year == year)&&(identical(other.monitored, monitored) || other.monitored == monitored)&&(identical(other.status, status) || other.status == status)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.sortTitle, sortTitle) || other.sortTitle == sortTitle)&&(identical(other.added, added) || other.added == added)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.qualityProfileId, qualityProfileId) || other.qualityProfileId == qualityProfileId)&&(identical(other.rootFolderPath, rootFolderPath) || other.rootFolderPath == rootFolderPath)&&(identical(other.path, path) || other.path == path)&&(identical(other.movieFile, movieFile) || other.movieFile == movieFile)&&(identical(other.tmdbId, tmdbId) || other.tmdbId == tmdbId)&&(identical(other.imdbId, imdbId) || other.imdbId == imdbId)&&(identical(other.titleSlug, titleSlug) || other.titleSlug == titleSlug)&&(identical(other.studio, studio) || other.studio == studio)&&(identical(other.certification, certification) || other.certification == certification)&&(identical(other.runtime, runtime) || other.runtime == runtime)&&const DeepCollectionEquality().equals(other._genres, _genres)&&(identical(other.ratings, ratings) || other.ratings == ratings)&&(identical(other.minimumAvailability, minimumAvailability) || other.minimumAvailability == minimumAvailability)&&(identical(other.inCinemas, inCinemas) || other.inCinemas == inCinemas)&&(identical(other.physicalRelease, physicalRelease) || other.physicalRelease == physicalRelease)&&(identical(other.digitalRelease, digitalRelease) || other.digitalRelease == digitalRelease)&&(identical(other.hasFile, hasFile) || other.hasFile == hasFile)&&(identical(other.sizeOnDisk, sizeOnDisk) || other.sizeOnDisk == sizeOnDisk)&&(identical(other.addOptions, addOptions) || other.addOptions == addOptions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,title,year,monitored,status,overview,sortTitle,added,const DeepCollectionEquality().hash(_images),qualityProfileId,rootFolderPath,path,movieFile,tmdbId,imdbId,titleSlug,studio,certification,runtime,const DeepCollectionEquality().hash(_genres),ratings,inCinemas,physicalRelease,digitalRelease,hasFile,sizeOnDisk]);
+int get hashCode => Object.hashAll([runtimeType,id,title,year,monitored,status,overview,sortTitle,added,const DeepCollectionEquality().hash(_images),qualityProfileId,rootFolderPath,path,movieFile,tmdbId,imdbId,titleSlug,studio,certification,runtime,const DeepCollectionEquality().hash(_genres),ratings,minimumAvailability,inCinemas,physicalRelease,digitalRelease,hasFile,sizeOnDisk,addOptions]);
 
 @override
 String toString() {
-  return 'RadarrMovie(id: $id, title: $title, year: $year, monitored: $monitored, status: $status, overview: $overview, sortTitle: $sortTitle, added: $added, images: $images, qualityProfileId: $qualityProfileId, rootFolderPath: $rootFolderPath, path: $path, movieFile: $movieFile, tmdbId: $tmdbId, imdbId: $imdbId, titleSlug: $titleSlug, studio: $studio, certification: $certification, runtime: $runtime, genres: $genres, ratings: $ratings, inCinemas: $inCinemas, physicalRelease: $physicalRelease, digitalRelease: $digitalRelease, hasFile: $hasFile, sizeOnDisk: $sizeOnDisk)';
+  return 'RadarrMovie(id: $id, title: $title, year: $year, monitored: $monitored, status: $status, overview: $overview, sortTitle: $sortTitle, added: $added, images: $images, qualityProfileId: $qualityProfileId, rootFolderPath: $rootFolderPath, path: $path, movieFile: $movieFile, tmdbId: $tmdbId, imdbId: $imdbId, titleSlug: $titleSlug, studio: $studio, certification: $certification, runtime: $runtime, genres: $genres, ratings: $ratings, minimumAvailability: $minimumAvailability, inCinemas: $inCinemas, physicalRelease: $physicalRelease, digitalRelease: $digitalRelease, hasFile: $hasFile, sizeOnDisk: $sizeOnDisk, addOptions: $addOptions)';
 }
 
 
@@ -340,11 +356,11 @@ abstract mixin class _$RadarrMovieCopyWith<$Res> implements $RadarrMovieCopyWith
   factory _$RadarrMovieCopyWith(_RadarrMovie value, $Res Function(_RadarrMovie) _then) = __$RadarrMovieCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String title, int? year, bool monitored, String? status, String? overview, String? sortTitle, DateTime? added, List<RadarrImage>? images, int? qualityProfileId, String? rootFolderPath, String? path, RadarrMovieFile? movieFile, int? tmdbId, String? imdbId, String? titleSlug, String? studio, String? certification, int? runtime, List<String>? genres, RadarrRatings? ratings, DateTime? inCinemas, DateTime? physicalRelease, DateTime? digitalRelease, bool hasFile, int sizeOnDisk
+ int? id, String title, int? year, bool monitored, String? status, String? overview, String? sortTitle, DateTime? added, List<RadarrImage>? images, int? qualityProfileId, String? rootFolderPath, String? path, RadarrMovieFile? movieFile, int? tmdbId, String? imdbId, String? titleSlug, String? studio, String? certification, int? runtime, List<String>? genres, RadarrRatings? ratings, String minimumAvailability, DateTime? inCinemas, DateTime? physicalRelease, DateTime? digitalRelease, bool hasFile, int sizeOnDisk, RadarrAddOptions? addOptions
 });
 
 
-@override $RadarrMovieFileCopyWith<$Res>? get movieFile;@override $RadarrRatingsCopyWith<$Res>? get ratings;
+@override $RadarrMovieFileCopyWith<$Res>? get movieFile;@override $RadarrRatingsCopyWith<$Res>? get ratings;@override $RadarrAddOptionsCopyWith<$Res>? get addOptions;
 
 }
 /// @nodoc
@@ -357,7 +373,7 @@ class __$RadarrMovieCopyWithImpl<$Res>
 
 /// Create a copy of RadarrMovie
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? year = freezed,Object? monitored = null,Object? status = freezed,Object? overview = freezed,Object? sortTitle = freezed,Object? added = freezed,Object? images = freezed,Object? qualityProfileId = freezed,Object? rootFolderPath = freezed,Object? path = freezed,Object? movieFile = freezed,Object? tmdbId = freezed,Object? imdbId = freezed,Object? titleSlug = freezed,Object? studio = freezed,Object? certification = freezed,Object? runtime = freezed,Object? genres = freezed,Object? ratings = freezed,Object? inCinemas = freezed,Object? physicalRelease = freezed,Object? digitalRelease = freezed,Object? hasFile = null,Object? sizeOnDisk = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? year = freezed,Object? monitored = null,Object? status = freezed,Object? overview = freezed,Object? sortTitle = freezed,Object? added = freezed,Object? images = freezed,Object? qualityProfileId = freezed,Object? rootFolderPath = freezed,Object? path = freezed,Object? movieFile = freezed,Object? tmdbId = freezed,Object? imdbId = freezed,Object? titleSlug = freezed,Object? studio = freezed,Object? certification = freezed,Object? runtime = freezed,Object? genres = freezed,Object? ratings = freezed,Object? minimumAvailability = null,Object? inCinemas = freezed,Object? physicalRelease = freezed,Object? digitalRelease = freezed,Object? hasFile = null,Object? sizeOnDisk = null,Object? addOptions = freezed,}) {
   return _then(_RadarrMovie(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -380,12 +396,14 @@ as String?,certification: freezed == certification ? _self.certification : certi
 as String?,runtime: freezed == runtime ? _self.runtime : runtime // ignore: cast_nullable_to_non_nullable
 as int?,genres: freezed == genres ? _self._genres : genres // ignore: cast_nullable_to_non_nullable
 as List<String>?,ratings: freezed == ratings ? _self.ratings : ratings // ignore: cast_nullable_to_non_nullable
-as RadarrRatings?,inCinemas: freezed == inCinemas ? _self.inCinemas : inCinemas // ignore: cast_nullable_to_non_nullable
+as RadarrRatings?,minimumAvailability: null == minimumAvailability ? _self.minimumAvailability : minimumAvailability // ignore: cast_nullable_to_non_nullable
+as String,inCinemas: freezed == inCinemas ? _self.inCinemas : inCinemas // ignore: cast_nullable_to_non_nullable
 as DateTime?,physicalRelease: freezed == physicalRelease ? _self.physicalRelease : physicalRelease // ignore: cast_nullable_to_non_nullable
 as DateTime?,digitalRelease: freezed == digitalRelease ? _self.digitalRelease : digitalRelease // ignore: cast_nullable_to_non_nullable
 as DateTime?,hasFile: null == hasFile ? _self.hasFile : hasFile // ignore: cast_nullable_to_non_nullable
 as bool,sizeOnDisk: null == sizeOnDisk ? _self.sizeOnDisk : sizeOnDisk // ignore: cast_nullable_to_non_nullable
-as int,
+as int,addOptions: freezed == addOptions ? _self.addOptions : addOptions // ignore: cast_nullable_to_non_nullable
+as RadarrAddOptions?,
   ));
 }
 
@@ -413,7 +431,285 @@ $RadarrRatingsCopyWith<$Res>? get ratings {
   return $RadarrRatingsCopyWith<$Res>(_self.ratings!, (value) {
     return _then(_self.copyWith(ratings: value));
   });
+}/// Create a copy of RadarrMovie
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RadarrAddOptionsCopyWith<$Res>? get addOptions {
+    if (_self.addOptions == null) {
+    return null;
+  }
+
+  return $RadarrAddOptionsCopyWith<$Res>(_self.addOptions!, (value) {
+    return _then(_self.copyWith(addOptions: value));
+  });
 }
+}
+
+
+/// @nodoc
+mixin _$RadarrAddOptions {
+
+ bool get searchForMovie; String get monitor;
+/// Create a copy of RadarrAddOptions
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RadarrAddOptionsCopyWith<RadarrAddOptions> get copyWith => _$RadarrAddOptionsCopyWithImpl<RadarrAddOptions>(this as RadarrAddOptions, _$identity);
+
+  /// Serializes this RadarrAddOptions to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RadarrAddOptions&&(identical(other.searchForMovie, searchForMovie) || other.searchForMovie == searchForMovie)&&(identical(other.monitor, monitor) || other.monitor == monitor));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,searchForMovie,monitor);
+
+@override
+String toString() {
+  return 'RadarrAddOptions(searchForMovie: $searchForMovie, monitor: $monitor)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RadarrAddOptionsCopyWith<$Res>  {
+  factory $RadarrAddOptionsCopyWith(RadarrAddOptions value, $Res Function(RadarrAddOptions) _then) = _$RadarrAddOptionsCopyWithImpl;
+@useResult
+$Res call({
+ bool searchForMovie, String monitor
+});
+
+
+
+
+}
+/// @nodoc
+class _$RadarrAddOptionsCopyWithImpl<$Res>
+    implements $RadarrAddOptionsCopyWith<$Res> {
+  _$RadarrAddOptionsCopyWithImpl(this._self, this._then);
+
+  final RadarrAddOptions _self;
+  final $Res Function(RadarrAddOptions) _then;
+
+/// Create a copy of RadarrAddOptions
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? searchForMovie = null,Object? monitor = null,}) {
+  return _then(RadarrAddOptions(
+searchForMovie: null == searchForMovie ? _self.searchForMovie : searchForMovie // ignore: cast_nullable_to_non_nullable
+as bool,monitor: null == monitor ? _self.monitor : monitor // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [RadarrAddOptions].
+extension RadarrAddOptionsPatterns on RadarrAddOptions {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RadarrAddOptions value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RadarrAddOptions() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RadarrAddOptions value)  $default,){
+final _that = this;
+switch (_that) {
+case _RadarrAddOptions():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RadarrAddOptions value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RadarrAddOptions() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool searchForMovie,  String monitor)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RadarrAddOptions() when $default != null:
+return $default(_that.searchForMovie,_that.monitor);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool searchForMovie,  String monitor)  $default,) {final _that = this;
+switch (_that) {
+case _RadarrAddOptions():
+return $default(_that.searchForMovie,_that.monitor);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool searchForMovie,  String monitor)?  $default,) {final _that = this;
+switch (_that) {
+case _RadarrAddOptions() when $default != null:
+return $default(_that.searchForMovie,_that.monitor);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _RadarrAddOptions implements RadarrAddOptions {
+  const _RadarrAddOptions({this.searchForMovie = false, this.monitor = 'movieOnly'});
+  factory _RadarrAddOptions.fromJson(Map<String, dynamic> json) => _$RadarrAddOptionsFromJson(json);
+
+@override@JsonKey() final  bool searchForMovie;
+@override@JsonKey() final  String monitor;
+
+/// Create a copy of RadarrAddOptions
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RadarrAddOptionsCopyWith<_RadarrAddOptions> get copyWith => __$RadarrAddOptionsCopyWithImpl<_RadarrAddOptions>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$RadarrAddOptionsToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RadarrAddOptions&&(identical(other.searchForMovie, searchForMovie) || other.searchForMovie == searchForMovie)&&(identical(other.monitor, monitor) || other.monitor == monitor));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,searchForMovie,monitor);
+
+@override
+String toString() {
+  return 'RadarrAddOptions(searchForMovie: $searchForMovie, monitor: $monitor)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RadarrAddOptionsCopyWith<$Res> implements $RadarrAddOptionsCopyWith<$Res> {
+  factory _$RadarrAddOptionsCopyWith(_RadarrAddOptions value, $Res Function(_RadarrAddOptions) _then) = __$RadarrAddOptionsCopyWithImpl;
+@override @useResult
+$Res call({
+ bool searchForMovie, String monitor
+});
+
+
+
+
+}
+/// @nodoc
+class __$RadarrAddOptionsCopyWithImpl<$Res>
+    implements _$RadarrAddOptionsCopyWith<$Res> {
+  __$RadarrAddOptionsCopyWithImpl(this._self, this._then);
+
+  final _RadarrAddOptions _self;
+  final $Res Function(_RadarrAddOptions) _then;
+
+/// Create a copy of RadarrAddOptions
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? searchForMovie = null,Object? monitor = null,}) {
+  return _then(_RadarrAddOptions(
+searchForMovie: null == searchForMovie ? _self.searchForMovie : searchForMovie // ignore: cast_nullable_to_non_nullable
+as bool,monitor: null == monitor ? _self.monitor : monitor // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
 }
 
 

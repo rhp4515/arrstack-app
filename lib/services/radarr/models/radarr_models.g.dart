@@ -34,6 +34,7 @@ _RadarrMovie _$RadarrMovieFromJson(Map<String, dynamic> json) => _RadarrMovie(
   ratings: json['ratings'] == null
       ? null
       : RadarrRatings.fromJson(json['ratings'] as Map<String, dynamic>),
+  minimumAvailability: json['minimumAvailability'] as String? ?? 'announced',
   inCinemas: json['inCinemas'] == null
       ? null
       : DateTime.parse(json['inCinemas'] as String),
@@ -45,6 +46,9 @@ _RadarrMovie _$RadarrMovieFromJson(Map<String, dynamic> json) => _RadarrMovie(
       : DateTime.parse(json['digitalRelease'] as String),
   hasFile: json['hasFile'] as bool? ?? false,
   sizeOnDisk: (json['sizeOnDisk'] as num?)?.toInt() ?? 0,
+  addOptions: json['addOptions'] == null
+      ? null
+      : RadarrAddOptions.fromJson(json['addOptions'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$RadarrMovieToJson(_RadarrMovie instance) =>
@@ -70,11 +74,25 @@ Map<String, dynamic> _$RadarrMovieToJson(_RadarrMovie instance) =>
       'runtime': instance.runtime,
       'genres': instance.genres,
       'ratings': instance.ratings,
+      'minimumAvailability': instance.minimumAvailability,
       'inCinemas': instance.inCinemas?.toIso8601String(),
       'physicalRelease': instance.physicalRelease?.toIso8601String(),
       'digitalRelease': instance.digitalRelease?.toIso8601String(),
       'hasFile': instance.hasFile,
       'sizeOnDisk': instance.sizeOnDisk,
+      'addOptions': instance.addOptions,
+    };
+
+_RadarrAddOptions _$RadarrAddOptionsFromJson(Map<String, dynamic> json) =>
+    _RadarrAddOptions(
+      searchForMovie: json['searchForMovie'] as bool? ?? false,
+      monitor: json['monitor'] as String? ?? 'movieOnly',
+    );
+
+Map<String, dynamic> _$RadarrAddOptionsToJson(_RadarrAddOptions instance) =>
+    <String, dynamic>{
+      'searchForMovie': instance.searchForMovie,
+      'monitor': instance.monitor,
     };
 
 _RadarrImage _$RadarrImageFromJson(Map<String, dynamic> json) => _RadarrImage(

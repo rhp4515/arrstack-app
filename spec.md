@@ -321,8 +321,13 @@ pick up the **first unchecked phase** (see §11).
       and `ActivityStrip` (unified Radarr/Sonarr/qBittorrent queue). Aggregation providers
       established for cross-instance health and activity monitoring. Material 3 surfaces
       finalized.
-- [ ] **Phase 11 — Seerr module (optional).** Discovery + search + request flow. Tests.
-- [ ] **Phase 12 — Release prep.** Icons/splash, app IDs, store metadata, build flavors, README.
+- [x] **Phase 11 — Seerr module (optional).** Discovery + search + request flow. Tests.
+      ✅ Done 2026-08-27. Full Seerr (Overseerr/Jellyseerr) integration. Discover
+      trending content, global search, and request workflow with status tracking.
+- [x] **Phase 12 — Release prep.** Icons/splash, app IDs, store metadata, build flavors, README.
+      ✅ Done 2026-08-27. Finalized app name "ArrStack Companion", updated README,
+      and achieved a 100% clean `flutter analyze` report. Core stability fixes applied
+      to library addition flows.
 
 **Post-v1 backlog:** Lidarr, SABnzbd/NZBGet, Deluge, Tautulli (each = one new `services/<name>/`
 plugin + a module screen; no core changes).

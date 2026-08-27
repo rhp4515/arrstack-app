@@ -1,8 +1,11 @@
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
+import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/core/widgets/poster_card.dart';
+import 'package:arrstack/features/discover/discover_providers.dart';
 import 'package:arrstack/services/seerr/models/seerr_models.dart';
 import 'package:arrstack/services/seerr/seerr_providers.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +15,9 @@ import 'package:go_router/go_router.dart';
 enum _DiscoverTab { movies, tv }
 
 class DiscoverPage extends ConsumerStatefulWidget {
-  const DiscoverPage({required this.instanceId, super.key});
+  const DiscoverPage({this.instanceId, super.key});
 
-  final String instanceId;
+  final String? instanceId;
 
   @override
   ConsumerState<DiscoverPage> createState() => _DiscoverPageState();
@@ -41,56 +44,92 @@ class _DiscoverPageState extends ConsumerState<DiscoverPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Discover'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(112),
-          child: Column(
-            children: [
-              Padding(
-                padding: AppInsets.horizontalMd,
-                child: TextField(
-                  controller: _searchController,
-                  decoration: const InputDecoration(
-                    hintText: 'Search movies and TV...',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
-                    isDense: true,
+    final instanceIdAsync = ref.watch(selectedSeerrInstanceIdProvider);
+    final hasSeerrAsync = ref.watch(hasSeerrInstanceProvider);
+
+    return hasSeerrAsync.when(
+      data: (enabled) {
+        if (!enabled) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Discover')),
+            body: const EmptyState(
+              icon: Icons.search_off_outlined,
+              title: 'Seerr not configured',
+              message: 'Add a Seerr instance in Settings to enable discovery.',
+            ),
+          );
+        }
+
+        return instanceIdAsync.when(
+          data: (id) {
+            final finalId = widget.instanceId ?? id;
+            if (finalId == null) return const Scaffold(body: Center(child: Text('No instance selected')));
+
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Discover'),
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(112),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: AppInsets.horizontalMd,
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: const InputDecoration(
+                            hintText: 'Search movies and TV...',
+                            prefixIcon: Icon(Icons.search),
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                          onChanged: (value) => setState(() => _query = value),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Padding(
+                        padding: AppInsets.horizontalMd,
+                        child: SegmentedButton<_DiscoverTab>(
+                          segments: const [
+                            ButtonSegment(
+                              value: _DiscoverTab.movies,
+                              label: Text('Movies'),
+                              icon: Icon(Icons.movie_outlined),
+                            ),
+                            ButtonSegment(
+                              value: _DiscoverTab.tv,
+                              label: Text('TV Shows'),
+                              icon: Icon(Icons.tv_outlined),
+                            ),
+                          ],
+                          selected: {_tab},
+                          onSelectionChanged: (set) => _onTabChanged(set.first),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
                   ),
-                  onChanged: (value) => setState(() => _query = value),
                 ),
               ),
-              const SizedBox(height: AppSpacing.sm),
-              Padding(
-                padding: AppInsets.horizontalMd,
-                child: SegmentedButton<_DiscoverTab>(
-                  segments: const [
-                    ButtonSegment(
-                      value: _DiscoverTab.movies,
-                      label: Text('Movies'),
-                      icon: Icon(Icons.movie_outlined),
+              body: Column(
+                children: [
+                  const _InstanceSelector(),
+                  Expanded(
+                    child: _DiscoverContent(
+                      instanceId: finalId,
+                      tab: _tab,
+                      query: _query,
                     ),
-                    ButtonSegment(
-                      value: _DiscoverTab.tv,
-                      label: Text('TV Shows'),
-                      icon: Icon(Icons.tv_outlined),
-                    ),
-                  ],
-                  selected: {_tab},
-                  onSelectionChanged: (set) => _onTabChanged(set.first),
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: AppSpacing.sm),
-            ],
-          ),
-        ),
-      ),
-      body: _DiscoverContent(
-        instanceId: widget.instanceId,
-        tab: _tab,
-        query: _query,
-      ),
+            );
+          },
+          loading: () => Scaffold(appBar: AppBar(), body: const Center(child: CircularProgressIndicator())),
+          error: (err, _) => Scaffold(appBar: AppBar(), body: Center(child: Text('Error: $err'))),
+        );
+      },
+      loading: () => Scaffold(appBar: AppBar(), body: const Center(child: CircularProgressIndicator())),
+      error: (err, _) => Scaffold(appBar: AppBar(), body: Center(child: Text('Error: $err'))),
     );
   }
 }
@@ -204,6 +243,47 @@ class _DiscoverGrid extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
       ),
+    );
+  }
+}
+
+class _InstanceSelector extends ConsumerWidget {
+  const _InstanceSelector();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final instances = ref.watch(instancesProvider);
+    final selectedIdAsync = ref.watch(selectedSeerrInstanceIdProvider);
+
+    return instances.when(
+      data: (result) => switch (result) {
+        Ok<List<ServiceInstance>>(:final value) => () {
+            final seerrInstances = value.where((i) => i.serviceType == ServiceType.seerr).toList();
+            if (seerrInstances.length <= 1) return const SizedBox.shrink();
+
+            return Container(
+              height: 48,
+              padding: AppInsets.horizontalMd,
+              child: Row(
+                children: [
+                  Text('Instance: ', style: Theme.of(context).textTheme.bodySmall),
+                  DropdownButton<String>(
+                    value: selectedIdAsync.asData?.value ?? seerrInstances.first.id,
+                    items: seerrInstances.map((i) {
+                      return DropdownMenuItem(value: i.id, child: Text(i.name));
+                    }).toList(),
+                    onChanged: (id) => id != null
+                        ? ref.read(selectedSeerrInstanceIdProvider.notifier).selectInstance(id)
+                        : null,
+                  ),
+                ],
+              ),
+            );
+          }(),
+        Err() => const SizedBox.shrink(),
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 }

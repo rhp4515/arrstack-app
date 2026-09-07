@@ -23,6 +23,23 @@ abstract final class RoutePaths {
   static String addSeries(String instanceId) =>
       '/library/sonarr/$instanceId/add';
 
+  static String episodeReleaseSearch(
+    String instanceId,
+    int seriesId,
+    int episodeId,
+    String title,
+  ) =>
+      '/library/sonarr/$instanceId/series/$seriesId/episode/$episodeId/search'
+      '?title=${Uri.encodeComponent(title)}';
+
+  static String movieReleaseSearch(
+    String instanceId,
+    int movieId,
+    String title,
+  ) =>
+      '/library/radarr/$instanceId/movie/$movieId/search'
+      '?title=${Uri.encodeComponent(title)}';
+
   static String subtitles(String instanceId) =>
       '/dashboard/subtitles/$instanceId';
   static String indexers(String instanceId) =>

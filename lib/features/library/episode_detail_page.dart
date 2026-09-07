@@ -1,3 +1,4 @@
+import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/utils/format_utils.dart';
@@ -9,6 +10,7 @@ import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class EpisodeDetailPage extends ConsumerWidget {
   const EpisodeDetailPage({
@@ -100,11 +102,15 @@ class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
           ),
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Search command coming soon.')),
-              );
-            },
+            tooltip: 'Search releases',
+            onPressed: () => context.go(
+              RoutePaths.episodeReleaseSearch(
+                widget.instanceId,
+                widget.seriesId,
+                episode.id,
+                '${episode.episodeCode} · ${episode.title ?? ''}'.trim(),
+              ),
+            ),
           ),
         ],
       ),

@@ -4,6 +4,7 @@ library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/service_type.dart';
+import 'package:arrstack/core/network/app_error.dart';
 import 'package:arrstack/core/network/result.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/features/release_search/models/release_candidate.dart';
@@ -102,7 +103,7 @@ class ReleaseSearchPage extends ConsumerWidget {
       body: resultsAsync.when(
         loading: () => const _SearchingState(),
         error: (err, _) => _ErrorState(
-          message: '$err',
+          message: err is AppError ? err.userMessage : '$err',
           onRetry: () => ref.invalidate(provider),
         ),
         data: (result) => switch (result) {

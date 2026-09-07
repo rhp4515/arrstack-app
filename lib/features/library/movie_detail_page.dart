@@ -181,13 +181,14 @@ class _MovieDetailContentState extends ConsumerState<_MovieDetailContent> {
       case 'monitor':
         await _toggleMonitored();
       case 'search':
-        context.go(
-          RoutePaths.movieReleaseSearch(
-            widget.instanceId,
-            movie.id!,
-            '${movie.title} (${movie.year})',
-          ),
-        );
+        {
+          final label = movie.year != null
+              ? '${movie.title} (${movie.year})'
+              : movie.title;
+          context.push(
+            RoutePaths.movieReleaseSearch(widget.instanceId, movie.id!, label),
+          );
+        }
       case 'subtitles':
         await _searchSubtitlesInBazarr();
       case 'delete':

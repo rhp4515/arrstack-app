@@ -95,7 +95,10 @@ class _ReleaseDetailSheetState extends ConsumerState<_ReleaseDetailSheet> {
       case Err(:final error):
         setState(() {
           _grabbing = false;
-          _error = error.userMessage;
+          _error = error.statusCode == 404
+              ? 'This release is no longer available on the server — '
+                    'search again.'
+              : error.userMessage;
         });
     }
   }
@@ -117,94 +120,100 @@ class _ReleaseDetailSheetState extends ConsumerState<_ReleaseDetailSheet> {
         ('Custom format score', '${r.customFormatScore}'),
     ];
 
-    return SafeArea(
-      child: Padding(
-        padding: AppInsets.pageMd,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Flexible(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SelectableText(r.title, style: theme.textTheme.titleMedium),
-                    const SizedBox(height: AppSpacing.md),
-                    for (final (label, value) in rows)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              width: 150,
-                              child: Text(
-                                label,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
+    return PopScope(
+      canPop: !_grabbing,
+      child: SafeArea(
+        child: Padding(
+          padding: AppInsets.pageMd,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SelectableText(
+                        r.title,
+                        style: theme.textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      for (final (label, value) in rows)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: 150,
+                                child: Text(
+                                  label,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                value,
-                                style: theme.textTheme.bodyMedium,
+                              Expanded(
+                                child: Text(
+                                  value,
+                                  style: theme.textTheme.bodyMedium,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    if (r.rejections.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.sm),
-                      Text(
-                        'Rejected because',
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          color: theme.colorScheme.error,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      for (final reason in r.rejections)
+                      if (r.rejections.isNotEmpty) ...[
+                        const SizedBox(height: AppSpacing.sm),
                         Text(
-                          '• $reason',
-                          style: theme.textTheme.bodySmall?.copyWith(
+                          'Rejected because',
+                          style: theme.textTheme.labelLarge?.copyWith(
                             color: theme.colorScheme.error,
                           ),
                         ),
+                        const SizedBox(height: AppSpacing.xs),
+                        for (final reason in r.rejections)
+                          Text(
+                            '• $reason',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.error,
+                            ),
+                          ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
-            ),
-            if (_error != null) ...[
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                _error!,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.error,
+              if (_error != null) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  _error!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+              ],
+              const SizedBox(height: AppSpacing.md),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _grabbing ? null : _grab,
+                  style: _isForce
+                      ? FilledButton.styleFrom(
+                          backgroundColor: theme.colorScheme.error,
+                        )
+                      : null,
+                  child: _grabbing
+                      ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(_isForce ? 'Force download' : 'Download'),
                 ),
               ),
             ],
-            const SizedBox(height: AppSpacing.md),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: _grabbing ? null : _grab,
-                style: _isForce
-                    ? FilledButton.styleFrom(
-                        backgroundColor: theme.colorScheme.error,
-                      )
-                    : null,
-                child: _grabbing
-                    ? const SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(_isForce ? 'Force download' : 'Download'),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

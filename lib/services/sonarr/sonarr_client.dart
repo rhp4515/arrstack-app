@@ -194,6 +194,52 @@ class SonarrClient implements ConnectionTestClient {
     );
   }
 
+  /// Interactive search: query every indexer for releases matching
+  /// [episodeId]. Slow (multi-indexer, synchronous) — uses a 90s receive
+  /// timeout instead of the client default.
+  Future<Result<List<SonarrRelease>>> searchEpisodeReleases(int episodeId) {
+    return dioCall(
+      () => _dio.get(
+        'api/v3/release',
+        queryParameters: {'episodeId': episodeId},
+        options: Options(receiveTimeout: const Duration(seconds: 90)),
+      ),
+      map: (data) {
+        if (data is! List) return <SonarrRelease>[];
+        return data
+            .map((json) {
+              try {
+                return SonarrRelease.fromJson(json as Map<String, dynamic>);
+              } catch (e, st) {
+                developer.log(
+                  'SonarrRelease parse error: $e',
+                  name: 'arrstack.sonarr',
+                  error: e,
+                  stackTrace: st,
+                );
+                return null;
+              }
+            })
+            .whereType<SonarrRelease>()
+            .toList();
+      },
+    );
+  }
+
+  /// Send a chosen release to the download client.
+  Future<Result<void>> grabRelease({
+    required String guid,
+    required int indexerId,
+  }) {
+    return dioCall(
+      () => _dio.post(
+        'api/v3/release',
+        data: {'guid': guid, 'indexerId': indexerId},
+      ),
+      map: (_) {},
+    );
+  }
+
   Future<Result<List<SonarrQualityProfile>>> getQualityProfiles() {
     return dioCall(
       () => _dio.get('api/v3/qualityProfile'),

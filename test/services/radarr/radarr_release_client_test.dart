@@ -21,6 +21,15 @@ void main() {
   test(
     'searchMovieReleases parses releases and skips a malformed entry',
     () async {
+      RequestOptions? captured;
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            captured = options;
+            handler.next(options);
+          },
+        ),
+      );
       adapter.onGet(
         'api/v3/release',
         (server) => server.reply(200, [
@@ -51,6 +60,7 @@ void main() {
 
       expect(result.isOk, isTrue);
       expect(result.valueOrNull!.map((r) => r.guid), ['ix-1', 'ix-2']);
+      expect(captured!.receiveTimeout, const Duration(seconds: 90));
     },
   );
 

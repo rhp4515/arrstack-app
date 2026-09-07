@@ -103,12 +103,16 @@ class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
           IconButton(
             icon: const Icon(Icons.search),
             tooltip: 'Search releases',
-            onPressed: () => context.go(
+            onPressed: () => context.push(
               RoutePaths.episodeReleaseSearch(
                 widget.instanceId,
                 widget.seriesId,
                 episode.id,
-                '${episode.episodeCode} · ${episode.title ?? ''}'.trim(),
+                [
+                  episode.episodeCode,
+                  if (episode.title != null && episode.title!.isNotEmpty)
+                    episode.title!,
+                ].join(' · '),
               ),
             ),
           ),

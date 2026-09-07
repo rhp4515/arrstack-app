@@ -24,12 +24,12 @@ Future<Result<List<ReleaseCandidate>>> releaseSearchResults(
   required int targetId,
 }) async {
   if (service == ServiceType.sonarr) {
-    final repo = await ref.watch(sonarrRepositoryProvider(instanceId).future);
+    final repo = await ref.read(sonarrRepositoryProvider(instanceId).future);
     final raw = await repo.searchEpisodeReleases(targetId);
     return raw.map((list) => list.map(ReleaseCandidate.fromSonarr).toList());
   }
   if (service == ServiceType.radarr) {
-    final repo = await ref.watch(radarrRepositoryProvider(instanceId).future);
+    final repo = await ref.read(radarrRepositoryProvider(instanceId).future);
     final raw = await repo.searchMovieReleases(targetId);
     return raw.map((list) => list.map(ReleaseCandidate.fromRadarr).toList());
   }

@@ -1,6 +1,7 @@
 /// Flattened, service-agnostic view of one interactive-search release. The
-/// shared release_search UI renders only this type; `SonarrRepository` /
-/// `RadarrRepository` map their raw releases into it.
+/// shared release_search UI renders only this type; the `releaseSearchResults`
+/// provider maps the raw Sonarr/Radarr releases into it (the `lib/services/`
+/// layer must not import `lib/features/`).
 library;
 
 import 'package:arrstack/services/radarr/models/radarr_models.dart';

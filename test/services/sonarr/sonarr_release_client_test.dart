@@ -22,6 +22,15 @@ void main() {
   test(
     'searchEpisodeReleases parses releases and skips a malformed entry',
     () async {
+      RequestOptions? captured;
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            captured = options;
+            handler.next(options);
+          },
+        ),
+      );
       adapter.onGet(
         'api/v3/release',
         (server) => server.reply(200, [
@@ -55,6 +64,7 @@ void main() {
       expect(list.map((r) => r.guid), ['ix-1', 'ix-2']);
       expect(list.first.seeders, 10);
       expect(list.last.rejections, ['Unknown quality']);
+      expect(captured!.receiveTimeout, const Duration(seconds: 90));
     },
   );
 

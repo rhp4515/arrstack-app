@@ -53,6 +53,40 @@ Widget _host(Dio dio, ReleaseCandidate r) => ProviderScope(
   ),
 );
 
+Widget _nestedHost(Dio dio, ReleaseCandidate r) => ProviderScope(
+  overrides: [
+    sonarrRepositoryProvider('i1')
+        .overrideWith((ref) async => SonarrRepository(SonarrClient(dio))),
+  ],
+  child: MaterialApp(
+    home: Scaffold(
+      body: Builder(
+        builder: (context) => ElevatedButton(
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => Scaffold(
+                body: const Center(child: Text('search page')),
+                floatingActionButton: Builder(
+                  builder: (inner) => ElevatedButton(
+                    onPressed: () => showReleaseDetailSheet(
+                      inner,
+                      release: r,
+                      service: ServiceType.sonarr,
+                      instanceId: 'i1',
+                    ),
+                    child: const Text('open'),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          child: const Text('go'),
+        ),
+      ),
+    ),
+  ),
+);
+
 void main() {
   testWidgets('shows release facts and a Download button', (tester) async {
     final dio = Dio(BaseOptions(baseUrl: 'http://s.test'));
@@ -114,5 +148,31 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.widgetWithText(FilledButton, 'Download'), findsNothing);
+  });
+
+  testWidgets('a successful grab pops both the sheet and the page beneath', (
+    tester,
+  ) async {
+    final dio = Dio(BaseOptions(baseUrl: 'http://s.test'));
+    DioAdapter(dio: dio).onPost(
+      'api/v3/release',
+      (s) => s.reply(201, {}),
+      data: {'guid': 'ix-1', 'indexerId': 3},
+    );
+
+    await tester.pumpWidget(_nestedHost(dio, release()));
+    await tester.tap(find.text('go'));
+    await tester.pumpAndSettle();
+    expect(find.text('search page'), findsOneWidget);
+
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Download'));
+    await tester.pumpAndSettle();
+
+    // The sheet closed and the search page beneath was popped too.
+    expect(find.widgetWithText(FilledButton, 'Download'), findsNothing);
+    expect(find.text('search page'), findsNothing);
+    expect(find.text('go'), findsOneWidget);
   });
 }

@@ -14,5 +14,6 @@ abstract class Indexer with _$Indexer {
     String? status,
   }) = _Indexer;
 
-  factory Indexer.fromJson(Map<String, dynamic> json) => _$IndexerFromJson(json);
+  factory Indexer.fromJson(Map<String, dynamic> json) =>
+      _$IndexerFromJson(json);
 }

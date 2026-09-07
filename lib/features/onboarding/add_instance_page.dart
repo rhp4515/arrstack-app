@@ -3,7 +3,8 @@ library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/features/onboarding/onboarding_providers.dart';
-import 'package:arrstack/features/onboarding/widgets/instance_form.dart' as widgets;
+import 'package:arrstack/features/onboarding/widgets/instance_form.dart'
+    as widgets;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -39,9 +40,7 @@ class _AddInstancePageState extends ConsumerState<AddInstancePage> {
     final isEditing = state.isEditing;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isEditing ? 'Edit Service' : 'Add Service'),
-      ),
+      appBar: AppBar(title: Text(isEditing ? 'Edit Service' : 'Add Service')),
       body: SingleChildScrollView(
         padding: AppInsets.pageMd,
         child: Column(

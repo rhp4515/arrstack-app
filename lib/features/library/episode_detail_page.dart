@@ -24,27 +24,29 @@ class EpisodeDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final episodeAsync = ref.watch(sonarrEpisodeProvider(
-      instanceId: instanceId,
-      seriesId: seriesId,
-      episodeId: episodeId,
-    ));
+    final episodeAsync = ref.watch(
+      sonarrEpisodeProvider(
+        instanceId: instanceId,
+        seriesId: seriesId,
+        episodeId: episodeId,
+      ),
+    );
 
     return episodeAsync.when(
       data: (result) => switch (result) {
         Ok(:final value) => _EpisodeDetailContent(
-            instanceId: instanceId,
-            seriesId: seriesId,
-            episode: value,
-          ),
+          instanceId: instanceId,
+          seriesId: seriesId,
+          episode: value,
+        ),
         Err(:final error) => Scaffold(
-            appBar: AppBar(),
-            body: EmptyState(
-              icon: Icons.error_outline,
-              title: 'Failed to load episode',
-              message: error.userMessage,
-            ),
+          appBar: AppBar(),
+          body: EmptyState(
+            icon: Icons.error_outline,
+            title: 'Failed to load episode',
+            message: error.userMessage,
           ),
+        ),
       },
       loading: () => Scaffold(
         appBar: AppBar(),
@@ -146,7 +148,9 @@ class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
     if (bazarrInstance == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No Bazarr instance configured in the app.')),
+          const SnackBar(
+            content: Text('No Bazarr instance configured in the app.'),
+          ),
         );
       }
       return;
@@ -154,24 +158,36 @@ class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
 
     setState(() => _isProcessing = true);
     final episode = widget.episode;
-    final repo = await ref.read(bazarrRepositoryProvider(bazarrInstance.id).future);
-    final result = await repo.searchSubtitle(BazarrWantedSubtitle(
-      title: episode.title ?? 'Episode ${episode.episodeNumber}',
-      type: 'episode',
-      episodeId: episode.id,
-      path: '',
-    ));
+    final repo = await ref.read(
+      bazarrRepositoryProvider(bazarrInstance.id).future,
+    );
+    final result = await repo.searchSubtitle(
+      BazarrWantedSubtitle(
+        title: episode.title ?? 'Episode ${episode.episodeNumber}',
+        type: 'episode',
+        episodeId: episode.id,
+        path: '',
+      ),
+    );
 
     if (!mounted) return;
     setState(() => _isProcessing = false);
 
     if (result.isOk) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Subtitle search triggered in Bazarr for "${episode.title ?? 'Episode'}"')),
+        SnackBar(
+          content: Text(
+            'Subtitle search triggered in Bazarr for "${episode.title ?? 'Episode'}"',
+          ),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Bazarr search failed: ${result.errorOrNull?.userMessage}')),
+        SnackBar(
+          content: Text(
+            'Bazarr search failed: ${result.errorOrNull?.userMessage}',
+          ),
+        ),
       );
     }
   }
@@ -193,10 +209,7 @@ class _ChipRow extends StatelessWidget {
         if (episode.hasFile)
           const DetailChip(label: 'Downloaded', color: Colors.blue),
         if (episode.qualityName != null)
-          DetailChip(
-            label: episode.qualityName!,
-            color: Colors.purple,
-          ),
+          DetailChip(label: episode.qualityName!, color: Colors.purple),
       ],
     );
   }

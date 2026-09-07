@@ -199,8 +199,7 @@ abstract class SonarrQualityInfo with _$SonarrQualityInfo {
 
 @freezed
 abstract class SonarrQuality with _$SonarrQuality {
-  const factory SonarrQuality({int? id, String? name}) =
-      _SonarrQuality;
+  const factory SonarrQuality({int? id, String? name}) = _SonarrQuality;
 
   factory SonarrQuality.fromJson(Map<String, dynamic> json) =>
       _$SonarrQualityFromJson(json);

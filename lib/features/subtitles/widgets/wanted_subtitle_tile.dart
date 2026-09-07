@@ -45,12 +45,18 @@ class _WantedSubtitleTileState extends ConsumerState<WantedSubtitleTile> {
             const SizedBox(height: 4),
             Wrap(
               spacing: 4,
-              children: item.languages.map((l) => _LanguageChip(label: l)).toList(),
+              children: item.languages
+                  .map((l) => _LanguageChip(label: l))
+                  .toList(),
             ),
           ],
         ),
         trailing: _isSearching
-            ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
             : IconButton(
                 icon: const Icon(Icons.search),
                 onPressed: _triggerSearch,
@@ -62,18 +68,24 @@ class _WantedSubtitleTileState extends ConsumerState<WantedSubtitleTile> {
 
   Future<void> _triggerSearch() async {
     setState(() => _isSearching = true);
-    final repository = await ref.read(bazarrRepositoryProvider(widget.instanceId).future);
+    final repository = await ref.read(
+      bazarrRepositoryProvider(widget.instanceId).future,
+    );
     final result = await repository.searchSubtitle(widget.subtitle);
 
     if (mounted) {
       setState(() => _isSearching = false);
       if (result.isOk) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Search triggered for ${widget.subtitle.title}')),
+          SnackBar(
+            content: Text('Search triggered for ${widget.subtitle.title}'),
+          ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Search failed: ${result.errorOrNull?.userMessage}')),
+          SnackBar(
+            content: Text('Search failed: ${result.errorOrNull?.userMessage}'),
+          ),
         );
       }
     }

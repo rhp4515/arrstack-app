@@ -148,7 +148,9 @@ class _MoviesTab extends ConsumerWidget {
           : Column(
               children: [
                 _InstanceSelector(type: ServiceType.radarr, selectedId: id),
-                Expanded(child: MovieList(instanceId: id, query: query)),
+                Expanded(
+                  child: MovieList(instanceId: id, query: query),
+                ),
               ],
             ),
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -174,7 +176,9 @@ class _SeriesTab extends ConsumerWidget {
           : Column(
               children: [
                 _InstanceSelector(type: ServiceType.sonarr, selectedId: id),
-                Expanded(child: SeriesList(instanceId: id, query: query)),
+                Expanded(
+                  child: SeriesList(instanceId: id, query: query),
+                ),
               ],
             ),
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -205,8 +209,7 @@ class _NoRadarrInstance extends StatelessWidget {
     return const EmptyState(
       icon: Icons.movie_outlined,
       title: 'No Radarr instance',
-      message:
-          'Configure a Radarr service in Settings to browse your movie library.',
+      message: 'Configure a Radarr service in Settings to browse your movie library.',
     );
   }
 }
@@ -232,7 +235,10 @@ class _InstanceSelector extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
             child: Row(
               children: [
-                Text('Instance:', style: Theme.of(context).textTheme.labelMedium),
+                Text(
+                  'Instance:',
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
                 const SizedBox(width: AppSpacing.sm),
                 DropdownButton<String>(
                   value: selectedId,

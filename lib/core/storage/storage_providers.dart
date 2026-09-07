@@ -47,10 +47,9 @@ Future<Result<List<String>>> homeSsids(Ref ref) async {
     final ssids = await ref.watch(configStoreProvider).readHomeSsids();
     return Ok(List.unmodifiable(ssids));
   } catch (error) {
-    return Err(StorageError(
-      cause: error,
-      userMessage: 'Failed to read home SSIDs.',
-    ));
+    return Err(
+      StorageError(cause: error, userMessage: 'Failed to read home SSIDs.'),
+    );
   }
 }
 
@@ -61,9 +60,11 @@ Future<Result<EndpointMode>> defaultEndpointMode(Ref ref) async {
     final mode = await ref.watch(configStoreProvider).readDefaultEndpointMode();
     return Ok(mode);
   } catch (error) {
-    return Err(StorageError(
-      cause: error,
-      userMessage: 'Failed to read default endpoint mode.',
-    ));
+    return Err(
+      StorageError(
+        cause: error,
+        userMessage: 'Failed to read default endpoint mode.',
+      ),
+    );
   }
 }

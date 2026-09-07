@@ -52,7 +52,14 @@ class _AddTorrentDialogState extends ConsumerState<AddTorrentDialog> {
         FilledButton(
           onPressed: _isSaving ? null : _save,
           child: _isSaving
-              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
               : const Text('Add'),
         ),
       ],
@@ -64,7 +71,9 @@ class _AddTorrentDialogState extends ConsumerState<AddTorrentDialog> {
     if (url.isEmpty) return;
 
     setState(() => _isSaving = true);
-    final repository = await ref.read(qbitRepositoryProvider(widget.instanceId).future);
+    final repository = await ref.read(
+      qbitRepositoryProvider(widget.instanceId).future,
+    );
     final result = await repository.addTorrent(url);
 
     if (mounted) {
@@ -72,7 +81,8 @@ class _AddTorrentDialogState extends ConsumerState<AddTorrentDialog> {
       if (result.isOk) {
         ref.invalidate(qbitTorrentsProvider(widget.instanceId));
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Torrent added.')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Torrent added.')));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed: ${result.errorOrNull?.userMessage}')),

@@ -65,7 +65,10 @@ class KumaClient {
 
     _socket!.on('monitorList', (data) {
       if (data is Map) {
-        developer.log('Received monitorList (${data.length} items)', name: 'arrstack.kuma');
+        developer.log(
+          'Received monitorList (${data.length} items)',
+          name: 'arrstack.kuma',
+        );
         final monitors = data.map((key, value) {
           final id = int.parse(key.toString());
           return MapEntry(
@@ -102,7 +105,10 @@ class KumaClient {
           developer.log('API Key login successful', name: 'arrstack.kuma');
           completer.complete(const Ok(null));
         } else {
-          developer.log('API Key login failed: $response', name: 'arrstack.kuma');
+          developer.log(
+            'API Key login failed: $response',
+            name: 'arrstack.kuma',
+          );
           completer.complete(
             const Err(AuthError(userMessage: 'API Key login failed.')),
           );
@@ -128,10 +134,16 @@ class KumaClient {
       {'username': username, 'password': password},
       ack: (response) {
         if (response is Map && response['ok'] == true) {
-          developer.log('Username/password login successful', name: 'arrstack.kuma');
+          developer.log(
+            'Username/password login successful',
+            name: 'arrstack.kuma',
+          );
           completer.complete(const Ok(null));
         } else {
-          developer.log('Username/password login failed: $response', name: 'arrstack.kuma');
+          developer.log(
+            'Username/password login failed: $response',
+            name: 'arrstack.kuma',
+          );
           completer.complete(
             const Err(AuthError(userMessage: 'Login failed.')),
           );

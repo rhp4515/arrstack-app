@@ -13,11 +13,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Whether a torrent has finished downloading (belongs in History).
 bool torrentIsComplete(QbitTorrent t) =>
     t.progress >= 1.0 ||
-    const {'uploading', 'stalledUP', 'forcedUP', 'pausedUP', 'queuedUP'}
-        .contains(t.state);
+    const {
+      'uploading',
+      'stalledUP',
+      'forcedUP',
+      'pausedUP',
+      'queuedUP',
+    }.contains(t.state);
 
 class TorrentTile extends ConsumerWidget {
-  const TorrentTile({required this.instanceId, required this.torrent, super.key});
+  const TorrentTile({
+    required this.instanceId,
+    required this.torrent,
+    super.key,
+  });
 
   final String instanceId;
   final QbitTorrent torrent;
@@ -169,7 +178,9 @@ class TorrentTile extends ConsumerWidget {
   }
 
   Future<void> _toggleStatus(WidgetRef ref) async {
-    final repository = await ref.read(qbitRepositoryProvider(instanceId).future);
+    final repository = await ref.read(
+      qbitRepositoryProvider(instanceId).future,
+    );
     final isPaused = torrent.state == 'pausedDL' || torrent.state == 'pausedUP';
     if (isPaused) {
       await repository.startTorrents([torrent.hash]);
@@ -263,10 +274,8 @@ class _Speed extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       '$icon $value',
-      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        color: color,
-        fontWeight: FontWeight.w600,
-      ),
+      style: Theme.of(context).textTheme.bodySmall
+          ?.copyWith(color: color, fontWeight: FontWeight.w600),
     );
   }
 }

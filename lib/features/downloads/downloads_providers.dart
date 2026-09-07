@@ -14,7 +14,9 @@ class SelectedDownloadInstanceId extends _$SelectedDownloadInstanceId {
   Future<String?> build() async {
     final instancesResult = await ref.watch(instancesProvider.future);
     if (instancesResult case Ok(:final value)) {
-      final typed = value.where((i) => i.serviceType == ServiceType.qbittorrent).toList();
+      final typed = value
+          .where((i) => i.serviceType == ServiceType.qbittorrent)
+          .toList();
       if (typed.isEmpty) return null;
       return typed.firstWhere((i) => i.isDefault, orElse: () => typed.first).id;
     }

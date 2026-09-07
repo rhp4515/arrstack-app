@@ -23,9 +23,7 @@ class SettingsPage extends ConsumerWidget {
     final themeMode = ref.watch(appThemeModeProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
+      appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         padding: AppInsets.pageMd,
         children: [
@@ -39,13 +37,16 @@ class SettingsPage extends ConsumerWidget {
           ),
           instancesAsync.when(
             data: (result) => switch (result) {
-              Ok(:final value) => value.isEmpty
-                  ? const _EmptyInstances()
-                  : Column(
-                      children: value
-                          .map((instance) => _InstanceTile(instance: instance))
-                          .toList(),
-                    ),
+              Ok(:final value) =>
+                value.isEmpty
+                    ? const _EmptyInstances()
+                    : Column(
+                        children: value
+                            .map(
+                              (instance) => _InstanceTile(instance: instance),
+                            )
+                            .toList(),
+                      ),
               Err(:final error) => Text('Error: ${error.userMessage}'),
             },
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -66,7 +67,10 @@ class SettingsPage extends ConsumerWidget {
               value: themeMode,
               underline: const SizedBox.shrink(),
               items: const [
-                DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
+                DropdownMenuItem(
+                  value: ThemeMode.system,
+                  child: Text('System'),
+                ),
                 DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
                 DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
               ],
@@ -98,10 +102,10 @@ class _SectionHeader extends StatelessWidget {
           Text(
             title.toUpperCase(),
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  letterSpacing: 1.2,
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+              letterSpacing: 1.2,
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           ?action,
         ],
@@ -139,10 +143,18 @@ class _InstanceTile extends ConsumerWidget {
                 context: context,
                 builder: (context) => AlertDialog(
                   title: const Text('Delete Instance?'),
-                  content: Text('Are you sure you want to remove ${instance.name}?'),
+                  content: Text(
+                    'Are you sure you want to remove ${instance.name}?',
+                  ),
                   actions: [
-                    TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-                    TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Delete'),
+                    ),
                   ],
                 ),
               );
@@ -197,7 +209,9 @@ class _DefaultEndpointModeSetting extends ConsumerWidget {
             );
           }).toList(),
           onChanged: (newMode) => newMode != null
-              ? ref.read(defaultEndpointModeSettingsProvider.notifier).updateMode(newMode)
+              ? ref
+                    .read(defaultEndpointModeSettingsProvider.notifier)
+                    .updateMode(newMode)
               : null,
         ),
       ),

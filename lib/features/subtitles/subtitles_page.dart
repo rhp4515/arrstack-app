@@ -33,7 +33,9 @@ class _SubtitlesPageState extends ConsumerState<SubtitlesPage> {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () async {
-              final repo = await ref.read(bazarrRepositoryProvider(widget.instanceId).future);
+              final repo = await ref.read(
+                bazarrRepositoryProvider(widget.instanceId).future,
+              );
               final result = await repo.searchAllSubtitles();
               if (context.mounted) {
                 if (result.isOk) {
@@ -42,7 +44,11 @@ class _SubtitlesPageState extends ConsumerState<SubtitlesPage> {
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed: ${result.errorOrNull?.userMessage}')),
+                    SnackBar(
+                      content: Text(
+                        'Failed: ${result.errorOrNull?.userMessage}',
+                      ),
+                    ),
                   );
                 }
               }
@@ -61,19 +67,21 @@ class _SubtitlesPageState extends ConsumerState<SubtitlesPage> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () async => ref.invalidate(bazarrWantedProvider(widget.instanceId)),
+        onRefresh: () async =>
+            ref.invalidate(bazarrWantedProvider(widget.instanceId)),
         child: wantedAsync.when(
           data: (result) => switch (result) {
             Ok(:final value) => _buildList(value),
             Err(:final error) => EmptyState(
-                icon: Icons.error_outline,
-                title: 'Failed to load subtitles',
-                message: error.userMessage,
-                action: FilledButton(
-                  onPressed: () => ref.invalidate(bazarrWantedProvider(widget.instanceId)),
-                  child: const Text('Retry'),
-                ),
+              icon: Icons.error_outline,
+              title: 'Failed to load subtitles',
+              message: error.userMessage,
+              action: FilledButton(
+                onPressed: () =>
+                    ref.invalidate(bazarrWantedProvider(widget.instanceId)),
+                child: const Text('Retry'),
               ),
+            ),
           },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (err, _) => Center(child: Text('Unexpected error: $err')),

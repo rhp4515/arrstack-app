@@ -87,9 +87,7 @@ class SeriesList extends ConsumerWidget {
           pillTrailing: show.episodeProgressLabel,
           onTap: show.id == null
               ? null
-              : () => context.go(
-                  RoutePaths.seriesDetail(instanceId, show.id!),
-                ),
+              : () => context.go(RoutePaths.seriesDetail(instanceId, show.id!)),
         );
       },
     );

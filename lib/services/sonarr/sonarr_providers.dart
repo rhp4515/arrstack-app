@@ -75,8 +75,9 @@ Future<Result<SonarrEpisode>> sonarrEpisode(
   required int seriesId,
   required int episodeId,
 }) async {
-  final episodesResult =
-      await ref.watch(sonarrEpisodesProvider(instanceId: instanceId, seriesId: seriesId).future);
+  final episodesResult = await ref.watch(
+    sonarrEpisodesProvider(instanceId: instanceId, seriesId: seriesId).future,
+  );
   if (episodesResult case Ok(:final value)) {
     try {
       final ep = value.firstWhere((e) => e.id == episodeId);

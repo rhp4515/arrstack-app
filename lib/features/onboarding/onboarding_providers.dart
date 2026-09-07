@@ -3,6 +3,7 @@
 library;
 
 import 'dart:async';
+
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
@@ -114,7 +115,9 @@ class InstanceForm extends _$InstanceForm {
   void reset() => state = const InstanceFormState();
 
   Future<void> load(String id) async {
-    final instanceResult = await ref.read(instanceRepositoryProvider).getById(id);
+    final instanceResult = await ref
+        .read(instanceRepositoryProvider)
+        .getById(id);
     if (instanceResult is! Ok<ServiceInstance>) return;
     final instance = instanceResult.value;
 
@@ -129,8 +132,12 @@ class InstanceForm extends _$InstanceForm {
       remoteUrl: instance.remoteBaseUrl ?? '',
       isDefault: instance.isDefault,
       apiKey: credential is ApiKeyCredential ? credential.apiKey : '',
-      username: credential is UsernamePasswordCredential ? credential.username : '',
-      password: credential is UsernamePasswordCredential ? credential.password : '',
+      username: credential is UsernamePasswordCredential
+          ? credential.username
+          : '',
+      password: credential is UsernamePasswordCredential
+          ? credential.password
+          : '',
     );
   }
 
@@ -165,13 +172,19 @@ class InstanceForm extends _$InstanceForm {
     );
   }
 
-  void updateAuthType(AuthType authType) => state = state.copyWith(authType: authType);
-  void updateLocalUrl(String url) => state = state.copyWith(localUrl: url, localTestResult: null);
-  void updateRemoteUrl(String url) => state = state.copyWith(remoteUrl: url, remoteTestResult: null);
+  void updateAuthType(AuthType authType) =>
+      state = state.copyWith(authType: authType);
+  void updateLocalUrl(String url) =>
+      state = state.copyWith(localUrl: url, localTestResult: null);
+  void updateRemoteUrl(String url) =>
+      state = state.copyWith(remoteUrl: url, remoteTestResult: null);
   void updateApiKey(String key) => state = state.copyWith(apiKey: key);
-  void updateUsername(String username) => state = state.copyWith(username: username);
-  void updatePassword(String password) => state = state.copyWith(password: password);
-  void updateIsDefault(bool isDefault) => state = state.copyWith(isDefault: isDefault);
+  void updateUsername(String username) =>
+      state = state.copyWith(username: username);
+  void updatePassword(String password) =>
+      state = state.copyWith(password: password);
+  void updateIsDefault(bool isDefault) =>
+      state = state.copyWith(isDefault: isDefault);
 
   String _normalizeUrl(String url, ServiceType type) {
     var trimmed = url.trim();
@@ -180,7 +193,10 @@ class InstanceForm extends _$InstanceForm {
       trimmed = 'http://$trimmed';
     }
     final uri = Uri.tryParse(trimmed);
-    if (uri != null && uri.host.isNotEmpty && !uri.hasPort && uri.scheme != 'https') {
+    if (uri != null &&
+        uri.host.isNotEmpty &&
+        !uri.hasPort &&
+        uri.scheme != 'https') {
       return uri.replace(port: type.defaultPort).toString();
     }
     return trimmed;
@@ -189,7 +205,11 @@ class InstanceForm extends _$InstanceForm {
   Future<void> testLocal() async {
     if (state.localUrl.isEmpty) return;
     final normalized = _normalizeUrl(state.localUrl, state.type);
-    state = state.copyWith(localUrl: normalized, isTestingLocal: true, localTestResult: null);
+    state = state.copyWith(
+      localUrl: normalized,
+      isTestingLocal: true,
+      localTestResult: null,
+    );
     final result = await _test(normalized);
     state = state.copyWith(isTestingLocal: false, localTestResult: result);
   }
@@ -197,7 +217,11 @@ class InstanceForm extends _$InstanceForm {
   Future<void> testRemote() async {
     if (state.remoteUrl.isEmpty) return;
     final normalized = _normalizeUrl(state.remoteUrl, state.type);
-    state = state.copyWith(remoteUrl: normalized, isTestingRemote: true, remoteTestResult: null);
+    state = state.copyWith(
+      remoteUrl: normalized,
+      isTestingRemote: true,
+      remoteTestResult: null,
+    );
     final result = await _test(normalized);
     state = state.copyWith(isTestingRemote: false, remoteTestResult: result);
   }
@@ -205,16 +229,26 @@ class InstanceForm extends _$InstanceForm {
   Future<Result<ServiceIdentity>> _test(String baseUrl) async {
     final credential = state.authType == AuthType.apiKey
         ? ServiceCredential.apiKey(state.apiKey)
-        : ServiceCredential.usernamePassword(username: state.username, password: state.password);
+        : ServiceCredential.usernamePassword(
+            username: state.username,
+            password: state.password,
+          );
 
     final client = _getTestClient(baseUrl, credential);
     if (client == null) {
-      return const Err(UnknownError(userMessage: 'Test connection not yet implemented for this service.'));
+      return const Err(
+        UnknownError(
+          userMessage: 'Test connection not yet implemented for this service.',
+        ),
+      );
     }
     return client.testConnection();
   }
 
-  ConnectionTestClient? _getTestClient(String baseUrl, ServiceCredential credential) {
+  ConnectionTestClient? _getTestClient(
+    String baseUrl,
+    ServiceCredential credential,
+  ) {
     if (state.type == ServiceType.radarr) {
       final dio = const DioFactory().create(
         baseUrl: baseUrl,
@@ -295,18 +329,22 @@ class InstanceForm extends _$InstanceForm {
           );
 
     final result = isEditing
-        ? await ref.read(instanceRepositoryProvider).update(instance, credential: credential)
-        : await ref.read(instanceRepositoryProvider).add(instance, credential: credential);
+        ? await ref
+              .read(instanceRepositoryProvider)
+              .update(instance, credential: credential)
+        : await ref
+              .read(instanceRepositoryProvider)
+              .add(instance, credential: credential);
 
     return switch (result) {
       Ok() => () {
-          ref.invalidate(instancesProvider);
-          return true;
-        }(),
+        ref.invalidate(instancesProvider);
+        return true;
+      }(),
       Err(:final error) => () {
-          state = state.copyWith(isSaving: false, saveError: error);
-          return false;
-        }(),
+        state = state.copyWith(isSaving: false, saveError: error);
+        return false;
+      }(),
     };
   }
 }
@@ -348,11 +386,13 @@ class KumaTestClient implements ConnectionTestClient {
     final client = KumaClient(baseUrl: baseUrl);
     try {
       client.connect();
-      final isConnected = await client.connectionStream.firstWhere((c) => c).timeout(
-        const Duration(seconds: 5),
-        onTimeout: () => false,
-      );
-      if (!isConnected) return const Err(NetworkError(userMessage: 'Could not connect to socket.'));
+      final isConnected = await client.connectionStream
+          .firstWhere((c) => c)
+          .timeout(const Duration(seconds: 5), onTimeout: () => false);
+      if (!isConnected)
+        return const Err(
+          NetworkError(userMessage: 'Could not connect to socket.'),
+        );
 
       final cred = credential;
       final Result<void> loginResult = await switch (cred) {
@@ -360,8 +400,10 @@ class KumaTestClient implements ConnectionTestClient {
         UsernamePasswordCredential(:final username, :final password) =>
           client.login(username, password),
       };
-      
-      return loginResult.map((_) => const ServiceIdentity(instanceName: 'Uptime Kuma'));
+
+      return loginResult.map(
+        (_) => const ServiceIdentity(instanceName: 'Uptime Kuma'),
+      );
     } finally {
       client.dispose();
     }
@@ -370,7 +412,10 @@ class KumaTestClient implements ConnectionTestClient {
 
 /// A stub client for Phase 3 to verify the UI flow.
 class StubConnectionTestClient implements ConnectionTestClient {
-  const StubConnectionTestClient({required this.baseUrl, required this.credential});
+  const StubConnectionTestClient({
+    required this.baseUrl,
+    required this.credential,
+  });
   final String baseUrl;
   final ServiceCredential credential;
 
@@ -380,6 +425,8 @@ class StubConnectionTestClient implements ConnectionTestClient {
     if (baseUrl.contains('error')) {
       return const Err(NetworkError(userMessage: 'Stub: Connection failed.'));
     }
-    return const Ok(ServiceIdentity(instanceName: 'Stub Instance', version: '1.0.0-stub'));
+    return const Ok(
+      ServiceIdentity(instanceName: 'Stub Instance', version: '1.0.0-stub'),
+    );
   }
 }

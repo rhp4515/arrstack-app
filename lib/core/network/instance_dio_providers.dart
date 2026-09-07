@@ -35,7 +35,9 @@ Future<Result<EndpointResolution>> resolvedEndpoint(
   Ref ref,
   String instanceId,
 ) async {
-  final instanceResult = await ref.watch(serviceInstanceProvider(instanceId).future);
+  final instanceResult = await ref.watch(
+    serviceInstanceProvider(instanceId).future,
+  );
   if (instanceResult is Err<ServiceInstance>) return Err(instanceResult.error);
   final instance = (instanceResult as Ok<ServiceInstance>).value;
 
@@ -49,7 +51,9 @@ Future<Result<EndpointResolution>> resolvedEndpoint(
   final resolver = ref.watch(endpointResolverProvider);
 
   // Apply session override if present.
-  final sessionOverride = ref.watch(endpointSessionOverrideProvider)[instanceId];
+  final sessionOverride = ref.watch(
+    endpointSessionOverrideProvider,
+  )[instanceId];
   final effectiveInstance = sessionOverride != null
       ? instance.copyWith(endpointMode: sessionOverride)
       : instance;
@@ -65,30 +69,38 @@ Future<Result<EndpointResolution>> resolvedEndpoint(
 /// [EndpointResolution.baseUrl] and auth interceptors (spec §11).
 @riverpod
 Future<Result<Dio>> dioForInstance(Ref ref, String instanceId) async {
-  final resolutionResult = await ref.watch(resolvedEndpointProvider(instanceId).future);
-  if (resolutionResult is Err<EndpointResolution>) return Err(resolutionResult.error);
+  final resolutionResult = await ref.watch(
+    resolvedEndpointProvider(instanceId).future,
+  );
+  if (resolutionResult is Err<EndpointResolution>)
+    return Err(resolutionResult.error);
   final resolution = (resolutionResult as Ok<EndpointResolution>).value;
 
-  final instanceResult = await ref.watch(serviceInstanceProvider(instanceId).future);
+  final instanceResult = await ref.watch(
+    serviceInstanceProvider(instanceId).future,
+  );
   if (instanceResult is Err<ServiceInstance>) return Err(instanceResult.error);
   final instance = (instanceResult as Ok<ServiceInstance>).value;
 
-  final credential = await ref.watch(serviceCredentialProvider(instanceId).future);
+  final credential = await ref.watch(
+    serviceCredentialProvider(instanceId).future,
+  );
 
   // Build the ApiKeyInterceptor only if the service uses API keys via X-Api-Key.
   // Cookie-based (qBittorrent) or Socket (Uptime Kuma) auth services
   // handle their own auth interceptors or flows in their modules.
-  final isXApiKeyService = instance.serviceType != ServiceType.qbittorrent &&
+  final isXApiKeyService =
+      instance.serviceType != ServiceType.qbittorrent &&
       instance.serviceType != ServiceType.uptimeKuma;
 
   final apiKeyInterceptor = isXApiKeyService && credential is ApiKeyCredential
-      ? ApiKeyInterceptor(
-          lookupApiKey: () async => credential.apiKey,
-        )
+      ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
       : null;
 
-  return Ok(const DioFactory().create(
-    baseUrl: resolution.baseUrl,
-    apiKeyInterceptor: apiKeyInterceptor,
-  ));
+  return Ok(
+    const DioFactory().create(
+      baseUrl: resolution.baseUrl,
+      apiKeyInterceptor: apiKeyInterceptor,
+    ),
+  );
 }

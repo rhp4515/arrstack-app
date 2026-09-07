@@ -14,7 +14,9 @@ class SelectedUptimeInstanceId extends _$SelectedUptimeInstanceId {
   Future<String?> build() async {
     final instancesResult = await ref.watch(instancesProvider.future);
     if (instancesResult case Ok(:final value)) {
-      final typed = value.where((i) => i.serviceType == ServiceType.uptimeKuma).toList();
+      final typed = value
+          .where((i) => i.serviceType == ServiceType.uptimeKuma)
+          .toList();
       if (typed.isEmpty) return null;
       return typed.firstWhere((i) => i.isDefault, orElse: () => typed.first).id;
     }

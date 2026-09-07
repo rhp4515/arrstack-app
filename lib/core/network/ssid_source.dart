@@ -51,9 +51,9 @@ class NetworkInfoSsidSource implements SsidSource {
       Permission.locationWhenInUse,
       Permission.nearbyWifiDevices,
     ].request();
-    
+
     return statuses[Permission.locationWhenInUse]?.isGranted == true ||
-           statuses[Permission.nearbyWifiDevices]?.isGranted == true;
+        statuses[Permission.nearbyWifiDevices]?.isGranted == true;
   }
 
   @override

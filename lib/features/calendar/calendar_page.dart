@@ -73,8 +73,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
           ),
           Expanded(
             child: RefreshIndicator(
-              onRefresh: () async =>
-                  ref.invalidate(calendarScheduleProvider),
+              onRefresh: () async => ref.invalidate(calendarScheduleProvider),
               child: scheduleAsync.when(
                 data: (result) => switch (result) {
                   Ok(:final value) => _CalendarList(days: _filter(value)),
@@ -83,14 +82,12 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                     title: 'Couldn’t load the calendar',
                     message: error.userMessage,
                     action: FilledButton(
-                      onPressed: () =>
-                          ref.invalidate(calendarScheduleProvider),
+                      onPressed: () => ref.invalidate(calendarScheduleProvider),
                       child: const Text('Retry'),
                     ),
                   ),
                 },
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error: (err, _) => EmptyState(
                   icon: Icons.error_outline,
                   title: 'Unexpected error',

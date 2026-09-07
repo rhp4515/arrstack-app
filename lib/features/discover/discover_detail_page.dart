@@ -22,31 +22,39 @@ class DiscoverDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final effectiveIdAsync = instanceId.isNotEmpty 
+    final effectiveIdAsync = instanceId.isNotEmpty
         ? AsyncData(instanceId)
         : ref.watch(selectedSeerrInstanceIdProvider);
 
     return effectiveIdAsync.when(
       data: (finalId) {
-        if (finalId == null) return const Scaffold(body: Center(child: Text('No instance selected')));
-        
-        final detailAsync = ref.watch(seerrDetailProvider(
-          instanceId: finalId,
-          id: id,
-          mediaType: mediaType,
-        ));
+        if (finalId == null)
+          return const Scaffold(
+            body: Center(child: Text('No instance selected')),
+          );
+
+        final detailAsync = ref.watch(
+          seerrDetailProvider(
+            instanceId: finalId,
+            id: id,
+            mediaType: mediaType,
+          ),
+        );
 
         return detailAsync.when(
           data: (result) => switch (result) {
-            Ok(:final value) => _DetailContent(instanceId: finalId, item: value),
+            Ok(:final value) => _DetailContent(
+              instanceId: finalId,
+              item: value,
+            ),
             Err(:final error) => Scaffold(
-                appBar: AppBar(),
-                body: EmptyState(
-                  icon: Icons.error_outline,
-                  title: 'Failed to load details',
-                  message: error.userMessage,
-                ),
+              appBar: AppBar(),
+              body: EmptyState(
+                icon: Icons.error_outline,
+                title: 'Failed to load details',
+                message: error.userMessage,
               ),
+            ),
           },
           loading: () => Scaffold(
             appBar: AppBar(),
@@ -58,8 +66,14 @@ class DiscoverDetailPage extends ConsumerWidget {
           ),
         );
       },
-      loading: () => Scaffold(appBar: AppBar(), body: const Center(child: CircularProgressIndicator())),
-      error: (err, _) => Scaffold(appBar: AppBar(), body: Center(child: Text('Error: $err'))),
+      loading: () => Scaffold(
+        appBar: AppBar(),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (err, _) => Scaffold(
+        appBar: AppBar(),
+        body: Center(child: Text('Error: $err')),
+      ),
     );
   }
 }
@@ -83,9 +97,7 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
     final item = widget.item;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(item.displayTitle ?? 'Details'),
-      ),
+      appBar: AppBar(title: Text(item.displayTitle ?? 'Details')),
       body: ListView(
         padding: AppInsets.pageMd,
         children: [
@@ -106,7 +118,9 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
           Text(
             item.displayTitle ?? '',
             textAlign: TextAlign.center,
-            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           if (item.displayDate != null) ...[
             const SizedBox(height: AppSpacing.xs),
@@ -141,7 +155,10 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
                   ? const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
                     )
                   : const Icon(Icons.add_circle_outline),
               label: const Text('Request Media'),
@@ -153,29 +170,42 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
 
   bool _canRequest(SeerrMediaInfo? info) {
     if (info == null) return true;
-    return info.status < 4; // 1=PENDING, 2=APPROVED, 3=DECLINED, 4=PROCESSING, 5=PARTIALLY, 6=AVAILABLE
+    // MediaStatus (server/constants/media.ts): only a fully AVAILABLE item
+    // has nothing left to request.
+    return info.status != SeerrMediaStatus.available;
   }
 
   Future<void> _handleRequest() async {
     setState(() => _isRequesting = true);
-    
-    final repository = await ref.read(seerrRepositoryProvider(widget.instanceId).future);
-    final result = await repository.request(widget.item.id, widget.item.mediaType);
-    
+
+    final repository = await ref.read(
+      seerrRepositoryProvider(widget.instanceId).future,
+    );
+    final result = await repository.request(
+      widget.item.id,
+      widget.item.mediaType,
+    );
+
     if (mounted) {
       setState(() => _isRequesting = false);
       if (result is Ok) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Request submitted successfully!')),
         );
-        ref.invalidate(seerrDetailProvider(
-          instanceId: widget.instanceId,
-          id: widget.item.id,
-          mediaType: widget.item.mediaType,
-        ));
+        ref.invalidate(
+          seerrDetailProvider(
+            instanceId: widget.instanceId,
+            id: widget.item.id,
+            mediaType: widget.item.mediaType,
+          ),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Request failed: ${(result as Err).error.userMessage}')),
+          SnackBar(
+            content: Text(
+              'Request failed: ${(result as Err).error.userMessage}',
+            ),
+          ),
         );
       }
     }
@@ -191,12 +221,14 @@ class _RequestStatusChip extends StatelessWidget {
     if (mediaInfo == null) return const SizedBox.shrink();
 
     final (label, color) = switch (mediaInfo!.status) {
-      1 => ('Pending', Colors.orange),
-      2 => ('Approved', Colors.blue),
-      3 => ('Declined', Colors.red),
-      4 => ('Processing', Colors.purple),
-      5 => ('Partial', Colors.lightGreen),
-      6 => ('Available', Colors.green),
+      SeerrMediaStatus.pending => ('Pending', Colors.orange),
+      SeerrMediaStatus.processing => ('Processing', Colors.purple),
+      SeerrMediaStatus.partiallyAvailable => (
+        'Partially Available',
+        Colors.lightGreen,
+      ),
+      SeerrMediaStatus.available => ('Available', Colors.green),
+      SeerrMediaStatus.deleted => ('Deleted', Colors.grey),
       _ => ('Unknown', Colors.grey),
     };
 

@@ -29,8 +29,13 @@ class QbitRepository {
     return _authenticatedCall(() => _client.startTorrents(hashes));
   }
 
-  Future<Result<void>> deleteTorrents(List<String> hashes, {bool deleteFiles = false}) async {
-    return _authenticatedCall(() => _client.deleteTorrents(hashes, deleteFiles: deleteFiles));
+  Future<Result<void>> deleteTorrents(
+    List<String> hashes, {
+    bool deleteFiles = false,
+  }) async {
+    return _authenticatedCall(
+      () => _client.deleteTorrents(hashes, deleteFiles: deleteFiles),
+    );
   }
 
   Future<Result<void>> addTorrent(String url) async {
@@ -64,7 +69,9 @@ class QbitRepository {
   Future<Result<void>> _ensureLoggedIn() async {
     final cred = _credential;
     if (cred is! UsernamePasswordCredential) {
-      return const Err(AuthError(userMessage: 'qBittorrent requires username and password.'));
+      return const Err(
+        AuthError(userMessage: 'qBittorrent requires username and password.'),
+      );
     }
     return _client.login(cred.username, cred.password);
   }

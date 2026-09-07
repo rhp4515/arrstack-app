@@ -38,8 +38,10 @@ class SeriesDetailPage extends ConsumerWidget {
 
     return seriesAsync.when(
       data: (result) => switch (result) {
-        Ok(:final value) =>
-          _SeriesDetailContent(instanceId: instanceId, series: value),
+        Ok(:final value) => _SeriesDetailContent(
+          instanceId: instanceId,
+          series: value,
+        ),
         Err(:final error) => Scaffold(
           appBar: AppBar(),
           body: EmptyState(
@@ -53,8 +55,10 @@ class SeriesDetailPage extends ConsumerWidget {
         appBar: AppBar(),
         body: const Center(child: CircularProgressIndicator()),
       ),
-      error: (err, _) =>
-          Scaffold(appBar: AppBar(), body: Center(child: Text('Error: $err'))),
+      error: (err, _) => Scaffold(
+        appBar: AppBar(),
+        body: Center(child: Text('Error: $err')),
+      ),
     );
   }
 }
@@ -309,9 +313,9 @@ class _ChipRow extends StatelessWidget {
   Future<void> _copy(BuildContext context, String url, String name) async {
     await Clipboard.setData(ClipboardData(text: url));
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$name link copied to clipboard')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('$name link copied to clipboard')));
   }
 }
 
@@ -576,7 +580,10 @@ class _SeasonEpisodes extends ConsumerWidget {
           children: [
             for (final episode
                 in value.where((e) => e.seasonNumber == seasonNumber).toList()
-                  ..sort((a, b) => (a.episodeNumber ?? 0).compareTo(b.episodeNumber ?? 0)))
+                  ..sort(
+                    (a, b) =>
+                        (a.episodeNumber ?? 0).compareTo(b.episodeNumber ?? 0),
+                  ))
               _EpisodeCard(
                 instanceId: instanceId,
                 seriesId: seriesId,
@@ -620,7 +627,8 @@ class _EpisodeCard extends StatelessWidget {
     final quality = episode.qualityName;
 
     final metaParts = <String>[
-      if (episode.airDateUtc != null) _formatDate(episode.airDateUtc!.toLocal()),
+      if (episode.airDateUtc != null)
+        _formatDate(episode.airDateUtc!.toLocal()),
       if (episode.runtime != null && episode.runtime! > 0)
         '${episode.runtime}m',
     ];

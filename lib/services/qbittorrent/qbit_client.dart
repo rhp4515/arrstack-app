@@ -53,10 +53,14 @@ class QbitClient implements ConnectionTestClient {
     return result.flatMap((response) {
       final body = response.data.toString().trim();
       if (body == 'Fails.') {
-        developer.log('qBittorrent login returned "Fails."', name: 'arrstack.qbit');
+        developer.log(
+          'qBittorrent login returned "Fails."',
+          name: 'arrstack.qbit',
+        );
         return const Err(
           AuthError(
-            userMessage: 'qBittorrent login failed. Check username and password.',
+            userMessage:
+                'qBittorrent login failed. Check username and password.',
           ),
         );
       }
@@ -71,14 +75,20 @@ class QbitClient implements ConnectionTestClient {
           final name = pair.split('=').first;
           if (name == 'SID' || name.startsWith('QBT_SID')) {
             _sid = pair;
-            developer.log('qBittorrent session cookie acquired ($name)', name: 'arrstack.qbit');
+            developer.log(
+              'qBittorrent session cookie acquired ($name)',
+              name: 'arrstack.qbit',
+            );
             return const Ok(null);
           }
         }
       }
 
       if (_sid == null) {
-        developer.log('qBittorrent login succeeded but no SID cookie was returned', name: 'arrstack.qbit');
+        developer.log(
+          'qBittorrent login succeeded but no SID cookie was returned',
+          name: 'arrstack.qbit',
+        );
         return const Err(
           AuthError(
             userMessage: 'qBittorrent login failed to return session cookie.',

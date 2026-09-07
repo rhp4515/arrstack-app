@@ -39,7 +39,8 @@ class ProwlarrClient {
   Future<Result<IndexerStatsResponse>> getIndexerStats() {
     return dioCall(
       () => _dio.get('api/v1/indexerstats'),
-      map: (data) => IndexerStatsResponse.fromJson(data as Map<String, dynamic>),
+      map: (data) =>
+          IndexerStatsResponse.fromJson(data as Map<String, dynamic>),
     );
   }
 }

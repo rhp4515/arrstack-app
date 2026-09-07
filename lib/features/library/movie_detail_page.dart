@@ -38,8 +38,10 @@ class MovieDetailPage extends ConsumerWidget {
 
     return movieAsync.when(
       data: (result) => switch (result) {
-        Ok(:final value) =>
-          _MovieDetailContent(instanceId: instanceId, movie: value),
+        Ok(:final value) => _MovieDetailContent(
+          instanceId: instanceId,
+          movie: value,
+        ),
         Err(:final error) => Scaffold(
           appBar: AppBar(),
           body: EmptyState(
@@ -53,8 +55,10 @@ class MovieDetailPage extends ConsumerWidget {
         appBar: AppBar(),
         body: const Center(child: CircularProgressIndicator()),
       ),
-      error: (err, _) =>
-          Scaffold(appBar: AppBar(), body: Center(child: Text('Error: $err'))),
+      error: (err, _) => Scaffold(
+        appBar: AppBar(),
+        body: Center(child: Text('Error: $err')),
+      ),
     );
   }
 }
@@ -100,7 +104,10 @@ class _MovieDetailContentState extends ConsumerState<_MovieDetailContent> {
                 child: Text(movie.monitored ? 'Unmonitor' : 'Monitor'),
               ),
               const PopupMenuItem(value: 'search', child: Text('Search Movie')),
-              const PopupMenuItem(value: 'subtitles', child: Text('Search Subtitles (Bazarr)')),
+              const PopupMenuItem(
+                value: 'subtitles',
+                child: Text('Search Subtitles (Bazarr)'),
+              ),
               const PopupMenuItem(value: 'delete', child: Text('Delete')),
             ],
           ),
@@ -187,31 +194,45 @@ class _MovieDetailContentState extends ConsumerState<_MovieDetailContent> {
     if (bazarrInstance == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No Bazarr instance configured in the app.')),
+          const SnackBar(
+            content: Text('No Bazarr instance configured in the app.'),
+          ),
         );
       }
       return;
     }
 
     setState(() => _isProcessing = true);
-    final repo = await ref.read(bazarrRepositoryProvider(bazarrInstance.id).future);
-    final result = await repo.searchSubtitle(BazarrWantedSubtitle(
-      title: movie.title,
-      type: 'movie',
-      radarrId: movie.id,
-      path: '',
-    ));
+    final repo = await ref.read(
+      bazarrRepositoryProvider(bazarrInstance.id).future,
+    );
+    final result = await repo.searchSubtitle(
+      BazarrWantedSubtitle(
+        title: movie.title,
+        type: 'movie',
+        radarrId: movie.id,
+        path: '',
+      ),
+    );
 
     if (!mounted) return;
     setState(() => _isProcessing = false);
 
     if (result.isOk) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Subtitle search triggered in Bazarr for "${movie.title}"')),
+        SnackBar(
+          content: Text(
+            'Subtitle search triggered in Bazarr for "${movie.title}"',
+          ),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Bazarr search failed: ${result.errorOrNull?.userMessage}')),
+        SnackBar(
+          content: Text(
+            'Bazarr search failed: ${result.errorOrNull?.userMessage}',
+          ),
+        ),
       );
     }
   }
@@ -324,9 +345,9 @@ class _ChipRow extends StatelessWidget {
   Future<void> _copy(BuildContext context, String url, String name) async {
     await Clipboard.setData(ClipboardData(text: url));
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$name link copied to clipboard')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('$name link copied to clipboard')));
   }
 }
 

@@ -87,7 +87,10 @@ class BazarrClient implements ConnectionTestClient {
   /// Triggers a search for missing subtitles for a specific episode.
   Future<Result<void>> searchEpisodeSubtitles(int episodeId) {
     return dioCall(
-      () => _dio.patch('api/episodes', queryParameters: {'action': 'search', 'ids': episodeId}),
+      () => _dio.patch(
+        'api/episodes',
+        queryParameters: {'action': 'search', 'ids': episodeId},
+      ),
       map: (_) {},
     );
   }
@@ -95,7 +98,10 @@ class BazarrClient implements ConnectionTestClient {
   /// Triggers a search for missing subtitles for a specific movie.
   Future<Result<void>> searchMovieSubtitles(int radarrId) {
     return dioCall(
-      () => _dio.patch('api/movies', queryParameters: {'action': 'search', 'ids': radarrId}),
+      () => _dio.patch(
+        'api/movies',
+        queryParameters: {'action': 'search', 'ids': radarrId},
+      ),
       map: (_) {},
     );
   }
@@ -109,9 +115,6 @@ class BazarrClient implements ConnectionTestClient {
 
   /// Triggers a search for all missing subtitles.
   Future<Result<void>> searchAllSubtitles() {
-    return dioCall(
-      () => _dio.get('api/subtitles/search/missing'),
-      map: (_) {},
-    );
+    return dioCall(() => _dio.get('api/subtitles/search/missing'), map: (_) {});
   }
 }

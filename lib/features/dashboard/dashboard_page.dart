@@ -28,9 +28,7 @@ class DashboardPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
-        actions: const [
-          EndpointIndicator(),
-        ],
+        actions: const [EndpointIndicator()],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -77,11 +75,12 @@ class _HealthSection extends StatelessWidget {
                 ? const Center(child: Text('No services configured'))
                 : ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                    itemCount: healths.length,
-                    itemBuilder: (context, index) => ServiceHealthTile(
-                      health: healths[index],
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
                     ),
+                    itemCount: healths.length,
+                    itemBuilder: (context, index) =>
+                        ServiceHealthTile(health: healths[index]),
                   ),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, _) => Center(child: Text('Error: $err')),
@@ -117,12 +116,20 @@ class _InstancesSection extends StatelessWidget {
         const SizedBox(height: AppSpacing.sm),
         instancesAsync.when(
           data: (result) => switch (result) {
-            Ok(:final value) => value.isEmpty
-                ? const _EmptyDashboard()
-                : Column(
-                    children: value.map((instance) => _InstanceListTile(instance: instance, ref: ref)).toList(),
-                  ),
-            Err(:final error) => Center(child: Text('Error: ${error.userMessage}')),
+            Ok(:final value) =>
+              value.isEmpty
+                  ? const _EmptyDashboard()
+                  : Column(
+                      children: value
+                          .map(
+                            (instance) =>
+                                _InstanceListTile(instance: instance, ref: ref),
+                          )
+                          .toList(),
+                    ),
+            Err(:final error) => Center(
+              child: Text('Error: ${error.userMessage}'),
+            ),
           },
           loading: () => const SizedBox.shrink(),
           error: (_, _) => const SizedBox.shrink(),
@@ -140,31 +147,43 @@ class _InstanceListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: CircleAvatar(
-        child: Text(instance.serviceType.displayName[0]),
-      ),
+      leading: CircleAvatar(child: Text(instance.serviceType.displayName[0])),
       title: Text(instance.name),
       subtitle: Text(instance.serviceType.displayName),
       trailing: const Icon(Icons.chevron_right),
       onTap: () {
         if (instance.serviceType == ServiceType.radarr) {
-          ref.read(selectedLibraryInstanceIdProvider(ServiceType.radarr).notifier).selectInstance(instance.id);
+          ref
+              .read(
+                selectedLibraryInstanceIdProvider(ServiceType.radarr).notifier,
+              )
+              .selectInstance(instance.id);
           context.go(RoutePaths.library);
         } else if (instance.serviceType == ServiceType.sonarr) {
-          ref.read(selectedLibraryInstanceIdProvider(ServiceType.sonarr).notifier).selectInstance(instance.id);
+          ref
+              .read(
+                selectedLibraryInstanceIdProvider(ServiceType.sonarr).notifier,
+              )
+              .selectInstance(instance.id);
           context.go(RoutePaths.library);
         } else if (instance.serviceType == ServiceType.bazarr) {
           context.go(RoutePaths.subtitles(instance.id));
         } else if (instance.serviceType == ServiceType.qbittorrent) {
-          ref.read(selectedDownloadInstanceIdProvider.notifier).selectInstance(instance.id);
+          ref
+              .read(selectedDownloadInstanceIdProvider.notifier)
+              .selectInstance(instance.id);
           context.go(RoutePaths.downloads);
         } else if (instance.serviceType == ServiceType.uptimeKuma) {
-          ref.read(selectedUptimeInstanceIdProvider.notifier).selectInstance(instance.id);
+          ref
+              .read(selectedUptimeInstanceIdProvider.notifier)
+              .selectInstance(instance.id);
           context.go(RoutePaths.uptime);
         } else if (instance.serviceType == ServiceType.prowlarr) {
           context.go(RoutePaths.indexers(instance.id));
         } else if (instance.serviceType == ServiceType.seerr) {
-          ref.read(selectedSeerrInstanceIdProvider.notifier).selectInstance(instance.id);
+          ref
+              .read(selectedSeerrInstanceIdProvider.notifier)
+              .selectInstance(instance.id);
           context.go(RoutePaths.discover);
         }
       },

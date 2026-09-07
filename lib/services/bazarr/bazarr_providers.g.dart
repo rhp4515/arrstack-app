@@ -141,7 +141,7 @@ final class BazarrWantedProvider
   }
 }
 
-String _$bazarrWantedHash() => r'51a419bf844d416111b8cc4f6952d67e01c9e382';
+String _$bazarrWantedHash() => r'f84104ad4a7bee0553785bd578b40f243149deda';
 
 final class BazarrWantedFamily extends $Family
     with
@@ -245,3 +245,43 @@ final class BazarrStatusFamily extends $Family
   @override
   String toString() => r'bazarrStatusProvider';
 }
+
+@ProviderFor(primaryBazarrInstance)
+final primaryBazarrInstanceProvider = PrimaryBazarrInstanceProvider._();
+
+final class PrimaryBazarrInstanceProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<ServiceInstance?>,
+          ServiceInstance?,
+          FutureOr<ServiceInstance?>
+        >
+    with $FutureModifier<ServiceInstance?>, $FutureProvider<ServiceInstance?> {
+  PrimaryBazarrInstanceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'primaryBazarrInstanceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$primaryBazarrInstanceHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<ServiceInstance?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<ServiceInstance?> create(Ref ref) {
+    return primaryBazarrInstance(ref);
+  }
+}
+
+String _$primaryBazarrInstanceHash() =>
+    r'41f88a4f3f0972f02d8ff13cdeed6fdc7ac0a117';

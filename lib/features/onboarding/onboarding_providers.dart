@@ -135,10 +135,36 @@ class InstanceForm extends _$InstanceForm {
   }
 
   void updateName(String name) => state = state.copyWith(name: name);
-  void updateType(ServiceType type) => state = state.copyWith(
-        type: type,
-        authType: type.defaultAuthType,
-      );
+
+  void updateType(ServiceType type) {
+    final oldType = state.type;
+    final oldPort = oldType.defaultPort.toString();
+    final newPort = type.defaultPort.toString();
+
+    String newLocalUrl = state.localUrl;
+    if (newLocalUrl.isNotEmpty && newLocalUrl.contains(':$oldPort')) {
+      newLocalUrl = newLocalUrl.replaceAll(':$oldPort', ':$newPort');
+    }
+
+    String newRemoteUrl = state.remoteUrl;
+    if (newRemoteUrl.isNotEmpty && newRemoteUrl.contains(':$oldPort')) {
+      newRemoteUrl = newRemoteUrl.replaceAll(':$oldPort', ':$newPort');
+    }
+
+    String newName = state.name;
+    if (newName.isEmpty || newName == oldType.displayName) {
+      newName = type.displayName;
+    }
+
+    state = state.copyWith(
+      type: type,
+      name: newName,
+      authType: type.defaultAuthType,
+      localUrl: newLocalUrl,
+      remoteUrl: newRemoteUrl,
+    );
+  }
+
   void updateAuthType(AuthType authType) => state = state.copyWith(authType: authType);
   void updateLocalUrl(String url) => state = state.copyWith(localUrl: url, localTestResult: null);
   void updateRemoteUrl(String url) => state = state.copyWith(remoteUrl: url, remoteTestResult: null);
@@ -147,17 +173,32 @@ class InstanceForm extends _$InstanceForm {
   void updatePassword(String password) => state = state.copyWith(password: password);
   void updateIsDefault(bool isDefault) => state = state.copyWith(isDefault: isDefault);
 
+  String _normalizeUrl(String url, ServiceType type) {
+    var trimmed = url.trim();
+    if (trimmed.isEmpty) return '';
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+      trimmed = 'http://$trimmed';
+    }
+    final uri = Uri.tryParse(trimmed);
+    if (uri != null && uri.host.isNotEmpty && !uri.hasPort && uri.scheme != 'https') {
+      return uri.replace(port: type.defaultPort).toString();
+    }
+    return trimmed;
+  }
+
   Future<void> testLocal() async {
     if (state.localUrl.isEmpty) return;
-    state = state.copyWith(isTestingLocal: true, localTestResult: null);
-    final result = await _test(state.localUrl);
+    final normalized = _normalizeUrl(state.localUrl, state.type);
+    state = state.copyWith(localUrl: normalized, isTestingLocal: true, localTestResult: null);
+    final result = await _test(normalized);
     state = state.copyWith(isTestingLocal: false, localTestResult: result);
   }
 
   Future<void> testRemote() async {
     if (state.remoteUrl.isEmpty) return;
-    state = state.copyWith(isTestingRemote: true, remoteTestResult: null);
-    final result = await _test(state.remoteUrl);
+    final normalized = _normalizeUrl(state.remoteUrl, state.type);
+    state = state.copyWith(remoteUrl: normalized, isTestingRemote: true, remoteTestResult: null);
+    final result = await _test(normalized);
     state = state.copyWith(isTestingRemote: false, remoteTestResult: result);
   }
 
@@ -221,6 +262,14 @@ class InstanceForm extends _$InstanceForm {
   }
 
   Future<bool> save() async {
+    final normalizedLocal = _normalizeUrl(state.localUrl, state.type);
+    final normalizedRemote = _normalizeUrl(state.remoteUrl, state.type);
+
+    state = state.copyWith(
+      localUrl: normalizedLocal,
+      remoteUrl: normalizedRemote,
+    );
+
     if (!state.isValid) return false;
     state = state.copyWith(isSaving: true, saveError: null);
 
@@ -232,8 +281,8 @@ class InstanceForm extends _$InstanceForm {
       name: state.name,
       serviceType: state.type,
       authType: state.authType,
-      localBaseUrl: state.localUrl.isNotEmpty ? state.localUrl : null,
-      remoteBaseUrl: state.remoteUrl.isNotEmpty ? state.remoteUrl : null,
+      localBaseUrl: normalizedLocal.isNotEmpty ? normalizedLocal : null,
+      remoteBaseUrl: normalizedRemote.isNotEmpty ? normalizedRemote : null,
       isDefault: state.isDefault,
       endpointMode: EndpointMode.auto,
     );

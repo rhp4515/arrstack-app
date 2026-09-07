@@ -9,6 +9,7 @@ import 'package:arrstack/features/dashboard/dashboard_page.dart';
 import 'package:arrstack/features/discover/discover_detail_page.dart';
 import 'package:arrstack/features/discover/discover_page.dart';
 import 'package:arrstack/features/downloads/downloads_page.dart';
+import 'package:arrstack/features/indexers/indexers_page.dart';
 import 'package:arrstack/features/library/add_movie_page.dart';
 import 'package:arrstack/features/library/add_series_page.dart';
 import 'package:arrstack/features/library/episode_detail_page.dart';
@@ -37,6 +38,12 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: 'subtitles/:instanceId',
                   builder: (context, state) => SubtitlesPage(
+                    instanceId: state.pathParameters['instanceId']!,
+                  ),
+                ),
+                GoRoute(
+                  path: 'indexers/:instanceId',
+                  builder: (context, state) => IndexersPage(
                     instanceId: state.pathParameters['instanceId']!,
                   ),
                 ),

@@ -8,7 +8,7 @@ part of 'seerr_models.dart';
 
 _SeerrResult _$SeerrResultFromJson(Map<String, dynamic> json) => _SeerrResult(
   id: (json['id'] as num).toInt(),
-  mediaType: json['mediaType'] as String,
+  mediaType: json['mediaType'] as String? ?? 'movie',
   title: json['title'] as String?,
   name: json['name'] as String?,
   posterPath: json['posterPath'] as String?,
@@ -40,12 +40,14 @@ Map<String, dynamic> _$SeerrResultToJson(_SeerrResult instance) =>
 _SeerrMediaInfo _$SeerrMediaInfoFromJson(Map<String, dynamic> json) =>
     _SeerrMediaInfo(
       id: (json['id'] as num).toInt(),
-      tmdbId: (json['tmdbId'] as num).toInt(),
+      tmdbId: (json['tmdbId'] as num?)?.toInt(),
       tvdbId: (json['tvdbId'] as num?)?.toInt(),
-      status: (json['status'] as num).toInt(),
-      requests: (json['requests'] as List<dynamic>)
-          .map((e) => SeerrRequest.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      status: (json['status'] as num?)?.toInt() ?? 1,
+      requests:
+          (json['requests'] as List<dynamic>?)
+              ?.map((e) => SeerrRequest.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$SeerrMediaInfoToJson(_SeerrMediaInfo instance) =>
@@ -60,10 +62,14 @@ Map<String, dynamic> _$SeerrMediaInfoToJson(_SeerrMediaInfo instance) =>
 _SeerrRequest _$SeerrRequestFromJson(Map<String, dynamic> json) =>
     _SeerrRequest(
       id: (json['id'] as num).toInt(),
-      status: (json['status'] as num).toInt(),
-      mediaType: (json['mediaType'] as num).toInt(),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      status: (json['status'] as num?)?.toInt() ?? 1,
+      mediaType: (json['mediaType'] as num?)?.toInt() ?? 1,
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
     );
 
 Map<String, dynamic> _$SeerrRequestToJson(_SeerrRequest instance) =>
@@ -71,19 +77,21 @@ Map<String, dynamic> _$SeerrRequestToJson(_SeerrRequest instance) =>
       'id': instance.id,
       'status': instance.status,
       'mediaType': instance.mediaType,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
+      'createdAt': instance.createdAt?.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
     };
 
 _SeerrDiscoveryResponse _$SeerrDiscoveryResponseFromJson(
   Map<String, dynamic> json,
 ) => _SeerrDiscoveryResponse(
-  page: (json['page'] as num).toInt(),
-  totalPages: (json['totalPages'] as num).toInt(),
-  totalResults: (json['totalResults'] as num).toInt(),
-  results: (json['results'] as List<dynamic>)
-      .map((e) => SeerrResult.fromJson(e as Map<String, dynamic>))
-      .toList(),
+  page: (json['page'] as num?)?.toInt() ?? 1,
+  totalPages: (json['totalPages'] as num?)?.toInt() ?? 1,
+  totalResults: (json['totalResults'] as num?)?.toInt() ?? 0,
+  results:
+      (json['results'] as List<dynamic>?)
+          ?.map((e) => SeerrResult.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$SeerrDiscoveryResponseToJson(

@@ -1,13 +1,6 @@
 // QbitClient torrent-control calls against qBittorrent 5.0+.
-//
-// Two breaking changes verified here:
-// - `torrents/pause` and `torrents/resume` were hard-renamed to
-//   `torrents/stop` and `torrents/start` in qBittorrent 5.0 (the old paths
-//   404 on 5.0+, they are not aliased).
-// - State-changing endpoints read `hashes`/`deleteFiles` from the POST body,
-//   not the query string; sending them as queryParameters yields a 400
-//   because the server sees `hashes` as missing.
 
+import 'package:arrstack/core/network/app_error.dart';
 import 'package:arrstack/services/qbittorrent/qbit_client.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,6 +15,39 @@ void main() {
     dio = Dio(BaseOptions(baseUrl: 'http://example.test'));
     adapter = DioAdapter(dio: dio);
     client = QbitClient(dio);
+  });
+
+  test('login parses SID cookie and sets session state', () async {
+    adapter.onPost(
+      'api/v2/auth/login',
+      (server) => server.reply(
+        200,
+        'Ok.',
+        headers: {
+          'set-cookie': ['SID=test_sid_value; path=/; HttpOnly'],
+        },
+      ),
+      data: Matchers.any,
+    );
+
+    final result = await client.login('admin', 'password');
+
+    expect(result.isOk, isTrue);
+    expect(client.hasSession, isTrue);
+  });
+
+  test('login returning Fails. returns AuthError', () async {
+    adapter.onPost(
+      'api/v2/auth/login',
+      (server) => server.reply(200, 'Fails.'),
+      data: Matchers.any,
+    );
+
+    final result = await client.login('admin', 'wrong_password');
+
+    expect(result.isErr, isTrue);
+    expect(result.errorOrNull, isA<AuthError>());
+    expect(client.hasSession, isFalse);
   });
 
   test('stopTorrents posts to torrents/stop with hashes in the body', () async {

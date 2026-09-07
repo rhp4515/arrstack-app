@@ -40,6 +40,12 @@ class QbitRepository {
   Future<Result<T>> _authenticatedCall<T>(
     Future<Result<T>> Function() call,
   ) async {
+    // Proactively log in if using cookie-based username/password auth and no session exists yet.
+    if (_credential is UsernamePasswordCredential && !_client.hasSession) {
+      final loginResult = await _ensureLoggedIn();
+      if (loginResult is Err) return Err(loginResult.error);
+    }
+
     final result = await call();
     // Only a cookie session can be recovered by logging in again. API-key
     // (Bearer) auth is stateless, so an AuthError there means a bad/missing

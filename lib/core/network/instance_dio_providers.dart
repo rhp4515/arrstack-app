@@ -69,17 +69,23 @@ Future<Result<Dio>> dioForInstance(Ref ref, String instanceId) async {
   if (resolutionResult is Err<EndpointResolution>) return Err(resolutionResult.error);
   final resolution = (resolutionResult as Ok<EndpointResolution>).value;
 
+  final instanceResult = await ref.watch(serviceInstanceProvider(instanceId).future);
+  if (instanceResult is Err<ServiceInstance>) return Err(instanceResult.error);
+  final instance = (instanceResult as Ok<ServiceInstance>).value;
+
   final credential = await ref.watch(serviceCredentialProvider(instanceId).future);
 
-  // Build the ApiKeyInterceptor only if the credential is an API key.
+  // Build the ApiKeyInterceptor only if the service uses API keys via X-Api-Key.
   // Cookie-based (qBittorrent) or Socket (Uptime Kuma) auth services
   // handle their own auth interceptors or flows in their modules.
-  final apiKeyInterceptor = switch (credential) {
-    ApiKeyCredential(:final apiKey) => ApiKeyInterceptor(
-        lookupApiKey: () async => apiKey,
-      ),
-    _ => null,
-  };
+  final isXApiKeyService = instance.serviceType != ServiceType.qbittorrent &&
+      instance.serviceType != ServiceType.uptimeKuma;
+
+  final apiKeyInterceptor = isXApiKeyService && credential is ApiKeyCredential
+      ? ApiKeyInterceptor(
+          lookupApiKey: () async => credential.apiKey,
+        )
+      : null;
 
   return Ok(const DioFactory().create(
     baseUrl: resolution.baseUrl,

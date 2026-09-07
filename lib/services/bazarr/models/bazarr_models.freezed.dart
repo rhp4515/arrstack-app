@@ -219,7 +219,7 @@ return $default(_that.title,_that.type,_that.seriesTitle,_that.seasonNumber,_tha
 @JsonSerializable()
 
 class _BazarrWantedSubtitle implements BazarrWantedSubtitle {
-  const _BazarrWantedSubtitle({required this.title, this.type = 'episode', this.seriesTitle, this.seasonNumber, this.episodeNumber,  List<String> languages = const [], required this.path, @JsonKey(name: 'radarrId') this.radarrId, @JsonKey(name: 'sonarrId') this.sonarrId, @JsonKey(name: 'episode_id') this.episodeId}): _languages = languages;
+  const _BazarrWantedSubtitle({required this.title, this.type = 'episode', this.seriesTitle, this.seasonNumber, this.episodeNumber,  List<String> languages = const [], this.path = '', @JsonKey(name: 'radarrId') this.radarrId, @JsonKey(name: 'sonarrId') this.sonarrId, @JsonKey(name: 'episode_id') this.episodeId}): _languages = languages;
   factory _BazarrWantedSubtitle.fromJson(Map<String, dynamic> json) => _$BazarrWantedSubtitleFromJson(json);
 
 @override final  String title;
@@ -234,7 +234,7 @@ class _BazarrWantedSubtitle implements BazarrWantedSubtitle {
   return EqualUnmodifiableListView(_languages);
 }
 
-@override final  String path;
+@override@JsonKey() final  String path;
 @override@JsonKey(name: 'radarrId') final  int? radarrId;
 @override@JsonKey(name: 'sonarrId') final  int? sonarrId;
 @override@JsonKey(name: 'episode_id') final  int? episodeId;
@@ -508,11 +508,11 @@ return $default(_that.version,_that.branch,_that.appName);case _:
 @JsonSerializable()
 
 class _BazarrSystemStatus implements BazarrSystemStatus {
-  const _BazarrSystemStatus({required this.version, required this.branch, @JsonKey(name: 'app_name') this.appName = 'Bazarr'});
+  const _BazarrSystemStatus({this.version = '', this.branch = '', @JsonKey(name: 'app_name') this.appName = 'Bazarr'});
   factory _BazarrSystemStatus.fromJson(Map<String, dynamic> json) => _$BazarrSystemStatusFromJson(json);
 
-@override final  String version;
-@override final  String branch;
+@override@JsonKey() final  String version;
+@override@JsonKey() final  String branch;
 @override@JsonKey(name: 'app_name') final  String appName;
 
 /// Create a copy of BazarrSystemStatus

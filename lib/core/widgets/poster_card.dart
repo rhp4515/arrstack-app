@@ -1,8 +1,4 @@
-/// A shared poster-forward card for movies/series (spec §5, §8).
-///
-/// Displays a high-quality poster image with a consistent corner radius,
-/// aspect ratio, and loading/error fallbacks.
-library;
+import 'dart:developer' as developer;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -11,8 +7,9 @@ import 'package:flutter/material.dart';
 class PosterCard extends StatelessWidget {
   const PosterCard({
     required this.imageUrl,
-    this.title,
     super.key,
+    this.title,
+    this.subtitle,
     this.onTap,
     this.aspectRatio = 2 / 3,
     this.monitored = true,
@@ -20,6 +17,7 @@ class PosterCard extends StatelessWidget {
 
   final String imageUrl;
   final String? title;
+  final String? subtitle;
   final VoidCallback? onTap;
   final double aspectRatio;
   final bool monitored;
@@ -27,10 +25,10 @@ class PosterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final title = this.title;
 
     return Card(
       clipBehavior: Clip.antiAlias,
+      elevation: 2,
       child: InkWell(
         onTap: onTap,
         child: AspectRatio(
@@ -43,8 +41,10 @@ class PosterCard extends StatelessWidget {
                 fit: BoxFit.cover,
                 placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
                 errorWidget: (context, url, error) {
-                  // ignore: avoid_print
-                  print('PosterCard Image Load Error: $error | URL: $url');
+                  developer.log(
+                    'PosterCard Image Load Error: $error | URL: $url',
+                    name: 'arrstack.ui',
+                  );
                   return Container(
                     color: theme.colorScheme.surfaceContainerHighest,
                     padding: AppInsets.pageMd,
@@ -58,13 +58,13 @@ class PosterCard extends StatelessWidget {
                         if (title != null) ...[
                           const SizedBox(height: AppSpacing.sm),
                           Text(
-                            title,
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.bodySmall?.copyWith(
+                            title!,
+                            style: theme.textTheme.labelMedium?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
                           ),
                         ],
                       ],
@@ -73,11 +73,7 @@ class PosterCard extends StatelessWidget {
                 },
               ),
               if (!monitored)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
+                Positioned.fill(
                   child: Container(
                     color: Colors.black45,
                     child: const Center(
@@ -85,6 +81,50 @@ class PosterCard extends StatelessWidget {
                         Icons.bookmark_remove_outlined,
                         color: Colors.white70,
                       ),
+                    ),
+                  ),
+                ),
+              if (title != null || subtitle != null)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withValues(alpha: 0.8),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(AppSpacing.sm),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (title != null)
+                          Text(
+                            title!,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        if (subtitle != null)
+                          Text(
+                            subtitle!,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: Colors.white70,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
                     ),
                   ),
                 ),

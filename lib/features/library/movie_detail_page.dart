@@ -12,6 +12,8 @@ import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/widgets/detail_chip.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/core/widgets/resolved_poster.dart';
+import 'package:arrstack/services/bazarr/bazarr_providers.dart';
+import 'package:arrstack/services/bazarr/models/bazarr_models.dart';
 import 'package:arrstack/services/radarr/models/radarr_models.dart';
 import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:flutter/material.dart';
@@ -97,7 +99,8 @@ class _MovieDetailContentState extends ConsumerState<_MovieDetailContent> {
                 value: 'monitor',
                 child: Text(movie.monitored ? 'Unmonitor' : 'Monitor'),
               ),
-              const PopupMenuItem(value: 'search', child: Text('Search')),
+              const PopupMenuItem(value: 'search', child: Text('Search Movie')),
+              const PopupMenuItem(value: 'subtitles', child: Text('Search Subtitles (Bazarr)')),
               const PopupMenuItem(value: 'delete', child: Text('Delete')),
             ],
           ),
@@ -172,8 +175,44 @@ class _MovieDetailContentState extends ConsumerState<_MovieDetailContent> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Search command coming soon.')),
         );
+      case 'subtitles':
+        await _searchSubtitlesInBazarr();
       case 'delete':
         await _deleteMovie();
+    }
+  }
+
+  Future<void> _searchSubtitlesInBazarr() async {
+    final bazarrInstance = await ref.read(primaryBazarrInstanceProvider.future);
+    if (bazarrInstance == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No Bazarr instance configured in the app.')),
+        );
+      }
+      return;
+    }
+
+    setState(() => _isProcessing = true);
+    final repo = await ref.read(bazarrRepositoryProvider(bazarrInstance.id).future);
+    final result = await repo.searchSubtitle(BazarrWantedSubtitle(
+      title: movie.title,
+      type: 'movie',
+      radarrId: movie.id,
+      path: '',
+    ));
+
+    if (!mounted) return;
+    setState(() => _isProcessing = false);
+
+    if (result.isOk) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Subtitle search triggered in Bazarr for "${movie.title}"')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Bazarr search failed: ${result.errorOrNull?.userMessage}')),
+      );
     }
   }
 

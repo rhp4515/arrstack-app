@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/services/contracts/contracts.dart';
@@ -25,21 +27,57 @@ class SeerrClient implements ConnectionTestClient {
   Future<Result<List<SeerrResult>>> getDiscoverMovies() {
     return dioCall(
       () => _dio.get('api/v1/discover/movies'),
-      map: (data) => SeerrDiscoveryResponse.fromJson(data as Map<String, dynamic>).results,
+      map: (data) {
+        try {
+          return SeerrDiscoveryResponse.fromJson(data as Map<String, dynamic>).results;
+        } catch (e, st) {
+          developer.log(
+            'Seerr getDiscoverMovies parse error: $e',
+            name: 'arrstack.seerr',
+            error: e,
+            stackTrace: st,
+          );
+          rethrow;
+        }
+      },
     );
   }
 
   Future<Result<List<SeerrResult>>> getDiscoverTv() {
     return dioCall(
       () => _dio.get('api/v1/discover/tv'),
-      map: (data) => SeerrDiscoveryResponse.fromJson(data as Map<String, dynamic>).results,
+      map: (data) {
+        try {
+          return SeerrDiscoveryResponse.fromJson(data as Map<String, dynamic>).results;
+        } catch (e, st) {
+          developer.log(
+            'Seerr getDiscoverTv parse error: $e',
+            name: 'arrstack.seerr',
+            error: e,
+            stackTrace: st,
+          );
+          rethrow;
+        }
+      },
     );
   }
 
   Future<Result<List<SeerrResult>>> search(String query) {
     return dioCall(
       () => _dio.get('api/v1/search', queryParameters: {'query': query}),
-      map: (data) => SeerrDiscoveryResponse.fromJson(data as Map<String, dynamic>).results,
+      map: (data) {
+        try {
+          return SeerrDiscoveryResponse.fromJson(data as Map<String, dynamic>).results;
+        } catch (e, st) {
+          developer.log(
+            'Seerr search parse error: $e',
+            name: 'arrstack.seerr',
+            error: e,
+            stackTrace: st,
+          );
+          rethrow;
+        }
+      },
     );
   }
 

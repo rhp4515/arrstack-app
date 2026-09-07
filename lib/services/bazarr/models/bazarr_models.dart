@@ -16,7 +16,7 @@ abstract class BazarrWantedSubtitle with _$BazarrWantedSubtitle {
     int? seasonNumber,
     int? episodeNumber,
     @Default([]) List<String> languages,
-    required String path,
+    @Default('') String path,
     @JsonKey(name: 'radarrId') int? radarrId,
     @JsonKey(name: 'sonarrId') int? sonarrId,
     @JsonKey(name: 'episode_id') int? episodeId,
@@ -30,8 +30,8 @@ abstract class BazarrWantedSubtitle with _$BazarrWantedSubtitle {
 @freezed
 abstract class BazarrSystemStatus with _$BazarrSystemStatus {
   const factory BazarrSystemStatus({
-    required String version,
-    required String branch,
+    @Default('') String version,
+    @Default('') String branch,
     @JsonKey(name: 'app_name') @Default('Bazarr') String appName,
   }) = _BazarrSystemStatus;
 

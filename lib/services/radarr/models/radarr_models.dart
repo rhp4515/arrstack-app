@@ -144,6 +144,51 @@ abstract class RadarrQuality with _$RadarrQuality {
       _$RadarrQualityFromJson(json);
 }
 
+/// One release from Radarr's interactive search (`GET /api/v3/release?movieId=`).
+@freezed
+abstract class RadarrRelease with _$RadarrRelease {
+  const factory RadarrRelease({
+    @Default('') String guid,
+    @Default('') String title,
+    @Default(0) int size,
+    @Default(0) int indexerId,
+    String? indexer,
+    int? seeders,
+    int? leechers,
+    String? protocol,
+    RadarrQualityInfo? quality,
+    int? qualityWeight,
+    num? ageMinutes,
+    @Default(false) bool rejected,
+    @JsonKey(fromJson: _rejectionsFromJson)
+    @Default(<String>[])
+    List<String> rejections,
+    String? releaseGroup,
+    @Default(true) bool downloadAllowed,
+    int? customFormatScore,
+  }) = _RadarrRelease;
+
+  factory RadarrRelease.fromJson(Map<String, dynamic> json) =>
+      _$RadarrReleaseFromJson(json);
+}
+
+/// Radarr v3 returns `rejections` as `List<String>`; newer Radarr returns
+/// `[{reason, type}]`. Normalise both to a list of reason strings.
+List<String> _rejectionsFromJson(dynamic raw) {
+  if (raw is! List) {
+    return const [];
+  }
+  return raw.map((e) {
+    if (e is String) {
+      return e;
+    }
+    if (e is Map) {
+      return (e['reason'] ?? e).toString();
+    }
+    return e.toString();
+  }).toList();
+}
+
 /// Aggregate ratings for a movie from various providers.
 @freezed
 abstract class RadarrRatings with _$RadarrRatings {

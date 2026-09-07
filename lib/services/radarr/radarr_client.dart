@@ -89,6 +89,51 @@ class RadarrClient implements ConnectionTestClient {
     );
   }
 
+  /// Interactive search: query every indexer for releases matching
+  /// [movieId]. Slow — uses a 90s receive timeout instead of the default.
+  Future<Result<List<RadarrRelease>>> searchMovieReleases(int movieId) {
+    return dioCall(
+      () => _dio.get(
+        'api/v3/release',
+        queryParameters: {'movieId': movieId},
+        options: Options(receiveTimeout: const Duration(seconds: 90)),
+      ),
+      map: (data) {
+        if (data is! List) return <RadarrRelease>[];
+        return data
+            .map((json) {
+              try {
+                return RadarrRelease.fromJson(json as Map<String, dynamic>);
+              } catch (e, st) {
+                developer.log(
+                  'RadarrRelease parse error: $e',
+                  name: 'arrstack.radarr',
+                  error: e,
+                  stackTrace: st,
+                );
+                return null;
+              }
+            })
+            .whereType<RadarrRelease>()
+            .toList();
+      },
+    );
+  }
+
+  /// Send a chosen release to the download client.
+  Future<Result<void>> grabRelease({
+    required String guid,
+    required int indexerId,
+  }) {
+    return dioCall(
+      () => _dio.post(
+        'api/v3/release',
+        data: {'guid': guid, 'indexerId': indexerId},
+      ),
+      map: (_) {},
+    );
+  }
+
   Future<Result<RadarrMovie>> addMovie(RadarrMovie movie) {
     final payload = movie.toJson();
     // Radarr v3 often fails if 'id' is present (even as null/0) during POST

@@ -29,6 +29,14 @@ class RadarrRepository {
   Future<Result<void>> deleteMovie(int id, {bool deleteFiles = false}) =>
       _client.deleteMovie(id, deleteFiles: deleteFiles);
 
+  Future<Result<List<RadarrRelease>>> searchMovieReleases(int movieId) =>
+      _client.searchMovieReleases(movieId);
+
+  Future<Result<void>> grabRelease({
+    required String guid,
+    required int indexerId,
+  }) => _client.grabRelease(guid: guid, indexerId: indexerId);
+
   Future<Result<List<RadarrMovie>>> listCalendar(
     DateTime start,
     DateTime end,

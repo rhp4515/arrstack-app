@@ -32,6 +32,14 @@ class SonarrRepository {
   Future<Result<List<SonarrEpisode>>> listEpisodes(int seriesId) =>
       _client.getEpisodes(seriesId);
 
+  Future<Result<List<SonarrRelease>>> searchEpisodeReleases(int episodeId) =>
+      _client.searchEpisodeReleases(episodeId);
+
+  Future<Result<void>> grabRelease({
+    required String guid,
+    required int indexerId,
+  }) => _client.grabRelease(guid: guid, indexerId: indexerId);
+
   Future<Result<List<SonarrCalendarEpisode>>> listCalendar(
     DateTime start,
     DateTime end,

@@ -4,6 +4,7 @@ library;
 
 import 'package:arrstack/app/app_shell.dart';
 import 'package:arrstack/app/route_paths.dart';
+import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/features/calendar/calendar_page.dart';
 import 'package:arrstack/features/dashboard/dashboard_page.dart';
 import 'package:arrstack/features/discover/discover_detail_page.dart';
@@ -18,6 +19,7 @@ import 'package:arrstack/features/library/library_page.dart';
 import 'package:arrstack/features/library/movie_detail_page.dart';
 import 'package:arrstack/features/library/series_detail_page.dart';
 import 'package:arrstack/features/onboarding/add_instance_page.dart';
+import 'package:arrstack/features/release_search/release_search_page.dart';
 import 'package:arrstack/features/settings/settings_page.dart';
 import 'package:arrstack/features/subtitles/subtitles_page.dart';
 import 'package:arrstack/features/uptime/uptime_page.dart';
@@ -64,6 +66,17 @@ final GoRouter appRouter = GoRouter(
                     instanceId: state.pathParameters['instanceId']!,
                     movieId: int.parse(state.pathParameters['movieId']!),
                   ),
+                  routes: [
+                    GoRoute(
+                      path: 'search',
+                      builder: (context, state) => ReleaseSearchPage(
+                        service: ServiceType.radarr,
+                        instanceId: state.pathParameters['instanceId']!,
+                        targetId: int.parse(state.pathParameters['movieId']!),
+                        title: state.uri.queryParameters['title'] ?? 'Movie',
+                      ),
+                    ),
+                  ],
                 ),
                 GoRoute(
                   path: 'radarr/:instanceId/add',
@@ -87,6 +100,20 @@ final GoRouter appRouter = GoRouter(
                           state.pathParameters['episodeId']!,
                         ),
                       ),
+                      routes: [
+                        GoRoute(
+                          path: 'search',
+                          builder: (context, state) => ReleaseSearchPage(
+                            service: ServiceType.sonarr,
+                            instanceId: state.pathParameters['instanceId']!,
+                            targetId: int.parse(
+                              state.pathParameters['episodeId']!,
+                            ),
+                            title:
+                                state.uri.queryParameters['title'] ?? 'Episode',
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

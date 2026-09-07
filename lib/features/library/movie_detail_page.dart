@@ -6,6 +6,7 @@
 /// actions live in the top-right overflow menu.
 library;
 
+import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/network/network.dart';
@@ -19,6 +20,7 @@ import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class MovieDetailPage extends ConsumerWidget {
   const MovieDetailPage({
@@ -179,8 +181,12 @@ class _MovieDetailContentState extends ConsumerState<_MovieDetailContent> {
       case 'monitor':
         await _toggleMonitored();
       case 'search':
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Search command coming soon.')),
+        context.go(
+          RoutePaths.movieReleaseSearch(
+            widget.instanceId,
+            movie.id!,
+            '${movie.title} (${movie.year})',
+          ),
         );
       case 'subtitles':
         await _searchSubtitlesInBazarr();

@@ -38,4 +38,19 @@ abstract final class FormatUtils {
     final host = Uri.tryParse(tracker)?.host;
     return (host == null || host.isEmpty) ? null : host;
   }
+
+  /// Compact age for a search release: "42m", "3h", "5d". Non-positive
+  /// values render as "just now".
+  static String formatReleaseAge(int minutes) {
+    if (minutes <= 0) {
+      return 'just now';
+    }
+    if (minutes < 60) {
+      return '${minutes}m';
+    }
+    if (minutes < 60 * 24) {
+      return '${minutes ~/ 60}h';
+    }
+    return '${minutes ~/ (60 * 24)}d';
+  }
 }

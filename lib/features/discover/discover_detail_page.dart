@@ -28,10 +28,11 @@ class DiscoverDetailPage extends ConsumerWidget {
 
     return effectiveIdAsync.when(
       data: (finalId) {
-        if (finalId == null)
+        if (finalId == null) {
           return const Scaffold(
             body: Center(child: Text('No instance selected')),
           );
+        }
 
         final detailAsync = ref.watch(
           seerrDetailProvider(

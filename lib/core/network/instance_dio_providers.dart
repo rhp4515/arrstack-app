@@ -72,8 +72,9 @@ Future<Result<Dio>> dioForInstance(Ref ref, String instanceId) async {
   final resolutionResult = await ref.watch(
     resolvedEndpointProvider(instanceId).future,
   );
-  if (resolutionResult is Err<EndpointResolution>)
+  if (resolutionResult is Err<EndpointResolution>) {
     return Err(resolutionResult.error);
+  }
   final resolution = (resolutionResult as Ok<EndpointResolution>).value;
 
   final instanceResult = await ref.watch(

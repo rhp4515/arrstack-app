@@ -65,10 +65,11 @@ class _DiscoverPageState extends ConsumerState<DiscoverPage> {
         return instanceIdAsync.when(
           data: (id) {
             final finalId = widget.instanceId ?? id;
-            if (finalId == null)
+            if (finalId == null) {
               return const Scaffold(
                 body: Center(child: Text('No instance selected')),
               );
+            }
 
             return Scaffold(
               appBar: AppBar(

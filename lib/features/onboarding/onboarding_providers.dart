@@ -389,10 +389,11 @@ class KumaTestClient implements ConnectionTestClient {
       final isConnected = await client.connectionStream
           .firstWhere((c) => c)
           .timeout(const Duration(seconds: 5), onTimeout: () => false);
-      if (!isConnected)
+      if (!isConnected) {
         return const Err(
           NetworkError(userMessage: 'Could not connect to socket.'),
         );
+      }
 
       final cred = credential;
       final Result<void> loginResult = await switch (cred) {

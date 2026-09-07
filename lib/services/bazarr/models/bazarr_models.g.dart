@@ -17,7 +17,7 @@ _BazarrWantedSubtitle _$BazarrWantedSubtitleFromJson(
   languages:
       (json['languages'] as List<dynamic>?)?.map((e) => e as String).toList() ??
       const [],
-  path: json['path'] as String,
+  path: json['path'] as String? ?? '',
   radarrId: (json['radarrId'] as num?)?.toInt(),
   sonarrId: (json['sonarrId'] as num?)?.toInt(),
   episodeId: (json['episode_id'] as num?)?.toInt(),
@@ -40,8 +40,8 @@ Map<String, dynamic> _$BazarrWantedSubtitleToJson(
 
 _BazarrSystemStatus _$BazarrSystemStatusFromJson(Map<String, dynamic> json) =>
     _BazarrSystemStatus(
-      version: json['version'] as String,
-      branch: json['branch'] as String,
+      version: json['version'] as String? ?? '',
+      branch: json['branch'] as String? ?? '',
       appName: json['app_name'] as String? ?? 'Bazarr',
     );
 

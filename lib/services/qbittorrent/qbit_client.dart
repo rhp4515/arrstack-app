@@ -3,6 +3,8 @@
 /// Handles cookie-based session management and torrent management endpoints.
 library;
 
+import 'dart:developer' as developer;
+
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/services/contracts/contracts.dart';
@@ -14,6 +16,8 @@ class QbitClient implements ConnectionTestClient {
 
   final Dio _dio;
   String? _sid;
+
+  bool get hasSession => _sid != null;
 
   @override
   Future<Result<ServiceIdentity>> testConnection() async {
@@ -46,7 +50,17 @@ class QbitClient implements ConnectionTestClient {
       ),
     );
 
-    return result.map((response) {
+    return result.flatMap((response) {
+      final body = response.data.toString().trim();
+      if (body == 'Fails.') {
+        developer.log('qBittorrent login returned "Fails."', name: 'arrstack.qbit');
+        return const Err(
+          AuthError(
+            userMessage: 'qBittorrent login failed. Check username and password.',
+          ),
+        );
+      }
+
       final cookies = response.headers['set-cookie'];
       if (cookies != null) {
         for (final cookie in cookies) {
@@ -57,10 +71,22 @@ class QbitClient implements ConnectionTestClient {
           final name = pair.split('=').first;
           if (name == 'SID' || name.startsWith('QBT_SID')) {
             _sid = pair;
-            break;
+            developer.log('qBittorrent session cookie acquired ($name)', name: 'arrstack.qbit');
+            return const Ok(null);
           }
         }
       }
+
+      if (_sid == null) {
+        developer.log('qBittorrent login succeeded but no SID cookie was returned', name: 'arrstack.qbit');
+        return const Err(
+          AuthError(
+            userMessage: 'qBittorrent login failed to return session cookie.',
+          ),
+        );
+      }
+
+      return const Ok(null);
     });
   }
 
@@ -74,9 +100,13 @@ class QbitClient implements ConnectionTestClient {
             .map((json) {
               try {
                 return QbitTorrent.fromJson(json);
-              } catch (e) {
-                // ignore: avoid_print
-                print('QbitTorrent parse error: $e');
+              } catch (e, st) {
+                developer.log(
+                  'QbitTorrent parse error: $e',
+                  name: 'arrstack.qbit',
+                  error: e,
+                  stackTrace: st,
+                );
                 return null;
               }
             })
@@ -147,12 +177,14 @@ class QbitClient implements ConnectionTestClient {
     );
   }
 
-  /// Injects the SID cookie if we have one.
+  /// Injects the SID cookie and Referer header if we have one.
   Interceptor get cookieInterceptor => InterceptorsWrapper(
     onRequest: (options, handler) {
       if (_sid != null) {
         options.headers['Cookie'] = _sid;
       }
+      final referer = options.baseUrl.replaceAll(RegExp(r'/$'), '');
+      options.headers['Referer'] = referer;
       handler.next(options);
     },
   );
@@ -163,6 +195,8 @@ class QbitClient implements ConnectionTestClient {
   static Interceptor bearerInterceptor(String apiKey) => InterceptorsWrapper(
     onRequest: (options, handler) {
       options.headers['Authorization'] = 'Bearer $apiKey';
+      final referer = options.baseUrl.replaceAll(RegExp(r'/$'), '');
+      options.headers['Referer'] = referer;
       handler.next(options);
     },
   );

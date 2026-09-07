@@ -1,6 +1,8 @@
 /// API client for Bazarr.
 library;
 
+import 'dart:developer' as developer;
+
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/services/bazarr/models/bazarr_models.dart';
@@ -37,9 +39,13 @@ class BazarrClient implements ConnectionTestClient {
                   ...json,
                   'type': 'episode',
                 });
-              } catch (e) {
-                // ignore: avoid_print
-                print('Bazarr episode parse error: $e');
+              } catch (e, st) {
+                developer.log(
+                  'Bazarr episode parse error: $e',
+                  name: 'arrstack.bazarr',
+                  error: e,
+                  stackTrace: st,
+                );
                 return null;
               }
             })
@@ -62,9 +68,13 @@ class BazarrClient implements ConnectionTestClient {
                   ...json,
                   'type': 'movie',
                 });
-              } catch (e) {
-                // ignore: avoid_print
-                print('Bazarr movie parse error: $e');
+              } catch (e, st) {
+                developer.log(
+                  'Bazarr movie parse error: $e',
+                  name: 'arrstack.bazarr',
+                  error: e,
+                  stackTrace: st,
+                );
                 return null;
               }
             })

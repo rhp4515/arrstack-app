@@ -43,6 +43,12 @@ sealed class Result<T> {
     Err<T>(:final error) => Err<R>(error),
   };
 
+  /// Transforms the success value into a new [Result]; passes an [Err] through unchanged.
+  Result<R> flatMap<R>(Result<R> Function(T value) transform) => switch (this) {
+    Ok<T>(:final value) => transform(value),
+    Err<T>(:final error) => Err<R>(error),
+  };
+
   /// Transforms the error; passes an [Ok] through unchanged.
   Result<T> mapError(AppError Function(AppError error) transform) =>
       switch (this) {

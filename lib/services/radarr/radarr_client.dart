@@ -3,6 +3,8 @@
 /// Implements the endpoints needed for library management and lookup.
 library;
 
+import 'dart:developer' as developer;
+
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/services/contracts/contracts.dart';
@@ -38,9 +40,13 @@ class RadarrClient implements ConnectionTestClient {
             .map((json) {
               try {
                 return RadarrMovie.fromJson(json);
-              } catch (e) {
-                // ignore: avoid_print
-                print('RadarrMovie parse error: $e');
+              } catch (e, st) {
+                developer.log(
+                  'RadarrMovie parse error: $e',
+                  name: 'arrstack.radarr',
+                  error: e,
+                  stackTrace: st,
+                );
                 return null;
               }
             })
@@ -67,9 +73,13 @@ class RadarrClient implements ConnectionTestClient {
             .map((json) {
               try {
                 return RadarrMovie.fromJson(json);
-              } catch (e) {
-                // ignore: avoid_print
-                print('RadarrMovie lookup parse error: $e');
+              } catch (e, st) {
+                developer.log(
+                  'RadarrMovie lookup parse error: $e',
+                  name: 'arrstack.radarr',
+                  error: e,
+                  stackTrace: st,
+                );
                 return null;
               }
             })
@@ -126,9 +136,13 @@ class RadarrClient implements ConnectionTestClient {
             .map((json) {
               try {
                 return RadarrMovie.fromJson(json);
-              } catch (e) {
-                // ignore: avoid_print
-                print('RadarrMovie calendar parse error: $e');
+              } catch (e, st) {
+                developer.log(
+                  'RadarrMovie calendar parse error: $e',
+                  name: 'arrstack.radarr',
+                  error: e,
+                  stackTrace: st,
+                );
                 return null;
               }
             })
@@ -170,9 +184,13 @@ class RadarrClient implements ConnectionTestClient {
             .map((json) {
               try {
                 return RadarrQueueItem.fromJson(json);
-              } catch (e) {
-                // ignore: avoid_print
-                print('RadarrQueueItem parse error: $e');
+              } catch (e, st) {
+                developer.log(
+                  'RadarrQueueItem parse error: $e',
+                  name: 'arrstack.radarr',
+                  error: e,
+                  stackTrace: st,
+                );
                 return null;
               }
             })

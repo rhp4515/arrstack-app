@@ -27,6 +27,17 @@ enum ServiceType {
     ServiceType.seerr => 'Seerr',
   };
 
+  /// Default HTTP port for this service.
+  int get defaultPort => switch (this) {
+    ServiceType.sonarr => 8989,
+    ServiceType.radarr => 7878,
+    ServiceType.bazarr => 6767,
+    ServiceType.prowlarr => 9696,
+    ServiceType.qbittorrent => 8090,
+    ServiceType.uptimeKuma => 3001,
+    ServiceType.seerr => 5055,
+  };
+
   /// The auth style this service uses out of the box (spec §6). Onboarding
   /// may still let a user pick differently if a service ever supports both.
   AuthType get defaultAuthType => switch (this) {

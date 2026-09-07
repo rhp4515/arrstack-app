@@ -3,6 +3,8 @@ import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/utils/format_utils.dart';
 import 'package:arrstack/core/widgets/detail_chip.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
+import 'package:arrstack/services/bazarr/bazarr_providers.dart';
+import 'package:arrstack/services/bazarr/models/bazarr_models.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
 import 'package:flutter/material.dart';
@@ -73,7 +75,7 @@ class _EpisodeDetailContent extends ConsumerStatefulWidget {
 }
 
 class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
-  final bool _isProcessing = false;
+  bool _isProcessing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +91,11 @@ class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
       appBar: AppBar(
         title: Text(episode.episodeCode),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.subtitles_outlined),
+            tooltip: 'Search Subtitles (Bazarr)',
+            onPressed: _searchSubtitlesInBazarr,
+          ),
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
@@ -132,6 +139,41 @@ class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
   String _formatDate(DateTime d) {
     String two(int n) => n.toString().padLeft(2, '0');
     return '${d.year}-${two(d.month)}-${two(d.day)}';
+  }
+
+  Future<void> _searchSubtitlesInBazarr() async {
+    final bazarrInstance = await ref.read(primaryBazarrInstanceProvider.future);
+    if (bazarrInstance == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No Bazarr instance configured in the app.')),
+        );
+      }
+      return;
+    }
+
+    setState(() => _isProcessing = true);
+    final episode = widget.episode;
+    final repo = await ref.read(bazarrRepositoryProvider(bazarrInstance.id).future);
+    final result = await repo.searchSubtitle(BazarrWantedSubtitle(
+      title: episode.title ?? 'Episode ${episode.episodeNumber}',
+      type: 'episode',
+      episodeId: episode.id,
+      path: '',
+    ));
+
+    if (!mounted) return;
+    setState(() => _isProcessing = false);
+
+    if (result.isOk) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Subtitle search triggered in Bazarr for "${episode.title ?? 'Episode'}"')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Bazarr search failed: ${result.errorOrNull?.userMessage}')),
+      );
+    }
   }
 }
 

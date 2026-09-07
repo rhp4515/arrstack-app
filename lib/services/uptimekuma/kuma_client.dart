@@ -2,6 +2,7 @@
 library;
 
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/services/uptimekuma/models/kuma_models.dart';
@@ -31,6 +32,8 @@ class KumaClient {
   void connect() {
     if (_socket != null && _socket!.connected) return;
 
+    developer.log('Connecting socket to $baseUrl', name: 'arrstack.kuma');
+
     // Allow polling as a fallback: websocket-only fails behind reverse proxies
     // that don't forward the Upgrade handshake, a common self-host setup.
     _socket = io.io(
@@ -42,21 +45,27 @@ class KumaClient {
     );
 
     _socket!.onConnect((_) {
+      developer.log('Socket connected successfully', name: 'arrstack.kuma');
       _connectionController.add(true);
     });
 
-    _socket!.onDisconnect((_) {
+    _socket!.onDisconnect((reason) {
+      developer.log('Socket disconnected: $reason', name: 'arrstack.kuma');
       _connectionController.add(false);
     });
 
     _socket!.onConnectError((err) {
-      // ignore: avoid_print
-      print('Kuma Socket Connect Error: $err');
+      developer.log(
+        'Kuma Socket Connect Error: $err',
+        name: 'arrstack.kuma',
+        error: err,
+      );
       _connectionController.add(false);
     });
 
     _socket!.on('monitorList', (data) {
       if (data is Map) {
+        developer.log('Received monitorList (${data.length} items)', name: 'arrstack.kuma');
         final monitors = data.map((key, value) {
           final id = int.parse(key.toString());
           return MapEntry(
@@ -90,8 +99,10 @@ class KumaClient {
       {'apiKey': apiKey},
       ack: (response) {
         if (response is Map && response['ok'] == true) {
+          developer.log('API Key login successful', name: 'arrstack.kuma');
           completer.complete(const Ok(null));
         } else {
+          developer.log('API Key login failed: $response', name: 'arrstack.kuma');
           completer.complete(
             const Err(AuthError(userMessage: 'API Key login failed.')),
           );
@@ -117,8 +128,10 @@ class KumaClient {
       {'username': username, 'password': password},
       ack: (response) {
         if (response is Map && response['ok'] == true) {
+          developer.log('Username/password login successful', name: 'arrstack.kuma');
           completer.complete(const Ok(null));
         } else {
+          developer.log('Username/password login failed: $response', name: 'arrstack.kuma');
           completer.complete(
             const Err(AuthError(userMessage: 'Login failed.')),
           );

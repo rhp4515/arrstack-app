@@ -7,6 +7,7 @@ import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/features/onboarding/onboarding_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class InstanceForm extends ConsumerStatefulWidget {
@@ -52,7 +53,7 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
     final state = ref.watch(instanceFormProvider);
     final notifier = ref.read(instanceFormProvider.notifier);
 
-    // Update controllers if state changes from outside (e.g. load)
+    // Update controllers if state changes from outside (e.g. load or type change)
     _syncController(_nameController, state.name);
     _syncController(_localUrlController, state.localUrl);
     _syncController(_remoteUrlController, state.remoteUrl);
@@ -106,7 +107,7 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
         _UrlField(
           controller: _localUrlController,
           label: 'Local URL (LAN)',
-          hint: 'http://192.168.1.10:7878',
+          hint: 'http://192.168.1.10:${state.type.defaultPort}',
           onChanged: notifier.updateLocalUrl,
           isTesting: state.isTestingLocal,
           testResult: state.localTestResult,
@@ -116,7 +117,7 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
         _UrlField(
           controller: _remoteUrlController,
           label: 'Remote URL (Tailscale)',
-          hint: 'http://nas.tailnet-xxxx.ts.net:7878',
+          hint: 'http://harivin-nas.worm-banded.ts.net:${state.type.defaultPort}',
           onChanged: notifier.updateRemoteUrl,
           isTesting: state.isTestingRemote,
           testResult: state.remoteTestResult,
@@ -172,7 +173,7 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
   }
 }
 
-class _UrlField extends StatelessWidget {
+class _UrlField extends StatefulWidget {
   const _UrlField({
     required this.controller,
     required this.label,
@@ -192,7 +193,40 @@ class _UrlField extends StatelessWidget {
   final VoidCallback onTest;
 
   @override
+  State<_UrlField> createState() => _UrlFieldState();
+}
+
+class _UrlFieldState extends State<_UrlField> {
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    widget.controller.addListener(_onControllerChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChanged);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _onControllerChanged() {
+    setState(() {});
+  }
+
+  void _fillDefault() {
+    widget.controller.text = widget.hint;
+    widget.onChanged(widget.hint);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isEmpty = widget.controller.text.isEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -200,14 +234,39 @@ class _UrlField extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: TextFormField(
-                controller: controller,
-                decoration: InputDecoration(
-                  labelText: label,
-                  hintText: hint,
-                  prefixIcon: const Icon(Icons.link),
+              child: KeyboardListener(
+                focusNode: _focusNode,
+                onKeyEvent: (event) {
+                  if (event is KeyDownEvent &&
+                      (event.logicalKey == LogicalKeyboardKey.tab ||
+                          event.logicalKey == LogicalKeyboardKey.arrowRight) &&
+                      widget.controller.text.isEmpty) {
+                    _fillDefault();
+                  }
+                },
+                child: TextFormField(
+                  controller: widget.controller,
+                  decoration: InputDecoration(
+                    labelText: widget.label,
+                    hintText: widget.hint,
+                    prefixIcon: const Icon(Icons.link),
+                    suffixIcon: isEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.auto_fix_high, size: 20),
+                            tooltip: 'Fill default (${widget.hint})',
+                            onPressed: _fillDefault,
+                          )
+                        : IconButton(
+                            icon: const Icon(Icons.clear, size: 20),
+                            tooltip: 'Clear',
+                            onPressed: () {
+                              widget.controller.clear();
+                              widget.onChanged('');
+                            },
+                          ),
+                  ),
+                  onChanged: widget.onChanged,
                 ),
-                onChanged: onChanged,
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
@@ -215,22 +274,46 @@ class _UrlField extends StatelessWidget {
               padding: const EdgeInsets.only(top: 8),
               child: SizedBox(
                 height: 48,
-                child: isTesting
+                child: widget.isTesting
                     ? const Padding(
                         padding: EdgeInsets.all(12),
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : TextButton(
-                        onPressed: onTest,
+                        onPressed: widget.onTest,
                         child: const Text('Test'),
                       ),
               ),
             ),
           ],
         ),
-        if (testResult != null) ...[
+        if (isEmpty) ...[
           const SizedBox(height: AppSpacing.xs),
-          _TestResultIndicator(result: testResult!),
+          InkWell(
+            onTap: _fillDefault,
+            borderRadius: BorderRadius.circular(4),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.auto_fix_high, size: 14, color: theme.colorScheme.primary),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Fill default: ${widget.hint}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+        if (widget.testResult != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          _TestResultIndicator(result: widget.testResult!),
         ],
       ],
     );

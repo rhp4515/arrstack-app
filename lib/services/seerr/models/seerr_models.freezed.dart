@@ -232,11 +232,11 @@ return $default(_that.id,_that.mediaType,_that.title,_that.name,_that.posterPath
 @JsonSerializable()
 
 class _SeerrResult implements SeerrResult {
-  const _SeerrResult({required this.id, required this.mediaType, this.title, this.name, this.posterPath, this.backdropPath, this.overview, this.releaseDate, this.firstAirDate, this.voteAverage, this.mediaInfo});
+  const _SeerrResult({required this.id, this.mediaType = 'movie', this.title, this.name, this.posterPath, this.backdropPath, this.overview, this.releaseDate, this.firstAirDate, this.voteAverage, this.mediaInfo});
   factory _SeerrResult.fromJson(Map<String, dynamic> json) => _$SeerrResultFromJson(json);
 
 @override final  int id;
-@override final  String mediaType;
+@override@JsonKey() final  String mediaType;
 @override final  String? title;
 @override final  String? name;
 @override final  String? posterPath;
@@ -333,7 +333,7 @@ $SeerrMediaInfoCopyWith<$Res>? get mediaInfo {
 /// @nodoc
 mixin _$SeerrMediaInfo {
 
- int get id; int get tmdbId; int? get tvdbId; int get status; List<SeerrRequest> get requests;
+ int get id; int? get tmdbId; int? get tvdbId; int get status; List<SeerrRequest> get requests;
 /// Create a copy of SeerrMediaInfo
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -366,7 +366,7 @@ abstract mixin class $SeerrMediaInfoCopyWith<$Res>  {
   factory $SeerrMediaInfoCopyWith(SeerrMediaInfo value, $Res Function(SeerrMediaInfo) _then) = _$SeerrMediaInfoCopyWithImpl;
 @useResult
 $Res call({
- int id, int tmdbId, int? tvdbId, int status, List<SeerrRequest> requests
+ int id, int? tmdbId, int? tvdbId, int status, List<SeerrRequest> requests
 });
 
 
@@ -383,11 +383,11 @@ class _$SeerrMediaInfoCopyWithImpl<$Res>
 
 /// Create a copy of SeerrMediaInfo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tmdbId = null,Object? tvdbId = freezed,Object? status = null,Object? requests = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? tmdbId = freezed,Object? tvdbId = freezed,Object? status = null,Object? requests = null,}) {
   return _then(SeerrMediaInfo(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,tmdbId: null == tmdbId ? _self.tmdbId : tmdbId // ignore: cast_nullable_to_non_nullable
-as int,tvdbId: freezed == tvdbId ? _self.tvdbId : tvdbId // ignore: cast_nullable_to_non_nullable
+as int,tmdbId: freezed == tmdbId ? _self.tmdbId : tmdbId // ignore: cast_nullable_to_non_nullable
+as int?,tvdbId: freezed == tvdbId ? _self.tvdbId : tvdbId // ignore: cast_nullable_to_non_nullable
 as int?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as int,requests: null == requests ? _self.requests : requests // ignore: cast_nullable_to_non_nullable
 as List<SeerrRequest>,
@@ -475,7 +475,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int tmdbId,  int? tvdbId,  int status,  List<SeerrRequest> requests)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int? tmdbId,  int? tvdbId,  int status,  List<SeerrRequest> requests)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SeerrMediaInfo() when $default != null:
 return $default(_that.id,_that.tmdbId,_that.tvdbId,_that.status,_that.requests);case _:
@@ -496,7 +496,7 @@ return $default(_that.id,_that.tmdbId,_that.tvdbId,_that.status,_that.requests);
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int tmdbId,  int? tvdbId,  int status,  List<SeerrRequest> requests)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int? tmdbId,  int? tvdbId,  int status,  List<SeerrRequest> requests)  $default,) {final _that = this;
 switch (_that) {
 case _SeerrMediaInfo():
 return $default(_that.id,_that.tmdbId,_that.tvdbId,_that.status,_that.requests);case _:
@@ -516,7 +516,7 @@ return $default(_that.id,_that.tmdbId,_that.tvdbId,_that.status,_that.requests);
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int tmdbId,  int? tvdbId,  int status,  List<SeerrRequest> requests)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int? tmdbId,  int? tvdbId,  int status,  List<SeerrRequest> requests)?  $default,) {final _that = this;
 switch (_that) {
 case _SeerrMediaInfo() when $default != null:
 return $default(_that.id,_that.tmdbId,_that.tvdbId,_that.status,_that.requests);case _:
@@ -531,15 +531,15 @@ return $default(_that.id,_that.tmdbId,_that.tvdbId,_that.status,_that.requests);
 @JsonSerializable()
 
 class _SeerrMediaInfo implements SeerrMediaInfo {
-  const _SeerrMediaInfo({required this.id, required this.tmdbId, this.tvdbId, required this.status, required  List<SeerrRequest> requests}): _requests = requests;
+  const _SeerrMediaInfo({required this.id, this.tmdbId, this.tvdbId, this.status = 1,  List<SeerrRequest> requests = const []}): _requests = requests;
   factory _SeerrMediaInfo.fromJson(Map<String, dynamic> json) => _$SeerrMediaInfoFromJson(json);
 
 @override final  int id;
-@override final  int tmdbId;
+@override final  int? tmdbId;
 @override final  int? tvdbId;
-@override final  int status;
+@override@JsonKey() final  int status;
  final  List<SeerrRequest> _requests;
-@override List<SeerrRequest> get requests {
+@override@JsonKey() List<SeerrRequest> get requests {
   if (_requests is EqualUnmodifiableListView) return _requests;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_requests);
@@ -579,7 +579,7 @@ abstract mixin class _$SeerrMediaInfoCopyWith<$Res> implements $SeerrMediaInfoCo
   factory _$SeerrMediaInfoCopyWith(_SeerrMediaInfo value, $Res Function(_SeerrMediaInfo) _then) = __$SeerrMediaInfoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, int tmdbId, int? tvdbId, int status, List<SeerrRequest> requests
+ int id, int? tmdbId, int? tvdbId, int status, List<SeerrRequest> requests
 });
 
 
@@ -596,11 +596,11 @@ class __$SeerrMediaInfoCopyWithImpl<$Res>
 
 /// Create a copy of SeerrMediaInfo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tmdbId = null,Object? tvdbId = freezed,Object? status = null,Object? requests = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? tmdbId = freezed,Object? tvdbId = freezed,Object? status = null,Object? requests = null,}) {
   return _then(_SeerrMediaInfo(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,tmdbId: null == tmdbId ? _self.tmdbId : tmdbId // ignore: cast_nullable_to_non_nullable
-as int,tvdbId: freezed == tvdbId ? _self.tvdbId : tvdbId // ignore: cast_nullable_to_non_nullable
+as int,tmdbId: freezed == tmdbId ? _self.tmdbId : tmdbId // ignore: cast_nullable_to_non_nullable
+as int?,tvdbId: freezed == tvdbId ? _self.tvdbId : tvdbId // ignore: cast_nullable_to_non_nullable
 as int?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as int,requests: null == requests ? _self._requests : requests // ignore: cast_nullable_to_non_nullable
 as List<SeerrRequest>,
@@ -614,7 +614,7 @@ as List<SeerrRequest>,
 /// @nodoc
 mixin _$SeerrRequest {
 
- int get id; int get status; int get mediaType; DateTime get createdAt; DateTime get updatedAt;
+ int get id; int get status; int get mediaType; DateTime? get createdAt; DateTime? get updatedAt;
 /// Create a copy of SeerrRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -647,7 +647,7 @@ abstract mixin class $SeerrRequestCopyWith<$Res>  {
   factory $SeerrRequestCopyWith(SeerrRequest value, $Res Function(SeerrRequest) _then) = _$SeerrRequestCopyWithImpl;
 @useResult
 $Res call({
- int id, int status, int mediaType, DateTime createdAt, DateTime updatedAt
+ int id, int status, int mediaType, DateTime? createdAt, DateTime? updatedAt
 });
 
 
@@ -664,14 +664,14 @@ class _$SeerrRequestCopyWithImpl<$Res>
 
 /// Create a copy of SeerrRequest
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? mediaType = null,Object? createdAt = null,Object? updatedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? mediaType = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(SeerrRequest(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as int,mediaType: null == mediaType ? _self.mediaType : mediaType // ignore: cast_nullable_to_non_nullable
-as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as int,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -756,7 +756,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int status,  int mediaType,  DateTime createdAt,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int status,  int mediaType,  DateTime? createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SeerrRequest() when $default != null:
 return $default(_that.id,_that.status,_that.mediaType,_that.createdAt,_that.updatedAt);case _:
@@ -777,7 +777,7 @@ return $default(_that.id,_that.status,_that.mediaType,_that.createdAt,_that.upda
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int status,  int mediaType,  DateTime createdAt,  DateTime updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int status,  int mediaType,  DateTime? createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _SeerrRequest():
 return $default(_that.id,_that.status,_that.mediaType,_that.createdAt,_that.updatedAt);case _:
@@ -797,7 +797,7 @@ return $default(_that.id,_that.status,_that.mediaType,_that.createdAt,_that.upda
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int status,  int mediaType,  DateTime createdAt,  DateTime updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int status,  int mediaType,  DateTime? createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _SeerrRequest() when $default != null:
 return $default(_that.id,_that.status,_that.mediaType,_that.createdAt,_that.updatedAt);case _:
@@ -812,14 +812,14 @@ return $default(_that.id,_that.status,_that.mediaType,_that.createdAt,_that.upda
 @JsonSerializable()
 
 class _SeerrRequest implements SeerrRequest {
-  const _SeerrRequest({required this.id, required this.status, required this.mediaType, required this.createdAt, required this.updatedAt});
+  const _SeerrRequest({required this.id, this.status = 1, this.mediaType = 1, this.createdAt, this.updatedAt});
   factory _SeerrRequest.fromJson(Map<String, dynamic> json) => _$SeerrRequestFromJson(json);
 
 @override final  int id;
-@override final  int status;
-@override final  int mediaType;
-@override final  DateTime createdAt;
-@override final  DateTime updatedAt;
+@override@JsonKey() final  int status;
+@override@JsonKey() final  int mediaType;
+@override final  DateTime? createdAt;
+@override final  DateTime? updatedAt;
 
 /// Create a copy of SeerrRequest
 /// with the given fields replaced by the non-null parameter values.
@@ -854,7 +854,7 @@ abstract mixin class _$SeerrRequestCopyWith<$Res> implements $SeerrRequestCopyWi
   factory _$SeerrRequestCopyWith(_SeerrRequest value, $Res Function(_SeerrRequest) _then) = __$SeerrRequestCopyWithImpl;
 @override @useResult
 $Res call({
- int id, int status, int mediaType, DateTime createdAt, DateTime updatedAt
+ int id, int status, int mediaType, DateTime? createdAt, DateTime? updatedAt
 });
 
 
@@ -871,14 +871,14 @@ class __$SeerrRequestCopyWithImpl<$Res>
 
 /// Create a copy of SeerrRequest
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? mediaType = null,Object? createdAt = null,Object? updatedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? mediaType = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_SeerrRequest(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as int,mediaType: null == mediaType ? _self.mediaType : mediaType // ignore: cast_nullable_to_non_nullable
-as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as int,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -1086,14 +1086,14 @@ return $default(_that.page,_that.totalPages,_that.totalResults,_that.results);ca
 @JsonSerializable()
 
 class _SeerrDiscoveryResponse implements SeerrDiscoveryResponse {
-  const _SeerrDiscoveryResponse({required this.page, required this.totalPages, required this.totalResults, required  List<SeerrResult> results}): _results = results;
+  const _SeerrDiscoveryResponse({this.page = 1, this.totalPages = 1, this.totalResults = 0,  List<SeerrResult> results = const []}): _results = results;
   factory _SeerrDiscoveryResponse.fromJson(Map<String, dynamic> json) => _$SeerrDiscoveryResponseFromJson(json);
 
-@override final  int page;
-@override final  int totalPages;
-@override final  int totalResults;
+@override@JsonKey() final  int page;
+@override@JsonKey() final  int totalPages;
+@override@JsonKey() final  int totalResults;
  final  List<SeerrResult> _results;
-@override List<SeerrResult> get results {
+@override@JsonKey() List<SeerrResult> get results {
   if (_results is EqualUnmodifiableListView) return _results;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_results);

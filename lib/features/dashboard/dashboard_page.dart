@@ -161,6 +161,8 @@ class _InstanceListTile extends StatelessWidget {
         } else if (instance.serviceType == ServiceType.uptimeKuma) {
           ref.read(selectedUptimeInstanceIdProvider.notifier).selectInstance(instance.id);
           context.go(RoutePaths.uptime);
+        } else if (instance.serviceType == ServiceType.prowlarr) {
+          context.go(RoutePaths.indexers(instance.id));
         } else if (instance.serviceType == ServiceType.seerr) {
           ref.read(selectedSeerrInstanceIdProvider.notifier).selectInstance(instance.id);
           context.go(RoutePaths.discover);

@@ -30,6 +30,7 @@ class RedactingLogInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    options.extra['requestStart'] = DateTime.now().millisecondsSinceEpoch;
     _log(
       '--> ${options.method} ${_redactUri(options.uri)} '
       'headers=${_redactHeaders(options.headers)}',
@@ -42,18 +43,30 @@ class RedactingLogInterceptor extends Interceptor {
     Response<dynamic> response,
     ResponseInterceptorHandler handler,
   ) {
+    final start = response.requestOptions.extra['requestStart'] as int?;
+    final duration = start != null
+        ? ' (${DateTime.now().millisecondsSinceEpoch - start}ms)'
+        : '';
     _log(
       '<-- ${response.statusCode} '
-      '${_redactUri(response.requestOptions.uri)}',
+      '${_redactUri(response.requestOptions.uri)}$duration',
     );
     handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
+    final start = err.requestOptions.extra['requestStart'] as int?;
+    final duration = start != null
+        ? ' (${DateTime.now().millisecondsSinceEpoch - start}ms)'
+        : '';
+    final responseData = err.response?.data != null
+        ? ' body=${err.response?.data}'
+        : '';
+    final message = err.message != null ? ': ${err.message}' : '';
     _log(
       '<-- ERROR ${err.response?.statusCode ?? '-'} '
-      '${_redactUri(err.requestOptions.uri)}',
+      '${_redactUri(err.requestOptions.uri)}$duration$message$responseData',
     );
     handler.next(err);
   }

@@ -3,6 +3,8 @@
 /// Implements the endpoints needed for series management and lookup.
 library;
 
+import 'dart:developer' as developer;
+
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/services/contracts/contracts.dart';
@@ -33,20 +35,28 @@ class SonarrClient implements ConnectionTestClient {
       () => _dio.get('api/v3/series'),
       map: (data) {
         if (data is! List) {
-          // ignore: avoid_print
-          print('Sonarr getSeries: expected List but got ${data.runtimeType}');
+          developer.log(
+            'Sonarr getSeries: expected List but got ${data.runtimeType}',
+            name: 'arrstack.sonarr',
+          );
           return [];
         }
-        // ignore: avoid_print
-        print('Sonarr getSeries: received ${data.length} items');
+        developer.log(
+          'Sonarr getSeries: received ${data.length} items',
+          name: 'arrstack.sonarr',
+        );
         return data
             .cast<Map<String, dynamic>>()
             .map((json) {
               try {
                 return SonarrSeries.fromJson(json);
-              } catch (e) {
-                // ignore: avoid_print
-                print('SonarrSeries parse error for "${json['title']}": $e');
+              } catch (e, st) {
+                developer.log(
+                  'SonarrSeries parse error for "${json['title']}": $e',
+                  name: 'arrstack.sonarr',
+                  error: e,
+                  stackTrace: st,
+                );
                 return null;
               }
             })
@@ -73,9 +83,13 @@ class SonarrClient implements ConnectionTestClient {
             .map((json) {
               try {
                 return SonarrSeries.fromJson(json);
-              } catch (e) {
-                // ignore: avoid_print
-                print('SonarrSeries lookup parse error: $e');
+              } catch (e, st) {
+                developer.log(
+                  'SonarrSeries lookup parse error: $e',
+                  name: 'arrstack.sonarr',
+                  error: e,
+                  stackTrace: st,
+                );
                 return null;
               }
             })
@@ -135,9 +149,13 @@ class SonarrClient implements ConnectionTestClient {
             .map((json) {
               try {
                 return SonarrCalendarEpisode.fromJson(json);
-              } catch (e) {
-                // ignore: avoid_print
-                print('SonarrCalendarEpisode parse error: $e');
+              } catch (e, st) {
+                developer.log(
+                  'SonarrCalendarEpisode parse error: $e',
+                  name: 'arrstack.sonarr',
+                  error: e,
+                  stackTrace: st,
+                );
                 return null;
               }
             })
@@ -160,9 +178,13 @@ class SonarrClient implements ConnectionTestClient {
             .map((json) {
               try {
                 return SonarrEpisode.fromJson(json);
-              } catch (e) {
-                // ignore: avoid_print
-                print('SonarrEpisode parse error: $e');
+              } catch (e, st) {
+                developer.log(
+                  'SonarrEpisode parse error: $e',
+                  name: 'arrstack.sonarr',
+                  error: e,
+                  stackTrace: st,
+                );
                 return null;
               }
             })
@@ -204,9 +226,13 @@ class SonarrClient implements ConnectionTestClient {
             .map((json) {
               try {
                 return SonarrQueueItem.fromJson(json);
-              } catch (e) {
-                // ignore: avoid_print
-                print('SonarrQueueItem parse error: $e');
+              } catch (e, st) {
+                developer.log(
+                  'SonarrQueueItem parse error: $e',
+                  name: 'arrstack.sonarr',
+                  error: e,
+                  stackTrace: st,
+                );
                 return null;
               }
             })

@@ -7,7 +7,7 @@ part 'seerr_models.g.dart';
 abstract class SeerrResult with _$SeerrResult {
   const factory SeerrResult({
     required int id,
-    required String mediaType,
+    @Default('movie') String mediaType,
     String? title,
     String? name,
     String? posterPath,
@@ -27,10 +27,10 @@ abstract class SeerrResult with _$SeerrResult {
 abstract class SeerrMediaInfo with _$SeerrMediaInfo {
   const factory SeerrMediaInfo({
     required int id,
-    required int tmdbId,
+    int? tmdbId,
     int? tvdbId,
-    required int status, // 1 = PENDING, 2 = APPROVED, 3 = DECLINED, 4 = PROCESSING, 5 = PARTIALLY_AVAILABLE, 6 = AVAILABLE
-    required List<SeerrRequest> requests,
+    @Default(1) int status, // 1 = PENDING, 2 = APPROVED, 3 = DECLINED, 4 = PROCESSING, 5 = PARTIALLY_AVAILABLE, 6 = AVAILABLE
+    @Default([]) List<SeerrRequest> requests,
   }) = _SeerrMediaInfo;
 
   factory SeerrMediaInfo.fromJson(Map<String, dynamic> json) =>
@@ -41,10 +41,10 @@ abstract class SeerrMediaInfo with _$SeerrMediaInfo {
 abstract class SeerrRequest with _$SeerrRequest {
   const factory SeerrRequest({
     required int id,
-    required int status,
-    required int mediaType, // 1 = MOVIE, 2 = TV
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    @Default(1) int status,
+    @Default(1) int mediaType, // 1 = MOVIE, 2 = TV
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _SeerrRequest;
 
   factory SeerrRequest.fromJson(Map<String, dynamic> json) =>
@@ -54,10 +54,10 @@ abstract class SeerrRequest with _$SeerrRequest {
 @freezed
 abstract class SeerrDiscoveryResponse with _$SeerrDiscoveryResponse {
   const factory SeerrDiscoveryResponse({
-    required int page,
-    required int totalPages,
-    required int totalResults,
-    required List<SeerrResult> results,
+    @Default(1) int page,
+    @Default(1) int totalPages,
+    @Default(0) int totalResults,
+    @Default([]) List<SeerrResult> results,
   }) = _SeerrDiscoveryResponse;
 
   factory SeerrDiscoveryResponse.fromJson(Map<String, dynamic> json) =>

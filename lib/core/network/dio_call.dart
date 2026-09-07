@@ -3,6 +3,8 @@
 /// `DioException` themselves.
 library;
 
+import 'dart:developer' as developer;
+
 import 'package:arrstack/core/network/app_error.dart';
 import 'package:arrstack/core/network/dio_exception_mapper.dart';
 import 'package:arrstack/core/network/result.dart';
@@ -15,23 +17,65 @@ Future<Result<T>> guardDioCall<T>(Future<T> Function() call) async {
     return Ok(await call());
   } on DioException catch (exception) {
     final mapped = exception.error;
-    return Err(mapped is AppError ? mapped : mapDioException(exception));
-  } on FormatException catch (exception) {
+    final error = mapped is AppError ? mapped : mapDioException(exception);
+    developer.log(
+      'DioCall request failed [${exception.requestOptions.method} ${exception.requestOptions.uri}]: ${error.userMessage}',
+      name: 'arrstack.network',
+      error: exception,
+    );
+    return Err(error);
+  } on FormatException catch (exception, st) {
+    developer.log(
+      'DioCall format error: $exception',
+      name: 'arrstack.network',
+      error: exception,
+      stackTrace: st,
+    );
     return Err(
       ValidationError(
         cause: exception,
         userMessage: 'Received an unexpected response from the server.',
       ),
     );
+  } catch (exception, st) {
+    developer.log(
+      'DioCall unexpected error: $exception',
+      name: 'arrstack.network',
+      error: exception,
+      stackTrace: st,
+    );
+    return Err(
+      ValidationError(
+        cause: exception,
+        userMessage: 'Unexpected processing error occurred.',
+      ),
+    );
   }
 }
 
 /// A convenience wrapper around [guardDioCall] that handles [Response] data
-/// mapping.
+/// mapping safely, capturing any mapping/deserialization exceptions.
 Future<Result<T>> dioCall<T>(
   Future<Response<dynamic>> Function() call, {
   required T Function(dynamic data) map,
 }) async {
   final result = await guardDioCall(call);
-  return result.map((response) => map(response.data));
+  return result.flatMap((response) {
+    try {
+      return Ok(map(response.data));
+    } catch (e, st) {
+      developer.log(
+        'dioCall response mapping error [${response.requestOptions.method} ${response.requestOptions.uri}]: $e',
+        name: 'arrstack.network',
+        error: e,
+        stackTrace: st,
+      );
+      return Err(
+        ValidationError(
+          cause: e,
+          userMessage: 'Failed to parse response data: $e',
+        ),
+      );
+    }
+  });
 }

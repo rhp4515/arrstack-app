@@ -205,6 +205,51 @@ abstract class SonarrQuality with _$SonarrQuality {
       _$SonarrQualityFromJson(json);
 }
 
+/// One release from Sonarr's interactive search (`GET /api/v3/release?episodeId=`).
+@freezed
+abstract class SonarrRelease with _$SonarrRelease {
+  const factory SonarrRelease({
+    @Default('') String guid,
+    @Default('') String title,
+    @Default(0) int size,
+    @Default(0) int indexerId,
+    String? indexer,
+    int? seeders,
+    int? leechers,
+    String? protocol,
+    SonarrQualityInfo? quality,
+    int? qualityWeight,
+    num? ageMinutes,
+    @Default(false) bool rejected,
+    @JsonKey(fromJson: _rejectionsFromJson)
+    @Default(<String>[])
+    List<String> rejections,
+    String? releaseGroup,
+    @Default(true) bool downloadAllowed,
+    int? customFormatScore,
+  }) = _SonarrRelease;
+
+  factory SonarrRelease.fromJson(Map<String, dynamic> json) =>
+      _$SonarrReleaseFromJson(json);
+}
+
+/// Sonarr v3 returns `rejections` as `List<String>`; newer Sonarr returns
+/// `[{reason, type}]`. Normalise both to a list of reason strings.
+List<String> _rejectionsFromJson(dynamic raw) {
+  if (raw is! List) {
+    return const [];
+  }
+  return raw.map((e) {
+    if (e is String) {
+      return e;
+    }
+    if (e is Map) {
+      return (e['reason'] ?? e).toString();
+    }
+    return e.toString();
+  }).toList();
+}
+
 /// Aggregate rating for a series (Sonarr returns a single value/votes pair).
 @freezed
 abstract class SonarrRatings with _$SonarrRatings {

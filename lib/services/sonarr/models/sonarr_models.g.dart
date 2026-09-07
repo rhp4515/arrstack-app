@@ -237,6 +237,50 @@ _SonarrQuality _$SonarrQualityFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$SonarrQualityToJson(_SonarrQuality instance) =>
     <String, dynamic>{'id': instance.id, 'name': instance.name};
 
+_SonarrRelease _$SonarrReleaseFromJson(Map<String, dynamic> json) =>
+    _SonarrRelease(
+      guid: json['guid'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      size: (json['size'] as num?)?.toInt() ?? 0,
+      indexerId: (json['indexerId'] as num?)?.toInt() ?? 0,
+      indexer: json['indexer'] as String?,
+      seeders: (json['seeders'] as num?)?.toInt(),
+      leechers: (json['leechers'] as num?)?.toInt(),
+      protocol: json['protocol'] as String?,
+      quality: json['quality'] == null
+          ? null
+          : SonarrQualityInfo.fromJson(json['quality'] as Map<String, dynamic>),
+      qualityWeight: (json['qualityWeight'] as num?)?.toInt(),
+      ageMinutes: json['ageMinutes'] as num?,
+      rejected: json['rejected'] as bool? ?? false,
+      rejections: json['rejections'] == null
+          ? const <String>[]
+          : _rejectionsFromJson(json['rejections']),
+      releaseGroup: json['releaseGroup'] as String?,
+      downloadAllowed: json['downloadAllowed'] as bool? ?? true,
+      customFormatScore: (json['customFormatScore'] as num?)?.toInt(),
+    );
+
+Map<String, dynamic> _$SonarrReleaseToJson(_SonarrRelease instance) =>
+    <String, dynamic>{
+      'guid': instance.guid,
+      'title': instance.title,
+      'size': instance.size,
+      'indexerId': instance.indexerId,
+      'indexer': instance.indexer,
+      'seeders': instance.seeders,
+      'leechers': instance.leechers,
+      'protocol': instance.protocol,
+      'quality': instance.quality,
+      'qualityWeight': instance.qualityWeight,
+      'ageMinutes': instance.ageMinutes,
+      'rejected': instance.rejected,
+      'rejections': instance.rejections,
+      'releaseGroup': instance.releaseGroup,
+      'downloadAllowed': instance.downloadAllowed,
+      'customFormatScore': instance.customFormatScore,
+    };
+
 _SonarrRatings _$SonarrRatingsFromJson(Map<String, dynamic> json) =>
     _SonarrRatings(
       votes: (json['votes'] as num?)?.toInt() ?? 0,

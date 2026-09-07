@@ -2757,6 +2757,344 @@ as String?,
 
 
 /// @nodoc
+mixin _$SonarrRelease {
+
+ String get guid; String get title; int get size; int get indexerId; String? get indexer; int? get seeders; int? get leechers; String? get protocol; SonarrQualityInfo? get quality; int? get qualityWeight; num? get ageMinutes; bool get rejected;@JsonKey(fromJson: _rejectionsFromJson) List<String> get rejections; String? get releaseGroup; bool get downloadAllowed; int? get customFormatScore;
+/// Create a copy of SonarrRelease
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SonarrReleaseCopyWith<SonarrRelease> get copyWith => _$SonarrReleaseCopyWithImpl<SonarrRelease>(this as SonarrRelease, _$identity);
+
+  /// Serializes this SonarrRelease to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SonarrRelease&&(identical(other.guid, guid) || other.guid == guid)&&(identical(other.title, title) || other.title == title)&&(identical(other.size, size) || other.size == size)&&(identical(other.indexerId, indexerId) || other.indexerId == indexerId)&&(identical(other.indexer, indexer) || other.indexer == indexer)&&(identical(other.seeders, seeders) || other.seeders == seeders)&&(identical(other.leechers, leechers) || other.leechers == leechers)&&(identical(other.protocol, protocol) || other.protocol == protocol)&&(identical(other.quality, quality) || other.quality == quality)&&(identical(other.qualityWeight, qualityWeight) || other.qualityWeight == qualityWeight)&&(identical(other.ageMinutes, ageMinutes) || other.ageMinutes == ageMinutes)&&(identical(other.rejected, rejected) || other.rejected == rejected)&&const DeepCollectionEquality().equals(other.rejections, rejections)&&(identical(other.releaseGroup, releaseGroup) || other.releaseGroup == releaseGroup)&&(identical(other.downloadAllowed, downloadAllowed) || other.downloadAllowed == downloadAllowed)&&(identical(other.customFormatScore, customFormatScore) || other.customFormatScore == customFormatScore));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,guid,title,size,indexerId,indexer,seeders,leechers,protocol,quality,qualityWeight,ageMinutes,rejected,const DeepCollectionEquality().hash(rejections),releaseGroup,downloadAllowed,customFormatScore);
+
+@override
+String toString() {
+  return 'SonarrRelease(guid: $guid, title: $title, size: $size, indexerId: $indexerId, indexer: $indexer, seeders: $seeders, leechers: $leechers, protocol: $protocol, quality: $quality, qualityWeight: $qualityWeight, ageMinutes: $ageMinutes, rejected: $rejected, rejections: $rejections, releaseGroup: $releaseGroup, downloadAllowed: $downloadAllowed, customFormatScore: $customFormatScore)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SonarrReleaseCopyWith<$Res>  {
+  factory $SonarrReleaseCopyWith(SonarrRelease value, $Res Function(SonarrRelease) _then) = _$SonarrReleaseCopyWithImpl;
+@useResult
+$Res call({
+ String guid, String title, int size, int indexerId, String? indexer, int? seeders, int? leechers, String? protocol, SonarrQualityInfo? quality, int? qualityWeight, num? ageMinutes, bool rejected,@JsonKey(fromJson: _rejectionsFromJson) List<String> rejections, String? releaseGroup, bool downloadAllowed, int? customFormatScore
+});
+
+
+$SonarrQualityInfoCopyWith<$Res>? get quality;
+
+}
+/// @nodoc
+class _$SonarrReleaseCopyWithImpl<$Res>
+    implements $SonarrReleaseCopyWith<$Res> {
+  _$SonarrReleaseCopyWithImpl(this._self, this._then);
+
+  final SonarrRelease _self;
+  final $Res Function(SonarrRelease) _then;
+
+/// Create a copy of SonarrRelease
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? guid = null,Object? title = null,Object? size = null,Object? indexerId = null,Object? indexer = freezed,Object? seeders = freezed,Object? leechers = freezed,Object? protocol = freezed,Object? quality = freezed,Object? qualityWeight = freezed,Object? ageMinutes = freezed,Object? rejected = null,Object? rejections = null,Object? releaseGroup = freezed,Object? downloadAllowed = null,Object? customFormatScore = freezed,}) {
+  return _then(SonarrRelease(
+guid: null == guid ? _self.guid : guid // ignore: cast_nullable_to_non_nullable
+as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as int,indexerId: null == indexerId ? _self.indexerId : indexerId // ignore: cast_nullable_to_non_nullable
+as int,indexer: freezed == indexer ? _self.indexer : indexer // ignore: cast_nullable_to_non_nullable
+as String?,seeders: freezed == seeders ? _self.seeders : seeders // ignore: cast_nullable_to_non_nullable
+as int?,leechers: freezed == leechers ? _self.leechers : leechers // ignore: cast_nullable_to_non_nullable
+as int?,protocol: freezed == protocol ? _self.protocol : protocol // ignore: cast_nullable_to_non_nullable
+as String?,quality: freezed == quality ? _self.quality : quality // ignore: cast_nullable_to_non_nullable
+as SonarrQualityInfo?,qualityWeight: freezed == qualityWeight ? _self.qualityWeight : qualityWeight // ignore: cast_nullable_to_non_nullable
+as int?,ageMinutes: freezed == ageMinutes ? _self.ageMinutes : ageMinutes // ignore: cast_nullable_to_non_nullable
+as num?,rejected: null == rejected ? _self.rejected : rejected // ignore: cast_nullable_to_non_nullable
+as bool,rejections: null == rejections ? _self.rejections : rejections // ignore: cast_nullable_to_non_nullable
+as List<String>,releaseGroup: freezed == releaseGroup ? _self.releaseGroup : releaseGroup // ignore: cast_nullable_to_non_nullable
+as String?,downloadAllowed: null == downloadAllowed ? _self.downloadAllowed : downloadAllowed // ignore: cast_nullable_to_non_nullable
+as bool,customFormatScore: freezed == customFormatScore ? _self.customFormatScore : customFormatScore // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+/// Create a copy of SonarrRelease
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SonarrQualityInfoCopyWith<$Res>? get quality {
+    if (_self.quality == null) {
+    return null;
+  }
+
+  return $SonarrQualityInfoCopyWith<$Res>(_self.quality!, (value) {
+    return _then(_self.copyWith(quality: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [SonarrRelease].
+extension SonarrReleasePatterns on SonarrRelease {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _SonarrRelease value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _SonarrRelease() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _SonarrRelease value)  $default,){
+final _that = this;
+switch (_that) {
+case _SonarrRelease():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _SonarrRelease value)?  $default,){
+final _that = this;
+switch (_that) {
+case _SonarrRelease() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String guid,  String title,  int size,  int indexerId,  String? indexer,  int? seeders,  int? leechers,  String? protocol,  SonarrQualityInfo? quality,  int? qualityWeight,  num? ageMinutes,  bool rejected, @JsonKey(fromJson: _rejectionsFromJson)  List<String> rejections,  String? releaseGroup,  bool downloadAllowed,  int? customFormatScore)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _SonarrRelease() when $default != null:
+return $default(_that.guid,_that.title,_that.size,_that.indexerId,_that.indexer,_that.seeders,_that.leechers,_that.protocol,_that.quality,_that.qualityWeight,_that.ageMinutes,_that.rejected,_that.rejections,_that.releaseGroup,_that.downloadAllowed,_that.customFormatScore);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String guid,  String title,  int size,  int indexerId,  String? indexer,  int? seeders,  int? leechers,  String? protocol,  SonarrQualityInfo? quality,  int? qualityWeight,  num? ageMinutes,  bool rejected, @JsonKey(fromJson: _rejectionsFromJson)  List<String> rejections,  String? releaseGroup,  bool downloadAllowed,  int? customFormatScore)  $default,) {final _that = this;
+switch (_that) {
+case _SonarrRelease():
+return $default(_that.guid,_that.title,_that.size,_that.indexerId,_that.indexer,_that.seeders,_that.leechers,_that.protocol,_that.quality,_that.qualityWeight,_that.ageMinutes,_that.rejected,_that.rejections,_that.releaseGroup,_that.downloadAllowed,_that.customFormatScore);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String guid,  String title,  int size,  int indexerId,  String? indexer,  int? seeders,  int? leechers,  String? protocol,  SonarrQualityInfo? quality,  int? qualityWeight,  num? ageMinutes,  bool rejected, @JsonKey(fromJson: _rejectionsFromJson)  List<String> rejections,  String? releaseGroup,  bool downloadAllowed,  int? customFormatScore)?  $default,) {final _that = this;
+switch (_that) {
+case _SonarrRelease() when $default != null:
+return $default(_that.guid,_that.title,_that.size,_that.indexerId,_that.indexer,_that.seeders,_that.leechers,_that.protocol,_that.quality,_that.qualityWeight,_that.ageMinutes,_that.rejected,_that.rejections,_that.releaseGroup,_that.downloadAllowed,_that.customFormatScore);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _SonarrRelease implements SonarrRelease {
+  const _SonarrRelease({this.guid = '', this.title = '', this.size = 0, this.indexerId = 0, this.indexer, this.seeders, this.leechers, this.protocol, this.quality, this.qualityWeight, this.ageMinutes, this.rejected = false, @JsonKey(fromJson: _rejectionsFromJson)  List<String> rejections = const <String>[], this.releaseGroup, this.downloadAllowed = true, this.customFormatScore}): _rejections = rejections;
+  factory _SonarrRelease.fromJson(Map<String, dynamic> json) => _$SonarrReleaseFromJson(json);
+
+@override@JsonKey() final  String guid;
+@override@JsonKey() final  String title;
+@override@JsonKey() final  int size;
+@override@JsonKey() final  int indexerId;
+@override final  String? indexer;
+@override final  int? seeders;
+@override final  int? leechers;
+@override final  String? protocol;
+@override final  SonarrQualityInfo? quality;
+@override final  int? qualityWeight;
+@override final  num? ageMinutes;
+@override@JsonKey() final  bool rejected;
+ final  List<String> _rejections;
+@override@JsonKey(fromJson: _rejectionsFromJson) List<String> get rejections {
+  if (_rejections is EqualUnmodifiableListView) return _rejections;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_rejections);
+}
+
+@override final  String? releaseGroup;
+@override@JsonKey() final  bool downloadAllowed;
+@override final  int? customFormatScore;
+
+/// Create a copy of SonarrRelease
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SonarrReleaseCopyWith<_SonarrRelease> get copyWith => __$SonarrReleaseCopyWithImpl<_SonarrRelease>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$SonarrReleaseToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SonarrRelease&&(identical(other.guid, guid) || other.guid == guid)&&(identical(other.title, title) || other.title == title)&&(identical(other.size, size) || other.size == size)&&(identical(other.indexerId, indexerId) || other.indexerId == indexerId)&&(identical(other.indexer, indexer) || other.indexer == indexer)&&(identical(other.seeders, seeders) || other.seeders == seeders)&&(identical(other.leechers, leechers) || other.leechers == leechers)&&(identical(other.protocol, protocol) || other.protocol == protocol)&&(identical(other.quality, quality) || other.quality == quality)&&(identical(other.qualityWeight, qualityWeight) || other.qualityWeight == qualityWeight)&&(identical(other.ageMinutes, ageMinutes) || other.ageMinutes == ageMinutes)&&(identical(other.rejected, rejected) || other.rejected == rejected)&&const DeepCollectionEquality().equals(other._rejections, _rejections)&&(identical(other.releaseGroup, releaseGroup) || other.releaseGroup == releaseGroup)&&(identical(other.downloadAllowed, downloadAllowed) || other.downloadAllowed == downloadAllowed)&&(identical(other.customFormatScore, customFormatScore) || other.customFormatScore == customFormatScore));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,guid,title,size,indexerId,indexer,seeders,leechers,protocol,quality,qualityWeight,ageMinutes,rejected,const DeepCollectionEquality().hash(_rejections),releaseGroup,downloadAllowed,customFormatScore);
+
+@override
+String toString() {
+  return 'SonarrRelease(guid: $guid, title: $title, size: $size, indexerId: $indexerId, indexer: $indexer, seeders: $seeders, leechers: $leechers, protocol: $protocol, quality: $quality, qualityWeight: $qualityWeight, ageMinutes: $ageMinutes, rejected: $rejected, rejections: $rejections, releaseGroup: $releaseGroup, downloadAllowed: $downloadAllowed, customFormatScore: $customFormatScore)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SonarrReleaseCopyWith<$Res> implements $SonarrReleaseCopyWith<$Res> {
+  factory _$SonarrReleaseCopyWith(_SonarrRelease value, $Res Function(_SonarrRelease) _then) = __$SonarrReleaseCopyWithImpl;
+@override @useResult
+$Res call({
+ String guid, String title, int size, int indexerId, String? indexer, int? seeders, int? leechers, String? protocol, SonarrQualityInfo? quality, int? qualityWeight, num? ageMinutes, bool rejected,@JsonKey(fromJson: _rejectionsFromJson) List<String> rejections, String? releaseGroup, bool downloadAllowed, int? customFormatScore
+});
+
+
+@override $SonarrQualityInfoCopyWith<$Res>? get quality;
+
+}
+/// @nodoc
+class __$SonarrReleaseCopyWithImpl<$Res>
+    implements _$SonarrReleaseCopyWith<$Res> {
+  __$SonarrReleaseCopyWithImpl(this._self, this._then);
+
+  final _SonarrRelease _self;
+  final $Res Function(_SonarrRelease) _then;
+
+/// Create a copy of SonarrRelease
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? guid = null,Object? title = null,Object? size = null,Object? indexerId = null,Object? indexer = freezed,Object? seeders = freezed,Object? leechers = freezed,Object? protocol = freezed,Object? quality = freezed,Object? qualityWeight = freezed,Object? ageMinutes = freezed,Object? rejected = null,Object? rejections = null,Object? releaseGroup = freezed,Object? downloadAllowed = null,Object? customFormatScore = freezed,}) {
+  return _then(_SonarrRelease(
+guid: null == guid ? _self.guid : guid // ignore: cast_nullable_to_non_nullable
+as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as int,indexerId: null == indexerId ? _self.indexerId : indexerId // ignore: cast_nullable_to_non_nullable
+as int,indexer: freezed == indexer ? _self.indexer : indexer // ignore: cast_nullable_to_non_nullable
+as String?,seeders: freezed == seeders ? _self.seeders : seeders // ignore: cast_nullable_to_non_nullable
+as int?,leechers: freezed == leechers ? _self.leechers : leechers // ignore: cast_nullable_to_non_nullable
+as int?,protocol: freezed == protocol ? _self.protocol : protocol // ignore: cast_nullable_to_non_nullable
+as String?,quality: freezed == quality ? _self.quality : quality // ignore: cast_nullable_to_non_nullable
+as SonarrQualityInfo?,qualityWeight: freezed == qualityWeight ? _self.qualityWeight : qualityWeight // ignore: cast_nullable_to_non_nullable
+as int?,ageMinutes: freezed == ageMinutes ? _self.ageMinutes : ageMinutes // ignore: cast_nullable_to_non_nullable
+as num?,rejected: null == rejected ? _self.rejected : rejected // ignore: cast_nullable_to_non_nullable
+as bool,rejections: null == rejections ? _self._rejections : rejections // ignore: cast_nullable_to_non_nullable
+as List<String>,releaseGroup: freezed == releaseGroup ? _self.releaseGroup : releaseGroup // ignore: cast_nullable_to_non_nullable
+as String?,downloadAllowed: null == downloadAllowed ? _self.downloadAllowed : downloadAllowed // ignore: cast_nullable_to_non_nullable
+as bool,customFormatScore: freezed == customFormatScore ? _self.customFormatScore : customFormatScore // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+/// Create a copy of SonarrRelease
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SonarrQualityInfoCopyWith<$Res>? get quality {
+    if (_self.quality == null) {
+    return null;
+  }
+
+  return $SonarrQualityInfoCopyWith<$Res>(_self.quality!, (value) {
+    return _then(_self.copyWith(quality: value));
+  });
+}
+}
+
+
+/// @nodoc
 mixin _$SonarrRatings {
 
  int get votes; double get value;

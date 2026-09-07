@@ -23,7 +23,8 @@ Future<ServiceInstance?> primaryDashboardInstance(Ref ref) async {
       (i) => i.isDefault && i.serviceType == ServiceType.radarr,
       orElse: () => value.firstWhere(
         (i) => i.isDefault && i.serviceType == ServiceType.sonarr,
-        orElse: () => value.firstWhere((i) => i.isDefault, orElse: () => value.first),
+        orElse: () =>
+            value.firstWhere((i) => i.isDefault, orElse: () => value.first),
       ),
     );
   }
@@ -43,7 +44,8 @@ class EndpointIndicator extends ConsumerWidget {
         : ref.watch(primaryDashboardInstanceProvider).whenData((i) => i?.id);
 
     return idAsync.when(
-      data: (id) => id == null ? const SizedBox.shrink() : _Indicator(instanceId: id),
+      data: (id) =>
+          id == null ? const SizedBox.shrink() : _Indicator(instanceId: id),
       loading: () => const SizedBox.shrink(),
       error: (_, _) => const SizedBox.shrink(),
     );
@@ -61,9 +63,9 @@ class _Indicator extends ConsumerWidget {
     return resolutionAsync.when(
       data: (result) => switch (result) {
         Ok<EndpointResolution>(:final value) => _TappableChip(
-            instanceId: instanceId,
-            resolution: value,
-          ),
+          instanceId: instanceId,
+          resolution: value,
+        ),
         Err<EndpointResolution>() => const SizedBox.shrink(),
       },
       loading: () => const SizedBox.shrink(),
@@ -73,10 +75,7 @@ class _Indicator extends ConsumerWidget {
 }
 
 class _TappableChip extends ConsumerWidget {
-  const _TappableChip({
-    required this.instanceId,
-    required this.resolution,
-  });
+  const _TappableChip({required this.instanceId, required this.resolution});
 
   final String instanceId;
   final EndpointResolution resolution;
@@ -87,7 +86,10 @@ class _TappableChip extends ConsumerWidget {
     final isLocal = resolution.endpoint == ResolvedEndpoint.local;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: 8,
+      ),
       child: ActionChip(
         avatar: Icon(
           isLocal ? Icons.lan_outlined : Icons.cloud_outlined,
@@ -116,14 +118,19 @@ class _TappableChip extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const ListTile(
-              title: Text('Endpoint Mode', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(
+                'Endpoint Mode',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               subtitle: Text('Override for this session only.'),
             ),
             ListTile(
               leading: const Icon(Icons.auto_awesome_outlined),
               title: const Text('Auto (SSID-based)'),
               onTap: () {
-                ref.read(endpointSessionOverrideProvider.notifier).update(instanceId, null);
+                ref
+                    .read(endpointSessionOverrideProvider.notifier)
+                    .update(instanceId, null);
                 Navigator.pop(context);
               },
             ),
@@ -131,7 +138,9 @@ class _TappableChip extends ConsumerWidget {
               leading: const Icon(Icons.lan_outlined),
               title: const Text('Force Local (LAN)'),
               onTap: () {
-                ref.read(endpointSessionOverrideProvider.notifier).update(instanceId, EndpointMode.forceLocal);
+                ref
+                    .read(endpointSessionOverrideProvider.notifier)
+                    .update(instanceId, EndpointMode.forceLocal);
                 Navigator.pop(context);
               },
             ),
@@ -139,7 +148,9 @@ class _TappableChip extends ConsumerWidget {
               leading: const Icon(Icons.cloud_outlined),
               title: const Text('Force Remote (Tailscale)'),
               onTap: () {
-                ref.read(endpointSessionOverrideProvider.notifier).update(instanceId, EndpointMode.forceRemote);
+                ref
+                    .read(endpointSessionOverrideProvider.notifier)
+                    .update(instanceId, EndpointMode.forceRemote);
                 Navigator.pop(context);
               },
             ),

@@ -81,10 +81,7 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
             prefixIcon: Icon(Icons.category_outlined),
           ),
           items: ServiceType.values.map((type) {
-            return DropdownMenuItem(
-              value: type,
-              child: Text(type.displayName),
-            );
+            return DropdownMenuItem(value: type, child: Text(type.displayName));
           }).toList(),
           onChanged: (type) => type != null ? notifier.updateType(type) : null,
         ),
@@ -117,7 +114,8 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
         _UrlField(
           controller: _remoteUrlController,
           label: 'Remote URL (Tailscale)',
-          hint: 'http://harivin-nas.worm-banded.ts.net:${state.type.defaultPort}',
+          hint:
+              'http://harivin-nas.worm-banded.ts.net:${state.type.defaultPort}',
           onChanged: notifier.updateRemoteUrl,
           isTesting: state.isTestingRemote,
           testResult: state.remoteTestResult,
@@ -157,7 +155,9 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
         const SizedBox(height: AppSpacing.lg),
         SwitchListTile(
           title: const Text('Default Instance'),
-          subtitle: const Text('Use this as the primary instance for this service.'),
+          subtitle: const Text(
+            'Use this as the primary instance for this service.',
+          ),
           value: state.isDefault,
           onChanged: notifier.updateIsDefault,
           contentPadding: EdgeInsets.zero,
@@ -297,7 +297,11 @@ class _UrlFieldState extends State<_UrlField> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.auto_fix_high, size: 14, color: theme.colorScheme.primary),
+                  Icon(
+                    Icons.auto_fix_high,
+                    size: 14,
+                    color: theme.colorScheme.primary,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     'Fill default: ${widget.hint}',
@@ -329,29 +333,37 @@ class _TestResultIndicator extends StatelessWidget {
     final theme = Theme.of(context);
     return switch (result) {
       Ok(:final value) => Row(
-          children: [
-            Icon(Icons.check_circle_outline, color: theme.colorScheme.primary, size: 16),
-            const SizedBox(width: AppSpacing.xs),
-            Text(
-              'Success: v${value.version}',
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.primary),
+        children: [
+          Icon(
+            Icons.check_circle_outline,
+            color: theme.colorScheme.primary,
+            size: 16,
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            'Success: v${value.version}',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.primary,
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
       Err(:final error) => Row(
-          children: [
-            Icon(Icons.error_outline, color: theme.colorScheme.error, size: 16),
-            const SizedBox(width: AppSpacing.xs),
-            Expanded(
-              child: Text(
-                error.userMessage,
-                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.error),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+        children: [
+          Icon(Icons.error_outline, color: theme.colorScheme.error, size: 16),
+          const SizedBox(width: AppSpacing.xs),
+          Expanded(
+            child: Text(
+              error.userMessage,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.error,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     };
   }
 }

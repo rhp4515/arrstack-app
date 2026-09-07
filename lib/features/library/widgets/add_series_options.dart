@@ -19,7 +19,8 @@ class AddSeriesOptionsSheet extends ConsumerStatefulWidget {
   final SonarrSeries series;
 
   @override
-  ConsumerState<AddSeriesOptionsSheet> createState() => _AddSeriesOptionsSheetState();
+  ConsumerState<AddSeriesOptionsSheet> createState() =>
+      _AddSeriesOptionsSheetState();
 }
 
 class _AddSeriesOptionsSheetState extends ConsumerState<AddSeriesOptionsSheet> {
@@ -40,8 +41,12 @@ class _AddSeriesOptionsSheetState extends ConsumerState<AddSeriesOptionsSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final profilesAsync = ref.watch(sonarrQualityProfilesProvider(widget.instanceId));
-    final foldersAsync = ref.watch(sonarrRootFoldersProvider(widget.instanceId));
+    final profilesAsync = ref.watch(
+      sonarrQualityProfilesProvider(widget.instanceId),
+    );
+    final foldersAsync = ref.watch(
+      sonarrRootFoldersProvider(widget.instanceId),
+    );
 
     return Container(
       padding: AppInsets.pageMd,
@@ -64,12 +69,23 @@ class _AddSeriesOptionsSheetState extends ConsumerState<AddSeriesOptionsSheet> {
           profilesAsync.when(
             data: (result) => switch (result) {
               Ok(:final value) => DropdownButtonFormField<int>(
-                  decoration: const InputDecoration(labelText: 'Quality Profile'),
-                  initialValue: _selectedProfileId ?? (value.isNotEmpty ? value.first.id : null),
-                  items: value.map((p) => DropdownMenuItem(value: p.id, child: Text(p.name ?? 'Unknown'))).toList(),
-                  onChanged: (id) => setState(() => _selectedProfileId = id),
-                ),
-              Err(:final error) => Text('Error loading profiles: ${error.userMessage}'),
+                decoration: const InputDecoration(labelText: 'Quality Profile'),
+                initialValue:
+                    _selectedProfileId ??
+                    (value.isNotEmpty ? value.first.id : null),
+                items: value
+                    .map(
+                      (p) => DropdownMenuItem(
+                        value: p.id,
+                        child: Text(p.name ?? 'Unknown'),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (id) => setState(() => _selectedProfileId = id),
+              ),
+              Err(:final error) => Text(
+                'Error loading profiles: ${error.userMessage}',
+              ),
             },
             loading: () => const LinearProgressIndicator(),
             error: (err, _) => Text('Error: $err'),
@@ -78,12 +94,23 @@ class _AddSeriesOptionsSheetState extends ConsumerState<AddSeriesOptionsSheet> {
           foldersAsync.when(
             data: (result) => switch (result) {
               Ok(:final value) => DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Root Folder'),
-                  initialValue: _selectedPath ?? (value.isNotEmpty ? value.first.path : null),
-                  items: value.map((f) => DropdownMenuItem(value: f.path, child: Text(f.path ?? 'Unknown'))).toList(),
-                  onChanged: (p) => setState(() => _selectedPath = p),
-                ),
-              Err(:final error) => Text('Error loading folders: ${error.userMessage}'),
+                decoration: const InputDecoration(labelText: 'Root Folder'),
+                initialValue:
+                    _selectedPath ??
+                    (value.isNotEmpty ? value.first.path : null),
+                items: value
+                    .map(
+                      (f) => DropdownMenuItem(
+                        value: f.path,
+                        child: Text(f.path ?? 'Unknown'),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (p) => setState(() => _selectedPath = p),
+              ),
+              Err(:final error) => Text(
+                'Error loading folders: ${error.userMessage}',
+              ),
             },
             loading: () => const LinearProgressIndicator(),
             error: (err, _) => Text('Error: $err'),
@@ -92,7 +119,14 @@ class _AddSeriesOptionsSheetState extends ConsumerState<AddSeriesOptionsSheet> {
           FilledButton.icon(
             onPressed: _isSaving ? null : _save,
             icon: _isSaving
-                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
                 : const Icon(Icons.add),
             label: const Text('Add to Library'),
           ),
@@ -103,23 +137,43 @@ class _AddSeriesOptionsSheetState extends ConsumerState<AddSeriesOptionsSheet> {
   }
 
   Future<void> _save() async {
-    final repository = await ref.read(sonarrRepositoryProvider(widget.instanceId).future);
-    
-    final profilesResult = ref.read(sonarrQualityProfilesProvider(widget.instanceId)).value;
-    final foldersResult = ref.read(sonarrRootFoldersProvider(widget.instanceId)).value;
-    
-    final profileId = _selectedProfileId ?? (profilesResult is Ok<List<SonarrQualityProfile>> && profilesResult.value.isNotEmpty ? profilesResult.value.first.id : null);
-    final rootPath = _selectedPath ?? (foldersResult is Ok<List<SonarrRootFolder>> && foldersResult.value.isNotEmpty ? foldersResult.value.first.path : null);
+    final repository = await ref.read(
+      sonarrRepositoryProvider(widget.instanceId).future,
+    );
+
+    final profilesResult = ref
+        .read(sonarrQualityProfilesProvider(widget.instanceId))
+        .value;
+    final foldersResult = ref
+        .read(sonarrRootFoldersProvider(widget.instanceId))
+        .value;
+
+    final profileId =
+        _selectedProfileId ??
+        (profilesResult is Ok<List<SonarrQualityProfile>> &&
+                profilesResult.value.isNotEmpty
+            ? profilesResult.value.first.id
+            : null);
+    final rootPath =
+        _selectedPath ??
+        (foldersResult is Ok<List<SonarrRootFolder>> &&
+                foldersResult.value.isNotEmpty
+            ? foldersResult.value.first.path
+            : null);
 
     if (profileId == null || rootPath == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a profile and root folder.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select a profile and root folder.'),
+          ),
+        );
       }
       return;
     }
 
     setState(() => _isSaving = true);
-    
+
     final seriesToAdd = widget.series.copyWith(
       monitored: true,
       qualityProfileId: profileId,
@@ -131,16 +185,20 @@ class _AddSeriesOptionsSheetState extends ConsumerState<AddSeriesOptionsSheet> {
     );
 
     final result = await repository.addSeries(seriesToAdd);
-    
+
     if (mounted) {
       setState(() => _isSaving = false);
       switch (result) {
         case Ok():
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added "${widget.series.title}"')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Added "${widget.series.title}"')),
+          );
           ref.invalidate(sonarrSeriesProvider(widget.instanceId));
           Navigator.pop(context, true);
         case Err(:final error):
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: ${error.userMessage}')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed: ${error.userMessage}')),
+          );
       }
     }
   }

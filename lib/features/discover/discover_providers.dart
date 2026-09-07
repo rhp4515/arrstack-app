@@ -11,7 +11,9 @@ class SelectedSeerrInstanceId extends _$SelectedSeerrInstanceId {
   Future<String?> build() async {
     final instancesResult = await ref.watch(instancesProvider.future);
     if (instancesResult case Ok(:final value)) {
-      final typed = value.where((i) => i.serviceType == ServiceType.seerr).toList();
+      final typed = value
+          .where((i) => i.serviceType == ServiceType.seerr)
+          .toList();
       if (typed.isEmpty) return null;
       return typed.firstWhere((i) => i.isDefault, orElse: () => typed.first).id;
     }

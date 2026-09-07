@@ -21,11 +21,10 @@ class UptimePage extends ConsumerWidget {
     final instanceIdAsync = ref.watch(selectedUptimeInstanceIdProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Uptime Monitors'),
-      ),
+      appBar: AppBar(title: const Text('Uptime Monitors')),
       body: instanceIdAsync.when(
-        data: (id) => id == null ? const _NoKumaInstance() : _MonitorList(instanceId: id),
+        data: (id) =>
+            id == null ? const _NoKumaInstance() : _MonitorList(instanceId: id),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
@@ -47,37 +46,38 @@ class _MonitorList extends ConsumerWidget {
         Expanded(
           child: monitorsAsync.when(
             data: (result) => switch (result) {
-              Ok(:final value) => value.isEmpty
-                  ? const EmptyState(
-                      icon: Icons.monitor_heart_outlined,
-                      title: 'No monitors found',
-                      message: 'Your Uptime Kuma has no monitors configured.',
-                    )
-                  : ListView(
-                      padding: AppInsets.pageMd,
-                      children: [
-                        _AdminOverview(monitors: value),
-                        const SizedBox(height: AppSpacing.lg),
-                        Text(
-                          'Monitors',
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                        for (final monitor in value)
-                          MonitorTile(monitor: monitor),
-                      ],
-                    ),
+              Ok(:final value) =>
+                value.isEmpty
+                    ? const EmptyState(
+                        icon: Icons.monitor_heart_outlined,
+                        title: 'No monitors found',
+                        message: 'Your Uptime Kuma has no monitors configured.',
+                      )
+                    : ListView(
+                        padding: AppInsets.pageMd,
+                        children: [
+                          _AdminOverview(monitors: value),
+                          const SizedBox(height: AppSpacing.lg),
+                          Text(
+                            'Monitors',
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          for (final monitor in value)
+                            MonitorTile(monitor: monitor),
+                        ],
+                      ),
               Err(:final error) => EmptyState(
-                  icon: Icons.error_outline,
-                  title: 'Failed to connect',
-                  message: error.userMessage,
-                  action: FilledButton(
-                    onPressed: () =>
-                        ref.invalidate(kumaMonitorsProvider(instanceId)),
-                    child: const Text('Retry'),
-                  ),
+                icon: Icons.error_outline,
+                title: 'Failed to connect',
+                message: error.userMessage,
+                action: FilledButton(
+                  onPressed: () =>
+                      ref.invalidate(kumaMonitorsProvider(instanceId)),
+                  child: const Text('Retry'),
                 ),
+              ),
             },
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, _) => Center(child: Text('Socket error: $err')),
@@ -219,7 +219,9 @@ class _InstanceSelector extends ConsumerWidget {
     return instancesAsync.when(
       data: (result) {
         if (result case Ok(:final value)) {
-          final typed = value.where((i) => i.serviceType == ServiceType.uptimeKuma).toList();
+          final typed = value
+              .where((i) => i.serviceType == ServiceType.uptimeKuma)
+              .toList();
           if (typed.length <= 1) return const SizedBox.shrink();
 
           return Container(
@@ -227,13 +229,25 @@ class _InstanceSelector extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
             child: Row(
               children: [
-                Text('Instance:', style: Theme.of(context).textTheme.labelMedium),
+                Text(
+                  'Instance:',
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
                 const SizedBox(width: AppSpacing.sm),
                 DropdownButton<String>(
                   value: selectedId,
                   underline: const SizedBox.shrink(),
-                  items: typed.map((i) => DropdownMenuItem(value: i.id, child: Text(i.name))).toList(),
-                  onChanged: (id) => id != null ? ref.read(selectedUptimeInstanceIdProvider.notifier).selectInstance(id) : null,
+                  items: typed
+                      .map(
+                        (i) =>
+                            DropdownMenuItem(value: i.id, child: Text(i.name)),
+                      )
+                      .toList(),
+                  onChanged: (id) => id != null
+                      ? ref
+                            .read(selectedUptimeInstanceIdProvider.notifier)
+                            .selectInstance(id)
+                      : null,
                 ),
               ],
             ),
@@ -255,8 +269,8 @@ class _NoKumaInstance extends StatelessWidget {
     return const EmptyState(
       icon: Icons.monitor_heart_outlined,
       title: 'No Uptime Kuma',
-      message: 'Configure an Uptime Kuma service in Settings to see your monitors.',
+      message:
+          'Configure an Uptime Kuma service in Settings to see your monitors.',
     );
   }
 }
-

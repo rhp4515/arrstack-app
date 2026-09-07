@@ -30,7 +30,10 @@ Future<List<ServiceHealth>> stackHealth(Ref ref) async {
   return healths;
 }
 
-Future<ServiceHealth> _getHealthForInstance(Ref ref, ServiceInstance instance) async {
+Future<ServiceHealth> _getHealthForInstance(
+  Ref ref,
+  ServiceInstance instance,
+) async {
   final id = instance.id;
   final type = instance.serviceType;
 
@@ -40,29 +43,33 @@ Future<ServiceHealth> _getHealthForInstance(Ref ref, ServiceInstance instance) a
     ServiceType.bazarr => _getBazarrHealth(ref, instance),
     ServiceType.uptimeKuma => _getKumaHealth(ref, instance),
     _ => ServiceHealth(
-        instanceId: id,
-        instanceName: instance.name,
-        serviceType: type,
-        isReachable: true,
-        headlineStat: 'Connected',
-        statusColor: Colors.grey,
-      ),
+      instanceId: id,
+      instanceName: instance.name,
+      serviceType: type,
+      isReachable: true,
+      headlineStat: 'Connected',
+      statusColor: Colors.grey,
+    ),
   };
 }
 
-Future<ServiceHealth> _getRadarrHealth(Ref ref, ServiceInstance instance) async {
+Future<ServiceHealth> _getRadarrHealth(
+  Ref ref,
+  ServiceInstance instance,
+) async {
   final moviesAsync = ref.watch(radarrMoviesProvider(instance.id));
-  
+
   return moviesAsync.when(
     data: (result) => switch (result) {
       Ok(:final value) => ServiceHealth(
-          instanceId: instance.id,
-          instanceName: instance.name,
-          serviceType: instance.serviceType,
-          isReachable: true,
-          headlineStat: '${value.where((m) => !m.hasFile && m.monitored).length} Missing',
-          statusColor: ServiceAccents.radarr,
-        ),
+        instanceId: instance.id,
+        instanceName: instance.name,
+        serviceType: instance.serviceType,
+        isReachable: true,
+        headlineStat:
+            '${value.where((m) => !m.hasFile && m.monitored).length} Missing',
+        statusColor: ServiceAccents.radarr,
+      ),
       Err() => _offlineHealth(instance),
     },
     loading: () => _loadingHealth(instance),
@@ -70,19 +77,23 @@ Future<ServiceHealth> _getRadarrHealth(Ref ref, ServiceInstance instance) async 
   );
 }
 
-Future<ServiceHealth> _getSonarrHealth(Ref ref, ServiceInstance instance) async {
+Future<ServiceHealth> _getSonarrHealth(
+  Ref ref,
+  ServiceInstance instance,
+) async {
   final seriesAsync = ref.watch(sonarrSeriesProvider(instance.id));
 
   return seriesAsync.when(
     data: (result) => switch (result) {
       Ok(:final value) => ServiceHealth(
-          instanceId: instance.id,
-          instanceName: instance.name,
-          serviceType: instance.serviceType,
-          isReachable: true,
-          headlineStat: '${value.where((s) => s.statistics?.percentOfEpisodes != 100).length} Incomplete',
-          statusColor: ServiceAccents.sonarr,
-        ),
+        instanceId: instance.id,
+        instanceName: instance.name,
+        serviceType: instance.serviceType,
+        isReachable: true,
+        headlineStat:
+            '${value.where((s) => s.statistics?.percentOfEpisodes != 100).length} Incomplete',
+        statusColor: ServiceAccents.sonarr,
+      ),
       Err() => _offlineHealth(instance),
     },
     loading: () => _loadingHealth(instance),
@@ -90,19 +101,22 @@ Future<ServiceHealth> _getSonarrHealth(Ref ref, ServiceInstance instance) async 
   );
 }
 
-Future<ServiceHealth> _getBazarrHealth(Ref ref, ServiceInstance instance) async {
+Future<ServiceHealth> _getBazarrHealth(
+  Ref ref,
+  ServiceInstance instance,
+) async {
   final wantedAsync = ref.watch(bazarrWantedProvider(instance.id));
 
   return wantedAsync.when(
     data: (result) => switch (result) {
       Ok(:final value) => ServiceHealth(
-          instanceId: instance.id,
-          instanceName: instance.name,
-          serviceType: instance.serviceType,
-          isReachable: true,
-          headlineStat: '${value.length} Wanted',
-          statusColor: ServiceAccents.bazarr,
-        ),
+        instanceId: instance.id,
+        instanceName: instance.name,
+        serviceType: instance.serviceType,
+        isReachable: true,
+        headlineStat: '${value.length} Wanted',
+        statusColor: ServiceAccents.bazarr,
+      ),
       Err() => _offlineHealth(instance),
     },
     loading: () => _loadingHealth(instance),
@@ -116,13 +130,13 @@ Future<ServiceHealth> _getKumaHealth(Ref ref, ServiceInstance instance) async {
   return monitorsAsync.when(
     data: (result) => switch (result) {
       Ok(:final value) => ServiceHealth(
-          instanceId: instance.id,
-          instanceName: instance.name,
-          serviceType: instance.serviceType,
-          isReachable: true,
-          headlineStat: '${value.where((m) => m.status == 0).length} Down',
-          statusColor: ServiceAccents.uptimeKuma,
-        ),
+        instanceId: instance.id,
+        instanceName: instance.name,
+        serviceType: instance.serviceType,
+        isReachable: true,
+        headlineStat: '${value.where((m) => m.status == 0).length} Down',
+        statusColor: ServiceAccents.uptimeKuma,
+      ),
       Err() => _offlineHealth(instance),
     },
     loading: () => _loadingHealth(instance),
@@ -131,19 +145,19 @@ Future<ServiceHealth> _getKumaHealth(Ref ref, ServiceInstance instance) async {
 }
 
 ServiceHealth _offlineHealth(ServiceInstance instance) => ServiceHealth(
-      instanceId: instance.id,
-      instanceName: instance.name,
-      serviceType: instance.serviceType,
-      isReachable: false,
-      headlineStat: 'Offline',
-      statusColor: Colors.red,
-    );
+  instanceId: instance.id,
+  instanceName: instance.name,
+  serviceType: instance.serviceType,
+  isReachable: false,
+  headlineStat: 'Offline',
+  statusColor: Colors.red,
+);
 
 ServiceHealth _loadingHealth(ServiceInstance instance) => ServiceHealth(
-      instanceId: instance.id,
-      instanceName: instance.name,
-      serviceType: instance.serviceType,
-      isReachable: true,
-      headlineStat: 'Loading...',
-      statusColor: Colors.grey,
-    );
+  instanceId: instance.id,
+  instanceName: instance.name,
+  serviceType: instance.serviceType,
+  isReachable: true,
+  headlineStat: 'Loading...',
+  statusColor: Colors.grey,
+);

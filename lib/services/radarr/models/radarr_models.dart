@@ -138,8 +138,7 @@ abstract class RadarrQualityInfo with _$RadarrQualityInfo {
 
 @freezed
 abstract class RadarrQuality with _$RadarrQuality {
-  const factory RadarrQuality({int? id, String? name}) =
-      _RadarrQuality;
+  const factory RadarrQuality({int? id, String? name}) = _RadarrQuality;
 
   factory RadarrQuality.fromJson(Map<String, dynamic> json) =>
       _$RadarrQualityFromJson(json);

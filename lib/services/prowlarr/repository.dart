@@ -10,5 +10,6 @@ class ProwlarrRepository {
 
   Future<Result<List<Indexer>>> getIndexers() => _client.getIndexers();
 
-  Future<Result<IndexerStatsResponse>> getIndexerStats() => _client.getIndexerStats();
+  Future<Result<IndexerStatsResponse>> getIndexerStats() =>
+      _client.getIndexerStats();
 }

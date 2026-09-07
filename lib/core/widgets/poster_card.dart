@@ -13,6 +13,8 @@ class PosterCard extends StatelessWidget {
     this.onTap,
     this.aspectRatio = 2 / 3,
     this.monitored = true,
+    this.badge,
+    this.titleBelow = false,
   });
 
   final String imageUrl;
@@ -22,10 +24,53 @@ class PosterCard extends StatelessWidget {
   final double aspectRatio;
   final bool monitored;
 
+  /// Small overlay pinned to the poster's top-left corner (e.g. an
+  /// "Available" [StatusChip]) — mirrors the badge treatment on the Seerr
+  /// Discover carousels.
+  final Widget? badge;
+
+  /// When true, [title]/[subtitle] render as plain text below the poster
+  /// (bold title + muted year) instead of as a gradient overlay on top of
+  /// the image — the treatment used by the Seerr Discover carousels.
+  final bool titleBelow;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final card = _buildCard(context, theme);
 
+    if (!titleBelow) return card;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        card,
+        if (title != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            title!,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+        if (subtitle != null)
+          Text(
+            subtitle!,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+      ],
+    );
+  }
+
+  Widget _buildCard(BuildContext context, ThemeData theme) {
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: 2,
@@ -39,7 +84,8 @@ class PosterCard extends StatelessWidget {
               CachedNetworkImage(
                 imageUrl: imageUrl,
                 fit: BoxFit.cover,
-                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                placeholder: (context, url) =>
+                    const Center(child: CircularProgressIndicator()),
                 errorWidget: (context, url, error) {
                   developer.log(
                     'PosterCard Image Load Error: $error | URL: $url',
@@ -84,7 +130,13 @@ class PosterCard extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (title != null || subtitle != null)
+              if (badge != null)
+                Positioned(
+                  top: AppSpacing.xs,
+                  left: AppSpacing.xs,
+                  child: badge!,
+                ),
+              if (!titleBelow && (title != null || subtitle != null))
                 Positioned(
                   left: 0,
                   right: 0,

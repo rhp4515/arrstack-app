@@ -8,10 +8,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'providers.g.dart';
 
 @riverpod
-Future<ProwlarrClient> prowlarrClient(
-  Ref ref,
-  String instanceId,
-) async {
+Future<ProwlarrClient> prowlarrClient(Ref ref, String instanceId) async {
   final dioResult = await ref.watch(dioForInstanceProvider(instanceId).future);
   final dio = switch (dioResult) {
     Ok(:final value) => value,

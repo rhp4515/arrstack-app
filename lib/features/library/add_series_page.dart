@@ -32,10 +32,9 @@ class _AddSeriesPageState extends ConsumerState<AddSeriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final lookupAsync = ref.watch(sonarrLookupProvider(
-      instanceId: widget.instanceId,
-      term: _searchTerm,
-    ));
+    final lookupAsync = ref.watch(
+      sonarrLookupProvider(instanceId: widget.instanceId, term: _searchTerm),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -71,21 +70,22 @@ class _AddSeriesPageState extends ConsumerState<AddSeriesPage> {
             )
           : lookupAsync.when(
               data: (result) => switch (result) {
-                Ok(:final value) => value.isEmpty
-                    ? const EmptyState(
-                        icon: Icons.search_off,
-                        title: 'No results',
-                        message: 'No series found matching your search.',
-                      )
-                    : _SearchResults(
-                        series: value,
-                        instanceId: widget.instanceId,
-                      ),
+                Ok(:final value) =>
+                  value.isEmpty
+                      ? const EmptyState(
+                          icon: Icons.search_off,
+                          title: 'No results',
+                          message: 'No series found matching your search.',
+                        )
+                      : _SearchResults(
+                          series: value,
+                          instanceId: widget.instanceId,
+                        ),
                 Err(:final error) => EmptyState(
-                    icon: Icons.error_outline,
-                    title: 'Lookup failed',
-                    message: error.userMessage,
-                  ),
+                  icon: Icons.error_outline,
+                  title: 'Lookup failed',
+                  message: error.userMessage,
+                ),
               },
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(child: Text('Error: $err')),
@@ -123,10 +123,12 @@ class _SearchResultTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final relativeUrl = series.posterUrl;
     final fullUrlAsync = relativeUrl != null
-        ? ref.watch(sonarrFullImageUrlProvider(
-            instanceId: instanceId,
-            relativeUrl: relativeUrl,
-          ))
+        ? ref.watch(
+            sonarrFullImageUrlProvider(
+              instanceId: instanceId,
+              relativeUrl: relativeUrl,
+            ),
+          )
         : const AsyncData<String?>(null);
 
     return ListTile(
@@ -135,7 +137,8 @@ class _SearchResultTile extends ConsumerWidget {
         width: 60,
         child: fullUrlAsync.when(
           data: (url) => PosterCard(imageUrl: url ?? '', monitored: true),
-          loading: () => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+          loading: () =>
+              const Center(child: CircularProgressIndicator(strokeWidth: 2)),
           error: (_, _) => const Icon(Icons.tv_outlined),
         ),
       ),
@@ -150,16 +153,19 @@ class _SearchResultTile extends ConsumerWidget {
     );
   }
 
-  void _showAddOptions(BuildContext context, WidgetRef ref, SonarrSeries series) async {
+  void _showAddOptions(
+    BuildContext context,
+    WidgetRef ref,
+    SonarrSeries series,
+  ) async {
     final added = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (context) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: AddSeriesOptionsSheet(
-          instanceId: instanceId,
-          series: series,
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
+        child: AddSeriesOptionsSheet(instanceId: instanceId, series: series),
       ),
     );
 

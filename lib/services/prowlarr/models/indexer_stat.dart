@@ -14,7 +14,8 @@ abstract class IndexerStat with _$IndexerStat {
     @Default(0) int numberOfFailures,
   }) = _IndexerStat;
 
-  factory IndexerStat.fromJson(Map<String, dynamic> json) => _$IndexerStatFromJson(json);
+  factory IndexerStat.fromJson(Map<String, dynamic> json) =>
+      _$IndexerStatFromJson(json);
 }
 
 @freezed
@@ -23,5 +24,6 @@ abstract class IndexerStatsResponse with _$IndexerStatsResponse {
     @Default([]) List<IndexerStat> indexers,
   }) = _IndexerStatsResponse;
 
-  factory IndexerStatsResponse.fromJson(Map<String, dynamic> json) => _$IndexerStatsResponseFromJson(json);
+  factory IndexerStatsResponse.fromJson(Map<String, dynamic> json) =>
+      _$IndexerStatsResponseFromJson(json);
 }

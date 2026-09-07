@@ -93,7 +93,7 @@ class RadarrClient implements ConnectionTestClient {
     final payload = movie.toJson();
     // Radarr v3 often fails if 'id' is present (even as null/0) during POST
     payload.remove('id');
-    
+
     return dioCall(
       () => _dio.post('api/v3/movie', data: payload),
       map: (data) => RadarrMovie.fromJson(data as Map<String, dynamic>),

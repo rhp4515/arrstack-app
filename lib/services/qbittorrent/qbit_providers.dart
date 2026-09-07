@@ -36,7 +36,9 @@ Future<QbitClient> qbitClient(Ref ref, String instanceId) async {
 @Riverpod(keepAlive: true)
 Future<QbitRepository> qbitRepository(Ref ref, String instanceId) async {
   final client = await ref.watch(qbitClientProvider(instanceId).future);
-  final credential = await ref.watch(serviceCredentialProvider(instanceId).future);
+  final credential = await ref.watch(
+    serviceCredentialProvider(instanceId).future,
+  );
 
   if (credential == null) {
     throw Exception('No credentials found for instance $instanceId');
@@ -46,7 +48,10 @@ Future<QbitRepository> qbitRepository(Ref ref, String instanceId) async {
 }
 
 @riverpod
-Future<Result<List<QbitTorrent>>> qbitTorrents(Ref ref, String instanceId) async {
+Future<Result<List<QbitTorrent>>> qbitTorrents(
+  Ref ref,
+  String instanceId,
+) async {
   final repository = await ref.watch(qbitRepositoryProvider(instanceId).future);
   return repository.listTorrents();
 }

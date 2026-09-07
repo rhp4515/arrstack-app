@@ -16,9 +16,7 @@ class IndexersPage extends ConsumerWidget {
     final statsAsync = ref.watch(prowlarrIndexerStatsProvider(instanceId));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Prowlarr Indexers'),
-      ),
+      appBar: AppBar(title: const Text('Prowlarr Indexers')),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(prowlarrIndexersProvider(instanceId));
@@ -28,17 +26,17 @@ class IndexersPage extends ConsumerWidget {
           data: (result) => switch (result) {
             Ok(:final value) => _buildIndexersList(value, statsAsync),
             Err(:final error) => EmptyState(
-                icon: Icons.error_outline,
-                title: 'Failed to load indexers',
-                message: error.userMessage,
-                action: FilledButton(
-                  onPressed: () {
-                    ref.invalidate(prowlarrIndexersProvider(instanceId));
-                    ref.invalidate(prowlarrIndexerStatsProvider(instanceId));
-                  },
-                  child: const Text('Retry'),
-                ),
+              icon: Icons.error_outline,
+              title: 'Failed to load indexers',
+              message: error.userMessage,
+              action: FilledButton(
+                onPressed: () {
+                  ref.invalidate(prowlarrIndexersProvider(instanceId));
+                  ref.invalidate(prowlarrIndexerStatsProvider(instanceId));
+                },
+                child: const Text('Retry'),
               ),
+            ),
           },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (err, _) => Center(child: Text('Unexpected error: $err')),
@@ -70,21 +68,31 @@ class IndexersPage extends ConsumerWidget {
       itemCount: indexers.length,
       itemBuilder: (context, index) {
         final indexer = indexers[index];
-        final stat = statsResult.where((s) => s.indexerId == indexer.id).firstOrNull;
+        final stat = statsResult
+            .where((s) => s.indexerId == indexer.id)
+            .firstOrNull;
 
         return Card(
           margin: const EdgeInsets.only(bottom: AppSpacing.sm),
           child: ListTile(
             title: Text(indexer.name),
-            subtitle: Text('Priority: ${indexer.priority} • Protocol: ${indexer.protocol}'),
+            subtitle: Text(
+              'Priority: ${indexer.priority} • Protocol: ${indexer.protocol}',
+            ),
             trailing: stat == null
                 ? const SizedBox.shrink()
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('${stat.averageResponseTime}ms', style: Theme.of(context).textTheme.bodySmall),
-                      Text('${stat.numberOfGrabs} grabs', style: Theme.of(context).textTheme.bodySmall),
+                      Text(
+                        '${stat.averageResponseTime}ms',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      Text(
+                        '${stat.numberOfGrabs} grabs',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ],
                   ),
             leading: Icon(

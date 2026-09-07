@@ -22,7 +22,9 @@ class BazarrRepository {
     } else if (subtitle.type == 'episode' && subtitle.episodeId != null) {
       return _client.searchEpisodeSubtitles(subtitle.episodeId!);
     }
-    return Future.value(const Err(ValidationError(userMessage: 'Invalid subtitle item.')));
+    return Future.value(
+      const Err(ValidationError(userMessage: 'Invalid subtitle item.')),
+    );
   }
 
   Future<Result<void>> searchAllSubtitles() => _client.searchAllSubtitles();

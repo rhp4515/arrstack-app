@@ -58,20 +58,28 @@ class _HomeSsidSettingState extends ConsumerState<HomeSsidSetting> {
                   final ssids = ssidsAsync.value ?? [];
                   if (ssids.contains(current)) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('"$current" is already in your home networks.')),
+                      SnackBar(
+                        content: Text(
+                          '"$current" is already in your home networks.',
+                        ),
+                      ),
                     );
                   } else {
                     await notifier.addHomeSsid(current);
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Added "$current" to home networks.')),
+                        SnackBar(
+                          content: Text('Added "$current" to home networks.'),
+                        ),
                       );
                     }
                   }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Could not detect SSID. Ensure WiFi and Location are on.'),
+                      content: Text(
+                        'Could not detect SSID. Ensure WiFi and Location are on.',
+                      ),
                     ),
                   );
                 }
@@ -90,7 +98,10 @@ class _HomeSsidSettingState extends ConsumerState<HomeSsidSetting> {
           data: (ssids) => ssids.isEmpty
               ? const Padding(
                   padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
-                  child: Text('No home SSIDs configured.', style: TextStyle(fontStyle: FontStyle.italic)),
+                  child: Text(
+                    'No home SSIDs configured.',
+                    style: TextStyle(fontStyle: FontStyle.italic),
+                  ),
                 )
               : Wrap(
                   spacing: AppSpacing.sm,

@@ -24,8 +24,13 @@ Future<BazarrRepository> bazarrRepository(Ref ref, String instanceId) async {
 }
 
 @riverpod
-Future<Result<List<BazarrWantedSubtitle>>> bazarrWanted(Ref ref, String instanceId) async {
-  final repository = await ref.watch(bazarrRepositoryProvider(instanceId).future);
+Future<Result<List<BazarrWantedSubtitle>>> bazarrWanted(
+  Ref ref,
+  String instanceId,
+) async {
+  final repository = await ref.watch(
+    bazarrRepositoryProvider(instanceId).future,
+  );
 
   final episodesResult = await repository.listWantedEpisodes();
   final moviesResult = await repository.listWantedMovies();
@@ -47,8 +52,13 @@ Future<Result<List<BazarrWantedSubtitle>>> bazarrWanted(Ref ref, String instance
 }
 
 @riverpod
-Future<Result<BazarrSystemStatus>> bazarrStatus(Ref ref, String instanceId) async {
-  final repository = await ref.watch(bazarrRepositoryProvider(instanceId).future);
+Future<Result<BazarrSystemStatus>> bazarrStatus(
+  Ref ref,
+  String instanceId,
+) async {
+  final repository = await ref.watch(
+    bazarrRepositoryProvider(instanceId).future,
+  );
   return repository.getStatus();
 }
 
@@ -57,5 +67,7 @@ Future<ServiceInstance?> primaryBazarrInstance(Ref ref) async {
   final instancesResult = await ref.watch(instancesProvider.future);
   if (instancesResult is! Ok<List<ServiceInstance>>) return null;
   final instances = instancesResult.value;
-  return instances.where((i) => i.serviceType == ServiceType.bazarr).firstOrNull;
+  return instances
+      .where((i) => i.serviceType == ServiceType.bazarr)
+      .firstOrNull;
 }

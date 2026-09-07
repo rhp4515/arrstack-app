@@ -25,7 +25,8 @@ class DownloadsPage extends ConsumerWidget {
         title: const Text('Downloads'),
         actions: [
           instanceIdAsync.when(
-            data: (id) => id != null ? const _FilterMenu() : const SizedBox.shrink(),
+            data: (id) =>
+                id != null ? const _FilterMenu() : const SizedBox.shrink(),
             loading: () => const SizedBox.shrink(),
             error: (_, _) => const SizedBox.shrink(),
           ),
@@ -37,7 +38,8 @@ class DownloadsPage extends ConsumerWidget {
         ),
       ),
       body: instanceIdAsync.when(
-        data: (id) => id == null ? const _NoQbitInstance() : _TorrentList(instanceId: id),
+        data: (id) =>
+            id == null ? const _NoQbitInstance() : _TorrentList(instanceId: id),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
@@ -51,7 +53,9 @@ class DownloadsPage extends ConsumerWidget {
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Please configure a qBittorrent instance first.')),
+              const SnackBar(
+                content: Text('Please configure a qBittorrent instance first.'),
+              ),
             );
           }
         },
@@ -76,14 +80,14 @@ class _TorrentList extends ConsumerWidget {
         data: (result) => switch (result) {
           Ok(:final value) => _buildFilteredList(value, filter, instanceId),
           Err(:final error) => EmptyState(
-              icon: Icons.error_outline,
-              title: 'Failed to load torrents',
-              message: error.userMessage,
-              action: FilledButton(
-                onPressed: () => ref.invalidate(qbitTorrentsProvider(instanceId)),
-                child: const Text('Retry'),
-              ),
+            icon: Icons.error_outline,
+            title: 'Failed to load torrents',
+            message: error.userMessage,
+            action: FilledButton(
+              onPressed: () => ref.invalidate(qbitTorrentsProvider(instanceId)),
+              child: const Text('Retry'),
             ),
+          ),
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text('Unexpected error: $err')),
@@ -91,27 +95,44 @@ class _TorrentList extends ConsumerWidget {
     );
   }
 
-  Widget _buildFilteredList(List<QbitTorrent> all, TorrentFilter filter, String instanceId) {
+  Widget _buildFilteredList(
+    List<QbitTorrent> all,
+    TorrentFilter filter,
+    String instanceId,
+  ) {
     final filtered = switch (filter) {
       TorrentFilter.all => all,
       TorrentFilter.active => all.where((t) {
-          final isComplete = torrentIsComplete(t);
-          final isStalled = t.state == 'stalledDL' || t.state == 'stalledUP';
-          final isPaused = t.state == 'pausedDL' || t.state == 'pausedUP';
-          return !isComplete && !isStalled && !isPaused;
-        }).toList(),
-      TorrentFilter.seeding => all.where((t) => const {
-            'uploading',
-            'stalledUP',
-            'checkingUP',
-            'queuedUP',
-            'forcedUP'
-          }.contains(t.state)).toList(),
+        final isComplete = torrentIsComplete(t);
+        final isStalled = t.state == 'stalledDL' || t.state == 'stalledUP';
+        final isPaused = t.state == 'pausedDL' || t.state == 'pausedUP';
+        return !isComplete && !isStalled && !isPaused;
+      }).toList(),
+      TorrentFilter.seeding =>
+        all
+            .where(
+              (t) => const {
+                'uploading',
+                'stalledUP',
+                'checkingUP',
+                'queuedUP',
+                'forcedUP',
+              }.contains(t.state),
+            )
+            .toList(),
       TorrentFilter.completed => all.where(torrentIsComplete).toList(),
       TorrentFilter.stalled =>
-        all.where((t) => t.state == 'stalledDL' || t.state == 'stalledUP').toList(),
-      TorrentFilter.paused => all.where((t) => t.state == 'pausedDL' || t.state == 'pausedUP').toList(),
-      TorrentFilter.errored => all.where((t) => t.state == 'error' || t.state == 'missingFiles').toList(),
+        all
+            .where((t) => t.state == 'stalledDL' || t.state == 'stalledUP')
+            .toList(),
+      TorrentFilter.paused =>
+        all
+            .where((t) => t.state == 'pausedDL' || t.state == 'pausedUP')
+            .toList(),
+      TorrentFilter.errored =>
+        all
+            .where((t) => t.state == 'error' || t.state == 'missingFiles')
+            .toList(),
     };
 
     if (filtered.isEmpty) {
@@ -129,10 +150,8 @@ class _TorrentList extends ConsumerWidget {
     return ListView.builder(
       padding: AppInsets.pageMd,
       itemCount: filtered.length,
-      itemBuilder: (context, index) => TorrentTile(
-        instanceId: instanceId,
-        torrent: filtered[index],
-      ),
+      itemBuilder: (context, index) =>
+          TorrentTile(instanceId: instanceId, torrent: filtered[index]),
     );
   }
 }
@@ -146,15 +165,46 @@ class _FilterMenu extends ConsumerWidget {
 
     return PopupMenuButton<TorrentFilter>(
       icon: const Icon(Icons.filter_list),
-      onSelected: (filter) => ref.read(downloadFilterProvider.notifier).setFilter(filter),
+      onSelected: (filter) =>
+          ref.read(downloadFilterProvider.notifier).setFilter(filter),
       itemBuilder: (context) => [
         _buildItem(TorrentFilter.all, 'All Torrents', Icons.list, activeFilter),
-        _buildItem(TorrentFilter.active, 'Active', Icons.download, activeFilter),
-        _buildItem(TorrentFilter.seeding, 'Seeding', Icons.upload, activeFilter),
-        _buildItem(TorrentFilter.completed, 'Completed', Icons.check_circle, activeFilter),
-        _buildItem(TorrentFilter.stalled, 'Stalled', Icons.pause_circle_outline, activeFilter),
-        _buildItem(TorrentFilter.paused, 'Paused', Icons.pause_outlined, activeFilter),
-        _buildItem(TorrentFilter.errored, 'Errored', Icons.error_outline, activeFilter),
+        _buildItem(
+          TorrentFilter.active,
+          'Active',
+          Icons.download,
+          activeFilter,
+        ),
+        _buildItem(
+          TorrentFilter.seeding,
+          'Seeding',
+          Icons.upload,
+          activeFilter,
+        ),
+        _buildItem(
+          TorrentFilter.completed,
+          'Completed',
+          Icons.check_circle,
+          activeFilter,
+        ),
+        _buildItem(
+          TorrentFilter.stalled,
+          'Stalled',
+          Icons.pause_circle_outline,
+          activeFilter,
+        ),
+        _buildItem(
+          TorrentFilter.paused,
+          'Paused',
+          Icons.pause_outlined,
+          activeFilter,
+        ),
+        _buildItem(
+          TorrentFilter.errored,
+          'Errored',
+          Icons.error_outline,
+          activeFilter,
+        ),
       ],
     );
   }
@@ -170,11 +220,7 @@ class _FilterMenu extends ConsumerWidget {
       value: value,
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: isSelected ? Colors.blue : null,
-          ),
+          Icon(icon, size: 20, color: isSelected ? Colors.blue : null),
           const SizedBox(width: AppSpacing.md),
           Text(
             label,
@@ -283,24 +329,32 @@ class _GlobalStatsBar extends ConsumerWidget implements PreferredSizeWidget {
           final stats = value.serverState;
           return Container(
             height: 40,
-            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+            color: theme.colorScheme.surfaceContainerHighest.withValues(
+              alpha: 0.5,
+            ),
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   '↓ ${FormatUtils.formatSpeed(stats.dlInfoSpeed)}',
-                  style: theme.textTheme.labelMedium
-                      ?.copyWith(color: Colors.blue, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Text(
                   '↑ ${FormatUtils.formatSpeed(stats.upInfoSpeed)}',
-                  style: theme.textTheme.labelMedium
-                      ?.copyWith(color: Colors.green, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Text(
                   stats.connectionStatus.toUpperCase(),
-                  style: theme.textTheme.labelSmall?.copyWith(color: Colors.grey),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: Colors.grey,
+                  ),
                 ),
               ],
             ),
@@ -308,7 +362,10 @@ class _GlobalStatsBar extends ConsumerWidget implements PreferredSizeWidget {
         }
         return const SizedBox.shrink();
       },
-      loading: () => const SizedBox(height: 40, child: LinearProgressIndicator(minHeight: 2)),
+      loading: () => const SizedBox(
+        height: 40,
+        child: LinearProgressIndicator(minHeight: 2),
+      ),
       error: (_, _) => const SizedBox.shrink(),
     );
   }

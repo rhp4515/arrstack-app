@@ -58,7 +58,9 @@ Future<List<CalendarEntry>> _sonarrEntries(
     final result = await repo.listCalendar(start, end);
     if (result case Ok(:final value)) {
       return value
-          .map((ep) => CalendarEntry.fromSonarrEpisode(ep, instanceId: instanceId))
+          .map(
+            (ep) => CalendarEntry.fromSonarrEpisode(ep, instanceId: instanceId),
+          )
           .whereType<CalendarEntry>()
           .toList();
     }

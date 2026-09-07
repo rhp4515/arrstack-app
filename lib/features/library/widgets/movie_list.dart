@@ -83,9 +83,7 @@ class MovieList extends ConsumerWidget {
           pill: _qualityPill(movie),
           onTap: movie.id == null
               ? null
-              : () => context.go(
-                  RoutePaths.movieDetail(instanceId, movie.id!),
-                ),
+              : () => context.go(RoutePaths.movieDetail(instanceId, movie.id!)),
         );
       },
     );

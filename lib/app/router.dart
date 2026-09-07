@@ -8,6 +8,7 @@ import 'package:arrstack/features/calendar/calendar_page.dart';
 import 'package:arrstack/features/dashboard/dashboard_page.dart';
 import 'package:arrstack/features/discover/discover_detail_page.dart';
 import 'package:arrstack/features/discover/discover_page.dart';
+import 'package:arrstack/features/discover/genre_results_page.dart';
 import 'package:arrstack/features/downloads/downloads_page.dart';
 import 'package:arrstack/features/indexers/indexers_page.dart';
 import 'package:arrstack/features/library/add_movie_page.dart';
@@ -82,7 +83,9 @@ final GoRouter appRouter = GoRouter(
                       builder: (context, state) => EpisodeDetailPage(
                         instanceId: state.pathParameters['instanceId']!,
                         seriesId: int.parse(state.pathParameters['seriesId']!),
-                        episodeId: int.parse(state.pathParameters['episodeId']!),
+                        episodeId: int.parse(
+                          state.pathParameters['episodeId']!,
+                        ),
                       ),
                     ),
                   ],
@@ -130,9 +133,20 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: 'detail/:id/:type',
                   builder: (context, state) => DiscoverDetailPage(
-                    instanceId: '', // Logic inside page will use provider if empty
+                    instanceId:
+                        '', // Logic inside page will use provider if empty
                     id: int.parse(state.pathParameters['id']!),
                     mediaType: state.pathParameters['type']!,
+                  ),
+                ),
+                GoRoute(
+                  path: 'genre/:type/:genreId',
+                  builder: (context, state) => GenreResultsPage(
+                    instanceId:
+                        '', // Logic inside page will use provider if empty
+                    genreId: int.parse(state.pathParameters['genreId']!),
+                    mediaType: state.pathParameters['type']!,
+                    genreName: state.uri.queryParameters['name'] ?? 'Genre',
                   ),
                 ),
               ],
@@ -151,9 +165,8 @@ final GoRouter appRouter = GoRouter(
                 ),
                 GoRoute(
                   path: ':id/edit',
-                  builder: (context, state) => AddInstancePage(
-                    instanceId: state.pathParameters['id'],
-                  ),
+                  builder: (context, state) =>
+                      AddInstancePage(instanceId: state.pathParameters['id']),
                 ),
               ],
             ),

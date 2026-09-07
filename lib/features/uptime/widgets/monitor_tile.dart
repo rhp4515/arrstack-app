@@ -100,9 +100,8 @@ class MonitorTile extends StatelessWidget {
   Future<void> _copyUrl(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: monitor.url!));
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Monitor URL copied')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Monitor URL copied')));
   }
 
   Color _statusColor(int status) => switch (status) {
@@ -184,8 +183,7 @@ class _HeartbeatBar extends StatelessWidget {
         children: [
           for (var i = 0; i < empty; i++)
             _bar(theme.colorScheme.surfaceContainerHighest),
-          for (final hb in recent)
-            _bar(hb.status == 1 ? upColor : Colors.red),
+          for (final hb in recent) _bar(hb.status == 1 ? upColor : Colors.red),
         ],
       ),
     );

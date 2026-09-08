@@ -30,11 +30,6 @@ permissions:
 jobs:
   build:
     name: Build & publish iOS artifact
-    # macos-14 is deprecated and stuck on an old Xcode (iOS 17 SDK) that
-    # predates `NWPath.isUltraConstrained`, which connectivity_plus 7.x
-    # requires — build fails with "Value of type 'NWPath' has no member
-    # 'isUltraConstrained'". macos-latest tracks GitHub's current default
-    # image and its newest bundled Xcode, which has it.
     runs-on: macos-latest
 
     steps:

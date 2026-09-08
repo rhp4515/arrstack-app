@@ -30,7 +30,7 @@ permissions:
 jobs:
   build:
     name: Build & publish iOS artifact
-    runs-on: macos-14
+    runs-on: macos-latest
 
     steps:
       - name: Checkout

@@ -28,10 +28,11 @@
 
 Builds run automatically on every push to `main`:
 
-- **Latest APK:** the [`nightly`](https://github.com/rhp4515/arrstack-app/releases/tag/nightly) pre-release always carries the most recent build. Download the `.apk` and sideload it — Android will prompt you to allow installs from your browser or file manager the first time.
-- Pushing a `v*` tag produces a matching versioned release.
+- **Latest APK (Android):** the [`nightly`](https://github.com/rhp4515/arrstack-app/releases/tag/nightly) pre-release always carries the most recent build. Download the `.apk` and sideload it — Android will prompt you to allow installs from your browser or file manager the first time.
+- **Latest iOS artifact (iPhone):** the [`nightly-ios`](https://github.com/rhp4515/arrstack-app/releases/tag/nightly-ios) pre-release carries an **unsigned** `.ipa`. Install it by resigning locally with a free Apple ID via [AltStore](https://altstore.io) or [Sideloadly](https://sideloadly.io) — free-account signing expires after about a week, so you'll need to re-sign periodically.
+- Pushing a `v*` tag produces a matching versioned release with both artifacts.
 
-APKs are debug-signed for personal sideloading; they are not distributed through an app store.
+APKs are debug-signed for personal sideloading; the iOS build is unsigned. Neither is distributed through an app store.
 
 ## Getting Started
 
@@ -55,7 +56,8 @@ flutter run
 ### CI
 
 - `ci.yml` runs `flutter analyze` and `flutter test` on every push and pull request.
-- `release-apk.yml` builds and publishes the APK described under [Install](#install).
+- `release-apk.yml` builds and publishes the Android APK described under [Install](#install).
+- `release-ios.yml` builds and publishes the unsigned iOS `.ipa` described under [Install](#install).
 
 ---
 Built with ❤️ for the self-hosting community.

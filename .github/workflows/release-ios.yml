@@ -1,0 +1,153 @@
+# Builds an unsigned iOS artifact on every push to main and publishes it as a
+# rolling "nightly-ios" GitHub pre-release. Pushing a `v*` tag adds the .ipa
+# to that tag's release instead (release-apk.yml may create it first for the
+# same tag — this workflow falls back to uploading onto it if so).
+#
+# The build is intentionally unsigned — no Apple Developer account is
+# configured for this repo. Install by resigning the .ipa locally with a
+# free Apple ID via AltStore (https://altstore.io) or Sideloadly
+# (https://sideloadly.io). Free-account signing expires after ~7 days, so
+# you'll need to re-sign periodically to keep using it.
+#
+# Uses a third-party action (subosito/flutter-action) pinned to a commit SHA.
+name: Release iOS
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  workflow_dispatch:
+
+concurrency:
+  group: release-ios-${{ github.ref }}
+  # Let an in-flight release finish rather than leaving the rolling
+  # "nightly-ios" release half-updated; a rapid follow-up push just queues.
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build & publish iOS artifact
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: "3.47.0"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Generated sources (*.g.dart / *.freezed.dart) are committed to the repo.
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Resolve build metadata
+        id: meta
+        run: |
+          set -euo pipefail
+          version_field="$(grep -E '^version:[[:space:]]' pubspec.yaml | awk '{print $2}')"
+          app_version="${version_field%%+*}"
+          short_sha="${GITHUB_SHA::7}"
+          {
+            echo "app_version=${app_version}"
+            echo "short_sha=${short_sha}"
+            echo "ipa_name=arrstack-v${app_version}-build${GITHUB_RUN_NUMBER}-${short_sha}-unsigned.ipa"
+          } >> "$GITHUB_OUTPUT"
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "channel=tagged" >> "$GITHUB_OUTPUT"
+          else
+            echo "channel=nightly" >> "$GITHUB_OUTPUT"
+          fi
+
+      # --no-codesign skips signing entirely (no Developer account configured)
+      # and stops short of an .xcarchive, producing a plain .app bundle at
+      # build/ios/iphoneos/Runner.app instead. Packaged into an .ipa by hand
+      # below — the standard trick sideloading tools (AltStore, Sideloadly)
+      # expect an .ipa, and they resign it locally regardless of its content.
+      - name: Build unsigned iOS app
+        run: >
+          flutter build ios --release --no-codesign
+          --build-name "${{ steps.meta.outputs.app_version }}"
+          --build-number "${{ github.run_number }}"
+
+      - name: Package unsigned .ipa
+        id: ipa
+        run: |
+          set -euo pipefail
+          mkdir -p dist Payload
+          cp -r build/ios/iphoneos/Runner.app Payload/
+          # -y preserves the .app bundle's internal symlinks.
+          zip -r -y "dist/${{ steps.meta.outputs.ipa_name }}" Payload
+          echo "path=dist/${{ steps.meta.outputs.ipa_name }}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.meta.outputs.ipa_name }}
+          path: ${{ steps.ipa.outputs.path }}
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Compose release notes
+        run: |
+          cat > release-notes.md <<EOF
+          Automated iOS build of \`${GITHUB_SHA}\`.
+
+          | | |
+          |---|---|
+          | App version | \`${{ steps.meta.outputs.app_version }}\` |
+          | Build number | \`${{ github.run_number }}\` |
+          | Commit | [\`${{ steps.meta.outputs.short_sha }}\`](${{ github.server_url }}/${{ github.repository }}/commit/${GITHUB_SHA}) |
+          | Built | $(date -u +'%Y-%m-%d %H:%M UTC') |
+
+          **Unsigned** \`.ipa\` — no Apple Developer account is configured for
+          this repo. Install by resigning locally with a free Apple ID via
+          [AltStore](https://altstore.io) or [Sideloadly](https://sideloadly.io).
+          Free-account signing expires after ~7 days; re-sign to keep using it.
+          EOF
+
+      - name: Publish nightly pre-release
+        if: steps.meta.outputs.channel == 'nightly'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Roll the single "nightly-ios" release forward to this commit.
+          gh release delete nightly-ios --cleanup-tag --yes || true
+          sleep 5
+          gh release create nightly-ios \
+            --title "iOS Nightly · ${{ steps.meta.outputs.short_sha }}" \
+            --notes-file release-notes.md \
+            --prerelease \
+            --target "${GITHUB_SHA}" \
+            "${{ steps.ipa.outputs.path }}"
+
+      - name: Publish tagged release
+        if: steps.meta.outputs.channel == 'tagged'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # release-apk.yml targets the same tag from a separate workflow —
+          # whichever job gets there first creates the release; this one
+          # falls back to uploading its asset onto it.
+          if gh release create "${GITHUB_REF_NAME}" \
+            --title "${GITHUB_REF_NAME}" \
+            --notes-file release-notes.md \
+            --latest \
+            "${{ steps.ipa.outputs.path }}"; then
+            exit 0
+          fi
+          gh release upload "${GITHUB_REF_NAME}" "${{ steps.ipa.outputs.path }}" --clobber

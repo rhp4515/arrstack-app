@@ -1,5 +1,8 @@
-# Static analysis + tests. Runs on every push to main and every PR.
-# The APK build/release lives in release-apk.yml.
+# Static analysis, tests, and a build-only check for both platforms. Runs on
+# every push to main and every PR — catches a platform-only break (e.g. a
+# Swift/Gradle compile error) before merge, not after. The build jobs here
+# produce nothing downloadable; publishing the real signed/packaged artifacts
+# lives in release-apk.yml and release-ios.yml (push-to-main only).
 #
 # Uses a third-party action (subosito/flutter-action) pinned to a commit SHA.
 name: CI
@@ -46,3 +49,59 @@ jobs:
           name: coverage-lcov
           path: coverage/lcov.info
           if-no-files-found: warn
+
+  build-android:
+    name: Build Android (verify only)
+    needs: analyze-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: "3.47.0"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Same build release-apk.yml runs, minus signing/packaging/publish —
+      # this only proves the Android build compiles.
+      - name: Build APK (not uploaded)
+        run: flutter build apk --release
+
+  build-ios:
+    name: Build iOS (verify only)
+    needs: analyze-and-test
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: "3.47.0"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Same build release-ios.yml runs, minus packaging/publish — this only
+      # proves the iOS build compiles. macos-latest tracks GitHub's current
+      # default image so this doesn't drift onto a deprecated/aging Xcode
+      # (see release-ios.yml's history for what happens when it does).
+      - name: Build iOS app (not uploaded)
+        run: flutter build ios --release --no-codesign

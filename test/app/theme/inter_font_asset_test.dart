@@ -12,6 +12,7 @@ void main() {
     );
 
     final textWidget = tester.widget<Text>(find.text('Tabular 0123456789'));
-    expect(textWidget.style?.fontFamily, 'Inter');
+    expect(textWidget.style, isNotNull);
+    expect(textWidget.style!.fontFamily, 'Inter');
   });
 }

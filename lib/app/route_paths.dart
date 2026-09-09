@@ -44,6 +44,8 @@ abstract final class RoutePaths {
       '/dashboard/subtitles/$instanceId';
   static String indexers(String instanceId) =>
       '/dashboard/indexers/$instanceId';
+  static String einthusanImport(String instanceId) =>
+      '/dashboard/einthusan/$instanceId';
   static String discover = '/discover';
   static String discoverDetail(String instanceId, int id, String type) =>
       '/discover/detail/$id/$type';

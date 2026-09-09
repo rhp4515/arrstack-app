@@ -185,6 +185,8 @@ class _InstanceListTile extends StatelessWidget {
               .read(selectedSeerrInstanceIdProvider.notifier)
               .selectInstance(instance.id);
           context.go(RoutePaths.discover);
+        } else if (instance.serviceType == ServiceType.einthusan) {
+          context.go(RoutePaths.einthusanImport(instance.id));
         }
       },
     );

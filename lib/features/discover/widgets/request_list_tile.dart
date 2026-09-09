@@ -200,11 +200,7 @@ class _Tile extends ConsumerWidget {
       case 'edit':
         if (media?.tmdbId != null) {
           context.go(
-            RoutePaths.discoverDetail(
-              instanceId,
-              media!.tmdbId!,
-              media.mediaType,
-            ),
+            RoutePaths.homeDiscoverDetail(media!.tmdbId!, media.mediaType),
           );
         }
       case 'tmdb':

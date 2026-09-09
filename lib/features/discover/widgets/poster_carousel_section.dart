@@ -67,11 +67,7 @@ class PosterCarouselSection extends StatelessWidget {
                           )
                         : null,
                     onTap: () => context.go(
-                      RoutePaths.discoverDetail(
-                        instanceId,
-                        item.id,
-                        item.mediaType,
-                      ),
+                      RoutePaths.homeDiscoverDetail(item.id, item.mediaType),
                     ),
                   ),
                 ),

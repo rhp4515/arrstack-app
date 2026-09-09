@@ -324,10 +324,9 @@ class _GenreRow extends StatelessWidget {
                     GenrePillRow(
                       genres: value,
                       onTap: (genre) => context.go(
-                        RoutePaths.discoverGenre(
-                          instanceId,
-                          genre.id,
+                        RoutePaths.homeDiscoverGenre(
                           mediaType,
+                          genre.id,
                           genre.name,
                         ),
                       ),
@@ -370,11 +369,7 @@ class _SearchList extends ConsumerWidget {
                       title: Text(item.displayTitle ?? 'Unknown'),
                       subtitle: Text(item.displayDate ?? ''),
                       onTap: () => context.go(
-                        RoutePaths.discoverDetail(
-                          instanceId,
-                          item.id,
-                          item.mediaType,
-                        ),
+                        RoutePaths.homeDiscoverDetail(item.id, item.mediaType),
                       ),
                     );
                   },

@@ -109,8 +109,7 @@ class _GenreResultsBody extends ConsumerWidget {
                         imageUrl: item.posterUrl ?? '',
                         title: item.displayTitle ?? '',
                         onTap: () => context.go(
-                          RoutePaths.discoverDetail(
-                            instanceId,
+                          RoutePaths.homeDiscoverDetail(
                             item.id,
                             item.mediaType,
                           ),

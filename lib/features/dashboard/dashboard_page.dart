@@ -167,26 +167,26 @@ class _InstanceListTile extends StatelessWidget {
               .selectInstance(instance.id);
           context.go(RoutePaths.library);
         } else if (instance.serviceType == ServiceType.bazarr) {
-          context.go(RoutePaths.subtitles(instance.id));
+          context.go(RoutePaths.activitySubtitles(instance.id));
         } else if (instance.serviceType == ServiceType.qbittorrent) {
           ref
               .read(selectedDownloadInstanceIdProvider.notifier)
               .selectInstance(instance.id);
-          context.go(RoutePaths.downloads);
+          context.go(RoutePaths.activity);
         } else if (instance.serviceType == ServiceType.uptimeKuma) {
           ref
               .read(selectedUptimeInstanceIdProvider.notifier)
               .selectInstance(instance.id);
-          context.go(RoutePaths.uptime);
+          context.go(RoutePaths.homeUptime);
         } else if (instance.serviceType == ServiceType.prowlarr) {
-          context.go(RoutePaths.indexers(instance.id));
+          context.go(RoutePaths.homeIndexers(instance.id));
         } else if (instance.serviceType == ServiceType.seerr) {
           ref
               .read(selectedSeerrInstanceIdProvider.notifier)
               .selectInstance(instance.id);
-          context.go(RoutePaths.discover);
+          context.go(RoutePaths.homeDiscover);
         } else if (instance.serviceType == ServiceType.einthusan) {
-          context.go(RoutePaths.einthusanImport(instance.id));
+          context.go(RoutePaths.homeEinthusanImport(instance.id));
         }
       },
     );
@@ -203,7 +203,7 @@ class _EmptyDashboard extends StatelessWidget {
       title: 'No services yet',
       message: 'Add a service to see its status and activity here.',
       action: FilledButton.icon(
-        onPressed: () => context.go(RoutePaths.addInstance),
+        onPressed: () => context.go(RoutePaths.homeAddInstance),
         icon: const Icon(Icons.add),
         label: const Text('Add service'),
       ),

@@ -30,7 +30,7 @@ class SettingsPage extends ConsumerWidget {
           _SectionHeader(
             title: 'Instances',
             action: TextButton.icon(
-              onPressed: () => context.go(RoutePaths.addInstance),
+              onPressed: () => context.go(RoutePaths.homeAddInstance),
               icon: const Icon(Icons.add, size: 18),
               label: const Text('Add'),
             ),
@@ -121,7 +121,7 @@ class _InstanceTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
-      onTap: () => context.go(RoutePaths.editInstance(instance.id)),
+      onTap: () => context.go(RoutePaths.homeEditInstance(instance.id)),
       leading: CircleAvatar(
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         child: Text(instance.serviceType.displayName[0]),

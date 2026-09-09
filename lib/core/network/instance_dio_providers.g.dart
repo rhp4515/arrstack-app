@@ -165,11 +165,25 @@ final class ServiceCredentialFamily extends $Family
 }
 
 /// Resolves the current base URL for [instanceId] based on SSID/connectivity.
+///
+/// `keepAlive: true` because the build chains several sequential
+/// `await ref.watch(...)` calls; if nothing else is watching this provider
+/// (e.g. a one-shot `ref.read(...future)` from an event handler, with no
+/// screen actively watching the same instance), autoDispose can tear the
+/// provider down between those awaits and the next `ref.watch` throws
+/// "Cannot use the Ref after it has been disposed".
 
 @ProviderFor(resolvedEndpoint)
 final resolvedEndpointProvider = ResolvedEndpointFamily._();
 
 /// Resolves the current base URL for [instanceId] based on SSID/connectivity.
+///
+/// `keepAlive: true` because the build chains several sequential
+/// `await ref.watch(...)` calls; if nothing else is watching this provider
+/// (e.g. a one-shot `ref.read(...future)` from an event handler, with no
+/// screen actively watching the same instance), autoDispose can tear the
+/// provider down between those awaits and the next `ref.watch` throws
+/// "Cannot use the Ref after it has been disposed".
 
 final class ResolvedEndpointProvider
     extends
@@ -182,13 +196,20 @@ final class ResolvedEndpointProvider
         $FutureModifier<Result<EndpointResolution>>,
         $FutureProvider<Result<EndpointResolution>> {
   /// Resolves the current base URL for [instanceId] based on SSID/connectivity.
+  ///
+  /// `keepAlive: true` because the build chains several sequential
+  /// `await ref.watch(...)` calls; if nothing else is watching this provider
+  /// (e.g. a one-shot `ref.read(...future)` from an event handler, with no
+  /// screen actively watching the same instance), autoDispose can tear the
+  /// provider down between those awaits and the next `ref.watch` throws
+  /// "Cannot use the Ref after it has been disposed".
   ResolvedEndpointProvider._({
     required ResolvedEndpointFamily super.from,
     required String super.argument,
   }) : super(
          retry: null,
          name: r'resolvedEndpointProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -226,9 +247,16 @@ final class ResolvedEndpointProvider
   }
 }
 
-String _$resolvedEndpointHash() => r'4d037da96f7f98f65e6eb4d4aad197433d42d625';
+String _$resolvedEndpointHash() => r'9ae8d239d4841e02d52523c069e6e5a7dda50f39';
 
 /// Resolves the current base URL for [instanceId] based on SSID/connectivity.
+///
+/// `keepAlive: true` because the build chains several sequential
+/// `await ref.watch(...)` calls; if nothing else is watching this provider
+/// (e.g. a one-shot `ref.read(...future)` from an event handler, with no
+/// screen actively watching the same instance), autoDispose can tear the
+/// provider down between those awaits and the next `ref.watch` throws
+/// "Cannot use the Ref after it has been disposed".
 
 final class ResolvedEndpointFamily extends $Family
     with
@@ -242,10 +270,17 @@ final class ResolvedEndpointFamily extends $Family
         name: r'resolvedEndpointProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   /// Resolves the current base URL for [instanceId] based on SSID/connectivity.
+  ///
+  /// `keepAlive: true` because the build chains several sequential
+  /// `await ref.watch(...)` calls; if nothing else is watching this provider
+  /// (e.g. a one-shot `ref.read(...future)` from an event handler, with no
+  /// screen actively watching the same instance), autoDispose can tear the
+  /// provider down between those awaits and the next `ref.watch` throws
+  /// "Cannot use the Ref after it has been disposed".
 
   ResolvedEndpointProvider call(String instanceId) =>
       ResolvedEndpointProvider._(argument: instanceId, from: this);
@@ -256,12 +291,20 @@ final class ResolvedEndpointFamily extends $Family
 
 /// Provides a [Dio] instance for [instanceId], configured with the correct
 /// [EndpointResolution.baseUrl] and auth interceptors (spec §11).
+///
+/// `keepAlive: true` for the same reason as [resolvedEndpoint] — multiple
+/// sequential `await ref.watch(...)` calls are vulnerable to autoDispose
+/// tearing the provider down mid-build when nothing else is watching it.
 
 @ProviderFor(dioForInstance)
 final dioForInstanceProvider = DioForInstanceFamily._();
 
 /// Provides a [Dio] instance for [instanceId], configured with the correct
 /// [EndpointResolution.baseUrl] and auth interceptors (spec §11).
+///
+/// `keepAlive: true` for the same reason as [resolvedEndpoint] — multiple
+/// sequential `await ref.watch(...)` calls are vulnerable to autoDispose
+/// tearing the provider down mid-build when nothing else is watching it.
 
 final class DioForInstanceProvider
     extends
@@ -273,13 +316,17 @@ final class DioForInstanceProvider
     with $FutureModifier<Result<Dio>>, $FutureProvider<Result<Dio>> {
   /// Provides a [Dio] instance for [instanceId], configured with the correct
   /// [EndpointResolution.baseUrl] and auth interceptors (spec §11).
+  ///
+  /// `keepAlive: true` for the same reason as [resolvedEndpoint] — multiple
+  /// sequential `await ref.watch(...)` calls are vulnerable to autoDispose
+  /// tearing the provider down mid-build when nothing else is watching it.
   DioForInstanceProvider._({
     required DioForInstanceFamily super.from,
     required String super.argument,
   }) : super(
          retry: null,
          name: r'dioForInstanceProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -317,10 +364,14 @@ final class DioForInstanceProvider
   }
 }
 
-String _$dioForInstanceHash() => r'843b2580a607d22b0077a9ab1458de54fbcb8afa';
+String _$dioForInstanceHash() => r'3df4984c88f19ed5c6395dee15d178fc0bcd5c1e';
 
 /// Provides a [Dio] instance for [instanceId], configured with the correct
 /// [EndpointResolution.baseUrl] and auth interceptors (spec §11).
+///
+/// `keepAlive: true` for the same reason as [resolvedEndpoint] — multiple
+/// sequential `await ref.watch(...)` calls are vulnerable to autoDispose
+/// tearing the provider down mid-build when nothing else is watching it.
 
 final class DioForInstanceFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<Result<Dio>>, String> {
@@ -330,11 +381,15 @@ final class DioForInstanceFamily extends $Family
         name: r'dioForInstanceProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   /// Provides a [Dio] instance for [instanceId], configured with the correct
   /// [EndpointResolution.baseUrl] and auth interceptors (spec §11).
+  ///
+  /// `keepAlive: true` for the same reason as [resolvedEndpoint] — multiple
+  /// sequential `await ref.watch(...)` calls are vulnerable to autoDispose
+  /// tearing the provider down mid-build when nothing else is watching it.
 
   DioForInstanceProvider call(String instanceId) =>
       DioForInstanceProvider._(argument: instanceId, from: this);

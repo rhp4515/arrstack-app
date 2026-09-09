@@ -85,7 +85,7 @@ final class ReleaseSearchResultsProvider
 }
 
 String _$releaseSearchResultsHash() =>
-    r'614db303a785cb501b3a41eeb54b2d7d3500798e';
+    r'8430e5696514795678ddc54753fa3499c878dcf5';
 
 /// Runs an interactive search for [targetId] (an episode id for Sonarr, a
 /// movie id for Radarr) on the given [instanceId]. Not kept alive — a search

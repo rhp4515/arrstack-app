@@ -9,6 +9,7 @@ import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/services/bazarr/bazarr_client.dart';
 import 'package:arrstack/services/contracts/contracts.dart';
+import 'package:arrstack/services/einthusan/einthusan_client.dart';
 import 'package:arrstack/services/qbittorrent/qbit_client.dart';
 import 'package:arrstack/services/radarr/radarr_client.dart';
 import 'package:arrstack/services/seerr/seerr_client.dart';
@@ -291,6 +292,15 @@ class InstanceForm extends _$InstanceForm {
             : null,
       );
       return SeerrClient(dio);
+    }
+    if (state.type == ServiceType.einthusan) {
+      final dio = const DioFactory().create(
+        baseUrl: baseUrl,
+        apiKeyInterceptor: credential is ApiKeyCredential
+            ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
+            : null,
+      );
+      return EinthusanClient(dio);
     }
     return StubConnectionTestClient(baseUrl: baseUrl, credential: credential);
   }

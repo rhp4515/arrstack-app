@@ -30,7 +30,14 @@ Future<ServiceCredential?> serviceCredential(Ref ref, String instanceId) {
 }
 
 /// Resolves the current base URL for [instanceId] based on SSID/connectivity.
-@riverpod
+///
+/// `keepAlive: true` because the build chains several sequential
+/// `await ref.watch(...)` calls; if nothing else is watching this provider
+/// (e.g. a one-shot `ref.read(...future)` from an event handler, with no
+/// screen actively watching the same instance), autoDispose can tear the
+/// provider down between those awaits and the next `ref.watch` throws
+/// "Cannot use the Ref after it has been disposed".
+@Riverpod(keepAlive: true)
 Future<Result<EndpointResolution>> resolvedEndpoint(
   Ref ref,
   String instanceId,
@@ -67,7 +74,11 @@ Future<Result<EndpointResolution>> resolvedEndpoint(
 
 /// Provides a [Dio] instance for [instanceId], configured with the correct
 /// [EndpointResolution.baseUrl] and auth interceptors (spec §11).
-@riverpod
+///
+/// `keepAlive: true` for the same reason as [resolvedEndpoint] — multiple
+/// sequential `await ref.watch(...)` calls are vulnerable to autoDispose
+/// tearing the provider down mid-build when nothing else is watching it.
+@Riverpod(keepAlive: true)
 Future<Result<Dio>> dioForInstance(Ref ref, String instanceId) async {
   final resolutionResult = await ref.watch(
     resolvedEndpointProvider(instanceId).future,

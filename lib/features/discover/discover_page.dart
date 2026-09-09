@@ -81,7 +81,7 @@ class _DiscoverPageState extends ConsumerState<DiscoverPage> {
                   child: Column(
                     children: [
                       Padding(
-                        padding: AppInsets.horizontalMd,
+                        padding: AppInsets.screenHorizontal,
                         child: SegmentedButton<_MainTab>(
                           segments: const [
                             ButtonSegment(
@@ -100,10 +100,10 @@ class _DiscoverPageState extends ConsumerState<DiscoverPage> {
                               _onMainTabChanged(set.first),
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.sm),
+                      const SizedBox(height: LegacySpacing.sm),
                       if (_mainTab == _MainTab.discover)
                         Padding(
-                          padding: AppInsets.horizontalMd,
+                          padding: AppInsets.screenHorizontal,
                           child: TextField(
                             controller: _searchController,
                             decoration: const InputDecoration(
@@ -116,7 +116,7 @@ class _DiscoverPageState extends ConsumerState<DiscoverPage> {
                                 setState(() => _query = value),
                           ),
                         ),
-                      const SizedBox(height: AppSpacing.sm),
+                      const SizedBox(height: LegacySpacing.sm),
                     ],
                   ),
                 ),
@@ -194,14 +194,14 @@ class _DiscoverSections extends ConsumerWidget {
       },
       child: ListView(
         children: [
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: LegacySpacing.sm),
           _GenreRow(
             instanceId: instanceId,
             label: 'Movie Genres',
             mediaType: 'movie',
             async: ref.watch(seerrMovieGenresProvider(instanceId)),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           _Carousel(
             instanceId: instanceId,
             label: 'Trending',
@@ -223,7 +223,7 @@ class _DiscoverSections extends ConsumerWidget {
             mediaType: 'tv',
             async: ref.watch(seerrTvGenresProvider(instanceId)),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           _Carousel(
             instanceId: instanceId,
             label: 'Popular Series',
@@ -234,7 +234,7 @@ class _DiscoverSections extends ConsumerWidget {
             label: 'Upcoming Series',
             async: ref.watch(seerrUpcomingTvProvider(instanceId)),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
         ],
       ),
     );
@@ -271,7 +271,7 @@ class _Carousel extends StatelessWidget {
               label.toUpperCase(),
               style: Theme.of(context).textTheme.labelMedium,
             ),
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: LegacySpacing.sm),
             const SizedBox(
               width: 16,
               height: 16,
@@ -309,7 +309,7 @@ class _GenreRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: AppInsets.horizontalMd,
+                      padding: AppInsets.screenHorizontal,
                       child: Text(
                         label.toUpperCase(),
                         style: Theme.of(context).textTheme.labelMedium
@@ -320,7 +320,7 @@ class _GenreRow extends StatelessWidget {
                             ),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: LegacySpacing.sm),
                     GenrePillRow(
                       genres: value,
                       onTap: (genre) => context.go(
@@ -405,7 +405,7 @@ class _InstanceSelector extends ConsumerWidget {
 
           return Container(
             height: 48,
-            padding: AppInsets.horizontalMd,
+            padding: AppInsets.screenHorizontal,
             child: Row(
               children: [
                 Text(

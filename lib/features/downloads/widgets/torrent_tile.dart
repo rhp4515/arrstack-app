@@ -40,7 +40,7 @@ class TorrentTile extends ConsumerWidget {
 
     return Card(
       color: theme.colorScheme.surfaceContainerHigh,
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      margin: const EdgeInsets.only(bottom: LegacySpacing.sm),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => _showActions(context, ref),
@@ -59,7 +59,7 @@ class TorrentTile extends ConsumerWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: LegacySpacing.sm),
               Text(
                 torrent.name,
                 maxLines: 2,
@@ -69,7 +69,7 @@ class TorrentTile extends ConsumerWidget {
                 ),
               ),
               if (host != null) ...[
-                const SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: LegacySpacing.xs),
                 Text(
                   host,
                   maxLines: 1,
@@ -77,27 +77,27 @@ class TorrentTile extends ConsumerWidget {
                   style: theme.textTheme.bodySmall?.copyWith(color: muted),
                 ),
               ],
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: LegacySpacing.sm),
               LinearProgressIndicator(
                 value: torrent.progress,
                 backgroundColor: theme.colorScheme.surfaceContainerHighest,
                 color: color,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: LegacySpacing.sm),
               Row(
                 children: [
                   Text(
                     FormatUtils.formatBytes(torrent.size),
                     style: theme.textTheme.bodySmall?.copyWith(color: muted),
                   ),
-                  const SizedBox(width: AppSpacing.md),
+                  const SizedBox(width: LegacySpacing.md),
                   _Speed(
                     icon: '↓',
                     value: FormatUtils.formatBytes(torrent.dlspeed),
                     color: Colors.blue,
                   ),
-                  const SizedBox(width: AppSpacing.sm),
+                  const SizedBox(width: LegacySpacing.sm),
                   _Speed(
                     icon: '↑',
                     value: FormatUtils.formatBytes(torrent.upspeed),
@@ -201,7 +201,7 @@ class TorrentTile extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text('Are you sure you want to remove "${torrent.name}"?'),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: LegacySpacing.md),
               CheckboxListTile(
                 title: const Text('Also delete files on disk'),
                 value: deleteFiles,
@@ -244,7 +244,7 @@ class _StatePill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
+        horizontal: LegacySpacing.sm,
         vertical: 2,
       ),
       decoration: BoxDecoration(

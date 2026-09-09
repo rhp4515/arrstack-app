@@ -115,15 +115,15 @@ class _SeriesDetailContentState extends ConsumerState<_SeriesDetailContent> {
       extendBodyBehindAppBar: true,
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.md,
-          AppSpacing.xxl,
-          AppSpacing.md,
-          AppSpacing.xl,
+          LegacySpacing.md,
+          LegacySpacing.xxl,
+          LegacySpacing.md,
+          LegacySpacing.xl,
         ),
         children: [
           if (_isProcessing)
             const Padding(
-              padding: EdgeInsets.only(bottom: AppSpacing.md),
+              padding: EdgeInsets.only(bottom: LegacySpacing.md),
               child: LinearProgressIndicator(),
             ),
           Center(
@@ -148,7 +148,7 @@ class _SeriesDetailContentState extends ConsumerState<_SeriesDetailContent> {
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           Text(
             series.title,
             textAlign: TextAlign.center,
@@ -157,27 +157,27 @@ class _SeriesDetailContentState extends ConsumerState<_SeriesDetailContent> {
             ),
           ),
           if (metaParts.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: LegacySpacing.sm),
             Text(
               metaParts.join(' · '),
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium?.copyWith(color: muted),
             ),
           ],
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           _ChipRow(series: series),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           _OverviewCard(series: series),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           _DetailsCard(series: series),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           Text(
             'Seasons',
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: LegacySpacing.sm),
           for (final season in seasons)
             _SeasonTile(
               instanceId: widget.instanceId,
@@ -276,8 +276,8 @@ class _ChipRow extends StatelessWidget {
     final rating = series.ratings?.value;
     return Wrap(
       alignment: WrapAlignment.center,
-      spacing: AppSpacing.sm,
-      runSpacing: AppSpacing.sm,
+      spacing: LegacySpacing.sm,
+      runSpacing: LegacySpacing.sm,
       children: [
         if (rating != null && rating > 0)
           DetailChip(
@@ -334,12 +334,12 @@ class _OverviewCard extends StatelessWidget {
         data: theme.copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           initiallyExpanded: true,
-          tilePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          tilePadding: const EdgeInsets.symmetric(horizontal: LegacySpacing.md),
           childrenPadding: const EdgeInsets.fromLTRB(
-            AppSpacing.md,
+            LegacySpacing.md,
             0,
-            AppSpacing.md,
-            AppSpacing.md,
+            LegacySpacing.md,
+            LegacySpacing.md,
           ),
           title: Text(
             'Overview',
@@ -360,7 +360,7 @@ class _OverviewCard extends StatelessWidget {
               ),
             ),
             if (genres.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: LegacySpacing.md),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -411,12 +411,12 @@ class _DetailsCard extends StatelessWidget {
       child: Theme(
         data: theme.copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          tilePadding: const EdgeInsets.symmetric(horizontal: LegacySpacing.md),
           childrenPadding: const EdgeInsets.fromLTRB(
-            AppSpacing.md,
+            LegacySpacing.md,
             0,
-            AppSpacing.md,
-            AppSpacing.md,
+            LegacySpacing.md,
+            LegacySpacing.md,
           ),
           title: Text(
             'Details',
@@ -427,7 +427,7 @@ class _DetailsCard extends StatelessWidget {
           children: [
             for (final (label, value) in rows)
               Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                padding: const EdgeInsets.only(bottom: LegacySpacing.sm),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -479,13 +479,13 @@ class _SeasonTile extends ConsumerWidget {
 
     return Card(
       color: theme.colorScheme.surfaceContainerHigh,
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      margin: const EdgeInsets.only(bottom: LegacySpacing.sm),
       child: Theme(
         data: theme.copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.xs,
+            horizontal: LegacySpacing.md,
+            vertical: LegacySpacing.xs,
           ),
           title: Text(
             title,
@@ -503,9 +503,9 @@ class _SeasonTile extends ConsumerWidget {
                     ? Colors.green
                     : theme.colorScheme.onSurfaceVariant,
               ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: LegacySpacing.sm),
               _CountPill(have: have, total: total),
-              const SizedBox(width: AppSpacing.xs),
+              const SizedBox(width: LegacySpacing.xs),
               const Icon(Icons.expand_more),
             ],
           ),
@@ -538,7 +538,7 @@ class _CountPill extends StatelessWidget {
         : Colors.orange;
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
+        horizontal: LegacySpacing.sm,
         vertical: 2,
       ),
       decoration: BoxDecoration(
@@ -592,16 +592,16 @@ class _SeasonEpisodes extends ConsumerWidget {
           ],
         ),
         Err() => const Padding(
-          padding: EdgeInsets.all(AppSpacing.md),
+          padding: EdgeInsets.all(LegacySpacing.md),
           child: Text('Failed to load episodes'),
         ),
       },
       loading: () => const Padding(
-        padding: EdgeInsets.all(AppSpacing.md),
+        padding: EdgeInsets.all(LegacySpacing.md),
         child: LinearProgressIndicator(),
       ),
       error: (_, _) => const Padding(
-        padding: EdgeInsets.all(AppSpacing.md),
+        padding: EdgeInsets.all(LegacySpacing.md),
         child: Text('Failed to load episodes'),
       ),
     );
@@ -634,14 +634,14 @@ class _EpisodeCard extends StatelessWidget {
     ];
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      padding: const EdgeInsets.only(bottom: LegacySpacing.sm),
       child: InkWell(
         onTap: () => context.go(
           RoutePaths.episodeDetail(instanceId, seriesId, episode.id),
         ),
         borderRadius: BorderRadius.circular(AppRadius.md),
         child: Container(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(LegacySpacing.md),
           decoration: BoxDecoration(
             color: theme.colorScheme.surfaceContainerHighest.withValues(
               alpha: 0.5,
@@ -664,7 +664,7 @@ class _EpisodeCard extends StatelessWidget {
                   if (quality != null && quality.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm,
+                        horizontal: LegacySpacing.sm,
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
@@ -682,7 +682,7 @@ class _EpisodeCard extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.xs),
+              const SizedBox(height: LegacySpacing.xs),
               Text(
                 episode.title ?? 'Unknown Episode',
                 style: theme.textTheme.titleSmall?.copyWith(
@@ -690,14 +690,14 @@ class _EpisodeCard extends StatelessWidget {
                 ),
               ),
               if (metaParts.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: LegacySpacing.xs),
                 Text(
                   metaParts.join('  ·  '),
                   style: theme.textTheme.bodySmall?.copyWith(color: muted),
                 ),
               ],
               if (episode.overview != null && episode.overview!.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: LegacySpacing.sm),
                 Text(
                   episode.overview!,
                   maxLines: 3,

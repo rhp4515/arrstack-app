@@ -47,7 +47,7 @@ class PosterCard extends StatelessWidget {
       children: [
         card,
         if (title != null) ...[
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: LegacySpacing.xs),
           Text(
             title!,
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -102,7 +102,7 @@ class PosterCard extends StatelessWidget {
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                         if (title != null) ...[
-                          const SizedBox(height: AppSpacing.sm),
+                          const SizedBox(height: LegacySpacing.sm),
                           Text(
                             title!,
                             style: theme.textTheme.labelMedium?.copyWith(
@@ -132,8 +132,8 @@ class PosterCard extends StatelessWidget {
                 ),
               if (badge != null)
                 Positioned(
-                  top: AppSpacing.xs,
-                  left: AppSpacing.xs,
+                  top: LegacySpacing.xs,
+                  left: LegacySpacing.xs,
                   child: badge!,
                 ),
               if (!titleBelow && (title != null || subtitle != null))
@@ -152,7 +152,7 @@ class PosterCard extends StatelessWidget {
                         end: Alignment.bottomCenter,
                       ),
                     ),
-                    padding: const EdgeInsets.all(AppSpacing.sm),
+                    padding: const EdgeInsets.all(LegacySpacing.sm),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,

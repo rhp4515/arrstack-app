@@ -64,13 +64,13 @@ class SeriesList extends ConsumerWidget {
 
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.sm,
-        AppSpacing.md,
-        AppSpacing.xl,
+        LegacySpacing.md,
+        LegacySpacing.sm,
+        LegacySpacing.md,
+        LegacySpacing.xl,
       ),
       itemCount: series.length,
-      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
+      separatorBuilder: (_, _) => const SizedBox(height: LegacySpacing.sm),
       itemBuilder: (context, index) {
         final show = series[index];
         return MediaListTile(

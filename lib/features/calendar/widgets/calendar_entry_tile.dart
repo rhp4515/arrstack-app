@@ -31,7 +31,7 @@ class CalendarEntryTile extends StatelessWidget {
     return Card(
       color: theme.colorScheme.surfaceContainerHigh,
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.sm),
+        padding: const EdgeInsets.all(LegacySpacing.sm),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -42,7 +42,7 @@ class CalendarEntryTile extends StatelessWidget {
               width: _posterWidth,
               height: _posterHeight,
             ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: LegacySpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +57,7 @@ class CalendarEntryTile extends StatelessWidget {
                     ),
                   ),
                   if (entry.subtitle != null) ...[
-                    const SizedBox(height: AppSpacing.xs),
+                    const SizedBox(height: LegacySpacing.xs),
                     Text(
                       entry.subtitle!,
                       maxLines: 1,
@@ -67,7 +67,7 @@ class CalendarEntryTile extends StatelessWidget {
                       ),
                     ),
                   ],
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: LegacySpacing.xs),
                   Text(
                     metaParts.join('  '),
                     maxLines: 1,
@@ -79,7 +79,7 @@ class CalendarEntryTile extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: LegacySpacing.sm),
             _KindBadge(kind: entry.kind, hasFile: entry.hasFile),
           ],
         ),

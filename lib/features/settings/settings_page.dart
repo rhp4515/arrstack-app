@@ -52,12 +52,12 @@ class SettingsPage extends ConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, stack) => Text('Error: $err'),
           ),
-          const Divider(height: AppSpacing.xxl),
+          const Divider(height: LegacySpacing.xxl),
           const _SectionHeader(title: 'Networking'),
           const HomeSsidSetting(),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           const _DefaultEndpointModeSetting(),
-          const Divider(height: AppSpacing.xxl),
+          const Divider(height: LegacySpacing.xxl),
           const _SectionHeader(title: 'Appearance'),
           ListTile(
             leading: const Icon(Icons.palette_outlined),
@@ -79,7 +79,7 @@ class SettingsPage extends ConsumerWidget {
                   : null,
             ),
           ),
-          const SizedBox(height: AppSpacing.xxl),
+          const SizedBox(height: LegacySpacing.xxl),
         ],
       ),
     );
@@ -95,7 +95,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final action = this.action;
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      padding: const EdgeInsets.only(bottom: LegacySpacing.sm),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -175,7 +175,7 @@ class _EmptyInstances extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+      padding: EdgeInsets.symmetric(vertical: LegacySpacing.lg),
       child: Center(
         child: Text(
           'No services configured yet.\nTap "Add" to get started.',

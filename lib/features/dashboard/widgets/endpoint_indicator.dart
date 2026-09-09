@@ -87,7 +87,7 @@ class _TappableChip extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
+        horizontal: LegacySpacing.sm,
         vertical: 8,
       ),
       child: ActionChip(
@@ -154,7 +154,7 @@ class _TappableChip extends ConsumerWidget {
                 Navigator.pop(context);
               },
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: LegacySpacing.md),
           ],
         ),
       ),

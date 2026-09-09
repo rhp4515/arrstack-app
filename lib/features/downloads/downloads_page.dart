@@ -221,7 +221,7 @@ class _FilterMenu extends ConsumerWidget {
       child: Row(
         children: [
           Icon(icon, size: 20, color: isSelected ? Colors.blue : null),
-          const SizedBox(width: AppSpacing.md),
+          const SizedBox(width: LegacySpacing.md),
           Text(
             label,
             style: TextStyle(
@@ -265,7 +265,7 @@ class _SectionedTorrents extends StatelessWidget {
             TorrentTile(instanceId: instanceId, torrent: t),
         ],
         if (history.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           _SectionHeader(
             icon: Icons.history,
             label: 'History',
@@ -294,11 +294,11 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      padding: const EdgeInsets.only(bottom: LegacySpacing.sm),
       child: Row(
         children: [
           Icon(icon, size: 20, color: theme.colorScheme.primary),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: LegacySpacing.sm),
           Text(
             '$label ($count)',
             style: theme.textTheme.titleLarge?.copyWith(
@@ -332,7 +332,7 @@ class _GlobalStatsBar extends ConsumerWidget implements PreferredSizeWidget {
             color: theme.colorScheme.surfaceContainerHighest.withValues(
               alpha: 0.5,
             ),
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            padding: const EdgeInsets.symmetric(horizontal: LegacySpacing.md),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

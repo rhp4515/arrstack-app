@@ -16,13 +16,13 @@ class ServiceHealthTile extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      elevation: AppElevation.low,
+      elevation: 1,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.md),
         child: Container(
           width: 120,
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(LegacySpacing.md),
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(color: health.statusColor, width: 4),
@@ -38,7 +38,7 @@ class ServiceHealthTile extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: AppSpacing.xs),
+              const SizedBox(height: LegacySpacing.xs),
               Text(
                 health.headlineStat,
                 style: theme.textTheme.bodySmall?.copyWith(

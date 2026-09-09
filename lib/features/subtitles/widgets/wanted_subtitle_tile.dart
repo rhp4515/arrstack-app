@@ -31,7 +31,7 @@ class _WantedSubtitleTileState extends ConsumerState<WantedSubtitleTile> {
     final isEpisode = item.type == 'episode';
 
     return Card(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      margin: const EdgeInsets.only(bottom: LegacySpacing.sm),
       child: ListTile(
         title: Text(item.title),
         subtitle: Column(

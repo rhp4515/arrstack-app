@@ -28,19 +28,19 @@ abstract final class AppTheme {
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
-        elevation: AppElevation.none,
-        scrolledUnderElevation: AppElevation.low,
+        elevation: 0,
+        scrolledUnderElevation: 1,
         centerTitle: false,
       ),
       cardTheme: const CardThemeData(
-        elevation: AppElevation.low,
+        elevation: 1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
         ),
         margin: EdgeInsets.zero,
       ),
       navigationBarTheme: NavigationBarThemeData(
-        elevation: AppElevation.medium,
+        elevation: 3,
         height: AppSizes.navBarHeight,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           return TextStyle(

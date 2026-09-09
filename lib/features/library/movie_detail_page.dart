@@ -118,15 +118,15 @@ class _MovieDetailContentState extends ConsumerState<_MovieDetailContent> {
       extendBodyBehindAppBar: true,
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.md,
-          AppSpacing.xxl,
-          AppSpacing.md,
-          AppSpacing.xl,
+          LegacySpacing.md,
+          LegacySpacing.xxl,
+          LegacySpacing.md,
+          LegacySpacing.xl,
         ),
         children: [
           if (_isProcessing)
             const Padding(
-              padding: EdgeInsets.only(bottom: AppSpacing.md),
+              padding: EdgeInsets.only(bottom: LegacySpacing.md),
               child: LinearProgressIndicator(),
             ),
           Center(
@@ -151,7 +151,7 @@ class _MovieDetailContentState extends ConsumerState<_MovieDetailContent> {
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           Text(
             movie.title,
             textAlign: TextAlign.center,
@@ -159,17 +159,17 @@ class _MovieDetailContentState extends ConsumerState<_MovieDetailContent> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: LegacySpacing.sm),
           Text(
             metaParts.join(' · '),
             textAlign: TextAlign.center,
             style: theme.textTheme.titleMedium?.copyWith(color: muted),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           _ChipRow(movie: movie),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           _OverviewCard(movie: movie),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           _DetailsCard(movie: movie),
         ],
       ),
@@ -316,8 +316,8 @@ class _ChipRow extends StatelessWidget {
     final rating = movie.displayRating;
     return Wrap(
       alignment: WrapAlignment.center,
-      spacing: AppSpacing.sm,
-      runSpacing: AppSpacing.sm,
+      spacing: LegacySpacing.sm,
+      runSpacing: LegacySpacing.sm,
       children: [
         if (rating != null && rating > 0)
           DetailChip(
@@ -373,12 +373,12 @@ class _OverviewCard extends StatelessWidget {
         data: theme.copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           initiallyExpanded: true,
-          tilePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          tilePadding: const EdgeInsets.symmetric(horizontal: LegacySpacing.md),
           childrenPadding: const EdgeInsets.fromLTRB(
-            AppSpacing.md,
+            LegacySpacing.md,
             0,
-            AppSpacing.md,
-            AppSpacing.md,
+            LegacySpacing.md,
+            LegacySpacing.md,
           ),
           title: Text(
             'Overview',
@@ -399,7 +399,7 @@ class _OverviewCard extends StatelessWidget {
               ),
             ),
             if (movie.genres != null && movie.genres!.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: LegacySpacing.md),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -444,12 +444,12 @@ class _DetailsCard extends StatelessWidget {
       child: Theme(
         data: theme.copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          tilePadding: const EdgeInsets.symmetric(horizontal: LegacySpacing.md),
           childrenPadding: const EdgeInsets.fromLTRB(
-            AppSpacing.md,
+            LegacySpacing.md,
             0,
-            AppSpacing.md,
-            AppSpacing.md,
+            LegacySpacing.md,
+            LegacySpacing.md,
           ),
           title: Text(
             'Details & File',
@@ -460,7 +460,7 @@ class _DetailsCard extends StatelessWidget {
           children: [
             for (final (label, value) in rows)
               Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                padding: const EdgeInsets.only(bottom: LegacySpacing.sm),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

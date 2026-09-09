@@ -35,10 +35,10 @@ class DashboardPage extends ConsumerWidget {
           ref.invalidate(stackHealthProvider);
         },
         child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+          padding: const EdgeInsets.symmetric(vertical: LegacySpacing.md),
           children: [
             _HealthSection(healthAsync: healthAsync),
-            const SizedBox(height: AppSpacing.xxl),
+            const SizedBox(height: LegacySpacing.xxl),
             _InstancesSection(ref: ref),
           ],
         ),
@@ -57,7 +57,7 @@ class _HealthSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          padding: const EdgeInsets.symmetric(horizontal: LegacySpacing.md),
           child: Text(
             'STACK HEALTH',
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -67,7 +67,7 @@ class _HealthSection extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: LegacySpacing.sm),
         SizedBox(
           height: 100,
           child: healthAsync.when(
@@ -76,7 +76,7 @@ class _HealthSection extends StatelessWidget {
                 : ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
+                      horizontal: LegacySpacing.md,
                     ),
                     itemCount: healths.length,
                     itemBuilder: (context, index) =>
@@ -103,7 +103,7 @@ class _InstancesSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          padding: const EdgeInsets.symmetric(horizontal: LegacySpacing.md),
           child: Text(
             'ALL INSTANCES',
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -113,7 +113,7 @@ class _InstancesSection extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: LegacySpacing.sm),
         instancesAsync.when(
           data: (result) => switch (result) {
             Ok(:final value) =>

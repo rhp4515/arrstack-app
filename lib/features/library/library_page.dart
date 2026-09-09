@@ -80,10 +80,10 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(
-              AppSpacing.md,
-              AppSpacing.sm,
-              AppSpacing.md,
-              AppSpacing.sm,
+              LegacySpacing.md,
+              LegacySpacing.sm,
+              LegacySpacing.md,
+              LegacySpacing.sm,
             ),
             child: SearchBar(
               controller: _searchController,
@@ -93,7 +93,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            padding: const EdgeInsets.symmetric(horizontal: LegacySpacing.md),
             child: SizedBox(
               width: double.infinity,
               child: SegmentedButton<_LibraryTab>(
@@ -115,7 +115,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: LegacySpacing.sm),
           Expanded(
             child: isMovies
                 ? _MoviesTab(query: _query)
@@ -232,14 +232,14 @@ class _InstanceSelector extends ConsumerWidget {
 
           return Container(
             height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            padding: const EdgeInsets.symmetric(horizontal: LegacySpacing.md),
             child: Row(
               children: [
                 Text(
                   'Instance:',
                   style: Theme.of(context).textTheme.labelMedium,
                 ),
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: LegacySpacing.sm),
                 DropdownButton<String>(
                   value: selectedId,
                   underline: const SizedBox.shrink(),

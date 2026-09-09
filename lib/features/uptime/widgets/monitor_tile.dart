@@ -27,7 +27,7 @@ class MonitorTile extends StatelessWidget {
 
     return Card(
       color: theme.colorScheme.surfaceContainerHigh,
-      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      margin: const EdgeInsets.only(bottom: LegacySpacing.md),
       child: Padding(
         padding: AppInsets.pageMd,
         child: Column(
@@ -36,7 +36,7 @@ class MonitorTile extends StatelessWidget {
             Row(
               children: [
                 _StatusDot(color: statusColor),
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: LegacySpacing.sm),
                 Expanded(
                   child: Text(
                     monitor.name,
@@ -63,9 +63,9 @@ class MonitorTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodySmall?.copyWith(color: muted),
               ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: LegacySpacing.md),
             _HeartbeatBar(heartbeats: monitor.heartbeats, upColor: statusColor),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: LegacySpacing.sm),
             Row(
               children: [
                 Text(
@@ -76,13 +76,13 @@ class MonitorTile extends StatelessWidget {
                   ),
                 ),
                 if (latestPing != null) ...[
-                  const SizedBox(width: AppSpacing.md),
+                  const SizedBox(width: LegacySpacing.md),
                   Text(
                     '$latestPing ms',
                     style: theme.textTheme.bodyMedium?.copyWith(color: muted),
                   ),
                 ],
-                const SizedBox(width: AppSpacing.md),
+                const SizedBox(width: LegacySpacing.md),
                 Text(
                   '${(monitor.uptime * 100).toStringAsFixed(2)}% 24h',
                   style: theme.textTheme.bodyMedium?.copyWith(color: muted),
@@ -146,7 +146,7 @@ class _TypeBadge extends StatelessWidget {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
+        horizontal: LegacySpacing.sm,
         vertical: 4,
       ),
       decoration: BoxDecoration(

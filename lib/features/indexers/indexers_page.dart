@@ -73,7 +73,7 @@ class IndexersPage extends ConsumerWidget {
             .firstOrNull;
 
         return Card(
-          margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+          margin: const EdgeInsets.only(bottom: LegacySpacing.sm),
           child: ListTile(
             title: Text(indexer.name),
             subtitle: Text(

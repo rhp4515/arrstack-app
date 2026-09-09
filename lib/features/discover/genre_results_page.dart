@@ -98,8 +98,8 @@ class _GenreResultsBody extends ConsumerWidget {
                     gridDelegate:
                         const SliverGridDelegateWithMaxCrossAxisExtent(
                           maxCrossAxisExtent: 150,
-                          mainAxisSpacing: AppSpacing.md,
-                          crossAxisSpacing: AppSpacing.md,
+                          mainAxisSpacing: LegacySpacing.md,
+                          crossAxisSpacing: LegacySpacing.md,
                           childAspectRatio: 2 / 3,
                         ),
                     itemCount: value.length,

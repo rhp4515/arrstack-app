@@ -73,7 +73,7 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
           ),
           onChanged: notifier.updateName,
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: LegacySpacing.md),
         DropdownButtonFormField<ServiceType>(
           initialValue: state.type,
           decoration: const InputDecoration(
@@ -87,7 +87,7 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
         ),
         if (state.type == ServiceType.uptimeKuma ||
             state.type == ServiceType.qbittorrent) ...[
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           SegmentedButton<AuthType>(
             segments: const [
               ButtonSegment(value: AuthType.apiKey, label: Text('API Key')),
@@ -100,7 +100,7 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
             onSelectionChanged: (types) => notifier.updateAuthType(types.first),
           ),
         ],
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: LegacySpacing.lg),
         _UrlField(
           controller: _localUrlController,
           label: 'Local URL (LAN)',
@@ -110,7 +110,7 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
           testResult: state.localTestResult,
           onTest: notifier.testLocal,
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: LegacySpacing.md),
         _UrlField(
           controller: _remoteUrlController,
           label: 'Remote URL (Tailscale)',
@@ -121,7 +121,7 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
           testResult: state.remoteTestResult,
           onTest: notifier.testRemote,
         ),
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: LegacySpacing.lg),
         if (state.authType == AuthType.apiKey)
           TextFormField(
             controller: _apiKeyController,
@@ -141,7 +141,7 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
             ),
             onChanged: notifier.updateUsername,
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           TextFormField(
             controller: _passwordController,
             decoration: const InputDecoration(
@@ -152,7 +152,7 @@ class _InstanceFormState extends ConsumerState<InstanceForm> {
             onChanged: notifier.updatePassword,
           ),
         ],
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: LegacySpacing.lg),
         SwitchListTile(
           title: const Text('Default Instance'),
           subtitle: const Text(
@@ -269,7 +269,7 @@ class _UrlFieldState extends State<_UrlField> {
                 ),
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: LegacySpacing.sm),
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: SizedBox(
@@ -288,7 +288,7 @@ class _UrlFieldState extends State<_UrlField> {
           ],
         ),
         if (isEmpty) ...[
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: LegacySpacing.xs),
           InkWell(
             onTap: _fillDefault,
             borderRadius: BorderRadius.circular(4),
@@ -316,7 +316,7 @@ class _UrlFieldState extends State<_UrlField> {
           ),
         ],
         if (widget.testResult != null) ...[
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: LegacySpacing.xs),
           _TestResultIndicator(result: widget.testResult!),
         ],
       ],
@@ -339,7 +339,7 @@ class _TestResultIndicator extends StatelessWidget {
             color: theme.colorScheme.primary,
             size: 16,
           ),
-          const SizedBox(width: AppSpacing.xs),
+          const SizedBox(width: LegacySpacing.xs),
           Text(
             'Success: v${value.version}',
             style: theme.textTheme.bodySmall?.copyWith(
@@ -351,7 +351,7 @@ class _TestResultIndicator extends StatelessWidget {
       Err(:final error) => Row(
         children: [
           Icon(Icons.error_outline, color: theme.colorScheme.error, size: 16),
-          const SizedBox(width: AppSpacing.xs),
+          const SizedBox(width: LegacySpacing.xs),
           Expanded(
             child: Text(
               error.userMessage,

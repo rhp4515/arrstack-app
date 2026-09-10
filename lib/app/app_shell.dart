@@ -101,32 +101,40 @@ class _TabButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = selected ? AppColors.accent : AppColors.n500;
 
-    return InkWell(
-      onTap: onTap,
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          if (selected)
-            Container(width: 18, height: 2, color: AppColors.accent),
-          Padding(
-            padding: const EdgeInsets.only(top: AppSpacing.space2),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  selected ? spec.filled : spec.regular,
-                  size: 21,
-                  color: color,
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        child: Semantics(
+          button: true,
+          selected: selected,
+          label: spec.label,
+          child: Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              if (selected)
+                Container(width: 18, height: 2, color: AppColors.accent),
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.space2),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      selected ? spec.filled : spec.regular,
+                      size: 21,
+                      color: color,
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      spec.label,
+                      style: AppTypography.tabLabel.copyWith(color: color),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 5),
-                Text(
-                  spec.label,
-                  style: AppTypography.tabLabel.copyWith(color: color),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

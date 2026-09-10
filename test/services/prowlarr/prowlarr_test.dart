@@ -51,8 +51,8 @@ void main() {
             'numberOfQueries': 500,
             'numberOfGrabs': 10,
             'numberOfFailures': 2,
-          }
-        ]
+          },
+        ],
       };
 
       final response = IndexerStatsResponse.fromJson(json);

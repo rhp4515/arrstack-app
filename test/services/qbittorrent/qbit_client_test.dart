@@ -73,28 +73,31 @@ void main() {
     expect(captured!.data, {'hashes': 'hash1|hash2'});
   });
 
-  test('startTorrents posts to torrents/start with hashes in the body', () async {
-    RequestOptions? captured;
-    adapter.onPost(
-      'api/v2/torrents/start',
-      (server) => server.reply(200, ''),
-      data: Matchers.any,
-    );
-    dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) {
-          captured = options;
-          handler.next(options);
-        },
-      ),
-    );
+  test(
+    'startTorrents posts to torrents/start with hashes in the body',
+    () async {
+      RequestOptions? captured;
+      adapter.onPost(
+        'api/v2/torrents/start',
+        (server) => server.reply(200, ''),
+        data: Matchers.any,
+      );
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            captured = options;
+            handler.next(options);
+          },
+        ),
+      );
 
-    final result = await client.startTorrents(['hash1']);
+      final result = await client.startTorrents(['hash1']);
 
-    expect(result.isOk, isTrue);
-    expect(captured!.queryParameters, isEmpty);
-    expect(captured!.data, {'hashes': 'hash1'});
-  });
+      expect(result.isOk, isTrue);
+      expect(captured!.queryParameters, isEmpty);
+      expect(captured!.data, {'hashes': 'hash1'});
+    },
+  );
 
   test('deleteTorrents posts hashes and deleteFiles in the body, not the query string', () async {
     RequestOptions? captured;

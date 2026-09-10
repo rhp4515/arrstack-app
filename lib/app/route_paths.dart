@@ -25,11 +25,8 @@ abstract final class RoutePaths {
   static const String homeDiscover = '/home/discover';
   static String homeDiscoverDetail(int id, String type) =>
       '/home/discover/detail/$id/$type';
-  static String homeDiscoverGenre(
-    String mediaType,
-    int genreId,
-    String name,
-  ) => '/home/discover/genre/$mediaType/$genreId?name=${Uri.encodeComponent(name)}';
+  static String homeDiscoverGenre(String mediaType, int genreId, String name) =>
+      '/home/discover/genre/$mediaType/$genreId?name=${Uri.encodeComponent(name)}';
 
   static const String activityCalendar = '/activity/calendar';
   static String activitySubtitles(String instanceId) =>
@@ -42,11 +39,8 @@ abstract final class RoutePaths {
 
   static String seriesDetail(String instanceId, int seriesId) =>
       '/library/sonarr/$instanceId/series/$seriesId';
-  static String episodeDetail(
-    String instanceId,
-    int seriesId,
-    int episodeId,
-  ) => '/library/sonarr/$instanceId/series/$seriesId/episode/$episodeId';
+  static String episodeDetail(String instanceId, int seriesId, int episodeId) =>
+      '/library/sonarr/$instanceId/series/$seriesId/episode/$episodeId';
   static String addSeries(String instanceId) =>
       '/library/sonarr/$instanceId/add';
 

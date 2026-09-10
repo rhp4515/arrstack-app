@@ -17,6 +17,7 @@ import 'package:arrstack/features/uptime/uptime_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
@@ -28,7 +29,7 @@ class DashboardPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
-        actions: const [EndpointIndicator()],
+        actions: const [EndpointIndicator(), _SettingsButton()],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -43,6 +44,19 @@ class DashboardPage extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _SettingsButton extends StatelessWidget {
+  const _SettingsButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(PhosphorIconsRegular.gear),
+      tooltip: 'Settings',
+      onPressed: () => context.go(RoutePaths.homeSettings),
     );
   }
 }

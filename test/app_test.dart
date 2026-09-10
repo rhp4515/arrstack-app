@@ -5,12 +5,15 @@ import 'package:arrstack/app/router.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
+import 'package:arrstack/features/calendar/calendar_page.dart';
 import 'package:arrstack/features/dashboard/dashboard_page.dart';
 import 'package:arrstack/features/downloads/downloads_page.dart';
 import 'package:arrstack/features/library/library_page.dart';
+import 'package:arrstack/features/settings/settings_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 import 'core/storage/fakes.dart';
 
@@ -67,5 +70,39 @@ void main() {
     await tester.tap(find.text('Activity'));
     await tester.pumpAndSettle();
     expect(find.byType(DownloadsPage), findsOneWidget);
+  });
+
+  testWidgets('tapping the Dashboard settings icon opens Settings', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    appRouter.go('/home');
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DashboardPage), findsOneWidget);
+
+    await tester.tap(find.byIcon(PhosphorIconsRegular.gear));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SettingsPage), findsOneWidget);
+  });
+
+  testWidgets('tapping the Downloads calendar icon opens the Calendar', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    appRouter.go('/home');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Activity'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DownloadsPage), findsOneWidget);
+
+    await tester.tap(find.byIcon(PhosphorIconsRegular.calendarBlank));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CalendarPage), findsOneWidget);
   });
 }

@@ -107,11 +107,7 @@ class _TabButton extends StatelessWidget {
         alignment: Alignment.topCenter,
         children: [
           if (selected)
-            Container(
-              width: 18,
-              height: 2,
-              color: AppColors.accent,
-            ),
+            Container(width: 18, height: 2, color: AppColors.accent),
           Padding(
             padding: const EdgeInsets.only(top: AppSpacing.space2),
             child: Column(

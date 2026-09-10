@@ -138,6 +138,7 @@ abstract final class AppTypography {
     fontSize: 26,
     height: 1.15,
     fontWeight: FontWeight.w500,
+    fontVariations: [FontVariation('wght', 500)],
     letterSpacing: -0.52, // -0.02em @ 26px
     color: AppColors.text,
   );
@@ -148,6 +149,7 @@ abstract final class AppTypography {
     fontSize: 21,
     height: 1.15,
     fontWeight: FontWeight.w500,
+    fontVariations: [FontVariation('wght', 500)],
     letterSpacing: -0.42, // -0.02em @ 21px
     color: AppColors.text,
   );
@@ -158,6 +160,7 @@ abstract final class AppTypography {
     fontSize: 40,
     height: 1.0,
     fontWeight: FontWeight.w500,
+    fontVariations: [FontVariation('wght', 500)],
     letterSpacing: -1.2, // -0.03em @ 40px
     fontFeatures: [FontFeature.tabularFigures()],
     color: AppColors.text,
@@ -169,6 +172,7 @@ abstract final class AppTypography {
     fontSize: 17,
     height: 1.0,
     fontWeight: FontWeight.w500,
+    fontVariations: [FontVariation('wght', 500)],
     fontFeatures: [FontFeature.tabularFigures()],
     color: AppColors.text,
   );
@@ -178,6 +182,7 @@ abstract final class AppTypography {
     fontSize: 13.5,
     height: 1.3,
     fontWeight: FontWeight.w500,
+    fontVariations: [FontVariation('wght', 500)],
     color: AppColors.text,
   );
 
@@ -187,6 +192,7 @@ abstract final class AppTypography {
     fontSize: 12.5,
     height: 1.6,
     fontWeight: FontWeight.w400,
+    fontVariations: [FontVariation('wght', 400)],
     color: AppColors.text,
   );
 
@@ -196,6 +202,7 @@ abstract final class AppTypography {
     fontSize: 11,
     height: 1.45,
     fontWeight: FontWeight.w400,
+    fontVariations: [FontVariation('wght', 400)],
     color: AppColors.n500,
   );
 
@@ -205,6 +212,7 @@ abstract final class AppTypography {
     fontSize: 10,
     height: 1.0,
     fontWeight: FontWeight.w600,
+    fontVariations: [FontVariation('wght', 600)],
     letterSpacing: 1.0, // 0.1em @ 10px
     color: AppColors.accent,
   );
@@ -215,6 +223,7 @@ abstract final class AppTypography {
     fontSize: 10,
     height: 1.0,
     fontWeight: FontWeight.w400,
+    fontVariations: [FontVariation('wght', 400)],
     color: AppColors.n500,
   );
 
@@ -223,6 +232,7 @@ abstract final class AppTypography {
     fontSize: 10,
     height: 1.0,
     fontWeight: FontWeight.w500,
+    fontVariations: [FontVariation('wght', 500)],
   );
 }
 

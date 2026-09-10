@@ -131,7 +131,7 @@ abstract final class AppTheme {
       titleLarge: AppTypography.sectionTitle.copyWith(color: scheme.onSurface),
       titleMedium: AppTypography.cardTitle.copyWith(color: scheme.onSurface),
       bodyMedium: AppTypography.body.copyWith(color: scheme.onSurface),
-      bodySmall: AppTypography.meta,
+      bodySmall: AppTypography.meta.copyWith(color: scheme.onSurface),
       labelSmall: AppTypography.tabLabel.copyWith(color: scheme.onSurface),
     );
   }

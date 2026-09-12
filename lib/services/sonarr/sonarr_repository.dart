@@ -52,4 +52,31 @@ class SonarrRepository {
       _client.getRootFolders();
 
   Future<Result<List<SonarrQueueItem>>> listQueue() => _client.getQueue();
+
+  /// All episodes that have aired but have no file, across every page of
+  /// Sonarr's `wanted/missing` list. Stops once a page returns fewer
+  /// records than it asked for. A failure on the first page returns that
+  /// error directly; a failure on a later page keeps whatever was already
+  /// collected (mirrors `calendarScheduleProvider`'s partial-results
+  /// philosophy, one instance's transient hiccup shouldn't drop everything
+  /// already fetched from it this call).
+  Future<Result<List<SonarrCalendarEpisode>>> listMissingEpisodes() async {
+    const pageSize = 50;
+    final all = <SonarrCalendarEpisode>[];
+    var page = 1;
+    while (true) {
+      final result = await _client.getWantedMissing(
+        page: page,
+        pageSize: pageSize,
+      );
+      if (result case Err(:final error)) {
+        return page == 1 ? Err(error) : Ok(all);
+      }
+      final batch = (result as Ok<List<SonarrCalendarEpisode>>).value;
+      all.addAll(batch);
+      if (batch.length < pageSize) break;
+      page++;
+    }
+    return Ok(all);
+  }
 }

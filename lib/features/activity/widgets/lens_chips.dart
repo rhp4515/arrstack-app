@@ -66,6 +66,8 @@ class _LensChip extends ConsumerWidget {
         ? isDark
               ? AppColors.accent
               : colorScheme.primary
+        : isDark
+        ? AppColors.n400
         : colorScheme.onSurfaceVariant;
 
     return InkWell(

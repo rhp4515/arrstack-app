@@ -287,4 +287,48 @@ class SonarrClient implements ConnectionTestClient {
       },
     );
   }
+
+  /// Episodes that have aired but have no file yet — Sonarr's paginated
+  /// `wanted/missing` list. `includeSeries` embeds the parent series so a
+  /// row can show a title without a second round-trip; the response shape
+  /// matches [SonarrCalendarEpisode] exactly, so no separate model exists.
+  Future<Result<List<SonarrCalendarEpisode>>> getWantedMissing({
+    int page = 1,
+    int pageSize = 50,
+  }) {
+    return dioCall(
+      () => _dio.get(
+        'api/v3/wanted/missing',
+        queryParameters: {
+          'page': page,
+          'pageSize': pageSize,
+          'sortKey': 'airDateUtc',
+          'sortDirection': 'descending',
+          'includeSeries': true,
+        },
+      ),
+      map: (data) {
+        if (data is! Map) return [];
+        final records = data['records'];
+        if (records is! List) return [];
+        return records
+            .map((item) {
+              if (item is! Map<String, dynamic>) return null;
+              try {
+                return SonarrCalendarEpisode.fromJson(item);
+              } catch (e, st) {
+                developer.log(
+                  'SonarrCalendarEpisode (wanted/missing) parse error: $e',
+                  name: 'arrstack.sonarr',
+                  error: e,
+                  stackTrace: st,
+                );
+                return null;
+              }
+            })
+            .whereType<SonarrCalendarEpisode>()
+            .toList();
+      },
+    );
+  }
 }

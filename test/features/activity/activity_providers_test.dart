@@ -4,11 +4,14 @@ import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/features/activity/activity_providers.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
 import 'package:arrstack/services/bazarr/models/bazarr_models.dart';
+import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';
+import 'package:arrstack/services/qbittorrent/qbit_providers.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:arrstack/services/sonarr/sonarr_client.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
 import 'package:arrstack/services/sonarr/sonarr_repository.dart';
 import 'package:dio/dio.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -216,5 +219,93 @@ void main() {
         expect(aggregate.hasUnreachableInstance, isFalse);
       },
     );
+  });
+
+  group('TransfersThroughputHistory', () {
+    Result<QbitMainData> mainData(int dlSpeed) => Ok(
+      QbitMainData(
+        serverState: QbitServerState(
+          dlInfoSpeed: dlSpeed,
+          dlInfoData: 0,
+          upInfoSpeed: 0,
+          upInfoData: 0,
+          dlRateLimit: 0,
+          upRateLimit: 0,
+          dhtNodes: 0,
+          connectionStatus: 'connected',
+        ),
+      ),
+    );
+
+    test('samples every 5 seconds while a listener is active', () {
+      fakeAsync((async) {
+        final container = ProviderContainer(
+          overrides: [
+            qbitMainDataProvider('qbit-1')
+                .overrideWith((ref) async => mainData(1024)),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        container.listen(
+          transfersThroughputHistoryProvider('qbit-1'),
+          (_, _) {},
+          fireImmediately: true,
+        );
+        async.flushMicrotasks();
+
+        async.elapse(const Duration(seconds: 15));
+        async.flushMicrotasks();
+
+        final samples = container.read(
+          transfersThroughputHistoryProvider('qbit-1'),
+        );
+        expect(samples.length, greaterThanOrEqualTo(3));
+        expect(samples.every((s) => s.dlSpeedBytesPerSecond == 1024), isTrue);
+      });
+    });
+
+    test('drops samples older than 60 minutes', () {
+      fakeAsync((async) {
+        final container = ProviderContainer(
+          overrides: [
+            qbitMainDataProvider('qbit-1')
+                .overrideWith((ref) async => mainData(512)),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        container.listen(
+          transfersThroughputHistoryProvider('qbit-1'),
+          (_, _) {},
+          fireImmediately: true,
+        );
+        async.flushMicrotasks();
+
+        async.elapse(const Duration(minutes: 70));
+        async.flushMicrotasks();
+
+        final samples = container.read(
+          transfersThroughputHistoryProvider('qbit-1'),
+        );
+        final cutoff = DateTime.now().subtract(const Duration(minutes: 60));
+        expect(samples.every((s) => s.timestamp.isAfter(cutoff)), isTrue);
+      });
+    });
+
+    test('starts empty before the first sample tick', () {
+      final container = ProviderContainer(
+        overrides: [
+          qbitMainDataProvider('qbit-1')
+              .overrideWith((ref) async => mainData(0)),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final samples = container.read(
+        transfersThroughputHistoryProvider('qbit-1'),
+      );
+      expect(samples, isEmpty);
+    });
   });
 }

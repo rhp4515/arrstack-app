@@ -207,3 +207,145 @@ final class BazarrWantedAggregateProvider
 
 String _$bazarrWantedAggregateHash() =>
     r'88711bbd19a19d859575d3bca863a96f8205d50e';
+
+/// A session-only rolling buffer of the last 60 minutes of qBittorrent
+/// download-speed samples for [instanceId], powering the Transfers lens's
+/// throughput sparkline (spec Decision 3). Nothing in this app polls on an
+/// interval anywhere else — this notifier is the one exception, scoped
+/// tightly to stay alive only while the Transfers lens is mounted
+/// (`autoDispose` + a `Timer` cancelled in `ref.onDispose`).
+
+@ProviderFor(TransfersThroughputHistory)
+final transfersThroughputHistoryProvider = TransfersThroughputHistoryFamily._();
+
+/// A session-only rolling buffer of the last 60 minutes of qBittorrent
+/// download-speed samples for [instanceId], powering the Transfers lens's
+/// throughput sparkline (spec Decision 3). Nothing in this app polls on an
+/// interval anywhere else — this notifier is the one exception, scoped
+/// tightly to stay alive only while the Transfers lens is mounted
+/// (`autoDispose` + a `Timer` cancelled in `ref.onDispose`).
+final class TransfersThroughputHistoryProvider
+    extends
+        $NotifierProvider<TransfersThroughputHistory, List<ThroughputSample>> {
+  /// A session-only rolling buffer of the last 60 minutes of qBittorrent
+  /// download-speed samples for [instanceId], powering the Transfers lens's
+  /// throughput sparkline (spec Decision 3). Nothing in this app polls on an
+  /// interval anywhere else — this notifier is the one exception, scoped
+  /// tightly to stay alive only while the Transfers lens is mounted
+  /// (`autoDispose` + a `Timer` cancelled in `ref.onDispose`).
+  TransfersThroughputHistoryProvider._({
+    required TransfersThroughputHistoryFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'transfersThroughputHistoryProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$transfersThroughputHistoryHash();
+
+  @override
+  String toString() {
+    return r'transfersThroughputHistoryProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  TransfersThroughputHistory create() => TransfersThroughputHistory();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<ThroughputSample> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<ThroughputSample>>(value),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TransfersThroughputHistoryProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$transfersThroughputHistoryHash() =>
+    r'5aa29f3934b5b3ec4e056181f1654bc415673b06';
+
+/// A session-only rolling buffer of the last 60 minutes of qBittorrent
+/// download-speed samples for [instanceId], powering the Transfers lens's
+/// throughput sparkline (spec Decision 3). Nothing in this app polls on an
+/// interval anywhere else — this notifier is the one exception, scoped
+/// tightly to stay alive only while the Transfers lens is mounted
+/// (`autoDispose` + a `Timer` cancelled in `ref.onDispose`).
+
+final class TransfersThroughputHistoryFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          TransfersThroughputHistory,
+          List<ThroughputSample>,
+          List<ThroughputSample>,
+          List<ThroughputSample>,
+          String
+        > {
+  TransfersThroughputHistoryFamily._()
+    : super(
+        retry: null,
+        name: r'transfersThroughputHistoryProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// A session-only rolling buffer of the last 60 minutes of qBittorrent
+  /// download-speed samples for [instanceId], powering the Transfers lens's
+  /// throughput sparkline (spec Decision 3). Nothing in this app polls on an
+  /// interval anywhere else — this notifier is the one exception, scoped
+  /// tightly to stay alive only while the Transfers lens is mounted
+  /// (`autoDispose` + a `Timer` cancelled in `ref.onDispose`).
+
+  TransfersThroughputHistoryProvider call(String instanceId) =>
+      TransfersThroughputHistoryProvider._(argument: instanceId, from: this);
+
+  @override
+  String toString() => r'transfersThroughputHistoryProvider';
+}
+
+/// A session-only rolling buffer of the last 60 minutes of qBittorrent
+/// download-speed samples for [instanceId], powering the Transfers lens's
+/// throughput sparkline (spec Decision 3). Nothing in this app polls on an
+/// interval anywhere else — this notifier is the one exception, scoped
+/// tightly to stay alive only while the Transfers lens is mounted
+/// (`autoDispose` + a `Timer` cancelled in `ref.onDispose`).
+
+abstract class _$TransfersThroughputHistory
+    extends $Notifier<List<ThroughputSample>> {
+  late final _$args = ref.$arg as String;
+  String get instanceId => _$args;
+
+  List<ThroughputSample> build(String instanceId);
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref as $Ref<List<ThroughputSample>, List<ThroughputSample>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<List<ThroughputSample>, List<ThroughputSample>>,
+              List<ThroughputSample>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, () => build(_$args));
+  }
+}

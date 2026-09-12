@@ -188,6 +188,7 @@ class _DownloadingBlock extends ConsumerWidget {
       ),
     );
 
+    if (!context.mounted) return;
     if (confirmed == true) {
       final repository = await ref.read(
         qbitRepositoryProvider(instanceId).future,

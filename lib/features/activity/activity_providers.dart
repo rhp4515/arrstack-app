@@ -3,12 +3,15 @@
 /// §Provider plan).
 library;
 
+import 'dart:async';
+
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/features/activity/models/activity_models.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
 import 'package:arrstack/services/bazarr/models/bazarr_models.dart';
+import 'package:arrstack/services/qbittorrent/qbit_providers.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
 import 'package:flutter/foundation.dart';
@@ -143,4 +146,43 @@ Future<BazarrWantedAggregate> bazarrWantedAggregate(Ref ref) async {
     subtitles: subtitles,
     hasUnreachableInstance: hasUnreachableInstance,
   );
+}
+
+const Duration _throughputSampleInterval = Duration(seconds: 5);
+const Duration _throughputHistoryWindow = Duration(minutes: 60);
+
+/// A session-only rolling buffer of the last 60 minutes of qBittorrent
+/// download-speed samples for [instanceId], powering the Transfers lens's
+/// throughput sparkline (spec Decision 3). Nothing in this app polls on an
+/// interval anywhere else — this notifier is the one exception, scoped
+/// tightly to stay alive only while the Transfers lens is mounted
+/// (`autoDispose` + a `Timer` cancelled in `ref.onDispose`).
+@riverpod
+class TransfersThroughputHistory extends _$TransfersThroughputHistory {
+  Timer? _timer;
+
+  @override
+  List<ThroughputSample> build(String instanceId) {
+    ref.onDispose(() => _timer?.cancel());
+    _timer = Timer.periodic(
+      _throughputSampleInterval,
+      (_) => _sample(instanceId),
+    );
+    return [];
+  }
+
+  Future<void> _sample(String instanceId) async {
+    final result = await ref.read(qbitMainDataProvider(instanceId).future);
+    if (result case Ok(:final value)) {
+      final now = DateTime.now();
+      final cutoff = now.subtract(_throughputHistoryWindow);
+      state = [
+        ...state.where((s) => s.timestamp.isAfter(cutoff)),
+        ThroughputSample(
+          timestamp: now,
+          dlSpeedBytesPerSecond: value.serverState.dlInfoSpeed,
+        ),
+      ];
+    }
+  }
 }

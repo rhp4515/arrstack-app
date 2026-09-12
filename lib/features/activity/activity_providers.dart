@@ -151,6 +151,24 @@ Future<BazarrWantedAggregate> bazarrWantedAggregate(Ref ref) async {
 const Duration _throughputSampleInterval = Duration(seconds: 5);
 const Duration _throughputHistoryWindow = Duration(minutes: 60);
 
+/// Prunes samples older than [_throughputHistoryWindow] and appends a new
+/// sample. Pure function — unit-testable with synthetic [DateTime] values.
+/// Mirrors [sortMissingEpisodesByAirDate]'s precedent.
+List<ThroughputSample> pruneAndAppendThroughputSample(
+  List<ThroughputSample> current,
+  int dlSpeedBytesPerSecond,
+  DateTime now,
+) {
+  final cutoff = now.subtract(_throughputHistoryWindow);
+  return [
+    ...current.where((s) => s.timestamp.isAfter(cutoff)),
+    ThroughputSample(
+      timestamp: now,
+      dlSpeedBytesPerSecond: dlSpeedBytesPerSecond,
+    ),
+  ];
+}
+
 /// A session-only rolling buffer of the last 60 minutes of qBittorrent
 /// download-speed samples for [instanceId], powering the Transfers lens's
 /// throughput sparkline (spec Decision 3). Nothing in this app polls on an
@@ -173,16 +191,13 @@ class TransfersThroughputHistory extends _$TransfersThroughputHistory {
 
   Future<void> _sample(String instanceId) async {
     final result = await ref.read(qbitMainDataProvider(instanceId).future);
+    if (!ref.mounted) return;
     if (result case Ok(:final value)) {
-      final now = DateTime.now();
-      final cutoff = now.subtract(_throughputHistoryWindow);
-      state = [
-        ...state.where((s) => s.timestamp.isAfter(cutoff)),
-        ThroughputSample(
-          timestamp: now,
-          dlSpeedBytesPerSecond: value.serverState.dlInfoSpeed,
-        ),
-      ];
+      state = pruneAndAppendThroughputSample(
+        state,
+        value.serverState.dlInfoSpeed,
+        DateTime.now(),
+      );
     }
   }
 }

@@ -2,6 +2,7 @@ import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/features/activity/activity_providers.dart';
+import 'package:arrstack/features/activity/models/activity_models.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
 import 'package:arrstack/services/bazarr/models/bazarr_models.dart';
 import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';
@@ -265,15 +266,47 @@ void main() {
       });
     });
 
-    test('drops samples older than 60 minutes', () {
+    test(
+      'pruneAndAppendThroughputSample drops samples older than 60 minutes',
+      () {
+        final now = DateTime.utc(2026, 1, 15, 12, 0, 0);
+        // Old: 2 hours before now (outside 60-minute window)
+        final old = DateTime.utc(2026, 1, 15, 10, 0, 0);
+        // Recent: 30 minutes before now (within 60-minute window)
+        final recent = DateTime.utc(2026, 1, 15, 11, 30, 0);
+
+        final current = [
+          ThroughputSample(timestamp: old, dlSpeedBytesPerSecond: 100),
+          ThroughputSample(timestamp: recent, dlSpeedBytesPerSecond: 200),
+        ];
+
+        final result = pruneAndAppendThroughputSample(current, 512, now);
+
+        // Old sample should be dropped, recent and new should remain
+        expect(result.length, 2);
+        expect(result[0].dlSpeedBytesPerSecond, 200);
+        expect(result[1].dlSpeedBytesPerSecond, 512);
+        expect(
+          result.every(
+            (s) =>
+                s.timestamp.isAfter(now.subtract(const Duration(minutes: 60))),
+          ),
+          isTrue,
+        );
+      },
+    );
+
+    test('stops sampling after disposal', () {
       fakeAsync((async) {
+        var pollCount = 0;
         final container = ProviderContainer(
           overrides: [
-            qbitMainDataProvider('qbit-1')
-                .overrideWith((ref) async => mainData(512)),
+            qbitMainDataProvider('qbit-1').overrideWith((ref) async {
+              pollCount++;
+              return mainData(1024);
+            }),
           ],
         );
-        addTearDown(container.dispose);
 
         container.listen(
           transfersThroughputHistoryProvider('qbit-1'),
@@ -282,14 +315,19 @@ void main() {
         );
         async.flushMicrotasks();
 
-        async.elapse(const Duration(minutes: 70));
+        // Let some samples collect
+        async.elapse(const Duration(seconds: 10));
         async.flushMicrotasks();
+        final countBefore = pollCount;
+        expect(countBefore, greaterThan(0));
 
-        final samples = container.read(
-          transfersThroughputHistoryProvider('qbit-1'),
-        );
-        final cutoff = DateTime.now().subtract(const Duration(minutes: 60));
-        expect(samples.every((s) => s.timestamp.isAfter(cutoff)), isTrue);
+        // Dispose the provider
+        container.dispose();
+
+        // Elapse more time and verify no additional polls occurred
+        async.elapse(const Duration(seconds: 10));
+        async.flushMicrotasks();
+        expect(pollCount, countBefore);
       });
     });
 

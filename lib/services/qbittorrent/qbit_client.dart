@@ -156,10 +156,10 @@ class QbitClient implements ConnectionTestClient {
             json['server_state'] as Map<String, dynamic>,
           ),
           torrents: torrents,
+          // qBittorrent returns `categories` as a map keyed by category name
+          // (each value is a category-details object), not a list.
           categories:
-              (json['categories'] as List<dynamic>?)
-                  ?.map((e) => e as String)
-                  .toList() ??
+              (json['categories'] as Map<String, dynamic>?)?.keys.toList() ??
               const [],
         );
       },

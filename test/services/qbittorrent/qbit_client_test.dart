@@ -74,6 +74,37 @@ void main() {
   });
 
   test(
+    'getMainData parses categories from a map keyed by category name',
+    () async {
+      adapter.onGet(
+        'api/v2/sync/maindata',
+        (server) => server.reply(200, {
+          'server_state': {
+            'dl_info_speed': 0,
+            'dl_info_data': 0,
+            'up_info_speed': 0,
+            'up_info_data': 0,
+            'dl_rate_limit': 0,
+            'up_rate_limit': 0,
+            'dht_nodes': 0,
+            'connection_status': 'connected',
+          },
+          'torrents': <String, dynamic>{},
+          'categories': {
+            'Movies': {'name': 'Movies', 'savePath': '/data/movies'},
+            'TV': {'name': 'TV', 'savePath': '/data/tv'},
+          },
+        }),
+      );
+
+      final result = await client.getMainData();
+
+      expect(result.isOk, isTrue);
+      expect(result.valueOrNull!.categories.toSet(), {'Movies', 'TV'});
+    },
+  );
+
+  test(
     'startTorrents posts to torrents/start with hashes in the body',
     () async {
       RequestOptions? captured;

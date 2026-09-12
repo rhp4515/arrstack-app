@@ -60,6 +60,7 @@ class ServiceTileGrid extends ConsumerWidget {
               selectedLibraryInstanceIdProvider(ServiceType.radarr).notifier,
             )
             .selectInstance(summary.instanceId);
+        ref.read(activeLibraryTabProvider.notifier).select(LibraryTab.movies);
         context.go(RoutePaths.library);
       case ServiceType.sonarr:
         ref
@@ -67,6 +68,7 @@ class ServiceTileGrid extends ConsumerWidget {
               selectedLibraryInstanceIdProvider(ServiceType.sonarr).notifier,
             )
             .selectInstance(summary.instanceId);
+        ref.read(activeLibraryTabProvider.notifier).select(LibraryTab.tvShows);
         context.go(RoutePaths.library);
       case ServiceType.bazarr:
         context.go(RoutePaths.activitySubtitles(summary.instanceId));

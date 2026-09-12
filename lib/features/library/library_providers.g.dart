@@ -8,6 +8,88 @@ part of 'library_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Which [LibraryTab] the Library page shows.
+///
+/// `go_router`'s `StatefulShellRoute.indexedStack` keeps the Library page
+/// alive across visits, so its own widget state would otherwise retain
+/// whatever tab was last active. Routing this through a provider lets Home's
+/// service-tile taps (Radarr → movies, Sonarr → TV shows) force the correct
+/// tab every time, not just on first load.
+
+@ProviderFor(ActiveLibraryTab)
+final activeLibraryTabProvider = ActiveLibraryTabProvider._();
+
+/// Which [LibraryTab] the Library page shows.
+///
+/// `go_router`'s `StatefulShellRoute.indexedStack` keeps the Library page
+/// alive across visits, so its own widget state would otherwise retain
+/// whatever tab was last active. Routing this through a provider lets Home's
+/// service-tile taps (Radarr → movies, Sonarr → TV shows) force the correct
+/// tab every time, not just on first load.
+final class ActiveLibraryTabProvider
+    extends $NotifierProvider<ActiveLibraryTab, LibraryTab> {
+  /// Which [LibraryTab] the Library page shows.
+  ///
+  /// `go_router`'s `StatefulShellRoute.indexedStack` keeps the Library page
+  /// alive across visits, so its own widget state would otherwise retain
+  /// whatever tab was last active. Routing this through a provider lets Home's
+  /// service-tile taps (Radarr → movies, Sonarr → TV shows) force the correct
+  /// tab every time, not just on first load.
+  ActiveLibraryTabProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'activeLibraryTabProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$activeLibraryTabHash();
+
+  @$internal
+  @override
+  ActiveLibraryTab create() => ActiveLibraryTab();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(LibraryTab value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<LibraryTab>(value),
+    );
+  }
+}
+
+String _$activeLibraryTabHash() => r'c5f8eaf9f6cdea67b64b080d61045fd06e54d014';
+
+/// Which [LibraryTab] the Library page shows.
+///
+/// `go_router`'s `StatefulShellRoute.indexedStack` keeps the Library page
+/// alive across visits, so its own widget state would otherwise retain
+/// whatever tab was last active. Routing this through a provider lets Home's
+/// service-tile taps (Radarr → movies, Sonarr → TV shows) force the correct
+/// tab every time, not just on first load.
+
+abstract class _$ActiveLibraryTab extends $Notifier<LibraryTab> {
+  LibraryTab build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<LibraryTab, LibraryTab>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<LibraryTab, LibraryTab>,
+              LibraryTab,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// The currently selected instance ID for the Library view.
 /// Defaults to the first Radarr instance marked as default, or just the first.
 

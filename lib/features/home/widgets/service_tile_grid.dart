@@ -5,6 +5,7 @@ library;
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/models.dart';
+import 'package:arrstack/features/activity/activity_providers.dart';
 import 'package:arrstack/features/discover/discover_providers.dart';
 import 'package:arrstack/features/home/home_providers.dart';
 import 'package:arrstack/features/home/widgets/service_tile.dart';
@@ -69,7 +70,10 @@ class ServiceTileGrid extends ConsumerWidget {
         ref.read(activeLibraryTabProvider.notifier).select(LibraryTab.tvShows);
         context.go(RoutePaths.library);
       case ServiceType.bazarr:
-        context.go(RoutePaths.activitySubtitles(summary.instanceId));
+        ref
+            .read(activeActivityLensProvider.notifier)
+            .select(ActivityLens.wanted);
+        context.go(RoutePaths.activity);
       case ServiceType.uptimeKuma:
         ref
             .read(selectedUptimeInstanceIdProvider.notifier)

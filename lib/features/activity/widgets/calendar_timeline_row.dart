@@ -35,6 +35,7 @@ class CalendarTimelineRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final reference = now ?? DateTime.now();
     final today = DateTime(reference.year, reference.month, reference.day);
     final entryDay = DateTime(
@@ -45,7 +46,7 @@ class CalendarTimelineRow extends StatelessWidget {
     final hasAired = !entry.date.isAfter(reference);
     final timeColor = (entryDay == today && hasAired)
         ? colorScheme.primary
-        : colorScheme.onSurfaceVariant;
+        : (isDark ? AppColors.n400 : colorScheme.onSurfaceVariant);
 
     final metaLine = [
       entry.subtitle,
@@ -101,7 +102,9 @@ class CalendarTimelineRow extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
                           fontSize: 11.5,
-                          color: colorScheme.onSurfaceVariant,
+                          color: isDark
+                              ? AppColors.n400
+                              : colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -139,12 +142,7 @@ class _StatusRow extends StatelessWidget {
       children: [
         _Chip(label: 'Monitored', color: colorScheme.primary),
         const SizedBox(width: AppSpacing.space2),
-        Text(
-          relativeAirLabel(entry.date, now),
-          style: AppTypography.meta.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
+        Text(relativeAirLabel(entry.date, now), style: AppTypography.meta),
       ],
     );
   }

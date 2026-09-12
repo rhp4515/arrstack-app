@@ -254,3 +254,26 @@ HomeServiceSummary _unreachableSummary(ServiceInstance instance) =>
       summaryLine: 'Unreachable',
       statusLabel: 'Unreachable',
     );
+
+@riverpod
+Future<HomeSummary> homeSummary(Ref ref) async {
+  final summaries = await ref.watch(homeServiceSummariesProvider.future);
+  final healthy = summaries.where((s) => s.isReachable).length;
+
+  final statusLines = summaries
+      .where((s) => !s.isReachable)
+      .take(2)
+      .map(
+        (s) => HomeStatusLine(
+          label: '${s.serviceType.displayName} unreachable',
+          isWarning: true,
+        ),
+      )
+      .toList();
+
+  return HomeSummary(
+    healthy: healthy,
+    total: summaries.length,
+    statusLines: statusLines,
+  );
+}

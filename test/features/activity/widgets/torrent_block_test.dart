@@ -1,5 +1,8 @@
+import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/features/activity/widgets/torrent_block.dart';
 import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';
+import 'package:arrstack/services/qbittorrent/qbit_providers.dart';
+import 'package:arrstack/services/qbittorrent/qbit_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,9 +35,58 @@ QbitTorrent _torrent({
   lastActivity: 0,
 );
 
-Future<void> _pump(WidgetTester tester, QbitTorrent torrent) {
+class FakeQbitRepository implements QbitRepository {
+  final List<String> stoppedHashes = [];
+  final List<String> deletedHashes = [];
+  final Map<String, bool> deleteFilesMap = {};
+
+  @override
+  Future<Result<void>> stopTorrents(List<String> hashes) async {
+    stoppedHashes.addAll(hashes);
+    return const Ok(null);
+  }
+
+  @override
+  Future<Result<void>> deleteTorrents(
+    List<String> hashes, {
+    bool deleteFiles = false,
+  }) async {
+    deletedHashes.addAll(hashes);
+    for (final hash in hashes) {
+      deleteFilesMap[hash] = deleteFiles;
+    }
+    return const Ok(null);
+  }
+
+  @override
+  Future<Result<List<QbitTorrent>>> listTorrents() async =>
+      const Ok(<QbitTorrent>[]);
+
+  @override
+  Future<Result<QbitMainData>> getMainData() async =>
+      throw UnimplementedError();
+
+  @override
+  Future<Result<void>> startTorrents(List<String> hashes) async =>
+      const Ok(null);
+
+  @override
+  Future<Result<void>> addTorrent(String url) async => const Ok(null);
+}
+
+Future<void> _pump(
+  WidgetTester tester,
+  QbitTorrent torrent, {
+  FakeQbitRepository? fakeRepository,
+}) {
   return tester.pumpWidget(
     ProviderScope(
+      overrides: fakeRepository != null
+          ? [
+              qbitRepositoryProvider('qbit-1')
+                  .overrideWithValue(AsyncValue.data(fakeRepository)),
+            ]
+          : [],
       child: MaterialApp(
         home: Scaffold(
           body: TorrentBlock(instanceId: 'qbit-1', torrent: torrent),
@@ -90,5 +142,81 @@ void main() {
     expect(find.text('1.42'), findsOneWidget);
     expect(find.text('Downloading'), findsNothing);
     expect(find.text('Find another release'), findsNothing);
+  });
+
+  testWidgets('stalled Find another release button shows SnackBar', (
+    tester,
+  ) async {
+    await _pump(tester, _torrent(state: 'stalledDL'));
+
+    await tester.tap(find.text('Find another release'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SnackBar), findsOneWidget);
+    expect(
+      find.text(
+        'Search for a replacement release from the Library or Wanted tab.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('downloading pause button calls stopTorrents with hash', (
+    tester,
+  ) async {
+    final fakeRepo = FakeQbitRepository();
+    await _pump(
+      tester,
+      _torrent(state: 'downloading'),
+      fakeRepository: fakeRepo,
+    );
+
+    final pauseButton = find.byTooltip('Pause');
+    expect(pauseButton, findsOneWidget);
+
+    await tester.tap(pauseButton);
+    await tester.pumpAndSettle();
+
+    expect(fakeRepo.stoppedHashes, contains('h1'));
+  });
+
+  testWidgets('downloading delete button calls deleteTorrents with hash', (
+    tester,
+  ) async {
+    final fakeRepo = FakeQbitRepository();
+    await _pump(
+      tester,
+      _torrent(state: 'downloading'),
+      fakeRepository: fakeRepo,
+    );
+
+    final deleteButton = find.byTooltip('Delete');
+    expect(deleteButton, findsWidgets);
+
+    await tester.tap(deleteButton.first);
+    await tester.pumpAndSettle();
+
+    // Dialog appears; tap Delete confirmation
+    await tester.tap(find.text('Delete').last);
+    await tester.pumpAndSettle();
+
+    expect(fakeRepo.deletedHashes, contains('h1'));
+    expect(fakeRepo.deleteFilesMap['h1'], isFalse);
+  });
+
+  testWidgets('stalled delete button calls deleteTorrents non-destructively', (
+    tester,
+  ) async {
+    final fakeRepo = FakeQbitRepository();
+    await _pump(tester, _torrent(state: 'stalledDL'), fakeRepository: fakeRepo);
+
+    final deleteButton = find.byTooltip('Delete');
+    expect(deleteButton, findsOneWidget);
+
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle();
+
+    expect(fakeRepo.deletedHashes, contains('h1'));
+    expect(fakeRepo.deleteFilesMap['h1'], isFalse);
   });
 }

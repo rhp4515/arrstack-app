@@ -2,6 +2,8 @@ import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/features/activity/activity_providers.dart';
+import 'package:arrstack/services/bazarr/bazarr_providers.dart';
+import 'package:arrstack/services/bazarr/models/bazarr_models.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:arrstack/services/sonarr/sonarr_client.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
@@ -138,5 +140,81 @@ void main() {
       );
       expect(episodes, isEmpty);
     });
+  });
+
+  group('bazarrWantedAggregateProvider', () {
+    test('concatenates subtitles from every reachable instance', () async {
+      final a = buildInstance(id: 'bazarr-a', serviceType: ServiceType.bazarr);
+      final b = buildInstance(id: 'bazarr-b', serviceType: ServiceType.bazarr);
+
+      final container = ProviderContainer(
+        overrides: [
+          instancesProvider.overrideWith((ref) async => Ok([a, b])),
+          bazarrWantedProvider(a.id).overrideWith(
+            (ref) async => const Ok([BazarrWantedSubtitle(title: 'x')]),
+          ),
+          bazarrWantedProvider(b.id).overrideWith(
+            (ref) async => const Ok([BazarrWantedSubtitle(title: 'y')]),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final aggregate = await container.read(
+        bazarrWantedAggregateProvider.future,
+      );
+      expect(aggregate.subtitles.map((s) => s.title), ['x', 'y']);
+      expect(aggregate.hasUnreachableInstance, isFalse);
+    });
+
+    test(
+      'sets hasUnreachableInstance and keeps the other instance\'s subtitles',
+      () async {
+        final a = buildInstance(
+          id: 'bazarr-a',
+          serviceType: ServiceType.bazarr,
+        );
+        final b = buildInstance(
+          id: 'bazarr-b',
+          serviceType: ServiceType.bazarr,
+        );
+
+        final container = ProviderContainer(
+          overrides: [
+            instancesProvider.overrideWith((ref) async => Ok([a, b])),
+            bazarrWantedProvider(a.id)
+                .overrideWith((ref) async => const Err(NetworkError())),
+            bazarrWantedProvider(b.id).overrideWith(
+              (ref) async => const Ok([BazarrWantedSubtitle(title: 'y')]),
+            ),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        final aggregate = await container.read(
+          bazarrWantedAggregateProvider.future,
+        );
+        expect(aggregate.hasUnreachableInstance, isTrue);
+        expect(aggregate.subtitles.map((s) => s.title), ['y']);
+      },
+    );
+
+    test(
+      'is not unreachable and has no subtitles with zero Bazarr instances',
+      () async {
+        final container = ProviderContainer(
+          overrides: [
+            instancesProvider.overrideWith((ref) async => const Ok([])),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        final aggregate = await container.read(
+          bazarrWantedAggregateProvider.future,
+        );
+        expect(aggregate.subtitles, isEmpty);
+        expect(aggregate.hasUnreachableInstance, isFalse);
+      },
+    );
   });
 }

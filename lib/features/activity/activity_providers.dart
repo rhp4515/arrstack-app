@@ -6,6 +6,9 @@ library;
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
+import 'package:arrstack/features/activity/models/activity_models.dart';
+import 'package:arrstack/services/bazarr/bazarr_providers.dart';
+import 'package:arrstack/services/bazarr/models/bazarr_models.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
 import 'package:flutter/foundation.dart';
@@ -103,4 +106,41 @@ List<SonarrMissingEpisode> sortMissingEpisodesByAirDate(
     return da.compareTo(db);
   });
   return sorted;
+}
+
+/// Wanted subtitles aggregated across every configured Bazarr instance
+/// (spec Decision 2). Unlike [sonarrMissingEpisodes], a Bazarr failure is
+/// surfaced — [BazarrWantedAggregate.hasUnreachableInstance] drives the
+/// Wanted lens's single offline error card — but other instances' results
+/// still show underneath it.
+@riverpod
+Future<BazarrWantedAggregate> bazarrWantedAggregate(Ref ref) async {
+  final instancesResult = await ref.watch(instancesProvider.future);
+  if (instancesResult is! Ok<List<ServiceInstance>>) {
+    return const BazarrWantedAggregate(
+      subtitles: [],
+      hasUnreachableInstance: false,
+    );
+  }
+
+  final bazarrInstances = instancesResult.value
+      .where((i) => i.serviceType == ServiceType.bazarr)
+      .toList();
+
+  final subtitles = <BazarrWantedSubtitle>[];
+  var hasUnreachableInstance = false;
+  for (final instance in bazarrInstances) {
+    final result = await ref.watch(bazarrWantedProvider(instance.id).future);
+    switch (result) {
+      case Ok(:final value):
+        subtitles.addAll(value);
+      case Err():
+        hasUnreachableInstance = true;
+    }
+  }
+
+  return BazarrWantedAggregate(
+    subtitles: subtitles,
+    hasUnreachableInstance: hasUnreachableInstance,
+  );
 }

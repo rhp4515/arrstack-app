@@ -148,3 +148,62 @@ final class SonarrMissingEpisodesProvider
 
 String _$sonarrMissingEpisodesHash() =>
     r'57b7378d272aaf7e3766f77b6e37b33f5b940fc9';
+
+/// Wanted subtitles aggregated across every configured Bazarr instance
+/// (spec Decision 2). Unlike [sonarrMissingEpisodes], a Bazarr failure is
+/// surfaced — [BazarrWantedAggregate.hasUnreachableInstance] drives the
+/// Wanted lens's single offline error card — but other instances' results
+/// still show underneath it.
+
+@ProviderFor(bazarrWantedAggregate)
+final bazarrWantedAggregateProvider = BazarrWantedAggregateProvider._();
+
+/// Wanted subtitles aggregated across every configured Bazarr instance
+/// (spec Decision 2). Unlike [sonarrMissingEpisodes], a Bazarr failure is
+/// surfaced — [BazarrWantedAggregate.hasUnreachableInstance] drives the
+/// Wanted lens's single offline error card — but other instances' results
+/// still show underneath it.
+
+final class BazarrWantedAggregateProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<BazarrWantedAggregate>,
+          BazarrWantedAggregate,
+          FutureOr<BazarrWantedAggregate>
+        >
+    with
+        $FutureModifier<BazarrWantedAggregate>,
+        $FutureProvider<BazarrWantedAggregate> {
+  /// Wanted subtitles aggregated across every configured Bazarr instance
+  /// (spec Decision 2). Unlike [sonarrMissingEpisodes], a Bazarr failure is
+  /// surfaced — [BazarrWantedAggregate.hasUnreachableInstance] drives the
+  /// Wanted lens's single offline error card — but other instances' results
+  /// still show underneath it.
+  BazarrWantedAggregateProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'bazarrWantedAggregateProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$bazarrWantedAggregateHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<BazarrWantedAggregate> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<BazarrWantedAggregate> create(Ref ref) {
+    return bazarrWantedAggregate(ref);
+  }
+}
+
+String _$bazarrWantedAggregateHash() =>
+    r'88711bbd19a19d859575d3bca863a96f8205d50e';

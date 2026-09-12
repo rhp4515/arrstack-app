@@ -57,8 +57,10 @@ class _DownloadingBlock extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final onSurfaceMuted = theme.colorScheme.onSurfaceVariant;
     final accentColor = isDark ? AppColors.accent : theme.colorScheme.primary;
+    final onSurfaceMuted = isDark
+        ? AppColors.n400
+        : theme.colorScheme.onSurfaceVariant;
     final host = FormatUtils.trackerHost(torrent.tracker);
     final percent = (torrent.progress * 100).round();
     final peers = torrent.numSeeds + torrent.numLeechs;
@@ -126,7 +128,7 @@ class _DownloadingBlock extends ConsumerWidget {
               _IconAction(
                 icon: PhosphorIconsRegular.pause,
                 tooltip: 'Pause',
-                onPressed: () => _pause(ref),
+                onPressed: () => _pause(context, ref),
               ),
               _IconAction(
                 icon: PhosphorIconsRegular.trash,
@@ -140,11 +142,12 @@ class _DownloadingBlock extends ConsumerWidget {
     );
   }
 
-  Future<void> _pause(WidgetRef ref) async {
+  Future<void> _pause(BuildContext context, WidgetRef ref) async {
     final repository = await ref.read(
       qbitRepositoryProvider(instanceId).future,
     );
     await repository.stopTorrents([torrent.hash]);
+    if (!context.mounted) return;
     ref.invalidate(qbitTorrentsProvider(instanceId));
   }
 
@@ -190,6 +193,7 @@ class _DownloadingBlock extends ConsumerWidget {
         qbitRepositoryProvider(instanceId).future,
       );
       await repository.deleteTorrents([torrent.hash], deleteFiles: deleteFiles);
+      if (!context.mounted) return;
       ref.invalidate(qbitTorrentsProvider(instanceId));
     }
   }
@@ -205,8 +209,10 @@ class _StalledBlock extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final onSurfaceMuted = theme.colorScheme.onSurfaceVariant;
     final accentColor = isDark ? AppColors.accent : theme.colorScheme.primary;
+    final onSurfaceMuted = isDark
+        ? AppColors.n400
+        : theme.colorScheme.onSurfaceVariant;
     final percent = (torrent.progress * 100).round();
 
     return Container(
@@ -267,7 +273,7 @@ class _StalledBlock extends ConsumerWidget {
               _IconAction(
                 icon: PhosphorIconsRegular.trash,
                 tooltip: 'Delete',
-                onPressed: () => _delete(ref),
+                onPressed: () => _delete(context, ref),
               ),
             ],
           ),
@@ -286,11 +292,12 @@ class _StalledBlock extends ConsumerWidget {
     );
   }
 
-  Future<void> _delete(WidgetRef ref) async {
+  Future<void> _delete(BuildContext context, WidgetRef ref) async {
     final repository = await ref.read(
       qbitRepositoryProvider(instanceId).future,
     );
     await repository.deleteTorrents([torrent.hash], deleteFiles: false);
+    if (!context.mounted) return;
     ref.invalidate(qbitTorrentsProvider(instanceId));
   }
 }
@@ -303,7 +310,10 @@ class _SeedingRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final onSurfaceMuted = theme.colorScheme.onSurfaceVariant;
+    final isDark = theme.brightness == Brightness.dark;
+    final onSurfaceMuted = isDark
+        ? AppColors.n400
+        : theme.colorScheme.onSurfaceVariant;
     final arrowColor = torrent.ratio >= 1.0 ? AppColors.up : AppColors.warning;
 
     return Padding(

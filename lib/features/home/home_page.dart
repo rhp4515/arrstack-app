@@ -24,20 +24,15 @@ class HomePage extends ConsumerWidget {
     final instancesAsync = ref.watch(instancesProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
       appBar: instancesAsync.when(
         data: (result) => switch (result) {
           Ok(:final value) =>
             value.isEmpty
                 ? AppBar(
-                    backgroundColor: AppColors.bg,
                     elevation: 0,
                     actions: [
                       IconButton(
-                        icon: const Icon(
-                          PhosphorIconsRegular.gear,
-                          color: AppColors.text,
-                        ),
+                        icon: const Icon(PhosphorIconsRegular.gear),
                         onPressed: () => context.go(RoutePaths.homeSettings),
                       ),
                     ],
@@ -61,9 +56,7 @@ class HomePage extends ConsumerWidget {
             child: Text('Error: ${error.userMessage}'),
           ),
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.accent),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text('Unexpected error: $err')),
       ),
     );

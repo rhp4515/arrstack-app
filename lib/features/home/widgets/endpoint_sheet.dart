@@ -11,9 +11,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 
 Future<void> showEndpointSheet(BuildContext context, String instanceId) {
+  final colorScheme = Theme.of(context).colorScheme;
+  final isDark = colorScheme.brightness == Brightness.dark;
   return showModalBottomSheet<void>(
     context: context,
-    backgroundColor: AppColors.surface,
+    backgroundColor: isDark ? AppColors.surface : colorScheme.surface,
     showDragHandle: true,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
@@ -29,6 +31,8 @@ class EndpointSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
     final overrides = ref.watch(endpointSessionOverrideProvider);
     final activeMode = overrides[instanceId];
 
@@ -42,11 +46,18 @@ class EndpointSheet extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Endpoint mode', style: AppTypography.sectionTitle),
+            Text(
+              'Endpoint mode',
+              style: AppTypography.sectionTitle.copyWith(
+                color: colorScheme.onSurface,
+              ),
+            ),
             const SizedBox(height: AppSpacing.space2),
             Text(
               'Override for this session only.',
-              style: AppTypography.body.copyWith(color: AppColors.n500),
+              style: AppTypography.body.copyWith(
+                color: isDark ? AppColors.n500 : colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: AppSpacing.space4),
             _EndpointOption(
@@ -105,6 +116,7 @@ class _EndpointOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.md),
@@ -114,7 +126,14 @@ class _EndpointOption extends StatelessWidget {
           children: [
             Icon(icon, size: 20, color: AppColors.accent),
             const SizedBox(width: AppSpacing.space3),
-            Expanded(child: Text(label, style: AppTypography.cardTitle)),
+            Expanded(
+              child: Text(
+                label,
+                style: AppTypography.cardTitle.copyWith(
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ),
             if (isActive)
               const Icon(
                 PhosphorIconsRegular.check,

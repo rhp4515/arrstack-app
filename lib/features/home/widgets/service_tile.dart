@@ -36,6 +36,8 @@ class ServiceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
     final accent =
         _serviceAccentColors[summary.serviceType] ?? AppColors.accent;
     final icon =
@@ -47,7 +49,7 @@ class ServiceTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.space4),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: isDark ? AppColors.surface : colorScheme.surface,
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: summary.isReachable
               ? AppShadows.ringSm
@@ -82,14 +84,18 @@ class ServiceTile extends StatelessWidget {
             const SizedBox(height: AppSpacing.space3),
             Text(
               summary.instanceName,
-              style: AppTypography.cardTitle,
+              style: AppTypography.cardTitle.copyWith(
+                color: colorScheme.onSurface,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: AppSpacing.space2),
             Text(
               summary.summaryLine,
-              style: AppTypography.meta,
+              style: AppTypography.meta.copyWith(
+                color: isDark ? AppColors.n500 : colorScheme.onSurfaceVariant,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

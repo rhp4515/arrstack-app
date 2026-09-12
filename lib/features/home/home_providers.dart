@@ -16,6 +16,7 @@ import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:arrstack/services/seerr/seerr.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
 import 'package:arrstack/services/uptimekuma/kuma_providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'home_providers.g.dart';
@@ -343,3 +344,53 @@ bool _isActivelyDownloading(QbitTorrent t) =>
     !torrentIsComplete(t) &&
     !_isPausedOrStalled(t.state) &&
     !_isQueued(t.state);
+
+/// Invalidates the leaf network providers backing Home, then the derived
+/// aggregation providers, so pull-to-refresh actually re-fetches (Phase 3
+/// final-review fix — the derived providers alone just recompute from
+/// cached leaf data).
+Future<void> refreshHome(WidgetRef ref) async {
+  final instancesResult = await ref.read(instancesProvider.future);
+  if (instancesResult is! Ok<List<ServiceInstance>>) return;
+  final instances = instancesResult.value;
+
+  final types = instances.map((i) => i.serviceType).toSet();
+  for (final type in types) {
+    final instance = _defaultInstanceOfType(instances, type);
+    if (instance == null) continue;
+    switch (type) {
+      case ServiceType.radarr:
+        ref.invalidate(radarrMoviesProvider(instance.id));
+      case ServiceType.sonarr:
+        ref.invalidate(sonarrSeriesProvider(instance.id));
+      case ServiceType.bazarr:
+        ref.invalidate(bazarrWantedProvider(instance.id));
+      case ServiceType.uptimeKuma:
+        ref.invalidate(kumaMonitorsProvider(instance.id));
+      case ServiceType.prowlarr:
+        ref.invalidate(prowlarrIndexersProvider(instance.id));
+        ref.invalidate(prowlarrIndexerStatsProvider(instance.id));
+      case ServiceType.seerr:
+        ref.invalidate(
+          seerrRequestsProvider(
+            instanceId: instance.id,
+            filter: 'pending',
+            sort: 'added',
+          ),
+        );
+      case ServiceType.einthusan:
+        break;
+      case ServiceType.qbittorrent:
+        ref.invalidate(qbitMainDataProvider(instance.id));
+    }
+  }
+
+  ref.invalidate(homeServiceSummariesProvider);
+  ref.invalidate(homeSummaryProvider);
+  ref.invalidate(rightNowProvider);
+
+  await Future.wait([
+    ref.read(homeServiceSummariesProvider.future),
+    ref.read(rightNowProvider.future),
+  ]);
+}

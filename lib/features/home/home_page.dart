@@ -54,11 +54,7 @@ class HomePage extends ConsumerWidget {
             value.isEmpty
                 ? const _EmptyHome()
                 : RefreshIndicator(
-                    onRefresh: () async {
-                      ref.invalidate(homeSummaryProvider);
-                      ref.invalidate(homeServiceSummariesProvider);
-                      ref.invalidate(rightNowProvider);
-                    },
+                    onRefresh: () => refreshHome(ref),
                     child: const _HomeContent(),
                   ),
           Err(:final error) => Center(

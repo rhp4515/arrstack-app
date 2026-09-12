@@ -1,6 +1,6 @@
 /// A labeled section with a horizontal poster carousel — the shared shape
 /// behind "Trending"/"Popular Movies"/"Upcoming Movies"/etc. on the Seerr
-/// Discover page. Mirrors the label+row pattern used by DashboardPage.
+/// Discover page. Mirrors the label+row pattern used elsewhere in the app.
 library;
 
 import 'package:arrstack/app/route_paths.dart';

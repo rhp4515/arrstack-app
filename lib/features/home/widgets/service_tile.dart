@@ -66,6 +66,15 @@ class ServiceTile extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: summary.isReachable ? AppColors.up : AppColors.down,
                     shape: BoxShape.circle,
+                    boxShadow: summary.isReachable
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: AppColors.down.withValues(alpha: 0.6),
+                              blurRadius: 4,
+                              spreadRadius: 1,
+                            ),
+                          ],
                   ),
                 ),
               ],

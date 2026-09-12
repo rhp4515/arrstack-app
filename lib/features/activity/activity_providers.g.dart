@@ -279,7 +279,7 @@ final class TransfersThroughputHistoryProvider
 }
 
 String _$transfersThroughputHistoryHash() =>
-    r'5aa29f3934b5b3ec4e056181f1654bc415673b06';
+    r'e7525a6bf314b321f6b6ec5c2276125420544213';
 
 /// A session-only rolling buffer of the last 60 minutes of qBittorrent
 /// download-speed samples for [instanceId], powering the Transfers lens's

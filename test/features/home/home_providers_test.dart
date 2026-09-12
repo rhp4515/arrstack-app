@@ -5,6 +5,8 @@ import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/features/home/home_providers.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
 import 'package:arrstack/services/bazarr/models/bazarr_models.dart';
+import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';
+import 'package:arrstack/services/qbittorrent/qbit_providers.dart';
 import 'package:arrstack/services/radarr/models/radarr_models.dart';
 import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
@@ -304,6 +306,139 @@ void main() {
 
       final summary = await container.read(homeSummaryProvider.future);
       expect(summary.statusLines, hasLength(2));
+    });
+  });
+
+  group('rightNowProvider', () {
+    QbitTorrent torrent({
+      required String hash,
+      required String state,
+      double progress = 0.5,
+      int eta = 60,
+    }) => QbitTorrent(
+      hash: hash,
+      name: hash,
+      size: 1000,
+      progress: progress,
+      dlspeed: 100,
+      upspeed: 0,
+      priority: 1,
+      numSeeds: 0,
+      numLeechs: 0,
+      numIncomplete: 0,
+      ratio: 0,
+      eta: eta,
+      state: state,
+      addedOn: 0,
+      completionOn: 0,
+      category: '',
+      tags: '',
+      savePath: '',
+      timeActive: 0,
+      lastActivity: 0,
+    );
+
+    test('is null when there is no qBittorrent instance', () async {
+      final container = ProviderContainer(
+        overrides: [
+          instancesProvider.overrideWith((ref) async => const Ok([])),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final result = await container.read(rightNowProvider.future);
+      expect(result, isNull);
+    });
+
+    test(
+      'buckets torrents into downloading/paused-or-stalled/queued fractions',
+      () async {
+        final qbit = buildInstance(
+          id: 'qbit-1',
+          serviceType: ServiceType.qbittorrent,
+          isDefault: true,
+        );
+
+        final container = ProviderContainer(
+          overrides: [
+            instancesProvider.overrideWith((ref) async => Ok([qbit])),
+            qbitMainDataProvider(qbit.id).overrideWith(
+              (ref) async => Ok(
+                QbitMainData(
+                  serverState: const QbitServerState(
+                    dlInfoSpeed: 2048,
+                    dlInfoData: 0,
+                    upInfoSpeed: 512,
+                    upInfoData: 0,
+                    dlRateLimit: 0,
+                    upRateLimit: 0,
+                    dhtNodes: 0,
+                    connectionStatus: 'connected',
+                  ),
+                  torrents: {
+                    'a': torrent(hash: 'a', state: 'downloading'),
+                    'b': torrent(hash: 'b', state: 'pausedDL'),
+                    'c': torrent(hash: 'c', state: 'queuedDL'),
+                    'd': torrent(hash: 'd', state: 'uploading', progress: 1.0),
+                  },
+                ),
+              ),
+            ),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        final result = await container.read(rightNowProvider.future);
+        expect(result, isNotNull);
+        expect(result!.downloadSpeed, 2048);
+        expect(result.uploadSpeed, 512);
+        expect(result.downloadingCount, 1);
+        expect(result.seedingCount, 1);
+        expect(result.downloadingFraction, closeTo(1 / 3, 0.0001));
+        expect(result.pausedOrStalledFraction, closeTo(1 / 3, 0.0001));
+        expect(result.queuedFraction, closeTo(1 / 3, 0.0001));
+        expect(result.etaToNextFinishSeconds, 60);
+      },
+    );
+
+    test('all fractions are zero when there are no active torrents', () async {
+      final qbit = buildInstance(
+        id: 'qbit-1',
+        serviceType: ServiceType.qbittorrent,
+        isDefault: true,
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          instancesProvider.overrideWith((ref) async => Ok([qbit])),
+          qbitMainDataProvider(qbit.id).overrideWith(
+            (ref) async => Ok(
+              QbitMainData(
+                serverState: const QbitServerState(
+                  dlInfoSpeed: 0,
+                  dlInfoData: 0,
+                  upInfoSpeed: 0,
+                  upInfoData: 0,
+                  dlRateLimit: 0,
+                  upRateLimit: 0,
+                  dhtNodes: 0,
+                  connectionStatus: 'connected',
+                ),
+                torrents: {
+                  'd': torrent(hash: 'd', state: 'uploading', progress: 1.0),
+                },
+              ),
+            ),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final result = await container.read(rightNowProvider.future);
+      expect(result!.downloadingFraction, 0);
+      expect(result.pausedOrStalledFraction, 0);
+      expect(result.queuedFraction, 0);
+      expect(result.etaToNextFinishSeconds, isNull);
     });
   });
 }

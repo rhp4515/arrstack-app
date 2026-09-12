@@ -28,6 +28,7 @@ class ErrorCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.space4),
@@ -71,8 +72,12 @@ class ErrorCard extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: onPrimaryAction,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.accent,
-                    side: const BorderSide(color: AppColors.accent),
+                    foregroundColor: isDark
+                        ? AppColors.accent
+                        : colorScheme.primary,
+                    side: BorderSide(
+                      color: isDark ? AppColors.accent : colorScheme.primary,
+                    ),
                   ),
                   child: Text(primaryActionLabel),
                 ),

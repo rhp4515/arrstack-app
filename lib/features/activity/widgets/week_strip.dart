@@ -100,8 +100,9 @@ class _DayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = colorScheme.brightness == Brightness.dark;
     final activeColor = colorScheme.primary;
-    final mutedColor = colorScheme.onSurfaceVariant;
+    final mutedColor = isDark ? AppColors.n400 : colorScheme.onSurfaceVariant;
     final textColor = day.isToday ? activeColor : colorScheme.onSurface;
 
     return Container(

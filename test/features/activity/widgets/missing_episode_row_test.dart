@@ -40,8 +40,17 @@ void main() {
           ),
           GoRoute(
             path: '/library/sonarr/:instanceId/series/:seriesId/episode/:episodeId/search',
-            builder: (context, state) =>
-                const Scaffold(body: Text('search page')),
+            builder: (context, state) {
+              final instanceId = state.pathParameters['instanceId'] ?? '?';
+              final seriesId = state.pathParameters['seriesId'] ?? '?';
+              final episodeId = state.pathParameters['episodeId'] ?? '?';
+              final title = state.uri.queryParameters['title'] ?? '?';
+              return Scaffold(
+                body: Text(
+                  'search page: $instanceId/$seriesId/$episodeId/$title',
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -74,11 +83,15 @@ void main() {
     );
 
     testWidgets(
-      'tapping Search releases navigates to the release search route',
+      'tapping Search releases navigates to the release search route with correct parameters',
       (tester) async {
         const missing = SonarrMissingEpisode(
           instanceId: 'sonarr-1',
-          episode: SonarrCalendarEpisode(id: 501, seriesId: 9, title: 'x'),
+          episode: SonarrCalendarEpisode(
+            id: 501,
+            seriesId: 9,
+            title: 'Test Episode',
+          ),
         );
 
         await tester.pumpWidget(
@@ -87,8 +100,30 @@ void main() {
         await tester.tap(find.text('Search releases'));
         await tester.pumpAndSettle();
 
-        expect(find.text('search page'), findsOneWidget);
+        expect(
+          find.textContaining('search page: sonarr-1/9/501/Test Episode'),
+          findsOneWidget,
+        );
       },
     );
+
+    testWidgets('disables Search releases button when seriesId is null', (
+      tester,
+    ) async {
+      const missing = SonarrMissingEpisode(
+        instanceId: 'sonarr-1',
+        episode: SonarrCalendarEpisode(id: 501, seriesId: null, title: 'x'),
+      );
+
+      await tester.pumpWidget(
+        wrap(const MissingEpisodeRow(missingEpisode: missing)),
+      );
+
+      final button = find.byType(OutlinedButton);
+      expect(button, findsOneWidget);
+
+      final buttonWidget = tester.widget<OutlinedButton>(button);
+      expect(buttonWidget.onPressed, isNull);
+    });
   });
 }

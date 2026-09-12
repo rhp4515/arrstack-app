@@ -97,3 +97,42 @@ final class HomeServiceSummariesProvider
 
 String _$homeServiceSummariesHash() =>
     r'637b4246c530a59caf485262a06e80a37c5a02e7';
+
+@ProviderFor(homeSummary)
+final homeSummaryProvider = HomeSummaryProvider._();
+
+final class HomeSummaryProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<HomeSummary>,
+          HomeSummary,
+          FutureOr<HomeSummary>
+        >
+    with $FutureModifier<HomeSummary>, $FutureProvider<HomeSummary> {
+  HomeSummaryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'homeSummaryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$homeSummaryHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<HomeSummary> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<HomeSummary> create(Ref ref) {
+    return homeSummary(ref);
+  }
+}
+
+String _$homeSummaryHash() => r'd611a9866bf844a41f56f2ddd828167c5a7de3d8';

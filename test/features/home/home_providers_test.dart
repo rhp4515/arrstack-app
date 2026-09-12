@@ -25,6 +25,13 @@ class _FakeKumaMonitors extends KumaMonitors {
   }
 }
 
+class _ErroringKumaMonitors extends KumaMonitors {
+  @override
+  Stream<Result<List<KumaMonitor>>> build(String instanceId) async* {
+    yield const Err(NetworkError());
+  }
+}
+
 void main() {
   group('primaryDashboardInstanceProvider', () {
     test('prefers the default Radarr instance', () async {
@@ -227,5 +234,76 @@ void main() {
         expect(summaries.single.summaryLine, '2 monitors · 1 down');
       },
     );
+  });
+
+  group('homeSummaryProvider', () {
+    test(
+      'counts healthy/total and lists unreachable services as status lines',
+      () async {
+        final radarr = buildInstance(
+          id: 'radarr-1',
+          serviceType: ServiceType.radarr,
+          isDefault: true,
+        );
+        final bazarr = buildInstance(
+          id: 'bazarr-1',
+          serviceType: ServiceType.bazarr,
+          isDefault: true,
+        );
+
+        final container = ProviderContainer(
+          overrides: [
+            instancesProvider.overrideWith((ref) async => Ok([radarr, bazarr])),
+            radarrMoviesProvider(radarr.id)
+                .overrideWith((ref) async => const Ok([])),
+            bazarrWantedProvider(bazarr.id)
+                .overrideWith((ref) async => const Err(NetworkError())),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        final summary = await container.read(homeSummaryProvider.future);
+        expect(summary.healthy, 1);
+        expect(summary.total, 2);
+        expect(summary.statusLines, hasLength(1));
+        expect(summary.statusLines.single.label, 'Bazarr unreachable');
+        expect(summary.statusLines.single.isWarning, isTrue);
+      },
+    );
+
+    test('caps status lines at two', () async {
+      final bazarr = buildInstance(
+        id: 'bazarr-1',
+        serviceType: ServiceType.bazarr,
+        isDefault: true,
+      );
+      final kuma = buildInstance(
+        id: 'kuma-1',
+        serviceType: ServiceType.uptimeKuma,
+        isDefault: true,
+      );
+      final radarr = buildInstance(
+        id: 'radarr-1',
+        serviceType: ServiceType.radarr,
+        isDefault: true,
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          instancesProvider.overrideWith(
+            (ref) async => Ok([bazarr, kuma, radarr]),
+          ),
+          bazarrWantedProvider(bazarr.id)
+              .overrideWith((ref) async => const Err(NetworkError())),
+          kumaMonitorsProvider(kuma.id).overrideWith(_ErroringKumaMonitors.new),
+          radarrMoviesProvider(radarr.id)
+              .overrideWith((ref) async => const Err(NetworkError())),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final summary = await container.read(homeSummaryProvider.future);
+      expect(summary.statusLines, hasLength(2));
+    });
   });
 }

@@ -6,8 +6,8 @@ import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/features/calendar/calendar_page.dart';
-import 'package:arrstack/features/dashboard/dashboard_page.dart';
 import 'package:arrstack/features/downloads/downloads_page.dart';
+import 'package:arrstack/features/home/home_page.dart';
 import 'package:arrstack/features/library/library_page.dart';
 import 'package:arrstack/features/settings/settings_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,7 +53,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(EmptyState), findsOneWidget);
-    expect(find.byType(DashboardPage), findsOneWidget);
+    expect(find.byType(HomePage), findsOneWidget);
   });
 
   testWidgets('tapping Library and Activity tabs switches pages', (
@@ -61,7 +61,7 @@ void main() {
   ) async {
     await pumpApp(tester);
 
-    expect(find.byType(DashboardPage), findsOneWidget);
+    expect(find.byType(HomePage), findsOneWidget);
 
     await tester.tap(find.text('Library'));
     await tester.pumpAndSettle();
@@ -72,15 +72,13 @@ void main() {
     expect(find.byType(DownloadsPage), findsOneWidget);
   });
 
-  testWidgets('tapping the Dashboard settings icon opens Settings', (
-    tester,
-  ) async {
+  testWidgets('tapping the Home settings icon opens Settings', (tester) async {
     await pumpApp(tester);
 
     appRouter.go('/home');
     await tester.pumpAndSettle();
 
-    expect(find.byType(DashboardPage), findsOneWidget);
+    expect(find.byType(HomePage), findsOneWidget);
 
     await tester.tap(find.byIcon(PhosphorIconsRegular.gear));
     await tester.pumpAndSettle();

@@ -10,12 +10,12 @@ import 'package:arrstack/app/app_shell.dart';
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/features/calendar/calendar_page.dart';
-import 'package:arrstack/features/dashboard/dashboard_page.dart';
 import 'package:arrstack/features/discover/discover_detail_page.dart';
 import 'package:arrstack/features/discover/discover_page.dart';
 import 'package:arrstack/features/discover/genre_results_page.dart';
 import 'package:arrstack/features/downloads/downloads_page.dart';
 import 'package:arrstack/features/einthusan_import/einthusan_import_page.dart';
+import 'package:arrstack/features/home/home_page.dart';
 import 'package:arrstack/features/indexers/indexers_page.dart';
 import 'package:arrstack/features/library/add_movie_page.dart';
 import 'package:arrstack/features/library/add_series_page.dart';
@@ -42,7 +42,7 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: RoutePaths.home,
-              builder: (context, state) => const DashboardPage(),
+              builder: (context, state) => const HomePage(),
               routes: [
                 GoRoute(
                   path: 'uptime',

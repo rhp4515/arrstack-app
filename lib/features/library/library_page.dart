@@ -18,9 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-/// The two library surfaces, ordered to match the mockups (TV Shows first).
-enum _LibraryTab { tvShows, movies }
-
 class LibraryPage extends ConsumerStatefulWidget {
   const LibraryPage({super.key});
 
@@ -29,7 +26,6 @@ class LibraryPage extends ConsumerStatefulWidget {
 }
 
 class _LibraryPageState extends ConsumerState<LibraryPage> {
-  _LibraryTab _tab = _LibraryTab.tvShows;
   final _searchController = TextEditingController();
   String _query = '';
 
@@ -39,18 +35,12 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
     super.dispose();
   }
 
-  void _onTabChanged(_LibraryTab tab) {
-    setState(() {
-      _tab = tab;
-      // Reset the query when switching surfaces so a movie search doesn't
-      // silently filter the series list.
-      _query = '';
-      _searchController.clear();
-    });
+  void _onTabChanged(LibraryTab tab) {
+    ref.read(activeLibraryTabProvider.notifier).select(tab);
   }
 
-  void _onAdd() {
-    final type = _tab == _LibraryTab.movies
+  void _onAdd(LibraryTab tab) {
+    final type = tab == LibraryTab.movies
         ? ServiceType.radarr
         : ServiceType.sonarr;
     final instanceId = ref.read(selectedLibraryInstanceIdProvider(type)).value;
@@ -72,7 +62,17 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isMovies = _tab == _LibraryTab.movies;
+    final tab = ref.watch(activeLibraryTabProvider);
+    ref.listen(activeLibraryTabProvider, (previous, next) {
+      if (previous == null || previous == next) return;
+      // Reset the query when switching surfaces so a movie search doesn't
+      // silently filter the series list.
+      setState(() {
+        _query = '';
+        _searchController.clear();
+      });
+    });
+    final isMovies = tab == LibraryTab.movies;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Library')),
@@ -96,20 +96,20 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
             padding: const EdgeInsets.symmetric(horizontal: LegacySpacing.md),
             child: SizedBox(
               width: double.infinity,
-              child: SegmentedButton<_LibraryTab>(
+              child: SegmentedButton<LibraryTab>(
                 segments: const [
                   ButtonSegment(
-                    value: _LibraryTab.tvShows,
+                    value: LibraryTab.tvShows,
                     label: Text('TV Shows'),
                     icon: Icon(Icons.tv_outlined),
                   ),
                   ButtonSegment(
-                    value: _LibraryTab.movies,
+                    value: LibraryTab.movies,
                     label: Text('Movies'),
                     icon: Icon(Icons.movie_outlined),
                   ),
                 ],
-                selected: {_tab},
+                selected: {tab},
                 onSelectionChanged: (selection) =>
                     _onTabChanged(selection.first),
               ),
@@ -124,7 +124,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _onAdd,
+        onPressed: () => _onAdd(tab),
         child: const Icon(Icons.add),
       ),
     );

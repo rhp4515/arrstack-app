@@ -33,7 +33,7 @@ class _AddTorrentDialogState extends ConsumerState<AddTorrentDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text('Paste a magnet link or .torrent URL below:'),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           TextField(
             controller: _controller,
             maxLines: 3,

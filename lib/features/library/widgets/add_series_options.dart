@@ -58,14 +58,14 @@ class _AddSeriesOptionsSheetState extends ConsumerState<AddSeriesOptionsSheet> {
             'Add "${widget.series.title}"',
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           DropdownButtonFormField<String>(
             decoration: const InputDecoration(labelText: 'Monitor Mode'),
             initialValue: _selectedMonitorMode,
             items: _monitorModes,
             onChanged: (val) => setState(() => _selectedMonitorMode = val!),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           profilesAsync.when(
             data: (result) => switch (result) {
               Ok(:final value) => DropdownButtonFormField<int>(
@@ -90,7 +90,7 @@ class _AddSeriesOptionsSheetState extends ConsumerState<AddSeriesOptionsSheet> {
             loading: () => const LinearProgressIndicator(),
             error: (err, _) => Text('Error: $err'),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           foldersAsync.when(
             data: (result) => switch (result) {
               Ok(:final value) => DropdownButtonFormField<String>(
@@ -115,7 +115,7 @@ class _AddSeriesOptionsSheetState extends ConsumerState<AddSeriesOptionsSheet> {
             loading: () => const LinearProgressIndicator(),
             error: (err, _) => Text('Error: $err'),
           ),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: LegacySpacing.xl),
           FilledButton.icon(
             onPressed: _isSaving ? null : _save,
             icon: _isSaving
@@ -130,7 +130,7 @@ class _AddSeriesOptionsSheetState extends ConsumerState<AddSeriesOptionsSheet> {
                 : const Icon(Icons.add),
             label: const Text('Add to Library'),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
         ],
       ),
     );

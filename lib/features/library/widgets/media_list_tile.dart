@@ -54,7 +54,7 @@ class MediaListTile extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.sm),
+          padding: const EdgeInsets.all(LegacySpacing.sm),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -65,7 +65,7 @@ class MediaListTile extends StatelessWidget {
                 width: _posterWidth,
                 height: _posterHeight,
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: LegacySpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +80,7 @@ class MediaListTile extends StatelessWidget {
                       ),
                     ),
                     if (year != null) ...[
-                      const SizedBox(height: AppSpacing.xs),
+                      const SizedBox(height: LegacySpacing.xs),
                       Text(
                         '$year',
                         style: theme.textTheme.bodyMedium?.copyWith(
@@ -90,7 +90,7 @@ class MediaListTile extends StatelessWidget {
                     ],
                     if (studioOrNetwork != null &&
                         studioOrNetwork!.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.xs),
+                      const SizedBox(height: LegacySpacing.xs),
                       Text(
                         studioOrNetwork!,
                         maxLines: 1,
@@ -101,12 +101,12 @@ class MediaListTile extends StatelessWidget {
                       ),
                     ],
                     if (pill != null) ...[
-                      const SizedBox(height: AppSpacing.sm),
+                      const SizedBox(height: LegacySpacing.sm),
                       Row(
                         children: [
                           Flexible(child: pill!),
                           if (pillTrailing != null) ...[
-                            const SizedBox(width: AppSpacing.sm),
+                            const SizedBox(width: LegacySpacing.sm),
                             Text(
                               pillTrailing!,
                               style: theme.textTheme.bodyMedium?.copyWith(
@@ -123,7 +123,7 @@ class MediaListTile extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: AppSpacing.xs),
+              const SizedBox(width: LegacySpacing.xs),
               Icon(Icons.chevron_right, color: muted),
             ],
           ),

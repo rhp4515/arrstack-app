@@ -1,6 +1,7 @@
 /// Downloads tab: qBittorrent torrent list and controls (spec §7).
 library;
 
+import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/utils/format_utils.dart';
@@ -12,6 +13,8 @@ import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';
 import 'package:arrstack/services/qbittorrent/qbit_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 class DownloadsPage extends ConsumerWidget {
   const DownloadsPage({super.key});
@@ -30,6 +33,7 @@ class DownloadsPage extends ConsumerWidget {
             loading: () => const SizedBox.shrink(),
             error: (_, _) => const SizedBox.shrink(),
           ),
+          const _CalendarButton(),
         ],
         bottom: instanceIdAsync.when(
           data: (id) => id != null ? _GlobalStatsBar(instanceId: id) : null,
@@ -61,6 +65,19 @@ class DownloadsPage extends ConsumerWidget {
         },
         child: const Icon(Icons.add),
       ),
+    );
+  }
+}
+
+class _CalendarButton extends StatelessWidget {
+  const _CalendarButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(PhosphorIconsRegular.calendarBlank),
+      tooltip: 'Calendar',
+      onPressed: () => context.go(RoutePaths.activityCalendar),
     );
   }
 }
@@ -221,7 +238,7 @@ class _FilterMenu extends ConsumerWidget {
       child: Row(
         children: [
           Icon(icon, size: 20, color: isSelected ? Colors.blue : null),
-          const SizedBox(width: AppSpacing.md),
+          const SizedBox(width: LegacySpacing.md),
           Text(
             label,
             style: TextStyle(
@@ -265,7 +282,7 @@ class _SectionedTorrents extends StatelessWidget {
             TorrentTile(instanceId: instanceId, torrent: t),
         ],
         if (history.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           _SectionHeader(
             icon: Icons.history,
             label: 'History',
@@ -294,11 +311,11 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      padding: const EdgeInsets.only(bottom: LegacySpacing.sm),
       child: Row(
         children: [
           Icon(icon, size: 20, color: theme.colorScheme.primary),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: LegacySpacing.sm),
           Text(
             '$label ($count)',
             style: theme.textTheme.titleLarge?.copyWith(
@@ -332,7 +349,7 @@ class _GlobalStatsBar extends ConsumerWidget implements PreferredSizeWidget {
             color: theme.colorScheme.surfaceContainerHighest.withValues(
               alpha: 0.5,
             ),
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            padding: const EdgeInsets.symmetric(horizontal: LegacySpacing.md),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

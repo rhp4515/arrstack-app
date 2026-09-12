@@ -123,7 +123,7 @@ class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
         children: [
           if (_isProcessing)
             const Padding(
-              padding: EdgeInsets.only(bottom: AppSpacing.md),
+              padding: EdgeInsets.only(bottom: LegacySpacing.md),
               child: LinearProgressIndicator(),
             ),
           Text(
@@ -132,16 +132,16 @@ class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: LegacySpacing.sm),
           Text(
             'Season ${episode.seasonNumber}, Episode ${episode.episodeNumber} · $airDate',
             style: theme.textTheme.titleMedium?.copyWith(color: muted),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           _ChipRow(episode: episode),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           _OverviewCard(episode: episode),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           _DetailsCard(episode: episode),
         ],
       ),
@@ -211,8 +211,8 @@ class _ChipRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: AppSpacing.sm,
-      runSpacing: AppSpacing.sm,
+      spacing: LegacySpacing.sm,
+      runSpacing: LegacySpacing.sm,
       children: [
         if (episode.monitored)
           const DetailChip(label: 'Monitored', color: Colors.green),
@@ -236,7 +236,7 @@ class _OverviewCard extends StatelessWidget {
     return Card(
       color: theme.colorScheme.surfaceContainerHigh,
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(LegacySpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -246,7 +246,7 @@ class _OverviewCard extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: LegacySpacing.sm),
             Text(
               episode.overview == null || episode.overview!.isEmpty
                   ? 'No overview available.'
@@ -287,7 +287,7 @@ class _DetailsCard extends StatelessWidget {
     return Card(
       color: theme.colorScheme.surfaceContainerHigh,
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(LegacySpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -297,10 +297,10 @@ class _DetailsCard extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: LegacySpacing.sm),
             for (final (label, value) in rows)
               Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                padding: const EdgeInsets.only(bottom: LegacySpacing.sm),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

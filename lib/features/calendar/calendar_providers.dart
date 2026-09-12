@@ -12,8 +12,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'calendar_providers.g.dart';
 
-/// How far back and forward the schedule window reaches from today.
-const Duration _lookback = Duration(days: 30);
+/// How far forward the schedule window reaches from today. The list starts
+/// at today — no lookback — so it always opens on the current day.
 const Duration _lookahead = Duration(days: 60);
 
 /// The merged, day-grouped schedule across all Sonarr + Radarr instances.
@@ -31,15 +31,14 @@ Future<Result<List<CalendarDay>>> calendarSchedule(Ref ref) async {
 
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
-  final start = today.subtract(_lookback);
   final end = today.add(_lookahead);
 
   final futures = <Future<List<CalendarEntry>>>[
     for (final instance in instances)
       if (instance.serviceType == ServiceType.sonarr)
-        _sonarrEntries(ref, instance.id, start, end)
+        _sonarrEntries(ref, instance.id, today, end)
       else if (instance.serviceType == ServiceType.radarr)
-        _radarrEntries(ref, instance.id, start, end),
+        _radarrEntries(ref, instance.id, today, end),
   ];
 
   final lists = await Future.wait(futures);

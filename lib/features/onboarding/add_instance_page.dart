@@ -46,13 +46,13 @@ class _AddInstancePageState extends ConsumerState<AddInstancePage> {
         child: Column(
           children: [
             const widgets.InstanceForm(),
-            const SizedBox(height: AppSpacing.xxl),
+            const SizedBox(height: LegacySpacing.xxl),
             if (state.saveError != null) ...[
               Text(
                 state.saveError!.userMessage,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: LegacySpacing.md),
             ],
             SizedBox(
               width: double.infinity,

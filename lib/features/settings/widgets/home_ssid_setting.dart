@@ -42,7 +42,7 @@ class _HomeSsidSettingState extends ConsumerState<HomeSsidSetting> {
         Row(
           children: [
             const Icon(Icons.wifi_outlined, size: 24),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: LegacySpacing.md),
             const Expanded(
               child: Text(
                 'Home WiFi SSIDs',
@@ -93,18 +93,18 @@ class _HomeSsidSettingState extends ConsumerState<HomeSsidSetting> {
           'Endpoints switch to "Local" automatically when connected to these networks.',
           style: TextStyle(fontSize: 12, color: Colors.grey),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: LegacySpacing.sm),
         ssidsAsync.when(
           data: (ssids) => ssids.isEmpty
               ? const Padding(
-                  padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+                  padding: EdgeInsets.symmetric(vertical: LegacySpacing.md),
                   child: Text(
                     'No home SSIDs configured.',
                     style: TextStyle(fontStyle: FontStyle.italic),
                   ),
                 )
               : Wrap(
-                  spacing: AppSpacing.sm,
+                  spacing: LegacySpacing.sm,
                   children: ssids.map((ssid) {
                     return Chip(
                       label: Text(ssid),
@@ -115,7 +115,7 @@ class _HomeSsidSettingState extends ConsumerState<HomeSsidSetting> {
           loading: () => const LinearProgressIndicator(),
           error: (err, stack) => Text('Error loading SSIDs: $err'),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: LegacySpacing.md),
         TextField(
           controller: _controller,
           decoration: InputDecoration(

@@ -129,7 +129,40 @@ class QbitClient implements ConnectionTestClient {
   Future<Result<QbitMainData>> getMainData() {
     return dioCall(
       () => _dio.get('api/v2/sync/maindata'),
-      map: (data) => QbitMainData.fromJson(data as Map<String, dynamic>),
+      map: (data) {
+        final json = data as Map<String, dynamic>;
+        // Unlike `torrents/info`, each entry in `sync/maindata`'s `torrents`
+        // map doesn't carry its own `hash` field — the hash is only the map
+        // key — so it must be injected before parsing.
+        final rawTorrents = json['torrents'] as Map<String, dynamic>? ?? {};
+        final torrents = <String, QbitTorrent>{};
+        for (final entry in rawTorrents.entries) {
+          try {
+            final torrentJson = Map<String, dynamic>.from(
+              entry.value as Map<String, dynamic>,
+            )..putIfAbsent('hash', () => entry.key);
+            torrents[entry.key] = QbitTorrent.fromJson(torrentJson);
+          } catch (e, st) {
+            developer.log(
+              'QbitTorrent parse error: $e',
+              name: 'arrstack.qbit',
+              error: e,
+              stackTrace: st,
+            );
+          }
+        }
+        return QbitMainData(
+          serverState: QbitServerState.fromJson(
+            json['server_state'] as Map<String, dynamic>,
+          ),
+          torrents: torrents,
+          // qBittorrent returns `categories` as a map keyed by category name
+          // (each value is a category-details object), not a list.
+          categories:
+              (json['categories'] as Map<String, dynamic>?)?.keys.toList() ??
+              const [],
+        );
+      },
     );
   }
 

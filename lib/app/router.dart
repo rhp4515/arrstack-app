@@ -1,17 +1,21 @@
 /// `go_router` configuration: a [StatefulShellRoute] with one branch per
-/// bottom-nav tab, each rendering its top-level feature page.
+/// bottom-nav tab (Home, Library, Activity), each rendering its top-level
+/// feature page. Sub-pages reached from Home (Uptime, Indexers, Discover,
+/// Settings) nest under the Home branch so the tab bar stays visible with
+/// Home still marked active — see design_handoff_arrstack_hub/README.md
+/// ("Shared shell" → bottom tab bar).
 library;
 
 import 'package:arrstack/app/app_shell.dart';
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/features/calendar/calendar_page.dart';
-import 'package:arrstack/features/dashboard/dashboard_page.dart';
 import 'package:arrstack/features/discover/discover_detail_page.dart';
 import 'package:arrstack/features/discover/discover_page.dart';
 import 'package:arrstack/features/discover/genre_results_page.dart';
 import 'package:arrstack/features/downloads/downloads_page.dart';
 import 'package:arrstack/features/einthusan_import/einthusan_import_page.dart';
+import 'package:arrstack/features/home/home_page.dart';
 import 'package:arrstack/features/indexers/indexers_page.dart';
 import 'package:arrstack/features/library/add_movie_page.dart';
 import 'package:arrstack/features/library/add_series_page.dart';
@@ -27,23 +31,22 @@ import 'package:arrstack/features/uptime/uptime_page.dart';
 import 'package:go_router/go_router.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: RoutePaths.dashboard,
+  initialLocation: RoutePaths.home,
   routes: [
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
           AppShell(navigationShell: navigationShell),
       branches: [
+        // Home
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: RoutePaths.dashboard,
-              builder: (context, state) => const DashboardPage(),
+              path: RoutePaths.home,
+              builder: (context, state) => const HomePage(),
               routes: [
                 GoRoute(
-                  path: 'subtitles/:instanceId',
-                  builder: (context, state) => SubtitlesPage(
-                    instanceId: state.pathParameters['instanceId']!,
-                  ),
+                  path: 'uptime',
+                  builder: (context, state) => const UptimePage(),
                 ),
                 GoRoute(
                   path: 'indexers/:instanceId',
@@ -57,10 +60,50 @@ final GoRouter appRouter = GoRouter(
                     instanceId: state.pathParameters['instanceId']!,
                   ),
                 ),
+                GoRoute(
+                  path: 'discover',
+                  builder: (context, state) => const DiscoverPage(),
+                  routes: [
+                    GoRoute(
+                      path: 'detail/:id/:type',
+                      builder: (context, state) => DiscoverDetailPage(
+                        instanceId: '',
+                        id: int.parse(state.pathParameters['id']!),
+                        mediaType: state.pathParameters['type']!,
+                      ),
+                    ),
+                    GoRoute(
+                      path: 'genre/:type/:genreId',
+                      builder: (context, state) => GenreResultsPage(
+                        instanceId: '',
+                        genreId: int.parse(state.pathParameters['genreId']!),
+                        mediaType: state.pathParameters['type']!,
+                        genreName: state.uri.queryParameters['name'] ?? 'Genre',
+                      ),
+                    ),
+                  ],
+                ),
+                GoRoute(
+                  path: 'settings',
+                  builder: (context, state) => const SettingsPage(),
+                  routes: [
+                    GoRoute(
+                      path: 'add',
+                      builder: (context, state) => const AddInstancePage(),
+                    ),
+                    GoRoute(
+                      path: ':id/edit',
+                      builder: (context, state) => AddInstancePage(
+                        instanceId: state.pathParameters['id'],
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ],
         ),
+        // Library
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -134,73 +177,23 @@ final GoRouter appRouter = GoRouter(
             ),
           ],
         ),
+        // Activity — temporarily shows the existing Downloads page; Phase 4
+        // replaces this with the lens-based Transfers/Calendar/Wanted page.
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: RoutePaths.calendar,
-              builder: (context, state) => const CalendarPage(),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: RoutePaths.downloads,
+              path: RoutePaths.activity,
               builder: (context, state) => const DownloadsPage(),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: RoutePaths.uptime,
-              builder: (context, state) => const UptimePage(),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: RoutePaths.discover,
-              builder: (context, state) => const DiscoverPage(),
               routes: [
                 GoRoute(
-                  path: 'detail/:id/:type',
-                  builder: (context, state) => DiscoverDetailPage(
-                    instanceId:
-                        '', // Logic inside page will use provider if empty
-                    id: int.parse(state.pathParameters['id']!),
-                    mediaType: state.pathParameters['type']!,
+                  path: 'calendar',
+                  builder: (context, state) => const CalendarPage(),
+                ),
+                GoRoute(
+                  path: 'subtitles/:instanceId',
+                  builder: (context, state) => SubtitlesPage(
+                    instanceId: state.pathParameters['instanceId']!,
                   ),
-                ),
-                GoRoute(
-                  path: 'genre/:type/:genreId',
-                  builder: (context, state) => GenreResultsPage(
-                    instanceId:
-                        '', // Logic inside page will use provider if empty
-                    genreId: int.parse(state.pathParameters['genreId']!),
-                    mediaType: state.pathParameters['type']!,
-                    genreName: state.uri.queryParameters['name'] ?? 'Genre',
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: RoutePaths.settings,
-              builder: (context, state) => const SettingsPage(),
-              routes: [
-                GoRoute(
-                  path: 'add',
-                  builder: (context, state) => const AddInstancePage(),
-                ),
-                GoRoute(
-                  path: ':id/edit',
-                  builder: (context, state) =>
-                      AddInstancePage(instanceId: state.pathParameters['id']),
                 ),
               ],
             ),

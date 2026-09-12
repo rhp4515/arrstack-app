@@ -57,13 +57,13 @@ class _MonitorList extends ConsumerWidget {
                         padding: AppInsets.pageMd,
                         children: [
                           _AdminOverview(monitors: value),
-                          const SizedBox(height: AppSpacing.lg),
+                          const SizedBox(height: LegacySpacing.lg),
                           Text(
                             'Monitors',
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(height: AppSpacing.sm),
+                          const SizedBox(height: LegacySpacing.sm),
                           for (final monitor in value)
                             MonitorTile(monitor: monitor),
                         ],
@@ -110,7 +110,7 @@ class _AdminOverview extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: LegacySpacing.md),
         Row(
           children: [
             Expanded(
@@ -121,7 +121,7 @@ class _AdminOverview extends StatelessWidget {
                 label: 'MONITORS',
               ),
             ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: LegacySpacing.md),
             Expanded(
               child: _StatCard(
                 icon: Icons.pause,
@@ -132,7 +132,7 @@ class _AdminOverview extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: LegacySpacing.md),
         Row(
           children: [
             Expanded(
@@ -143,7 +143,7 @@ class _AdminOverview extends StatelessWidget {
                 label: 'DOWN',
               ),
             ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: LegacySpacing.md),
             Expanded(
               child: _StatCard(
                 icon: Icons.build,
@@ -178,7 +178,7 @@ class _StatCard extends StatelessWidget {
     return Card(
       color: theme.colorScheme.surfaceContainerHigh,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+        padding: const EdgeInsets.symmetric(vertical: LegacySpacing.lg),
         child: Column(
           children: [
             CircleAvatar(
@@ -186,14 +186,14 @@ class _StatCard extends StatelessWidget {
               backgroundColor: iconColor.withValues(alpha: 0.16),
               child: Icon(icon, color: iconColor, size: 22),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: LegacySpacing.sm),
             Text(
               '$value',
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: LegacySpacing.xs),
             Text(
               label,
               style: theme.textTheme.labelSmall?.copyWith(
@@ -226,14 +226,14 @@ class _InstanceSelector extends ConsumerWidget {
 
           return Container(
             height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            padding: const EdgeInsets.symmetric(horizontal: LegacySpacing.md),
             child: Row(
               children: [
                 Text(
                   'Instance:',
                   style: Theme.of(context).textTheme.labelMedium,
                 ),
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: LegacySpacing.sm),
                 DropdownButton<String>(
                   value: selectedId,
                   underline: const SizedBox.shrink(),

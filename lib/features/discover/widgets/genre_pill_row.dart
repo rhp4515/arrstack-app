@@ -32,13 +32,13 @@ class GenrePillRow extends StatelessWidget {
       height: 56,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: AppInsets.horizontalMd,
+        padding: AppInsets.screenHorizontal,
         itemCount: genres.length,
         itemBuilder: (context, index) {
           final genre = genres[index];
           final gradient = _gradients[index % _gradients.length];
           return Padding(
-            padding: const EdgeInsets.only(right: AppSpacing.sm),
+            padding: const EdgeInsets.only(right: LegacySpacing.sm),
             child: Material(
               borderRadius: BorderRadius.circular(AppRadius.pill),
               child: InkWell(
@@ -50,8 +50,8 @@ class GenrePillRow extends StatelessWidget {
                     gradient: LinearGradient(colors: gradient),
                   ),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                    vertical: AppSpacing.md,
+                    horizontal: LegacySpacing.lg,
+                    vertical: LegacySpacing.md,
                   ),
                   child: Center(
                     child: Text(

@@ -59,10 +59,10 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(
-              AppSpacing.md,
-              AppSpacing.sm,
-              AppSpacing.md,
-              AppSpacing.sm,
+              LegacySpacing.md,
+              LegacySpacing.sm,
+              LegacySpacing.md,
+              LegacySpacing.sm,
             ),
             child: SearchBar(
               controller: _searchController,
@@ -113,7 +113,7 @@ class _CalendarList extends StatelessWidget {
       return ListView(
         // A scrollable child keeps RefreshIndicator working on empty state.
         children: const [
-          SizedBox(height: AppSpacing.xxl),
+          SizedBox(height: LegacySpacing.xxl),
           EmptyState(
             icon: Icons.event_busy_outlined,
             title: 'Nothing scheduled',
@@ -129,10 +129,10 @@ class _CalendarList extends StatelessWidget {
 
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
+        LegacySpacing.md,
         0,
-        AppSpacing.md,
-        AppSpacing.xl,
+        LegacySpacing.md,
+        LegacySpacing.xl,
       ),
       itemCount: days.length,
       itemBuilder: (context, index) {
@@ -162,8 +162,8 @@ class _DaySection extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(
-            top: AppSpacing.lg,
-            bottom: AppSpacing.sm,
+            top: LegacySpacing.lg,
+            bottom: LegacySpacing.sm,
           ),
           child: Text(
             header,
@@ -174,7 +174,7 @@ class _DaySection extends StatelessWidget {
         ),
         for (final entry in day.entries)
           Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+            padding: const EdgeInsets.only(bottom: LegacySpacing.sm),
             child: CalendarEntryTile(entry: entry),
           ),
       ],

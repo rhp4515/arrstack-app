@@ -46,3 +46,7 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Superpowers SDD workspace (ledgers, briefs, reports — coordination
+# scratch, not project source)
+.superpowers/

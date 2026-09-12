@@ -15,6 +15,8 @@ class RightNowCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
     final eta = summary.etaToNextFinishSeconds;
     final etaCaption = eta == null
         ? ''
@@ -23,27 +25,32 @@ class RightNowCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.space4),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: isDark ? AppColors.surface : colorScheme.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: AppShadows.ringSm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('RIGHT NOW', style: AppTypography.kicker),
+          Text(
+            'RIGHT NOW',
+            style: AppTypography.kicker.copyWith(color: colorScheme.primary),
+          ),
           const SizedBox(height: AppSpacing.space3),
           Row(
             children: [
-              const Icon(
+              Icon(
                 PhosphorIconsRegular.downloadSimple,
                 size: 16,
-                color: AppColors.a300,
+                color: isDark ? AppColors.a300 : colorScheme.primary,
               ),
               const SizedBox(width: AppSpacing.space2),
               Text(
                 '${FormatUtils.formatSpeed(summary.downloadSpeed)} · '
                 '${FormatUtils.formatSpeed(summary.uploadSpeed)}',
-                style: AppTypography.statNumeral,
+                style: AppTypography.statNumeral.copyWith(
+                  color: colorScheme.onSurface,
+                ),
               ),
             ],
           ),
@@ -51,7 +58,9 @@ class RightNowCard extends StatelessWidget {
           Text(
             '${summary.downloadingCount} downloading · '
             '${summary.seedingCount} seeding$etaCaption',
-            style: AppTypography.meta,
+            style: AppTypography.meta.copyWith(
+              color: isDark ? AppColors.n500 : colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: AppSpacing.space3),
           _SegmentBar(summary: summary),

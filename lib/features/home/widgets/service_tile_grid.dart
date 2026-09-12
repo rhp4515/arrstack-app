@@ -40,9 +40,7 @@ class ServiceTileGrid extends ConsumerWidget {
       ),
       loading: () => const Padding(
         padding: EdgeInsets.all(AppSpacing.space8),
-        child: Center(
-          child: CircularProgressIndicator(color: AppColors.accent),
-        ),
+        child: Center(child: CircularProgressIndicator()),
       ),
       error: (_, _) => const SizedBox.shrink(),
     );

@@ -1,4 +1,6 @@
-/// A row widget for displaying a wanted subtitle item (simplified variant).
+/// One row in the Wanted lens's "WANTED SUBTITLES" section (spec screen 2j):
+/// title, an optional series/episode meta line, and one tag per wanted
+/// language. Replaces `lib/features/subtitles/widgets/wanted_subtitle_tile.dart`.
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
@@ -12,39 +14,61 @@ class WantedSubtitleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
     final isEpisode = subtitle.type == 'episode';
+    final metaLine = isEpisode && subtitle.seriesTitle != null
+        ? '${subtitle.seriesTitle} · '
+              '${_seasonEpisodeCode(subtitle.seasonNumber, subtitle.episodeNumber)}'
+        : null;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.space6,
-        vertical: AppSpacing.space3,
-      ),
-      child: Column(
+      padding: const EdgeInsets.only(bottom: AppSpacing.space3),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(subtitle.title, style: theme.textTheme.titleMedium),
-          if (isEpisode && subtitle.seriesTitle != null) ...[
-            const SizedBox(height: AppSpacing.space2),
-            Text(
-              '${subtitle.seriesTitle} - S${subtitle.seasonNumber?.toString().padLeft(2, '0')}E${subtitle.episodeNumber?.toString().padLeft(2, '0')}',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: _getMutedTextColor(context),
-              ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  subtitle.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.cardTitle.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                if (metaLine != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    metaLine,
+                    style: TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 11.5,
+                      color: _getMutedTextColor(context),
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ],
-          if (subtitle.languages.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.space3),
-            Wrap(
-              spacing: AppSpacing.space2,
-              children: subtitle.languages
-                  .map((language) => _LanguageChip(label: language))
-                  .toList(),
-            ),
-          ],
+          ),
+          const SizedBox(width: AppSpacing.space3),
+          Wrap(
+            spacing: 4,
+            children: [
+              for (final language in subtitle.languages)
+                _LanguageTag(label: language),
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  String _seasonEpisodeCode(int? season, int? episode) {
+    final s = (season ?? 0).toString().padLeft(2, '0');
+    final e = (episode ?? 0).toString().padLeft(2, '0');
+    return 'S${s}E$e';
   }
 
   Color _getMutedTextColor(BuildContext context) {
@@ -56,31 +80,37 @@ class WantedSubtitleRow extends StatelessWidget {
   }
 }
 
-class _LanguageChip extends StatelessWidget {
-  const _LanguageChip({required this.label});
+class _LanguageTag extends StatelessWidget {
+  const _LanguageTag({required this.label});
 
   final String label;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.space3,
-        vertical: AppSpacing.space2,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: colorScheme.secondaryContainer,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(AppRadius.sm),
       ),
       child: Text(
         label.toUpperCase(),
-        style: theme.textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.bold,
+        style: TextStyle(
+          fontFamily: AppTypography.fontFamily,
+          fontSize: 9.5,
+          fontWeight: FontWeight.w500,
+          color: _getMutedTextColor(context),
         ),
       ),
     );
+  }
+
+  Color _getMutedTextColor(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (isDark) {
+      return AppColors.n400;
+    }
+    return Theme.of(context).colorScheme.onSurfaceVariant;
   }
 }

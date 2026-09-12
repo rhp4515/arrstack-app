@@ -48,4 +48,28 @@ void main() {
       expect(find.byType(RightNowCard), findsOneWidget);
     },
   );
+
+  testWidgets('is tappable when onTap is provided', (tester) async {
+    const summary = RightNowSummary(
+      downloadSpeed: 0,
+      uploadSpeed: 0,
+      downloadingCount: 0,
+      seedingCount: 0,
+      downloadingFraction: 0,
+      pausedOrStalledFraction: 0,
+      queuedFraction: 0,
+    );
+    var tapped = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: RightNowCard(summary: summary, onTap: () => tapped = true),
+        ),
+      ),
+    );
+    await tester.tap(find.byType(RightNowCard));
+
+    expect(tapped, isTrue);
+  });
 }

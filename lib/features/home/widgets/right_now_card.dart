@@ -9,9 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 
 class RightNowCard extends StatelessWidget {
-  const RightNowCard({required this.summary, super.key});
+  const RightNowCard({required this.summary, this.onTap, super.key});
 
   final RightNowSummary summary;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -22,49 +23,53 @@ class RightNowCard extends StatelessWidget {
         ? ''
         : ' · next in ${FormatUtils.formatEta(eta)}';
 
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.space4),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surface : colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: AppShadows.ringSm,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'RIGHT NOW',
-            style: AppTypography.kicker.copyWith(color: colorScheme.primary),
-          ),
-          const SizedBox(height: AppSpacing.space3),
-          Row(
-            children: [
-              Icon(
-                PhosphorIconsRegular.downloadSimple,
-                size: 16,
-                color: isDark ? AppColors.a300 : colorScheme.primary,
-              ),
-              const SizedBox(width: AppSpacing.space2),
-              Text(
-                '${FormatUtils.formatSpeed(summary.downloadSpeed)} · '
-                '${FormatUtils.formatSpeed(summary.uploadSpeed)}',
-                style: AppTypography.statNumeral.copyWith(
-                  color: colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.space2),
-          Text(
-            '${summary.downloadingCount} downloading · '
-            '${summary.seedingCount} seeding$etaCaption',
-            style: AppTypography.meta.copyWith(
-              color: isDark ? AppColors.n500 : colorScheme.onSurfaceVariant,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.space4),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surface : colorScheme.surface,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          border: AppShadows.ringSm,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'RIGHT NOW',
+              style: AppTypography.kicker.copyWith(color: colorScheme.primary),
             ),
-          ),
-          const SizedBox(height: AppSpacing.space3),
-          _SegmentBar(summary: summary),
-        ],
+            const SizedBox(height: AppSpacing.space3),
+            Row(
+              children: [
+                Icon(
+                  PhosphorIconsRegular.downloadSimple,
+                  size: 16,
+                  color: isDark ? AppColors.a300 : colorScheme.primary,
+                ),
+                const SizedBox(width: AppSpacing.space2),
+                Text(
+                  '${FormatUtils.formatSpeed(summary.downloadSpeed)} · '
+                  '${FormatUtils.formatSpeed(summary.uploadSpeed)}',
+                  style: AppTypography.statNumeral.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.space2),
+            Text(
+              '${summary.downloadingCount} downloading · '
+              '${summary.seedingCount} seeding$etaCaption',
+              style: AppTypography.meta.copyWith(
+                color: isDark ? AppColors.n500 : colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.space3),
+            _SegmentBar(summary: summary),
+          ],
+        ),
       ),
     );
   }

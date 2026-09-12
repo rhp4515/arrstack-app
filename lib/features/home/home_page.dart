@@ -7,6 +7,7 @@ import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
+import 'package:arrstack/features/activity/activity_providers.dart';
 import 'package:arrstack/features/home/home_providers.dart';
 import 'package:arrstack/features/home/widgets/home_band.dart';
 import 'package:arrstack/features/home/widgets/right_now_card.dart';
@@ -87,7 +88,15 @@ class _HomeContent extends ConsumerWidget {
                         padding: const EdgeInsets.only(
                           bottom: AppSpacing.space6,
                         ),
-                        child: RightNowCard(summary: summary),
+                        child: RightNowCard(
+                          summary: summary,
+                          onTap: () {
+                            ref
+                                .read(activeActivityLensProvider.notifier)
+                                .select(ActivityLens.transfers);
+                            context.go(RoutePaths.activity);
+                          },
+                        ),
                       ),
                 loading: () => const SizedBox.shrink(),
                 error: (_, _) => const SizedBox.shrink(),

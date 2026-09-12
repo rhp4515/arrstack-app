@@ -86,3 +86,65 @@ abstract class _$ActiveActivityLens extends $Notifier<ActivityLens> {
     return element.handleCreate(ref, build);
   }
 }
+
+/// Missing episodes (aired, no file) across every configured Sonarr
+/// instance, sorted by air date ascending. A single instance failing is
+/// dropped silently — the Wanted lens shows whatever could be reached, no
+/// banner (spec Decision 2: "Radarr and Sonarr are unaffected" by a Bazarr
+/// outage, and the reverse holds too — a broken Sonarr instance doesn't
+/// block the rest of the list).
+
+@ProviderFor(sonarrMissingEpisodes)
+final sonarrMissingEpisodesProvider = SonarrMissingEpisodesProvider._();
+
+/// Missing episodes (aired, no file) across every configured Sonarr
+/// instance, sorted by air date ascending. A single instance failing is
+/// dropped silently — the Wanted lens shows whatever could be reached, no
+/// banner (spec Decision 2: "Radarr and Sonarr are unaffected" by a Bazarr
+/// outage, and the reverse holds too — a broken Sonarr instance doesn't
+/// block the rest of the list).
+
+final class SonarrMissingEpisodesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<SonarrMissingEpisode>>,
+          List<SonarrMissingEpisode>,
+          FutureOr<List<SonarrMissingEpisode>>
+        >
+    with
+        $FutureModifier<List<SonarrMissingEpisode>>,
+        $FutureProvider<List<SonarrMissingEpisode>> {
+  /// Missing episodes (aired, no file) across every configured Sonarr
+  /// instance, sorted by air date ascending. A single instance failing is
+  /// dropped silently — the Wanted lens shows whatever could be reached, no
+  /// banner (spec Decision 2: "Radarr and Sonarr are unaffected" by a Bazarr
+  /// outage, and the reverse holds too — a broken Sonarr instance doesn't
+  /// block the rest of the list).
+  SonarrMissingEpisodesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'sonarrMissingEpisodesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$sonarrMissingEpisodesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<SonarrMissingEpisode>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<SonarrMissingEpisode>> create(Ref ref) {
+    return sonarrMissingEpisodes(ref);
+  }
+}
+
+String _$sonarrMissingEpisodesHash() =>
+    r'57b7378d272aaf7e3766f77b6e37b33f5b940fc9';

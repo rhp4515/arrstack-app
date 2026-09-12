@@ -3,6 +3,12 @@
 /// §Provider plan).
 library;
 
+import 'package:arrstack/core/models/models.dart';
+import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/core/storage/storage_providers.dart';
+import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
+import 'package:arrstack/services/sonarr/sonarr_providers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'activity_providers.g.dart';
@@ -22,4 +28,79 @@ class ActiveActivityLens extends _$ActiveActivityLens {
   ActivityLens build() => ActivityLens.transfers;
 
   void select(ActivityLens lens) => state = lens;
+}
+
+/// A missing episode paired with the Sonarr instance it came from —
+/// `SonarrCalendarEpisode` alone has no `instanceId`, but the Wanted lens's
+/// search button needs one (with `seriesId`) to route to
+/// `RoutePaths.episodeReleaseSearch`.
+@immutable
+class SonarrMissingEpisode {
+  const SonarrMissingEpisode({required this.instanceId, required this.episode});
+
+  final String instanceId;
+  final SonarrCalendarEpisode episode;
+}
+
+/// Missing episodes (aired, no file) across every configured Sonarr
+/// instance, sorted by air date ascending. A single instance failing is
+/// dropped silently — the Wanted lens shows whatever could be reached, no
+/// banner (spec Decision 2: "Radarr and Sonarr are unaffected" by a Bazarr
+/// outage, and the reverse holds too — a broken Sonarr instance doesn't
+/// block the rest of the list).
+@riverpod
+Future<List<SonarrMissingEpisode>> sonarrMissingEpisodes(Ref ref) async {
+  final instancesResult = await ref.watch(instancesProvider.future);
+  if (instancesResult is! Ok<List<ServiceInstance>>) return [];
+
+  final sonarrInstances = instancesResult.value
+      .where((i) => i.serviceType == ServiceType.sonarr)
+      .toList();
+
+  final lists = await Future.wait([
+    for (final instance in sonarrInstances)
+      _missingEpisodesFor(ref, instance.id),
+  ]);
+
+  final all = lists.expand((list) => list).toList();
+  return sortMissingEpisodesByAirDate(all);
+}
+
+Future<List<SonarrMissingEpisode>> _missingEpisodesFor(
+  Ref ref,
+  String instanceId,
+) async {
+  try {
+    final repo = await ref.watch(sonarrRepositoryProvider(instanceId).future);
+    final result = await repo.listMissingEpisodes();
+    if (result case Ok(:final value)) {
+      return [
+        for (final episode in value)
+          SonarrMissingEpisode(instanceId: instanceId, episode: episode),
+      ];
+    }
+  } on Object {
+    // Skip an unreachable/misconfigured instance; the Wanted lens's
+    // missing-episodes section stays partial rather than erroring.
+  }
+  return const [];
+}
+
+/// Ascending by air date; entries with no air date (a data anomaly for a
+/// missing-episode list, since Sonarr only reports aired episodes here)
+/// sort last rather than crashing the comparator. Pure — unit-testable
+/// without a running app.
+List<SonarrMissingEpisode> sortMissingEpisodesByAirDate(
+  List<SonarrMissingEpisode> episodes,
+) {
+  final sorted = [...episodes];
+  sorted.sort((a, b) {
+    final da = a.episode.airDateUtc;
+    final db = b.episode.airDateUtc;
+    if (da == null && db == null) return 0;
+    if (da == null) return 1;
+    if (db == null) return -1;
+    return da.compareTo(db);
+  });
+  return sorted;
 }

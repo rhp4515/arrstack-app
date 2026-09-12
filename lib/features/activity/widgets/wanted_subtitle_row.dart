@@ -17,15 +17,15 @@ class WantedSubtitleRow extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
+        horizontal: AppSpacing.space6,
+        vertical: AppSpacing.space3,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(subtitle.title, style: theme.textTheme.titleMedium),
           if (isEpisode && subtitle.seriesTitle != null) ...[
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: AppSpacing.space2),
             Text(
               '${subtitle.seriesTitle} - S${subtitle.seasonNumber?.toString().padLeft(2, '0')}E${subtitle.episodeNumber?.toString().padLeft(2, '0')}',
               style: theme.textTheme.bodySmall?.copyWith(
@@ -34,9 +34,9 @@ class WantedSubtitleRow extends StatelessWidget {
             ),
           ],
           if (subtitle.languages.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.space3),
             Wrap(
-              spacing: AppSpacing.xs,
+              spacing: AppSpacing.space2,
               children: subtitle.languages
                   .map((language) => _LanguageChip(label: language))
                   .toList(),
@@ -50,7 +50,7 @@ class WantedSubtitleRow extends StatelessWidget {
   Color _getMutedTextColor(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (isDark) {
-      return const Color(0xFF999999); // AppColors.n400 equivalent
+      return AppColors.n400;
     }
     return Theme.of(context).colorScheme.onSurfaceVariant;
   }
@@ -68,8 +68,8 @@ class _LanguageChip extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs,
+        horizontal: AppSpacing.space3,
+        vertical: AppSpacing.space2,
       ),
       decoration: BoxDecoration(
         color: colorScheme.secondaryContainer,

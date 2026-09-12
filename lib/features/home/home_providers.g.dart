@@ -136,3 +136,42 @@ final class HomeSummaryProvider
 }
 
 String _$homeSummaryHash() => r'd611a9866bf844a41f56f2ddd828167c5a7de3d8';
+
+@ProviderFor(rightNow)
+final rightNowProvider = RightNowProvider._();
+
+final class RightNowProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<RightNowSummary?>,
+          RightNowSummary?,
+          FutureOr<RightNowSummary?>
+        >
+    with $FutureModifier<RightNowSummary?>, $FutureProvider<RightNowSummary?> {
+  RightNowProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'rightNowProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$rightNowHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<RightNowSummary?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<RightNowSummary?> create(Ref ref) {
+    return rightNow(ref);
+  }
+}
+
+String _$rightNowHash() => r'b16be2011ed7999189cfcb0aaf9332fb786866c1';

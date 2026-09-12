@@ -7,8 +7,11 @@ library;
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
+import 'package:arrstack/features/downloads/widgets/torrent_tile.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
 import 'package:arrstack/services/prowlarr/prowlarr.dart';
+import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';
+import 'package:arrstack/services/qbittorrent/qbit_providers.dart';
 import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:arrstack/services/seerr/seerr.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
@@ -277,3 +280,66 @@ Future<HomeSummary> homeSummary(Ref ref) async {
     statusLines: statusLines,
   );
 }
+
+@riverpod
+Future<RightNowSummary?> rightNow(Ref ref) async {
+  final instancesResult = await ref.watch(instancesProvider.future);
+  if (instancesResult is! Ok<List<ServiceInstance>>) return null;
+
+  final instance = _defaultInstanceOfType(
+    instancesResult.value,
+    ServiceType.qbittorrent,
+  );
+  if (instance == null) return null;
+
+  final mainDataResult = await ref.watch(
+    qbitMainDataProvider(instance.id).future,
+  );
+  if (mainDataResult is! Ok<QbitMainData>) return null;
+
+  final torrents = mainDataResult.value.torrents.values.toList();
+  final serverState = mainDataResult.value.serverState;
+
+  final downloading = torrents.where(_isActivelyDownloading).toList();
+  final pausedOrStalled = torrents
+      .where((t) => _isPausedOrStalled(t.state))
+      .toList();
+  final queued = torrents.where((t) => _isQueued(t.state)).toList();
+  final seeding = torrents.where(torrentIsComplete).toList();
+
+  final activeTotal =
+      downloading.length + pausedOrStalled.length + queued.length;
+
+  final etaCandidates = downloading
+      .map((t) => t.eta)
+      .where((eta) => eta > 0 && eta < 8640000)
+      .toList();
+
+  return RightNowSummary(
+    downloadSpeed: serverState.dlInfoSpeed,
+    uploadSpeed: serverState.upInfoSpeed,
+    downloadingCount: downloading.length,
+    seedingCount: seeding.length,
+    etaToNextFinishSeconds: etaCandidates.isEmpty
+        ? null
+        : etaCandidates.reduce((a, b) => a < b ? a : b),
+    downloadingFraction: activeTotal == 0
+        ? 0
+        : downloading.length / activeTotal,
+    pausedOrStalledFraction: activeTotal == 0
+        ? 0
+        : pausedOrStalled.length / activeTotal,
+    queuedFraction: activeTotal == 0 ? 0 : queued.length / activeTotal,
+  );
+}
+
+bool _isPausedOrStalled(String state) =>
+    const {'pausedDL', 'pausedUP', 'stalledDL', 'stalledUP'}.contains(state);
+
+bool _isQueued(String state) =>
+    const {'queuedDL', 'queuedUP', 'allocating'}.contains(state);
+
+bool _isActivelyDownloading(QbitTorrent t) =>
+    !torrentIsComplete(t) &&
+    !_isPausedOrStalled(t.state) &&
+    !_isQueued(t.state);

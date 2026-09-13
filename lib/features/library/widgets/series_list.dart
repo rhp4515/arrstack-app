@@ -7,6 +7,7 @@ import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
+import 'package:arrstack/features/library/library_providers.dart';
 import 'package:arrstack/features/library/widgets/library_row.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
@@ -20,6 +21,7 @@ class SeriesList extends ConsumerWidget {
     this.query = '',
     this.shrinkWrap = false,
     this.physics,
+    this.sort = LibrarySort.recentlyAdded,
     super.key,
   });
 
@@ -31,13 +33,16 @@ class SeriesList extends ConsumerWidget {
   final bool shrinkWrap;
   final ScrollPhysics? physics;
 
+  /// Sort order applied to the filtered list before rendering rows.
+  final LibrarySort sort;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seriesAsync = ref.watch(sonarrSeriesProvider(instanceId));
 
     return seriesAsync.when(
       data: (result) => switch (result) {
-        Ok(:final value) => _list(context, ref, _filter(value)),
+        Ok(:final value) => _list(context, ref, _sorted(_filter(value), sort)),
         Err(:final error) => EmptyState(
           icon: Icons.error_outline,
           title: 'Failed to load series',
@@ -61,6 +66,26 @@ class SeriesList extends ConsumerWidget {
     if (query.isEmpty) return series;
     final q = query.toLowerCase();
     return series.where((s) => s.title.toLowerCase().contains(q)).toList();
+  }
+
+  List<SonarrSeries> _sorted(List<SonarrSeries> series, LibrarySort sort) {
+    final copy = [...series];
+    switch (sort) {
+      case LibrarySort.recentlyAdded:
+        copy.sort((a, b) {
+          final da = a.added;
+          final db = b.added;
+          if (da == null && db == null) return 0;
+          if (da == null) return 1;
+          if (db == null) return -1;
+          return db.compareTo(da);
+        });
+      case LibrarySort.title:
+        copy.sort((a, b) => a.title.compareTo(b.title));
+      case LibrarySort.year:
+        copy.sort((a, b) => (b.year ?? 0).compareTo(a.year ?? 0));
+    }
+    return copy;
   }
 
   Widget _list(BuildContext context, WidgetRef ref, List<SonarrSeries> series) {

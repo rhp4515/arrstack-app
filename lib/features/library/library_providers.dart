@@ -100,3 +100,16 @@ Future<List<ContinueWatchingEntry>> continueWatching(
   entries.sort((a, b) => a.referenceDate.compareTo(b.referenceDate));
   return entries.take(3).toList();
 }
+
+/// Sort order for the Shows/Movies row lists (spec 2d "Recently added
+/// v" / "Newest first v" toggles and the sort/filter chip). Session-only,
+/// no persistence — mirrors ActiveActivityLens's pattern.
+enum LibrarySort { recentlyAdded, title, year }
+
+@riverpod
+class ActiveLibrarySort extends _$ActiveLibrarySort {
+  @override
+  LibrarySort build() => LibrarySort.recentlyAdded;
+
+  void select(LibrarySort sort) => state = sort;
+}

@@ -84,7 +84,7 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         _wrap(
-          const RadarrMovie(
+          RadarrMovie(
             id: 1,
             title: 'Dune: Part Two',
             year: 2024,
@@ -93,8 +93,9 @@ void main() {
             sizeOnDisk: 54200000000,
             imdbId: 'tt15239678',
             tmdbId: 693134,
+            added: DateTime(2026, 8, 28),
             path: '/movies/Dune Part Two (2024)',
-            movieFile: RadarrMovieFile(
+            movieFile: const RadarrMovieFile(
               id: 1,
               size: 54200000000,
               releaseGroup: 'FraMeSToR',
@@ -110,6 +111,8 @@ void main() {
       expect(find.text('FILE'), findsOneWidget);
       expect(find.text('Release'), findsOneWidget);
       expect(find.text('FraMeSToR'), findsOneWidget);
+      expect(find.text('Added'), findsOneWidget);
+      expect(find.text('2026-08-28'), findsOneWidget);
       expect(find.text('Path'), findsOneWidget);
       expect(find.text('Video'), findsNothing);
       expect(find.text('Audio'), findsNothing);

@@ -9,10 +9,7 @@ void main() {
         home: Scaffold(
           body: SpecBlock(
             kicker: 'FILE',
-            rows: [
-              ('Quality', 'WEBDL-1080p'),
-              ('Size', '3.1 GB'),
-            ],
+            rows: [('Quality', 'WEBDL-1080p'), ('Size', '3.1 GB')],
           ),
         ),
       ),
@@ -28,7 +25,9 @@ void main() {
   testWidgets('renders nothing when rows is empty', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(body: SpecBlock(kicker: 'FILE', rows: [])),
+        home: Scaffold(
+          body: SpecBlock(kicker: 'FILE', rows: []),
+        ),
       ),
     );
 

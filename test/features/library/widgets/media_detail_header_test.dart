@@ -6,16 +6,16 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('renders title, meta, chips, and both stats', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
           body: MediaDetailHeader(
             service: ServiceType.sonarr,
             instanceId: 'inst-1',
             posterUrl: null,
             title: 'Severance',
-            metaParts: const ['2022', 'Apple TV+', 'TV-MA'],
-            chips: const [Text('★ 8.7'), Text('Monitored')],
-            stats: const [('19/19', 'EPISODES'), ('61 GB', 'ON DISK')],
+            metaParts: ['2022', 'Apple TV+', 'TV-MA'],
+            chips: [Text('★ 8.7'), Text('Monitored')],
+            stats: [('19/19', 'EPISODES'), ('61 GB', 'ON DISK')],
           ),
         ),
       ),

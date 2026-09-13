@@ -15,8 +15,8 @@ void main() {
       ProviderScope(
         overrides: [
           sonarrSeriesProvider('inst-1').overrideWith(
-            (ref) async => Ok([
-              const SonarrSeries(
+            (ref) async => const Ok([
+              SonarrSeries(
                 id: 1,
                 title: 'Severance',
                 monitored: true,
@@ -25,7 +25,7 @@ void main() {
                   totalEpisodeCount: 19,
                 ),
               ),
-              const SonarrSeries(
+              SonarrSeries(
                 id: 2,
                 title: 'The Simpsons',
                 monitored: true,
@@ -34,7 +34,7 @@ void main() {
                   totalEpisodeCount: 296,
                 ),
               ),
-              const SonarrSeries(id: 3, title: 'Andor', monitored: false),
+              SonarrSeries(id: 3, title: 'Andor', monitored: false),
             ]),
           ),
         ],
@@ -56,9 +56,9 @@ void main() {
       ProviderScope(
         overrides: [
           sonarrSeriesProvider('inst-1').overrideWith(
-            (ref) async => Ok([
-              const SonarrSeries(id: 1, title: 'Zeta'),
-              const SonarrSeries(id: 2, title: 'Alpha'),
+            (ref) async => const Ok([
+              SonarrSeries(id: 1, title: 'Zeta'),
+              SonarrSeries(id: 2, title: 'Alpha'),
             ]),
           ),
         ],

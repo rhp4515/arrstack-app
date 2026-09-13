@@ -7,6 +7,7 @@ import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/utils/format_utils.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
+import 'package:arrstack/core/widgets/fading_rule.dart';
 import 'package:arrstack/features/library/widgets/spec_block.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
 import 'package:arrstack/services/bazarr/models/bazarr_models.dart';
@@ -150,10 +151,28 @@ class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
           if (episode.overview != null && episode.overview!.isNotEmpty)
             Text(episode.overview!, style: AppTypography.body),
           const SizedBox(height: AppSpacing.space6),
+          const FadingRule(),
+          const SizedBox(height: AppSpacing.space4),
+          if (file != null)
+            SpecBlock(
+              kicker: 'FILE',
+              rows: [
+                ('Quality', file.quality?.quality?.name ?? '—'),
+                ('Size', FormatUtils.formatBytes(file.size)),
+                if (file.mediaInfo?.videoCodec != null)
+                  ('Codec', file.mediaInfo!.videoCodec!),
+                if (_audioLabel(file.mediaInfo) != null)
+                  ('Audio', _audioLabel(file.mediaInfo)!),
+                if (file.relativePath != null) ('Path', file.relativePath!),
+              ],
+            ),
+          const SizedBox(height: AppSpacing.space4),
+          _SubtitlesBlock(episodeId: episode.id),
+          const SizedBox(height: AppSpacing.space6),
           Row(
             children: [
               Expanded(
-                child: OutlinedButton(
+                child: FilledButton(
                   onPressed: () => context.push(
                     RoutePaths.episodeReleaseSearch(
                       widget.instanceId,
@@ -178,22 +197,6 @@ class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.space6),
-          if (file != null)
-            SpecBlock(
-              kicker: 'FILE',
-              rows: [
-                ('Quality', file.quality?.quality?.name ?? '—'),
-                ('Size', FormatUtils.formatBytes(file.size)),
-                if (file.mediaInfo?.videoCodec != null)
-                  ('Codec', file.mediaInfo!.videoCodec!),
-                if (_audioLabel(file.mediaInfo) != null)
-                  ('Audio', _audioLabel(file.mediaInfo)!),
-                if (file.relativePath != null) ('Path', file.relativePath!),
-              ],
-            ),
-          const SizedBox(height: AppSpacing.space4),
-          _SubtitlesBlock(episodeId: episode.id),
         ],
       ),
     );
@@ -274,14 +277,14 @@ class _ChipRow extends StatelessWidget {
       spacing: AppSpacing.space2,
       runSpacing: AppSpacing.space2,
       children: [
-        if (episode.monitored) _tag('Monitored', filled: false, neutral: false),
-        if (episode.hasFile) _tag('Downloaded', filled: true, neutral: false),
+        if (episode.monitored) _tag('Monitored', filled: false),
+        if (episode.hasFile) _tag('Downloaded', filled: true),
       ],
     );
   }
 
-  Widget _tag(String label, {required bool filled, required bool neutral}) {
-    final color = neutral ? AppColors.n400 : AppColors.accent;
+  Widget _tag(String label, {required bool filled}) {
+    const color = AppColors.accent;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(

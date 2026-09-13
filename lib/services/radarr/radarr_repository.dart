@@ -29,6 +29,9 @@ class RadarrRepository {
   Future<Result<void>> deleteMovie(int id, {bool deleteFiles = false}) =>
       _client.deleteMovie(id, deleteFiles: deleteFiles);
 
+  Future<Result<void>> searchMovies(List<int> movieIds) =>
+      _client.searchMovies(movieIds);
+
   Future<Result<List<RadarrRelease>>> searchMovieReleases(int movieId) =>
       _client.searchMovieReleases(movieId);
 

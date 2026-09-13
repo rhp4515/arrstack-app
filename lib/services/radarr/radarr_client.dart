@@ -244,4 +244,16 @@ class RadarrClient implements ConnectionTestClient {
       },
     );
   }
+
+  /// Triggers an automatic search for the given movies (spec 2d "Search
+  /// all" on the Missing section).
+  Future<Result<void>> searchMovies(List<int> movieIds) {
+    return dioCall(
+      () => _dio.post(
+        'api/v3/command',
+        data: {'name': 'MoviesSearch', 'movieIds': movieIds},
+      ),
+      map: (_) {},
+    );
+  }
 }

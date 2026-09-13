@@ -5,8 +5,7 @@ import 'package:arrstack/app/router.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
-import 'package:arrstack/features/calendar/calendar_page.dart';
-import 'package:arrstack/features/downloads/downloads_page.dart';
+import 'package:arrstack/features/activity/activity_page.dart';
 import 'package:arrstack/features/home/home_page.dart';
 import 'package:arrstack/features/library/library_page.dart';
 import 'package:arrstack/features/settings/settings_page.dart';
@@ -69,7 +68,7 @@ void main() {
 
     await tester.tap(find.text('Activity'));
     await tester.pumpAndSettle();
-    expect(find.byType(DownloadsPage), findsOneWidget);
+    expect(find.byType(ActivityPage), findsOneWidget);
   });
 
   testWidgets('tapping the Home settings icon opens Settings', (tester) async {
@@ -84,23 +83,5 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(SettingsPage), findsOneWidget);
-  });
-
-  testWidgets('tapping the Downloads calendar icon opens the Calendar', (
-    tester,
-  ) async {
-    await pumpApp(tester);
-
-    appRouter.go('/home');
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Activity'));
-    await tester.pumpAndSettle();
-    expect(find.byType(DownloadsPage), findsOneWidget);
-
-    await tester.tap(find.byIcon(PhosphorIconsRegular.calendarBlank));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(CalendarPage), findsOneWidget);
   });
 }

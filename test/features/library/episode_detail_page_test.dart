@@ -1,0 +1,66 @@
+import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/features/library/episode_detail_page.dart';
+import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
+import 'package:arrstack/services/sonarr/sonarr_providers.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets(
+    'renders primary Find release and secondary Subtitles buttons, and the FILE block',
+    (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            sonarrEpisodeProvider(
+              instanceId: 'inst-1',
+              seriesId: 1,
+              episodeId: 5,
+            ).overrideWith(
+              (ref) async => const Ok(
+                SonarrEpisode(
+                  id: 5,
+                  seriesId: 1,
+                  seasonNumber: 2,
+                  episodeNumber: 5,
+                  title: 'The You You Are',
+                  hasFile: true,
+                  monitored: true,
+                  episodeFile: SonarrEpisodeFile(
+                    id: 1,
+                    size: 3100000000,
+                    relativePath: 'Severance/Season 02/S02E05.mkv',
+                    quality: SonarrQualityInfo(
+                      quality: SonarrQuality(name: 'WEBDL-1080p'),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            sonarrSingleSeriesProvider(instanceId: 'inst-1', seriesId: 1)
+                .overrideWith(
+              (ref) async =>
+                  const Ok(SonarrSeries(id: 1, title: 'Severance')),
+            ),
+          ],
+          child: const MaterialApp(
+            home: EpisodeDetailPage(
+              instanceId: 'inst-1',
+              seriesId: 1,
+              episodeId: 5,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('Find release'), findsOneWidget);
+      expect(find.text('Subtitles'), findsOneWidget);
+      expect(find.text('FILE'), findsOneWidget);
+      expect(find.text('WEBDL-1080p'), findsOneWidget);
+      expect(find.text('Severance'), findsOneWidget);
+    },
+  );
+}

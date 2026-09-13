@@ -207,6 +207,10 @@ _SonarrEpisodeFile _$SonarrEpisodeFileFromJson(Map<String, dynamic> json) =>
       quality: json['quality'] == null
           ? null
           : SonarrQualityInfo.fromJson(json['quality'] as Map<String, dynamic>),
+      releaseGroup: json['releaseGroup'] as String?,
+      mediaInfo: json['mediaInfo'] == null
+          ? null
+          : SonarrMediaInfo.fromJson(json['mediaInfo'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$SonarrEpisodeFileToJson(_SonarrEpisodeFile instance) =>
@@ -216,6 +220,22 @@ Map<String, dynamic> _$SonarrEpisodeFileToJson(_SonarrEpisodeFile instance) =>
       'size': instance.size,
       'dateAdded': instance.dateAdded?.toIso8601String(),
       'quality': instance.quality,
+      'releaseGroup': instance.releaseGroup,
+      'mediaInfo': instance.mediaInfo,
+    };
+
+_SonarrMediaInfo _$SonarrMediaInfoFromJson(Map<String, dynamic> json) =>
+    _SonarrMediaInfo(
+      videoCodec: json['videoCodec'] as String?,
+      audioCodec: json['audioCodec'] as String?,
+      audioChannels: (json['audioChannels'] as num?)?.toDouble(),
+    );
+
+Map<String, dynamic> _$SonarrMediaInfoToJson(_SonarrMediaInfo instance) =>
+    <String, dynamic>{
+      'videoCodec': instance.videoCodec,
+      'audioCodec': instance.audioCodec,
+      'audioChannels': instance.audioChannels,
     };
 
 _SonarrQualityInfo _$SonarrQualityInfoFromJson(Map<String, dynamic> json) =>

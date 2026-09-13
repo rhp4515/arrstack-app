@@ -54,4 +54,34 @@ void main() {
       );
     });
   });
+
+  group('SonarrEpisodeFile.fromJson', () {
+    test('parses releaseGroup and mediaInfo', () {
+      final file = SonarrEpisodeFile.fromJson({
+        'id': 1,
+        'relativePath': 'Severance/Season 02/S02E05.mkv',
+        'size': 3100000000,
+        'releaseGroup': 'FLUX',
+        'quality': {
+          'quality': {'name': 'WEBDL-1080p'},
+        },
+        'mediaInfo': {
+          'videoCodec': 'h264',
+          'audioCodec': 'DDP',
+          'audioChannels': 5.1,
+        },
+      });
+
+      expect(file.releaseGroup, 'FLUX');
+      expect(file.mediaInfo?.videoCodec, 'h264');
+      expect(file.mediaInfo?.audioCodec, 'DDP');
+      expect(file.mediaInfo?.audioChannels, 5.1);
+    });
+
+    test('tolerates a missing mediaInfo/releaseGroup', () {
+      final file = SonarrEpisodeFile.fromJson({'id': 1, 'size': 0});
+      expect(file.releaseGroup, isNull);
+      expect(file.mediaInfo, isNull);
+    });
+  });
 }

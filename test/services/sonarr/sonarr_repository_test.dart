@@ -97,6 +97,57 @@ void main() {
     expect(result.valueOrNull!.last.id, 51);
   });
 
+  test(
+    'continues to the next page when one record on a full page is malformed',
+    () async {
+      // 50 raw records, but one is malformed, so it parses to 49 —
+      // pagination must still continue because the RAW count (50) equals
+      // pageSize, not the parsed count.
+      final firstPageRaw = <Object?>[
+        'not a map',
+        ...List.generate(49, (i) => _episode(i + 1)),
+      ];
+      adapter.onGet(
+        'api/v3/wanted/missing',
+        (server) => server.reply(200, {
+          'page': 1,
+          'pageSize': 50,
+          'totalRecords': 50,
+          'records': firstPageRaw,
+        }),
+        queryParameters: {
+          'page': 1,
+          'pageSize': 50,
+          'sortKey': 'airDateUtc',
+          'sortDirection': 'descending',
+          'includeSeries': true,
+        },
+      );
+      adapter.onGet(
+        'api/v3/wanted/missing',
+        (server) => server.reply(200, {
+          'page': 2,
+          'pageSize': 50,
+          'totalRecords': 50,
+          'records': [_episode(50)],
+        }),
+        queryParameters: {
+          'page': 2,
+          'pageSize': 50,
+          'sortKey': 'airDateUtc',
+          'sortDirection': 'descending',
+          'includeSeries': true,
+        },
+      );
+
+      final result = await repository.listMissingEpisodes();
+
+      expect(result.isOk, isTrue);
+      expect(result.valueOrNull, hasLength(50));
+      expect(result.valueOrNull!.last.id, 50);
+    },
+  );
+
   test('returns Err immediately when the first page fails', () async {
     adapter.onGet(
       'api/v3/wanted/missing',

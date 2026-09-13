@@ -62,7 +62,7 @@ class ErrorCard extends StatelessWidget {
           Text(
             message,
             style: AppTypography.meta.copyWith(
-              color: colorScheme.onSurfaceVariant,
+              color: isDark ? AppColors.n400 : colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: AppSpacing.space4),
@@ -87,7 +87,9 @@ class ErrorCard extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: onSecondaryAction,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: colorScheme.onSurfaceVariant,
+                    foregroundColor: isDark
+                        ? AppColors.n400
+                        : colorScheme.onSurfaceVariant,
                     side: BorderSide(color: colorScheme.outlineVariant),
                   ),
                   child: Text(secondaryActionLabel),

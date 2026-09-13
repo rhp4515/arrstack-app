@@ -53,18 +53,25 @@ class SonarrRepository {
 
   Future<Result<List<SonarrQueueItem>>> listQueue() => _client.getQueue();
 
+  /// Sane upper bound on [listMissingEpisodes]'s pagination loop so a
+  /// misbehaving server can't turn it into an infinite loop.
+  static const _maxPages = 200;
+
   /// All episodes that have aired but have no file, across every page of
-  /// Sonarr's `wanted/missing` list. Stops once a page returns fewer
-  /// records than it asked for. A failure on the first page returns that
-  /// error directly; a failure on a later page keeps whatever was already
-  /// collected (mirrors `calendarScheduleProvider`'s partial-results
-  /// philosophy, one instance's transient hiccup shouldn't drop everything
-  /// already fetched from it this call).
+  /// Sonarr's `wanted/missing` list. Stops once a page's RAW record count
+  /// (before malformed entries are filtered out) is fewer than it asked
+  /// for — comparing against the parsed count instead would end pagination
+  /// early whenever a page has even one malformed record, silently
+  /// dropping every subsequent page. A failure on the first page returns
+  /// that error directly; a failure on a later page keeps whatever was
+  /// already collected (mirrors `calendarScheduleProvider`'s
+  /// partial-results philosophy, one instance's transient hiccup shouldn't
+  /// drop everything already fetched from it this call).
   Future<Result<List<SonarrCalendarEpisode>>> listMissingEpisodes() async {
     const pageSize = 50;
     final all = <SonarrCalendarEpisode>[];
     var page = 1;
-    while (true) {
+    while (page <= _maxPages) {
       final result = await _client.getWantedMissing(
         page: page,
         pageSize: pageSize,
@@ -72,9 +79,9 @@ class SonarrRepository {
       if (result case Err(:final error)) {
         return page == 1 ? Err(error) : Ok(all);
       }
-      final batch = (result as Ok<List<SonarrCalendarEpisode>>).value;
-      all.addAll(batch);
-      if (batch.length < pageSize) break;
+      final batch = (result as Ok<SonarrWantedMissingPage>).value;
+      all.addAll(batch.episodes);
+      if (batch.rawCount < pageSize) break;
       page++;
     }
     return Ok(all);

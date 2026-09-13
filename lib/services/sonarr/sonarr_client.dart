@@ -11,6 +11,18 @@ import 'package:arrstack/services/contracts/contracts.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:dio/dio.dart';
 
+/// A single page from Sonarr's paginated `wanted/missing` endpoint: the
+/// parsed [episodes] for the page, plus the RAW record count [rawCount]
+/// before malformed entries are filtered out. [rawCount] — not
+/// `episodes.length` — is what pagination should compare against
+/// `pageSize`, otherwise a single malformed record on an otherwise-full
+/// page makes the parsed count look short and stops pagination early even
+/// though more pages remain.
+typedef SonarrWantedMissingPage = ({
+  List<SonarrCalendarEpisode> episodes,
+  int rawCount,
+});
+
 class SonarrClient implements ConnectionTestClient {
   const SonarrClient(this._dio);
 
@@ -292,7 +304,7 @@ class SonarrClient implements ConnectionTestClient {
   /// `wanted/missing` list. `includeSeries` embeds the parent series so a
   /// row can show a title without a second round-trip; the response shape
   /// matches [SonarrCalendarEpisode] exactly, so no separate model exists.
-  Future<Result<List<SonarrCalendarEpisode>>> getWantedMissing({
+  Future<Result<SonarrWantedMissingPage>> getWantedMissing({
     int page = 1,
     int pageSize = 50,
   }) {
@@ -308,10 +320,14 @@ class SonarrClient implements ConnectionTestClient {
         },
       ),
       map: (data) {
-        if (data is! Map) return [];
+        if (data is! Map) {
+          return (episodes: <SonarrCalendarEpisode>[], rawCount: 0);
+        }
         final records = data['records'];
-        if (records is! List) return [];
-        return records
+        if (records is! List) {
+          return (episodes: <SonarrCalendarEpisode>[], rawCount: 0);
+        }
+        final episodes = records
             .map((item) {
               if (item is! Map<String, dynamic>) return null;
               try {
@@ -328,6 +344,7 @@ class SonarrClient implements ConnectionTestClient {
             })
             .whereType<SonarrCalendarEpisode>()
             .toList();
+        return (episodes: episodes, rawCount: records.length);
       },
     );
   }

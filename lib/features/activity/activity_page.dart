@@ -132,9 +132,17 @@ class _TrailingAction extends ConsumerWidget {
 
     var successCount = 0;
     for (final instance in bazarrInstances) {
-      final repo = await ref.read(bazarrRepositoryProvider(instance.id).future);
-      final result = await repo.searchAllSubtitles();
-      if (result.isOk) successCount++;
+      try {
+        final repo = await ref.read(
+          bazarrRepositoryProvider(instance.id).future,
+        );
+        final result = await repo.searchAllSubtitles();
+        if (result.isOk) successCount++;
+      } on Object {
+        // A thrown error (e.g. endpoint resolution failure) on one
+        // instance shouldn't abort the loop — other instances still get
+        // searched, and the SnackBar below reports the partial count.
+      }
     }
 
     if (!context.mounted) return;

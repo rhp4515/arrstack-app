@@ -180,9 +180,8 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: RoutePaths.activity,
-              builder: (context, state) => ActivityPage(
-                initialLens: state.uri.queryParameters['lens'],
-              ),
+              builder: (context, state) =>
+                  ActivityPage(initialLens: state.uri.queryParameters['lens']),
             ),
           ],
         ),

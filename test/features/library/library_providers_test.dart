@@ -152,21 +152,61 @@ void main() {
   });
 
   test(
-    'ActiveLibrarySort defaults to recentlyAdded and updates on select',
-    () {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
+    'continueWatching ranks a future entry ahead of a past-fallback entry',
+    () async {
+      final dio = Dio(BaseOptions(baseUrl: 'http://example.test'));
+      final adapter = DioAdapter(dio: dio);
+      final repo = SonarrRepository(SonarrClient(dio));
+      final now = DateTime.now();
 
-      expect(
-        container.read(activeLibrarySortProvider),
-        LibrarySort.recentlyAdded,
+      // Series 40 only has a past airing (nearestEpisode's past-fallback
+      // branch); series 41 has an upcoming airing. A plain ascending sort
+      // by referenceDate would rank the past entry first since its date is
+      // chronologically earlier — that's the bug this test guards against.
+      adapter.onGet(
+        RegExp('api/v3/calendar.*'),
+        (server) => server.reply(200, [
+          _calendarJson(40, now.subtract(const Duration(days: 3))),
+          _calendarJson(41, now.add(const Duration(days: 2))),
+        ]),
       );
 
-      container
-          .read(activeLibrarySortProvider.notifier)
-          .select(LibrarySort.title);
+      final container = ProviderContainer(
+        overrides: [
+          sonarrRepositoryProvider('inst-1').overrideWith((ref) async => repo),
+          sonarrSeriesProvider('inst-1').overrideWith(
+            (ref) async => Ok([
+              _partialSeries(40, 'Past Only Show'),
+              _partialSeries(41, 'Upcoming Show'),
+            ]),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
 
-      expect(container.read(activeLibrarySortProvider), LibrarySort.title);
+      final entries = await container.read(
+        continueWatchingProvider('inst-1').future,
+      );
+
+      expect(entries, hasLength(2));
+      expect(entries.first.series.title, 'Upcoming Show');
+      expect(entries.last.series.title, 'Past Only Show');
     },
   );
+
+  test('ActiveLibrarySort defaults to recentlyAdded and updates on select', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    expect(
+      container.read(activeLibrarySortProvider),
+      LibrarySort.recentlyAdded,
+    );
+
+    container
+        .read(activeLibrarySortProvider.notifier)
+        .select(LibrarySort.title);
+
+    expect(container.read(activeLibrarySortProvider), LibrarySort.title);
+  });
 }

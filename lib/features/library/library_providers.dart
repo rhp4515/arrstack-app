@@ -56,9 +56,7 @@ Future<List<ContinueWatchingEntry>> continueWatching(
   Ref ref,
   String instanceId,
 ) async {
-  final seriesResult = await ref.watch(
-    sonarrSeriesProvider(instanceId).future,
-  );
+  final seriesResult = await ref.watch(sonarrSeriesProvider(instanceId).future);
   if (seriesResult is! Ok<List<SonarrSeries>>) return const [];
   final partial = seriesResult.value.where(hasPartialProgress).toList();
   if (partial.isEmpty) return const [];
@@ -83,8 +81,7 @@ Future<List<ContinueWatchingEntry>> continueWatching(
     final nearest = nearestEpisode(episodes, now);
     if (nearest?.airDateUtc == null) continue;
     final date = nearest!.airDateUtc!.toLocal();
-    final code =
-        nearest.seasonNumber != null && nearest.episodeNumber != null
+    final code = nearest.seasonNumber != null && nearest.episodeNumber != null
         ? 'S${nearest.seasonNumber.toString().padLeft(2, '0')}'
               'E${nearest.episodeNumber.toString().padLeft(2, '0')} · '
         : '';
@@ -97,8 +94,12 @@ Future<List<ContinueWatchingEntry>> continueWatching(
     );
   }
 
-  entries.sort((a, b) => a.referenceDate.compareTo(b.referenceDate));
-  return entries.take(3).toList();
+  final future = entries.where((e) => e.referenceDate.isAfter(now)).toList()
+    ..sort((a, b) => a.referenceDate.compareTo(b.referenceDate));
+  final past = entries.where((e) => !e.referenceDate.isAfter(now)).toList()
+    ..sort((a, b) => b.referenceDate.compareTo(a.referenceDate));
+
+  return [...future, ...past].take(3).toList();
 }
 
 /// Sort order for the Shows/Movies row lists (spec 2d "Recently added

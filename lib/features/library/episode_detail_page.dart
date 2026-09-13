@@ -58,8 +58,10 @@ class EpisodeDetailPage extends ConsumerWidget {
         appBar: AppBar(),
         body: const Center(child: CircularProgressIndicator()),
       ),
-      error: (err, _) =>
-          Scaffold(appBar: AppBar(), body: Center(child: Text('Error: $err'))),
+      error: (err, _) => Scaffold(
+        appBar: AppBar(),
+        body: Center(child: Text('Error: $err')),
+      ),
     );
   }
 }
@@ -99,7 +101,8 @@ class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
           ),
         )
         .maybeWhen(
-          data: (result) => result is Ok<SonarrSeries> ? result.value.title : '',
+          data: (result) =>
+              result is Ok<SonarrSeries> ? result.value.title : '',
           orElse: () => '',
         );
 

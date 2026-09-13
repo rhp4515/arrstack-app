@@ -54,17 +54,12 @@ class MovieList extends ConsumerWidget {
     return movies.where((m) => m.title.toLowerCase().contains(q)).toList();
   }
 
-  Widget _body(
-    BuildContext context,
-    WidgetRef ref,
-    List<RadarrMovie> movies,
-  ) {
+  Widget _body(BuildContext context, WidgetRef ref, List<RadarrMovie> movies) {
     if (movies.isEmpty) {
       return const EmptyState(
         icon: Icons.movie_filter_outlined,
         title: 'No movies found',
-        message:
-            'Your Radarr library is empty or no titles match your search.',
+        message: 'Your Radarr library is empty or no titles match your search.',
       );
     }
 
@@ -111,8 +106,9 @@ class MovieList extends ConsumerWidget {
               trailing: LibraryRowTrailing.none,
               onTap: movie.id == null
                   ? null
-                  : () =>
-                        context.go(RoutePaths.movieDetail(instanceId, movie.id!)),
+                  : () => context.go(
+                      RoutePaths.movieDetail(instanceId, movie.id!),
+                    ),
             ),
           const FadingRule(),
           const SizedBox(height: AppSpacing.space4),

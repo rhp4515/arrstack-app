@@ -1,6 +1,6 @@
 /// The Calendar lens (spec screen 2i): a week strip above a day-grouped,
-/// searchable timeline. Reuses `calendarScheduleProvider` unchanged from
-/// the deleted `CalendarPage`.
+/// searchable timeline. Reuses `calendarScheduleProvider` from the
+/// Calendar feature providers.
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';

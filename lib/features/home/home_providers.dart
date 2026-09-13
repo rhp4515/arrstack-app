@@ -7,7 +7,7 @@ library;
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
-import 'package:arrstack/features/downloads/widgets/torrent_tile.dart';
+import 'package:arrstack/features/activity/widgets/torrent_block.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
 import 'package:arrstack/services/prowlarr/prowlarr.dart';
 import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';

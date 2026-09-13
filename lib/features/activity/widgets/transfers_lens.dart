@@ -1,7 +1,7 @@
 /// The Transfers lens (spec screen 2h): throughput sparkline, secondary
 /// filter chips, and the torrent list. Ties together
 /// `selectedDownloadInstanceIdProvider`/`qbitTorrentsProvider`/
-/// `downloadFilterProvider` (kept from the deleted `DownloadsPage`) with
+/// `downloadFilterProvider` (from the Downloads feature) with
 /// the new `TransfersThroughputHistory` and `TorrentBlock`.
 library;
 

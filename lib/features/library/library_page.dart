@@ -216,13 +216,11 @@ class _SeriesTabBody extends ConsumerWidget {
                 return InkWell(
                   onTap: () => ref
                       .read(activeLibrarySortProvider.notifier)
-                      .select(
-                        switch (sort) {
-                          LibrarySort.recentlyAdded => LibrarySort.title,
-                          LibrarySort.title => LibrarySort.year,
-                          LibrarySort.year => LibrarySort.recentlyAdded,
-                        },
-                      ),
+                      .select(switch (sort) {
+                        LibrarySort.recentlyAdded => LibrarySort.title,
+                        LibrarySort.title => LibrarySort.year,
+                        LibrarySort.year => LibrarySort.recentlyAdded,
+                      }),
                   child: Text(
                     switch (sort) {
                       LibrarySort.recentlyAdded => 'Recently added ⌄',

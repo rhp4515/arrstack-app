@@ -14,14 +14,14 @@ void main() {
       ProviderScope(
         overrides: [
           radarrMoviesProvider('inst-1').overrideWith(
-            (ref) async => Ok([
-              const RadarrMovie(
+            (ref) async => const Ok([
+              RadarrMovie(
                 id: 1,
                 title: 'Mickey 17',
                 monitored: true,
                 hasFile: false,
               ),
-              const RadarrMovie(
+              RadarrMovie(
                 id: 2,
                 title: 'Dune: Part Two',
                 monitored: true,
@@ -57,8 +57,8 @@ void main() {
       ProviderScope(
         overrides: [
           radarrMoviesProvider('inst-1').overrideWith(
-            (ref) async => Ok([
-              const RadarrMovie(id: 1, title: 'Dune: Part Two', hasFile: true),
+            (ref) async => const Ok([
+              RadarrMovie(id: 1, title: 'Dune: Part Two', hasFile: true),
             ]),
           ),
         ],

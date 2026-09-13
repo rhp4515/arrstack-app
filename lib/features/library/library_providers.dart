@@ -4,6 +4,9 @@ library;
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
+import 'package:arrstack/features/library/continue_watching.dart';
+import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
+import 'package:arrstack/services/sonarr/sonarr_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'library_providers.g.dart';
@@ -42,4 +45,58 @@ class SelectedLibraryInstanceId extends _$SelectedLibraryInstanceId {
   }
 
   void selectInstance(String id) => state = AsyncData(id);
+}
+
+/// Shows with partial download progress and an episode air date within
+/// the window, nearest-airing first, capped at 3 (spec 2d "CONTINUE
+/// WATCHING"). Omits a series with no calendar entry in the window
+/// rather than erroring — this row is a convenience surface.
+@riverpod
+Future<List<ContinueWatchingEntry>> continueWatching(
+  Ref ref,
+  String instanceId,
+) async {
+  final seriesResult = await ref.watch(
+    sonarrSeriesProvider(instanceId).future,
+  );
+  if (seriesResult is! Ok<List<SonarrSeries>>) return const [];
+  final partial = seriesResult.value.where(hasPartialProgress).toList();
+  if (partial.isEmpty) return const [];
+
+  final repo = await ref.watch(sonarrRepositoryProvider(instanceId).future);
+  final now = DateTime.now();
+  final calendarResult = await repo.listCalendar(
+    now.subtract(const Duration(days: 7)),
+    now.add(const Duration(days: 14)),
+  );
+  if (calendarResult is! Ok<List<SonarrCalendarEpisode>>) return const [];
+
+  final bySeriesId = <int, List<SonarrCalendarEpisode>>{};
+  for (final ep in calendarResult.value) {
+    final id = ep.seriesId;
+    if (id != null) (bySeriesId[id] ??= []).add(ep);
+  }
+
+  final entries = <ContinueWatchingEntry>[];
+  for (final series in partial) {
+    final episodes = bySeriesId[series.id] ?? const [];
+    final nearest = nearestEpisode(episodes, now);
+    if (nearest?.airDateUtc == null) continue;
+    final date = nearest!.airDateUtc!.toLocal();
+    final code =
+        nearest.seasonNumber != null && nearest.episodeNumber != null
+        ? 'S${nearest.seasonNumber.toString().padLeft(2, '0')}'
+              'E${nearest.episodeNumber.toString().padLeft(2, '0')} · '
+        : '';
+    entries.add(
+      ContinueWatchingEntry(
+        series: series,
+        caption: '$code${continueWatchingCaption(date, now)}',
+        referenceDate: date,
+      ),
+    );
+  }
+
+  entries.sort((a, b) => a.referenceDate.compareTo(b.referenceDate));
+  return entries.take(3).toList();
 }

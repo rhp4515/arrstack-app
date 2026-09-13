@@ -196,3 +196,108 @@ abstract class _$SelectedLibraryInstanceId extends $AsyncNotifier<String?> {
     return element.handleCreate(ref, () => build(_$args));
   }
 }
+
+/// Shows with partial download progress and an episode air date within
+/// the window, nearest-airing first, capped at 3 (spec 2d "CONTINUE
+/// WATCHING"). Omits a series with no calendar entry in the window
+/// rather than erroring — this row is a convenience surface.
+
+@ProviderFor(continueWatching)
+final continueWatchingProvider = ContinueWatchingFamily._();
+
+/// Shows with partial download progress and an episode air date within
+/// the window, nearest-airing first, capped at 3 (spec 2d "CONTINUE
+/// WATCHING"). Omits a series with no calendar entry in the window
+/// rather than erroring — this row is a convenience surface.
+
+final class ContinueWatchingProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ContinueWatchingEntry>>,
+          List<ContinueWatchingEntry>,
+          FutureOr<List<ContinueWatchingEntry>>
+        >
+    with
+        $FutureModifier<List<ContinueWatchingEntry>>,
+        $FutureProvider<List<ContinueWatchingEntry>> {
+  /// Shows with partial download progress and an episode air date within
+  /// the window, nearest-airing first, capped at 3 (spec 2d "CONTINUE
+  /// WATCHING"). Omits a series with no calendar entry in the window
+  /// rather than erroring — this row is a convenience surface.
+  ContinueWatchingProvider._({
+    required ContinueWatchingFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'continueWatchingProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$continueWatchingHash();
+
+  @override
+  String toString() {
+    return r'continueWatchingProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<ContinueWatchingEntry>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ContinueWatchingEntry>> create(Ref ref) {
+    final argument = this.argument as String;
+    return continueWatching(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ContinueWatchingProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$continueWatchingHash() => r'2d0bf7d484941f4de42f0a6477cf21467f09d522';
+
+/// Shows with partial download progress and an episode air date within
+/// the window, nearest-airing first, capped at 3 (spec 2d "CONTINUE
+/// WATCHING"). Omits a series with no calendar entry in the window
+/// rather than erroring — this row is a convenience surface.
+
+final class ContinueWatchingFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<List<ContinueWatchingEntry>>,
+          String
+        > {
+  ContinueWatchingFamily._()
+    : super(
+        retry: null,
+        name: r'continueWatchingProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Shows with partial download progress and an episode air date within
+  /// the window, nearest-airing first, capped at 3 (spec 2d "CONTINUE
+  /// WATCHING"). Omits a series with no calendar entry in the window
+  /// rather than erroring — this row is a convenience surface.
+
+  ContinueWatchingProvider call(String instanceId) =>
+      ContinueWatchingProvider._(argument: instanceId, from: this);
+
+  @override
+  String toString() => r'continueWatchingProvider';
+}

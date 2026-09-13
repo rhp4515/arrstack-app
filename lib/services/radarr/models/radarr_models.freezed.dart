@@ -985,7 +985,7 @@ as String?,
 /// @nodoc
 mixin _$RadarrMovieFile {
 
- int get id; String? get relativePath; int? get size; DateTime? get dateAdded; RadarrQualityInfo? get quality;
+ int get id; String? get relativePath; int? get size; DateTime? get dateAdded; RadarrQualityInfo? get quality; String? get releaseGroup; RadarrMediaInfo? get mediaInfo;
 /// Create a copy of RadarrMovieFile
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -998,16 +998,16 @@ $RadarrMovieFileCopyWith<RadarrMovieFile> get copyWith => _$RadarrMovieFileCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RadarrMovieFile&&(identical(other.id, id) || other.id == id)&&(identical(other.relativePath, relativePath) || other.relativePath == relativePath)&&(identical(other.size, size) || other.size == size)&&(identical(other.dateAdded, dateAdded) || other.dateAdded == dateAdded)&&(identical(other.quality, quality) || other.quality == quality));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RadarrMovieFile&&(identical(other.id, id) || other.id == id)&&(identical(other.relativePath, relativePath) || other.relativePath == relativePath)&&(identical(other.size, size) || other.size == size)&&(identical(other.dateAdded, dateAdded) || other.dateAdded == dateAdded)&&(identical(other.quality, quality) || other.quality == quality)&&(identical(other.releaseGroup, releaseGroup) || other.releaseGroup == releaseGroup)&&(identical(other.mediaInfo, mediaInfo) || other.mediaInfo == mediaInfo));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,relativePath,size,dateAdded,quality);
+int get hashCode => Object.hash(runtimeType,id,relativePath,size,dateAdded,quality,releaseGroup,mediaInfo);
 
 @override
 String toString() {
-  return 'RadarrMovieFile(id: $id, relativePath: $relativePath, size: $size, dateAdded: $dateAdded, quality: $quality)';
+  return 'RadarrMovieFile(id: $id, relativePath: $relativePath, size: $size, dateAdded: $dateAdded, quality: $quality, releaseGroup: $releaseGroup, mediaInfo: $mediaInfo)';
 }
 
 
@@ -1018,11 +1018,11 @@ abstract mixin class $RadarrMovieFileCopyWith<$Res>  {
   factory $RadarrMovieFileCopyWith(RadarrMovieFile value, $Res Function(RadarrMovieFile) _then) = _$RadarrMovieFileCopyWithImpl;
 @useResult
 $Res call({
- int id, String? relativePath, int? size, DateTime? dateAdded, RadarrQualityInfo? quality
+ int id, String? relativePath, int? size, DateTime? dateAdded, RadarrQualityInfo? quality, String? releaseGroup, RadarrMediaInfo? mediaInfo
 });
 
 
-$RadarrQualityInfoCopyWith<$Res>? get quality;
+$RadarrQualityInfoCopyWith<$Res>? get quality;$RadarrMediaInfoCopyWith<$Res>? get mediaInfo;
 
 }
 /// @nodoc
@@ -1035,14 +1035,16 @@ class _$RadarrMovieFileCopyWithImpl<$Res>
 
 /// Create a copy of RadarrMovieFile
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? relativePath = freezed,Object? size = freezed,Object? dateAdded = freezed,Object? quality = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? relativePath = freezed,Object? size = freezed,Object? dateAdded = freezed,Object? quality = freezed,Object? releaseGroup = freezed,Object? mediaInfo = freezed,}) {
   return _then(RadarrMovieFile(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,relativePath: freezed == relativePath ? _self.relativePath : relativePath // ignore: cast_nullable_to_non_nullable
 as String?,size: freezed == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
 as int?,dateAdded: freezed == dateAdded ? _self.dateAdded : dateAdded // ignore: cast_nullable_to_non_nullable
 as DateTime?,quality: freezed == quality ? _self.quality : quality // ignore: cast_nullable_to_non_nullable
-as RadarrQualityInfo?,
+as RadarrQualityInfo?,releaseGroup: freezed == releaseGroup ? _self.releaseGroup : releaseGroup // ignore: cast_nullable_to_non_nullable
+as String?,mediaInfo: freezed == mediaInfo ? _self.mediaInfo : mediaInfo // ignore: cast_nullable_to_non_nullable
+as RadarrMediaInfo?,
   ));
 }
 /// Create a copy of RadarrMovieFile
@@ -1056,6 +1058,18 @@ $RadarrQualityInfoCopyWith<$Res>? get quality {
 
   return $RadarrQualityInfoCopyWith<$Res>(_self.quality!, (value) {
     return _then(_self.copyWith(quality: value));
+  });
+}/// Create a copy of RadarrMovieFile
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RadarrMediaInfoCopyWith<$Res>? get mediaInfo {
+    if (_self.mediaInfo == null) {
+    return null;
+  }
+
+  return $RadarrMediaInfoCopyWith<$Res>(_self.mediaInfo!, (value) {
+    return _then(_self.copyWith(mediaInfo: value));
   });
 }
 }
@@ -1139,10 +1153,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? relativePath,  int? size,  DateTime? dateAdded,  RadarrQualityInfo? quality)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? relativePath,  int? size,  DateTime? dateAdded,  RadarrQualityInfo? quality,  String? releaseGroup,  RadarrMediaInfo? mediaInfo)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RadarrMovieFile() when $default != null:
-return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.quality);case _:
+return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.quality,_that.releaseGroup,_that.mediaInfo);case _:
   return orElse();
 
 }
@@ -1160,10 +1174,10 @@ return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.qua
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? relativePath,  int? size,  DateTime? dateAdded,  RadarrQualityInfo? quality)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? relativePath,  int? size,  DateTime? dateAdded,  RadarrQualityInfo? quality,  String? releaseGroup,  RadarrMediaInfo? mediaInfo)  $default,) {final _that = this;
 switch (_that) {
 case _RadarrMovieFile():
-return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.quality);case _:
+return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.quality,_that.releaseGroup,_that.mediaInfo);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1180,10 +1194,10 @@ return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.qua
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? relativePath,  int? size,  DateTime? dateAdded,  RadarrQualityInfo? quality)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? relativePath,  int? size,  DateTime? dateAdded,  RadarrQualityInfo? quality,  String? releaseGroup,  RadarrMediaInfo? mediaInfo)?  $default,) {final _that = this;
 switch (_that) {
 case _RadarrMovieFile() when $default != null:
-return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.quality);case _:
+return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.quality,_that.releaseGroup,_that.mediaInfo);case _:
   return null;
 
 }
@@ -1195,7 +1209,7 @@ return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.qua
 @JsonSerializable()
 
 class _RadarrMovieFile implements RadarrMovieFile {
-  const _RadarrMovieFile({required this.id, this.relativePath, this.size, this.dateAdded, this.quality});
+  const _RadarrMovieFile({required this.id, this.relativePath, this.size, this.dateAdded, this.quality, this.releaseGroup, this.mediaInfo});
   factory _RadarrMovieFile.fromJson(Map<String, dynamic> json) => _$RadarrMovieFileFromJson(json);
 
 @override final  int id;
@@ -1203,6 +1217,8 @@ class _RadarrMovieFile implements RadarrMovieFile {
 @override final  int? size;
 @override final  DateTime? dateAdded;
 @override final  RadarrQualityInfo? quality;
+@override final  String? releaseGroup;
+@override final  RadarrMediaInfo? mediaInfo;
 
 /// Create a copy of RadarrMovieFile
 /// with the given fields replaced by the non-null parameter values.
@@ -1217,16 +1233,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RadarrMovieFile&&(identical(other.id, id) || other.id == id)&&(identical(other.relativePath, relativePath) || other.relativePath == relativePath)&&(identical(other.size, size) || other.size == size)&&(identical(other.dateAdded, dateAdded) || other.dateAdded == dateAdded)&&(identical(other.quality, quality) || other.quality == quality));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RadarrMovieFile&&(identical(other.id, id) || other.id == id)&&(identical(other.relativePath, relativePath) || other.relativePath == relativePath)&&(identical(other.size, size) || other.size == size)&&(identical(other.dateAdded, dateAdded) || other.dateAdded == dateAdded)&&(identical(other.quality, quality) || other.quality == quality)&&(identical(other.releaseGroup, releaseGroup) || other.releaseGroup == releaseGroup)&&(identical(other.mediaInfo, mediaInfo) || other.mediaInfo == mediaInfo));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,relativePath,size,dateAdded,quality);
+int get hashCode => Object.hash(runtimeType,id,relativePath,size,dateAdded,quality,releaseGroup,mediaInfo);
 
 @override
 String toString() {
-  return 'RadarrMovieFile(id: $id, relativePath: $relativePath, size: $size, dateAdded: $dateAdded, quality: $quality)';
+  return 'RadarrMovieFile(id: $id, relativePath: $relativePath, size: $size, dateAdded: $dateAdded, quality: $quality, releaseGroup: $releaseGroup, mediaInfo: $mediaInfo)';
 }
 
 
@@ -1237,11 +1253,11 @@ abstract mixin class _$RadarrMovieFileCopyWith<$Res> implements $RadarrMovieFile
   factory _$RadarrMovieFileCopyWith(_RadarrMovieFile value, $Res Function(_RadarrMovieFile) _then) = __$RadarrMovieFileCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String? relativePath, int? size, DateTime? dateAdded, RadarrQualityInfo? quality
+ int id, String? relativePath, int? size, DateTime? dateAdded, RadarrQualityInfo? quality, String? releaseGroup, RadarrMediaInfo? mediaInfo
 });
 
 
-@override $RadarrQualityInfoCopyWith<$Res>? get quality;
+@override $RadarrQualityInfoCopyWith<$Res>? get quality;@override $RadarrMediaInfoCopyWith<$Res>? get mediaInfo;
 
 }
 /// @nodoc
@@ -1254,14 +1270,16 @@ class __$RadarrMovieFileCopyWithImpl<$Res>
 
 /// Create a copy of RadarrMovieFile
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? relativePath = freezed,Object? size = freezed,Object? dateAdded = freezed,Object? quality = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? relativePath = freezed,Object? size = freezed,Object? dateAdded = freezed,Object? quality = freezed,Object? releaseGroup = freezed,Object? mediaInfo = freezed,}) {
   return _then(_RadarrMovieFile(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,relativePath: freezed == relativePath ? _self.relativePath : relativePath // ignore: cast_nullable_to_non_nullable
 as String?,size: freezed == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
 as int?,dateAdded: freezed == dateAdded ? _self.dateAdded : dateAdded // ignore: cast_nullable_to_non_nullable
 as DateTime?,quality: freezed == quality ? _self.quality : quality // ignore: cast_nullable_to_non_nullable
-as RadarrQualityInfo?,
+as RadarrQualityInfo?,releaseGroup: freezed == releaseGroup ? _self.releaseGroup : releaseGroup // ignore: cast_nullable_to_non_nullable
+as String?,mediaInfo: freezed == mediaInfo ? _self.mediaInfo : mediaInfo // ignore: cast_nullable_to_non_nullable
+as RadarrMediaInfo?,
   ));
 }
 
@@ -1277,7 +1295,294 @@ $RadarrQualityInfoCopyWith<$Res>? get quality {
   return $RadarrQualityInfoCopyWith<$Res>(_self.quality!, (value) {
     return _then(_self.copyWith(quality: value));
   });
+}/// Create a copy of RadarrMovieFile
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RadarrMediaInfoCopyWith<$Res>? get mediaInfo {
+    if (_self.mediaInfo == null) {
+    return null;
+  }
+
+  return $RadarrMediaInfoCopyWith<$Res>(_self.mediaInfo!, (value) {
+    return _then(_self.copyWith(mediaInfo: value));
+  });
 }
+}
+
+
+/// @nodoc
+mixin _$RadarrMediaInfo {
+
+ String? get videoCodec; String? get audioCodec; double? get audioChannels; String? get resolution; String? get videoDynamicRangeType;
+/// Create a copy of RadarrMediaInfo
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RadarrMediaInfoCopyWith<RadarrMediaInfo> get copyWith => _$RadarrMediaInfoCopyWithImpl<RadarrMediaInfo>(this as RadarrMediaInfo, _$identity);
+
+  /// Serializes this RadarrMediaInfo to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RadarrMediaInfo&&(identical(other.videoCodec, videoCodec) || other.videoCodec == videoCodec)&&(identical(other.audioCodec, audioCodec) || other.audioCodec == audioCodec)&&(identical(other.audioChannels, audioChannels) || other.audioChannels == audioChannels)&&(identical(other.resolution, resolution) || other.resolution == resolution)&&(identical(other.videoDynamicRangeType, videoDynamicRangeType) || other.videoDynamicRangeType == videoDynamicRangeType));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,videoCodec,audioCodec,audioChannels,resolution,videoDynamicRangeType);
+
+@override
+String toString() {
+  return 'RadarrMediaInfo(videoCodec: $videoCodec, audioCodec: $audioCodec, audioChannels: $audioChannels, resolution: $resolution, videoDynamicRangeType: $videoDynamicRangeType)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RadarrMediaInfoCopyWith<$Res>  {
+  factory $RadarrMediaInfoCopyWith(RadarrMediaInfo value, $Res Function(RadarrMediaInfo) _then) = _$RadarrMediaInfoCopyWithImpl;
+@useResult
+$Res call({
+ String? videoCodec, String? audioCodec, double? audioChannels, String? resolution, String? videoDynamicRangeType
+});
+
+
+
+
+}
+/// @nodoc
+class _$RadarrMediaInfoCopyWithImpl<$Res>
+    implements $RadarrMediaInfoCopyWith<$Res> {
+  _$RadarrMediaInfoCopyWithImpl(this._self, this._then);
+
+  final RadarrMediaInfo _self;
+  final $Res Function(RadarrMediaInfo) _then;
+
+/// Create a copy of RadarrMediaInfo
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? videoCodec = freezed,Object? audioCodec = freezed,Object? audioChannels = freezed,Object? resolution = freezed,Object? videoDynamicRangeType = freezed,}) {
+  return _then(RadarrMediaInfo(
+videoCodec: freezed == videoCodec ? _self.videoCodec : videoCodec // ignore: cast_nullable_to_non_nullable
+as String?,audioCodec: freezed == audioCodec ? _self.audioCodec : audioCodec // ignore: cast_nullable_to_non_nullable
+as String?,audioChannels: freezed == audioChannels ? _self.audioChannels : audioChannels // ignore: cast_nullable_to_non_nullable
+as double?,resolution: freezed == resolution ? _self.resolution : resolution // ignore: cast_nullable_to_non_nullable
+as String?,videoDynamicRangeType: freezed == videoDynamicRangeType ? _self.videoDynamicRangeType : videoDynamicRangeType // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [RadarrMediaInfo].
+extension RadarrMediaInfoPatterns on RadarrMediaInfo {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RadarrMediaInfo value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RadarrMediaInfo() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RadarrMediaInfo value)  $default,){
+final _that = this;
+switch (_that) {
+case _RadarrMediaInfo():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RadarrMediaInfo value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RadarrMediaInfo() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? videoCodec,  String? audioCodec,  double? audioChannels,  String? resolution,  String? videoDynamicRangeType)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RadarrMediaInfo() when $default != null:
+return $default(_that.videoCodec,_that.audioCodec,_that.audioChannels,_that.resolution,_that.videoDynamicRangeType);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? videoCodec,  String? audioCodec,  double? audioChannels,  String? resolution,  String? videoDynamicRangeType)  $default,) {final _that = this;
+switch (_that) {
+case _RadarrMediaInfo():
+return $default(_that.videoCodec,_that.audioCodec,_that.audioChannels,_that.resolution,_that.videoDynamicRangeType);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? videoCodec,  String? audioCodec,  double? audioChannels,  String? resolution,  String? videoDynamicRangeType)?  $default,) {final _that = this;
+switch (_that) {
+case _RadarrMediaInfo() when $default != null:
+return $default(_that.videoCodec,_that.audioCodec,_that.audioChannels,_that.resolution,_that.videoDynamicRangeType);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _RadarrMediaInfo implements RadarrMediaInfo {
+  const _RadarrMediaInfo({this.videoCodec, this.audioCodec, this.audioChannels, this.resolution, this.videoDynamicRangeType});
+  factory _RadarrMediaInfo.fromJson(Map<String, dynamic> json) => _$RadarrMediaInfoFromJson(json);
+
+@override final  String? videoCodec;
+@override final  String? audioCodec;
+@override final  double? audioChannels;
+@override final  String? resolution;
+@override final  String? videoDynamicRangeType;
+
+/// Create a copy of RadarrMediaInfo
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RadarrMediaInfoCopyWith<_RadarrMediaInfo> get copyWith => __$RadarrMediaInfoCopyWithImpl<_RadarrMediaInfo>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$RadarrMediaInfoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RadarrMediaInfo&&(identical(other.videoCodec, videoCodec) || other.videoCodec == videoCodec)&&(identical(other.audioCodec, audioCodec) || other.audioCodec == audioCodec)&&(identical(other.audioChannels, audioChannels) || other.audioChannels == audioChannels)&&(identical(other.resolution, resolution) || other.resolution == resolution)&&(identical(other.videoDynamicRangeType, videoDynamicRangeType) || other.videoDynamicRangeType == videoDynamicRangeType));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,videoCodec,audioCodec,audioChannels,resolution,videoDynamicRangeType);
+
+@override
+String toString() {
+  return 'RadarrMediaInfo(videoCodec: $videoCodec, audioCodec: $audioCodec, audioChannels: $audioChannels, resolution: $resolution, videoDynamicRangeType: $videoDynamicRangeType)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RadarrMediaInfoCopyWith<$Res> implements $RadarrMediaInfoCopyWith<$Res> {
+  factory _$RadarrMediaInfoCopyWith(_RadarrMediaInfo value, $Res Function(_RadarrMediaInfo) _then) = __$RadarrMediaInfoCopyWithImpl;
+@override @useResult
+$Res call({
+ String? videoCodec, String? audioCodec, double? audioChannels, String? resolution, String? videoDynamicRangeType
+});
+
+
+
+
+}
+/// @nodoc
+class __$RadarrMediaInfoCopyWithImpl<$Res>
+    implements _$RadarrMediaInfoCopyWith<$Res> {
+  __$RadarrMediaInfoCopyWithImpl(this._self, this._then);
+
+  final _RadarrMediaInfo _self;
+  final $Res Function(_RadarrMediaInfo) _then;
+
+/// Create a copy of RadarrMediaInfo
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? videoCodec = freezed,Object? audioCodec = freezed,Object? audioChannels = freezed,Object? resolution = freezed,Object? videoDynamicRangeType = freezed,}) {
+  return _then(_RadarrMediaInfo(
+videoCodec: freezed == videoCodec ? _self.videoCodec : videoCodec // ignore: cast_nullable_to_non_nullable
+as String?,audioCodec: freezed == audioCodec ? _self.audioCodec : audioCodec // ignore: cast_nullable_to_non_nullable
+as String?,audioChannels: freezed == audioChannels ? _self.audioChannels : audioChannels // ignore: cast_nullable_to_non_nullable
+as double?,resolution: freezed == resolution ? _self.resolution : resolution // ignore: cast_nullable_to_non_nullable
+as String?,videoDynamicRangeType: freezed == videoDynamicRangeType ? _self.videoDynamicRangeType : videoDynamicRangeType // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
 }
 
 

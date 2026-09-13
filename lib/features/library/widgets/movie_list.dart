@@ -1,14 +1,15 @@
-/// Vertical list of Radarr movies as poster-left rows (spec §7), matching the
-/// app mockups. Handles loading, empty, and error states for one instance.
+/// Vertical list of Radarr movies (spec 2d "Movies"): a Missing section
+/// with a bulk-search action, then the recently-added library proper.
 library;
 
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/core/utils/format_utils.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
-import 'package:arrstack/core/widgets/status_chip.dart';
-import 'package:arrstack/features/library/widgets/media_list_tile.dart';
+import 'package:arrstack/core/widgets/fading_rule.dart';
+import 'package:arrstack/features/library/widgets/library_row.dart';
 import 'package:arrstack/services/radarr/models/radarr_models.dart';
 import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class MovieList extends ConsumerWidget {
 
     return moviesAsync.when(
       data: (result) => switch (result) {
-        Ok(:final value) => _list(context, ref, _filter(value)),
+        Ok(:final value) => _body(context, ref, _filter(value)),
         Err(:final error) => EmptyState(
           icon: Icons.error_outline,
           title: 'Failed to load movies',
@@ -53,50 +54,123 @@ class MovieList extends ConsumerWidget {
     return movies.where((m) => m.title.toLowerCase().contains(q)).toList();
   }
 
-  Widget _list(BuildContext context, WidgetRef ref, List<RadarrMovie> movies) {
+  Widget _body(
+    BuildContext context,
+    WidgetRef ref,
+    List<RadarrMovie> movies,
+  ) {
     if (movies.isEmpty) {
       return const EmptyState(
         icon: Icons.movie_filter_outlined,
         title: 'No movies found',
-        message: 'Your Radarr library is empty or no titles match your search.',
+        message:
+            'Your Radarr library is empty or no titles match your search.',
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(
-        LegacySpacing.md,
-        LegacySpacing.sm,
-        LegacySpacing.md,
-        LegacySpacing.xl,
+    final missing = movies.where((m) => m.monitored && !m.hasFile).toList()
+      ..sort((a, b) {
+        final da = a.calendarDate;
+        final db = b.calendarDate;
+        if (da == null && db == null) return 0;
+        if (da == null) return 1;
+        if (db == null) return -1;
+        return db.compareTo(da);
+      });
+    final onDisk = movies.where((m) => m.hasFile).toList();
+
+    return ListView(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.space6,
+        vertical: AppSpacing.space4,
       ),
-      itemCount: movies.length,
-      separatorBuilder: (_, _) => const SizedBox(height: LegacySpacing.sm),
-      itemBuilder: (context, index) {
-        final movie = movies[index];
-        return MediaListTile(
-          service: ServiceType.radarr,
-          instanceId: instanceId,
-          posterUrl: movie.posterUrl,
-          title: movie.title,
-          year: movie.year,
-          studioOrNetwork: movie.studio,
-          pill: _qualityPill(movie),
-          onTap: movie.id == null
-              ? null
-              : () => context.go(RoutePaths.movieDetail(instanceId, movie.id!)),
-        );
-      },
+      children: [
+        if (missing.isNotEmpty) ...[
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'MISSING · ${missing.length}',
+                  style: AppTypography.kicker,
+                ),
+              ),
+              TextButton(
+                onPressed: () => _searchAll(context, ref, missing),
+                child: const Text('Search all'),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.space2),
+          for (final movie in missing)
+            LibraryRow(
+              service: ServiceType.radarr,
+              instanceId: instanceId,
+              posterUrl: movie.posterUrl,
+              title: movie.title,
+              metaParts: [movie.status ?? 'Missing'],
+              trailing: LibraryRowTrailing.none,
+              onTap: movie.id == null
+                  ? null
+                  : () =>
+                        context.go(RoutePaths.movieDetail(instanceId, movie.id!)),
+            ),
+          const FadingRule(),
+          const SizedBox(height: AppSpacing.space4),
+        ],
+        Row(
+          children: [
+            const Expanded(
+              child: Text('RECENTLY ADDED', style: AppTypography.kicker),
+            ),
+            Text(
+              '${onDisk.length} on disk',
+              style: AppTypography.meta.copyWith(
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.space2),
+        for (var i = 0; i < onDisk.length; i++)
+          LibraryRow(
+            service: ServiceType.radarr,
+            instanceId: instanceId,
+            posterUrl: onDisk[i].posterUrl,
+            title: onDisk[i].title,
+            metaParts: [FormatUtils.formatBytes(onDisk[i].sizeOnDisk)],
+            trailing: LibraryRowTrailing.none,
+            trailingText: onDisk[i].displayQuality,
+            showRule: i < onDisk.length - 1,
+            onTap: onDisk[i].id == null
+                ? null
+                : () => context.go(
+                    RoutePaths.movieDetail(instanceId, onDisk[i].id!),
+                  ),
+          ),
+      ],
     );
   }
 
-  Widget _qualityPill(RadarrMovie movie) {
-    final quality = movie.displayQuality;
-    if (quality != null && quality.isNotEmpty) {
-      return StatusChip(label: quality, color: Colors.green);
+  Future<void> _searchAll(
+    BuildContext context,
+    WidgetRef ref,
+    List<RadarrMovie> missing,
+  ) async {
+    final repo = await ref.read(radarrRepositoryProvider(instanceId).future);
+    final ids = missing.map((m) => m.id).whereType<int>().toList();
+    final result = await repo.searchMovies(ids);
+
+    if (!context.mounted) return;
+    if (result.isOk) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Searching for missing movies...')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Search failed: ${result.errorOrNull?.userMessage}'),
+        ),
+      );
     }
-    return StatusChip(
-      label: movie.monitored ? 'Missing' : 'Unmonitored',
-      color: movie.monitored ? Colors.orange : Colors.grey,
-    );
   }
 }

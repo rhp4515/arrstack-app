@@ -74,6 +74,7 @@ class _SeriesDetailContent extends ConsumerStatefulWidget {
 
 class _SeriesDetailContentState extends ConsumerState<_SeriesDetailContent> {
   bool _isProcessing = false;
+  bool _newestFirst = true;
 
   SonarrSeries get series => widget.series;
 
@@ -150,9 +151,28 @@ class _SeriesDetailContentState extends ConsumerState<_SeriesDetailContent> {
           const SizedBox(height: AppSpacing.space6),
           const FadingRule(),
           const SizedBox(height: AppSpacing.space4),
-          Text('SEASONS · ${seasons.length}', style: AppTypography.kicker),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'SEASONS · ${seasons.length}',
+                  style: AppTypography.kicker,
+                ),
+              ),
+              InkWell(
+                onTap: () => setState(() => _newestFirst = !_newestFirst),
+                child: Text(
+                  _newestFirst ? 'Newest first ⌄' : 'Oldest first ⌄',
+                  style: AppTypography.meta.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: AppSpacing.space2),
-          for (final season in seasons)
+          for (final season
+              in _newestFirst ? seasons.reversed.toList() : seasons)
             SeasonRow(
               label: (season.seasonNumber ?? 0) == 0
                   ? 'Specials'

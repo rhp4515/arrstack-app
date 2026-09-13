@@ -72,13 +72,18 @@ class MovieList extends ConsumerWidget {
         if (db == null) return -1;
         return db.compareTo(da);
       });
-    final onDisk = movies.where((m) => m.hasFile).toList();
+    final onDisk = movies.where((m) => m.hasFile).toList()
+      ..sort((a, b) {
+        final da = a.added;
+        final db = b.added;
+        if (da == null && db == null) return 0;
+        if (da == null) return 1;
+        if (db == null) return -1;
+        return db.compareTo(da);
+      });
 
     return ListView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.space6,
-        vertical: AppSpacing.space4,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.space4),
       children: [
         if (missing.isNotEmpty) ...[
           Row(
@@ -96,18 +101,19 @@ class MovieList extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.space2),
-          for (final movie in missing)
+          for (var i = 0; i < missing.length; i++)
             LibraryRow(
               service: ServiceType.radarr,
               instanceId: instanceId,
-              posterUrl: movie.posterUrl,
-              title: movie.title,
-              metaParts: [movie.status ?? 'Missing'],
+              posterUrl: missing[i].posterUrl,
+              title: missing[i].title,
+              metaParts: [missing[i].status ?? 'Missing'],
               trailing: LibraryRowTrailing.none,
-              onTap: movie.id == null
+              showRule: i < missing.length - 1,
+              onTap: missing[i].id == null
                   ? null
                   : () => context.go(
-                      RoutePaths.movieDetail(instanceId, movie.id!),
+                      RoutePaths.movieDetail(instanceId, missing[i].id!),
                     ),
             ),
           const FadingRule(),
@@ -152,8 +158,10 @@ class MovieList extends ConsumerWidget {
     WidgetRef ref,
     List<RadarrMovie> missing,
   ) async {
-    final repo = await ref.read(radarrRepositoryProvider(instanceId).future);
     final ids = missing.map((m) => m.id).whereType<int>().toList();
+    if (ids.isEmpty) return;
+
+    final repo = await ref.read(radarrRepositoryProvider(instanceId).future);
     final result = await repo.searchMovies(ids);
 
     if (!context.mounted) return;

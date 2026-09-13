@@ -9,11 +9,10 @@ library;
 import 'package:arrstack/app/app_shell.dart';
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/core/models/service_type.dart';
-import 'package:arrstack/features/calendar/calendar_page.dart';
+import 'package:arrstack/features/activity/activity_page.dart';
 import 'package:arrstack/features/discover/discover_detail_page.dart';
 import 'package:arrstack/features/discover/discover_page.dart';
 import 'package:arrstack/features/discover/genre_results_page.dart';
-import 'package:arrstack/features/downloads/downloads_page.dart';
 import 'package:arrstack/features/einthusan_import/einthusan_import_page.dart';
 import 'package:arrstack/features/home/home_page.dart';
 import 'package:arrstack/features/indexers/indexers_page.dart';
@@ -26,7 +25,6 @@ import 'package:arrstack/features/library/series_detail_page.dart';
 import 'package:arrstack/features/onboarding/add_instance_page.dart';
 import 'package:arrstack/features/release_search/release_search_page.dart';
 import 'package:arrstack/features/settings/settings_page.dart';
-import 'package:arrstack/features/subtitles/subtitles_page.dart';
 import 'package:arrstack/features/uptime/uptime_page.dart';
 import 'package:go_router/go_router.dart';
 
@@ -177,25 +175,14 @@ final GoRouter appRouter = GoRouter(
             ),
           ],
         ),
-        // Activity — temporarily shows the existing Downloads page; Phase 4
-        // replaces this with the lens-based Transfers/Calendar/Wanted page.
+        // Activity — one page, three switchable lenses (Phase 4).
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: RoutePaths.activity,
-              builder: (context, state) => const DownloadsPage(),
-              routes: [
-                GoRoute(
-                  path: 'calendar',
-                  builder: (context, state) => const CalendarPage(),
-                ),
-                GoRoute(
-                  path: 'subtitles/:instanceId',
-                  builder: (context, state) => SubtitlesPage(
-                    instanceId: state.pathParameters['instanceId']!,
-                  ),
-                ),
-              ],
+              builder: (context, state) => ActivityPage(
+                initialLens: state.uri.queryParameters['lens'],
+              ),
             ),
           ],
         ),

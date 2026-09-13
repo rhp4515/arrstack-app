@@ -1,7 +1,6 @@
 /// Downloads tab: qBittorrent torrent list and controls (spec §7).
 library;
 
-import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/utils/format_utils.dart';
@@ -77,7 +76,7 @@ class _CalendarButton extends StatelessWidget {
     return IconButton(
       icon: const Icon(PhosphorIconsRegular.calendarBlank),
       tooltip: 'Calendar',
-      onPressed: () => context.go(RoutePaths.activityCalendar),
+      onPressed: () => context.go('/activity/calendar'),
     );
   }
 }

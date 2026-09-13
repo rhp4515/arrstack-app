@@ -52,14 +52,6 @@ void main() {
       );
     });
 
-    test('calendar and subtitles carry over under /activity until Phase 4', () {
-      expect(RoutePaths.activityCalendar, '/activity/calendar');
-      expect(
-        RoutePaths.activitySubtitles('bazarr-1'),
-        '/activity/subtitles/bazarr-1',
-      );
-    });
-
     test('library paths are unchanged', () {
       expect(RoutePaths.library, '/library');
       expect(

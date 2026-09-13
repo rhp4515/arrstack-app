@@ -1,10 +1,6 @@
 /// Named route path constants for the bottom-nav shell (spec §5 features/).
 ///
 /// Route map from design_handoff_arrstack_hub/README.md ("Route map").
-/// `activityCalendar`/`activitySubtitles` are a temporary carryover: the
-/// spec merges Calendar and Subtitles into Activity's Calendar/Wanted
-/// lenses (Phase 4), but that page merge hasn't landed yet, so these keep
-/// the existing screens reachable in the meantime.
 library;
 
 abstract final class RoutePaths {
@@ -27,10 +23,6 @@ abstract final class RoutePaths {
       '/home/discover/detail/$id/$type';
   static String homeDiscoverGenre(String mediaType, int genreId, String name) =>
       '/home/discover/genre/$mediaType/$genreId?name=${Uri.encodeComponent(name)}';
-
-  static const String activityCalendar = '/activity/calendar';
-  static String activitySubtitles(String instanceId) =>
-      '/activity/subtitles/$instanceId';
 
   static String movieDetail(String instanceId, int movieId) =>
       '/library/radarr/$instanceId/movie/$movieId';

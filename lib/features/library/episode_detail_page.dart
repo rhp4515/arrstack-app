@@ -1,9 +1,13 @@
+/// Episode detail page (spec 2f): real primary/secondary action buttons,
+/// a FILE spec block, and a SUBTITLES spec block.
+library;
+
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/utils/format_utils.dart';
-import 'package:arrstack/core/widgets/detail_chip.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
+import 'package:arrstack/features/library/widgets/spec_block.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
 import 'package:arrstack/services/bazarr/models/bazarr_models.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
@@ -54,10 +58,8 @@ class EpisodeDetailPage extends ConsumerWidget {
         appBar: AppBar(),
         body: const Center(child: CircularProgressIndicator()),
       ),
-      error: (err, _) => Scaffold(
-        appBar: AppBar(),
-        body: Center(child: Text('Error: $err')),
-      ),
+      error: (err, _) =>
+          Scaffold(appBar: AppBar(), body: Center(child: Text('Error: $err'))),
     );
   }
 }
@@ -85,67 +87,122 @@ class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final episode = widget.episode;
-    final muted = theme.colorScheme.onSurfaceVariant;
-
+    final file = episode.episodeFile;
     final airDate = episode.airDateUtc != null
         ? _formatDate(episode.airDateUtc!.toLocal())
         : 'Unknown air date';
+    final seriesTitle = ref
+        .watch(
+          sonarrSingleSeriesProvider(
+            instanceId: widget.instanceId,
+            seriesId: widget.seriesId,
+          ),
+        )
+        .maybeWhen(
+          data: (result) => result is Ok<SonarrSeries> ? result.value.title : '',
+          orElse: () => '',
+        );
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(episode.episodeCode),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.subtitles_outlined),
-            tooltip: 'Search Subtitles (Bazarr)',
-            onPressed: _searchSubtitlesInBazarr,
-          ),
-          IconButton(
-            icon: const Icon(Icons.search),
-            tooltip: 'Search releases',
-            onPressed: () => context.push(
-              RoutePaths.episodeReleaseSearch(
-                widget.instanceId,
-                widget.seriesId,
-                episode.id,
-                [
-                  episode.episodeCode,
-                  if (episode.title != null && episode.title!.isNotEmpty)
-                    episode.title!,
-                ].join(' · '),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (seriesTitle.isNotEmpty)
+              Text(seriesTitle, style: AppTypography.kicker),
+            Text(
+              episode.episodeCode,
+              style: AppTypography.cardTitle.copyWith(
+                color: theme.colorScheme.onSurface,
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       body: ListView(
-        padding: AppInsets.pageMd,
+        padding: AppInsets.screenHorizontal,
         children: [
           if (_isProcessing)
             const Padding(
-              padding: EdgeInsets.only(bottom: LegacySpacing.md),
+              padding: EdgeInsets.only(bottom: AppSpacing.space4),
               child: LinearProgressIndicator(),
             ),
           Text(
             episode.title ?? 'Unknown Episode',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
+            style: AppTypography.sectionTitle,
+          ),
+          const SizedBox(height: AppSpacing.space2),
+          Text(
+            'Aired $airDate'
+            '${episode.runtime != null && episode.runtime! > 0 ? ' · ${episode.runtime} min' : ''}',
+            style: AppTypography.meta.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: LegacySpacing.sm),
-          Text(
-            'Season ${episode.seasonNumber}, Episode ${episode.episodeNumber} · $airDate',
-            style: theme.textTheme.titleMedium?.copyWith(color: muted),
-          ),
-          const SizedBox(height: LegacySpacing.md),
+          const SizedBox(height: AppSpacing.space4),
           _ChipRow(episode: episode),
-          const SizedBox(height: LegacySpacing.lg),
-          _OverviewCard(episode: episode),
-          const SizedBox(height: LegacySpacing.md),
-          _DetailsCard(episode: episode),
+          const SizedBox(height: AppSpacing.space4),
+          if (episode.overview != null && episode.overview!.isNotEmpty)
+            Text(episode.overview!, style: AppTypography.body),
+          const SizedBox(height: AppSpacing.space6),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.push(
+                    RoutePaths.episodeReleaseSearch(
+                      widget.instanceId,
+                      widget.seriesId,
+                      episode.id,
+                      [
+                        episode.episodeCode,
+                        if (episode.title != null && episode.title!.isNotEmpty)
+                          episode.title!,
+                      ].join(' · '),
+                    ),
+                  ),
+                  child: const Text('Find release'),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.space3),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: _searchSubtitlesInBazarr,
+                  child: const Text('Subtitles'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.space6),
+          if (file != null)
+            SpecBlock(
+              kicker: 'FILE',
+              rows: [
+                ('Quality', file.quality?.quality?.name ?? '—'),
+                ('Size', FormatUtils.formatBytes(file.size)),
+                if (file.mediaInfo?.videoCodec != null)
+                  ('Codec', file.mediaInfo!.videoCodec!),
+                if (_audioLabel(file.mediaInfo) != null)
+                  ('Audio', _audioLabel(file.mediaInfo)!),
+                if (file.relativePath != null) ('Path', file.relativePath!),
+              ],
+            ),
+          const SizedBox(height: AppSpacing.space4),
+          _SubtitlesBlock(episodeId: episode.id),
         ],
       ),
     );
+  }
+
+  String? _audioLabel(SonarrMediaInfo? mediaInfo) {
+    if (mediaInfo == null) return null;
+    final parts = [
+      if (mediaInfo.audioCodec != null) mediaInfo.audioCodec!,
+      if (mediaInfo.audioChannels != null) '${mediaInfo.audioChannels}',
+    ];
+    return parts.isEmpty ? null : parts.join(' ');
   }
 
   String _formatDate(DateTime d) {
@@ -211,117 +268,107 @@ class _ChipRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: LegacySpacing.sm,
-      runSpacing: LegacySpacing.sm,
+      spacing: AppSpacing.space2,
+      runSpacing: AppSpacing.space2,
       children: [
-        if (episode.monitored)
-          const DetailChip(label: 'Monitored', color: Colors.green),
-        if (episode.hasFile)
-          const DetailChip(label: 'Downloaded', color: Colors.blue),
-        if (episode.qualityName != null)
-          DetailChip(label: episode.qualityName!, color: Colors.purple),
+        if (episode.monitored) _tag('Monitored', filled: false, neutral: false),
+        if (episode.hasFile) _tag('Downloaded', filled: true, neutral: false),
       ],
+    );
+  }
+
+  Widget _tag(String label, {required bool filled, required bool neutral}) {
+    final color = neutral ? AppColors.n400 : AppColors.accent;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: filled ? color.withValues(alpha: 0.16) : null,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
+      ),
+      child: Text(label, style: AppTypography.meta.copyWith(color: color)),
     );
   }
 }
 
-class _OverviewCard extends StatelessWidget {
-  const _OverviewCard({required this.episode});
+/// Cross-references the episode against Bazarr's wanted-subtitle list
+/// (spec decision 6): languages named there render "Wanted" in red;
+/// this lighter approximation has no per-language downloaded/provider
+/// data, so a "Downloaded" state isn't rendered per-language here — only
+/// wanted languages are shown, and the block is omitted when there are
+/// none.
+class _SubtitlesBlock extends ConsumerWidget {
+  const _SubtitlesBlock({required this.episodeId});
 
-  final SonarrEpisode episode;
+  final int episodeId;
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      color: theme.colorScheme.surfaceContainerHigh,
-      child: Padding(
-        padding: const EdgeInsets.all(LegacySpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Overview',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: LegacySpacing.sm),
-            Text(
-              episode.overview == null || episode.overview!.isEmpty
-                  ? 'No overview available.'
-                  : episode.overview!,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bazarrInstanceAsync = ref.watch(primaryBazarrInstanceProvider);
+
+    return bazarrInstanceAsync.when(
+      data: (instance) {
+        if (instance == null) return const SizedBox.shrink();
+        final wantedAsync = ref.watch(bazarrWantedProvider(instance.id));
+        return wantedAsync.when(
+          data: (result) => switch (result) {
+            Ok(:final value) => _wantedLanguagesFor(value),
+            Err() => const SizedBox.shrink(),
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
-}
 
-class _DetailsCard extends StatelessWidget {
-  const _DetailsCard({required this.episode});
+  Widget _wantedLanguagesFor(List<BazarrWantedSubtitle> allWanted) {
+    final wanted = allWanted
+        .where((w) => w.episodeId == episodeId)
+        .expand((w) => w.languages)
+        .toSet();
 
-  final SonarrEpisode episode;
+    if (wanted.isEmpty) return const SizedBox.shrink();
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final file = episode.episodeFile;
-
-    final rows = <(String, String)>[
-      if (episode.runtime != null && episode.runtime! > 0)
-        ('Runtime', '${episode.runtime}m'),
-      if (file != null) ...[
-        ('Quality', file.quality?.quality?.name ?? '—'),
-        ('Size', FormatUtils.formatBytes(file.size)),
-        if (file.relativePath != null) ('Path', file.relativePath!),
-      ],
-    ];
-
-    if (rows.isEmpty) return const SizedBox.shrink();
-
-    return Card(
-      color: theme.colorScheme.surfaceContainerHigh,
-      child: Padding(
-        padding: const EdgeInsets.all(LegacySpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('SUBTITLES', style: AppTypography.kicker),
+        const SizedBox(height: AppSpacing.space3),
+        Wrap(
+          spacing: AppSpacing.space2,
+          runSpacing: AppSpacing.space2,
           children: [
-            Text(
-              'Details',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: LegacySpacing.sm),
-            for (final (label, value) in rows)
-              Padding(
-                padding: const EdgeInsets.only(bottom: LegacySpacing.sm),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 104,
-                      child: Text(
-                        label,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
+            for (final lang in wanted)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
                     ),
-                    Expanded(
-                      child: Text(value, style: theme.textTheme.bodyMedium),
+                    decoration: BoxDecoration(
+                      color: AppColors.n900,
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
                     ),
-                  ],
-                ),
+                    child: Text(
+                      lang.toUpperCase(),
+                      style: AppTypography.meta.copyWith(color: AppColors.n300),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.space2),
+                  Text(
+                    'Wanted',
+                    style: AppTypography.meta.copyWith(color: AppColors.down),
+                  ),
+                ],
               ),
           ],
         ),
-      ),
+      ],
     );
   }
 }

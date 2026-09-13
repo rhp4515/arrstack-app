@@ -184,16 +184,18 @@ class _MovieDetailContentState extends ConsumerState<_MovieDetailContent> {
                 ),
                 const SizedBox(width: AppSpacing.space3),
               ],
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => _copy(
-                    'https://www.themoviedb.org/movie/${movie.tmdbId}',
-                    'TMDB',
+              if (movie.tmdbId != null) ...[
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => _copy(
+                      'https://www.themoviedb.org/movie/${movie.tmdbId}',
+                      'TMDB',
+                    ),
+                    child: const Text('TMDB'),
                   ),
-                  child: const Text('TMDB'),
                 ),
-              ),
-              const SizedBox(width: AppSpacing.space3),
+                const SizedBox(width: AppSpacing.space3),
+              ],
               Expanded(
                 child: OutlinedButton(
                   onPressed: _searchSubtitlesInBazarr,

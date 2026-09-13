@@ -205,13 +205,48 @@ class _SeriesTabBody extends ConsumerWidget {
                 ),
           orElse: () => const SizedBox.shrink(),
         ),
-        const Text('ALL SHOWS', style: AppTypography.kicker),
+        Row(
+          children: [
+            const Expanded(
+              child: Text('ALL SHOWS', style: AppTypography.kicker),
+            ),
+            Consumer(
+              builder: (context, ref, _) {
+                final sort = ref.watch(activeLibrarySortProvider);
+                return InkWell(
+                  onTap: () => ref
+                      .read(activeLibrarySortProvider.notifier)
+                      .select(
+                        switch (sort) {
+                          LibrarySort.recentlyAdded => LibrarySort.title,
+                          LibrarySort.title => LibrarySort.year,
+                          LibrarySort.year => LibrarySort.recentlyAdded,
+                        },
+                      ),
+                  child: Text(
+                    switch (sort) {
+                      LibrarySort.recentlyAdded => 'Recently added ⌄',
+                      LibrarySort.title => 'Title ⌄',
+                      LibrarySort.year => 'Year ⌄',
+                    },
+                    style: AppTypography.meta.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
         const SizedBox(height: AppSpacing.space2),
-        SeriesList(
-          instanceId: instanceId,
-          query: query,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+        Consumer(
+          builder: (context, ref, _) => SeriesList(
+            instanceId: instanceId,
+            query: query,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            sort: ref.watch(activeLibrarySortProvider),
+          ),
         ),
       ],
     );

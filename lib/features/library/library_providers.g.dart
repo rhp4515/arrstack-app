@@ -301,3 +301,55 @@ final class ContinueWatchingFamily extends $Family
   @override
   String toString() => r'continueWatchingProvider';
 }
+
+@ProviderFor(ActiveLibrarySort)
+final activeLibrarySortProvider = ActiveLibrarySortProvider._();
+
+final class ActiveLibrarySortProvider
+    extends $NotifierProvider<ActiveLibrarySort, LibrarySort> {
+  ActiveLibrarySortProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'activeLibrarySortProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$activeLibrarySortHash();
+
+  @$internal
+  @override
+  ActiveLibrarySort create() => ActiveLibrarySort();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(LibrarySort value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<LibrarySort>(value),
+    );
+  }
+}
+
+String _$activeLibrarySortHash() => r'a05ec5977bad89d4a9b1c3996f178aea9a20571b';
+
+abstract class _$ActiveLibrarySort extends $Notifier<LibrarySort> {
+  LibrarySort build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<LibrarySort, LibrarySort>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<LibrarySort, LibrarySort>,
+              LibrarySort,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

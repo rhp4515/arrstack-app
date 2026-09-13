@@ -150,4 +150,23 @@ void main() {
     expect(entries, hasLength(1));
     expect(entries.single.series.title, 'Has Calendar Entry');
   });
+
+  test(
+    'ActiveLibrarySort defaults to recentlyAdded and updates on select',
+    () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      expect(
+        container.read(activeLibrarySortProvider),
+        LibrarySort.recentlyAdded,
+      );
+
+      container
+          .read(activeLibrarySortProvider.notifier)
+          .select(LibrarySort.title);
+
+      expect(container.read(activeLibrarySortProvider), LibrarySort.title);
+    },
+  );
 }

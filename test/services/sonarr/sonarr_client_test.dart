@@ -60,10 +60,11 @@ void main() {
     final result = await client.getWantedMissing();
 
     expect(result.isOk, isTrue);
-    final list = result.valueOrNull!;
-    expect(list, hasLength(1));
-    expect(list.single.id, 501);
-    expect(list.single.series?.title, 'Severance');
+    final page = result.valueOrNull!;
+    expect(page.episodes, hasLength(1));
+    expect(page.rawCount, 1);
+    expect(page.episodes.single.id, 501);
+    expect(page.episodes.single.series?.title, 'Severance');
     expect(captured!.queryParameters['includeSeries'], true);
   });
 
@@ -101,7 +102,9 @@ void main() {
       final result = await client.getWantedMissing();
 
       expect(result.isOk, isTrue);
-      expect(result.valueOrNull!.map((e) => e.id), [502]);
+      final page = result.valueOrNull!;
+      expect(page.episodes.map((e) => e.id), [502]);
+      expect(page.rawCount, 2);
     },
   );
 
@@ -126,7 +129,8 @@ void main() {
     final result = await client.getWantedMissing(page: 2, pageSize: 10);
 
     expect(result.isOk, isTrue);
-    expect(result.valueOrNull, isEmpty);
+    expect(result.valueOrNull!.episodes, isEmpty);
+    expect(result.valueOrNull!.rawCount, 0);
   });
 
   test('getWantedMissing maps a 5xx to an Err', () async {

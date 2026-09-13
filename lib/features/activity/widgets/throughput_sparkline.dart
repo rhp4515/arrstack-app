@@ -61,7 +61,11 @@ class ThroughputSparkline extends StatelessWidget {
     final buckets = bucketThroughputSamples(samples);
     final peak = buckets.fold<double>(0, (m, v) => v > m ? v : m);
     final nowSpeed = samples.isEmpty ? 0 : samples.last.dlSpeedBytesPerSecond;
-    final onSurfaceMuted = Theme.of(context).colorScheme.onSurfaceVariant;
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onSurfaceMuted = isDark
+        ? AppColors.n400
+        : colorScheme.onSurfaceVariant;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

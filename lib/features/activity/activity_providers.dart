@@ -116,6 +116,17 @@ List<SonarrMissingEpisode> sortMissingEpisodesByAirDate(
 /// surfaced — [BazarrWantedAggregate.hasUnreachableInstance] drives the
 /// Wanted lens's single offline error card — but other instances' results
 /// still show underneath it.
+///
+/// Fetches every instance concurrently via [Future.wait] (mirroring
+/// [sonarrMissingEpisodes]'s pattern) rather than sequentially: a
+/// sequential `for` loop that keeps calling `ref.watch` after an earlier
+/// iteration's watched dependency has already thrown trips Riverpod's
+/// "provider rebuilt while the previous build was still pending" guard —
+/// the erroring dependency's AsyncValue change invalidates this provider's
+/// in-flight build, and any subsequent `ref.watch` call in that same
+/// build then throws a "Ref used after disposed" error instead of
+/// reaching the next instance. Registering every dependency's watch
+/// up front (before any of them can resolve or throw) avoids that.
 @riverpod
 Future<BazarrWantedAggregate> bazarrWantedAggregate(Ref ref) async {
   final instancesResult = await ref.watch(instancesProvider.future);
@@ -130,15 +141,18 @@ Future<BazarrWantedAggregate> bazarrWantedAggregate(Ref ref) async {
       .where((i) => i.serviceType == ServiceType.bazarr)
       .toList();
 
+  final results = await Future.wait([
+    for (final instance in bazarrInstances)
+      _wantedSubtitlesFor(ref, instance.id),
+  ]);
+
   final subtitles = <BazarrWantedSubtitle>[];
   var hasUnreachableInstance = false;
-  for (final instance in bazarrInstances) {
-    final result = await ref.watch(bazarrWantedProvider(instance.id).future);
-    switch (result) {
-      case Ok(:final value):
-        subtitles.addAll(value);
-      case Err():
-        hasUnreachableInstance = true;
+  for (final result in results) {
+    if (result == null) {
+      hasUnreachableInstance = true;
+    } else {
+      subtitles.addAll(result);
     }
   }
 
@@ -146,6 +160,24 @@ Future<BazarrWantedAggregate> bazarrWantedAggregate(Ref ref) async {
     subtitles: subtitles,
     hasUnreachableInstance: hasUnreachableInstance,
   );
+}
+
+/// Wanted subtitles for a single Bazarr instance, or `null` if the
+/// instance is unreachable — either an `Err` Result or a thrown error
+/// (e.g. endpoint resolution failure in `dioForInstanceProvider`). Mirrors
+/// [_missingEpisodesFor]'s isolation pattern for the Sonarr side.
+Future<List<BazarrWantedSubtitle>?> _wantedSubtitlesFor(
+  Ref ref,
+  String instanceId,
+) async {
+  try {
+    final result = await ref.watch(bazarrWantedProvider(instanceId).future);
+    if (result case Ok(:final value)) return value;
+  } on Object {
+    // Falls through to null below; the caller treats a thrown error the
+    // same as an `Err` Result.
+  }
+  return null;
 }
 
 const Duration _throughputSampleInterval = Duration(seconds: 5);
@@ -190,14 +222,19 @@ class TransfersThroughputHistory extends _$TransfersThroughputHistory {
   }
 
   Future<void> _sample(String instanceId) async {
-    final result = await ref.read(qbitMainDataProvider(instanceId).future);
-    if (!ref.mounted) return;
-    if (result case Ok(:final value)) {
-      state = pruneAndAppendThroughputSample(
-        state,
-        value.serverState.dlInfoSpeed,
-        DateTime.now(),
-      );
+    try {
+      final result = await ref.read(qbitMainDataProvider(instanceId).future);
+      if (!ref.mounted) return;
+      if (result case Ok(:final value)) {
+        state = pruneAndAppendThroughputSample(
+          state,
+          value.serverState.dlInfoSpeed,
+          DateTime.now(),
+        );
+      }
+    } on Object {
+      // Skip a failed sample tick (e.g. missing credentials or an
+      // unresolvable endpoint); the timer keeps running for future ticks.
     }
   }
 }

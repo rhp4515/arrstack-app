@@ -203,6 +203,31 @@ void main() {
       },
     );
 
+    test('sets hasUnreachableInstance when an instance throws (not just Err) '
+        'and keeps the other instance\'s subtitles', () async {
+      final a = buildInstance(id: 'bazarr-a', serviceType: ServiceType.bazarr);
+      final b = buildInstance(id: 'bazarr-b', serviceType: ServiceType.bazarr);
+
+      final container = ProviderContainer(
+        overrides: [
+          instancesProvider.overrideWith((ref) async => Ok([a, b])),
+          bazarrWantedProvider(a.id).overrideWith(
+            (ref) async => throw Exception('endpoint resolution failed'),
+          ),
+          bazarrWantedProvider(b.id).overrideWith(
+            (ref) async => const Ok([BazarrWantedSubtitle(title: 'y')]),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final aggregate = await container.read(
+        bazarrWantedAggregateProvider.future,
+      );
+      expect(aggregate.hasUnreachableInstance, isTrue);
+      expect(aggregate.subtitles.map((s) => s.title), ['y']);
+    });
+
     test(
       'is not unreachable and has no subtitles with zero Bazarr instances',
       () async {
@@ -328,6 +353,51 @@ void main() {
         async.elapse(const Duration(seconds: 10));
         async.flushMicrotasks();
         expect(pollCount, countBefore);
+      });
+    });
+
+    test('keeps sampling on later ticks after a tick throws (e.g. missing '
+        'credentials or an unresolvable endpoint)', () {
+      fakeAsync((async) {
+        var callCount = 0;
+        final container = ProviderContainer(
+          overrides: [
+            qbitMainDataProvider('qbit-1').overrideWith((ref) async {
+              callCount++;
+              if (callCount == 1) {
+                throw Exception('No credentials found for instance qbit-1');
+              }
+              return mainData(1024);
+            }),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        container.listen(
+          transfersThroughputHistoryProvider('qbit-1'),
+          (_, _) {},
+          fireImmediately: true,
+        );
+        async.flushMicrotasks();
+
+        // First tick throws inside `_sample`; it must be swallowed rather
+        // than propagate as an unhandled async error, and this tick's
+        // sample is skipped.
+        async.elapse(const Duration(seconds: 5));
+        async.flushMicrotasks();
+        expect(
+          container.read(transfersThroughputHistoryProvider('qbit-1')),
+          isEmpty,
+        );
+
+        // The timer must still be running for the next tick.
+        async.elapse(const Duration(seconds: 5));
+        async.flushMicrotasks();
+        final samples = container.read(
+          transfersThroughputHistoryProvider('qbit-1'),
+        );
+        expect(samples, isNotEmpty);
+        expect(samples.every((s) => s.dlSpeedBytesPerSecond == 1024), isTrue);
       });
     });
 

@@ -7,6 +7,7 @@ import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/widgets/resolved_poster.dart';
 import 'package:arrstack/features/library/continue_watching.dart';
+import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:flutter/material.dart';
 
 class ContinueWatchingRow extends StatelessWidget {
@@ -60,7 +61,7 @@ class _Card extends StatelessWidget {
           ResolvedPoster(
             service: ServiceType.sonarr,
             instanceId: instanceId,
-            relativeUrl: _getPosterUrl(),
+            relativeUrl: entry.series.posterUrl,
             width: 88,
             height: 132,
             radius: AppRadius.md,
@@ -83,23 +84,5 @@ class _Card extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String? _getPosterUrl() {
-    final imgs = entry.series.images;
-    if (imgs == null || imgs.isEmpty) return null;
-    final image = imgs.firstWhere(
-      (i) => i.coverType == 'poster',
-      orElse: () => imgs.firstWhere(
-        (i) => i.coverType == 'fanart',
-        orElse: () => imgs.first,
-      ),
-    );
-    // Prefer the auth-free remote (TVDB) CDN URL so posters load regardless of
-    // the server's authentication mode; fall back to the internal path (which
-    // the image provider will sign with an API key) only when it's absent.
-    final remote = image.remoteUrl;
-    if (remote != null && remote.isNotEmpty) return remote;
-    return (image.url != null && image.url!.isNotEmpty) ? image.url : null;
   }
 }

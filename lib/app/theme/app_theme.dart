@@ -24,6 +24,7 @@ abstract final class AppTheme {
             onSecondary: AppColors.bg,
             surface: AppColors.surface,
             onSurface: AppColors.text,
+            onSurfaceVariant: AppColors.n400,
             error: AppColors.down,
             onError: AppColors.text,
             outline: AppColors.divider,

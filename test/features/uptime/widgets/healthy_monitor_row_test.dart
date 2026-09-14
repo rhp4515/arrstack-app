@@ -37,7 +37,7 @@ void main() {
   testWidgets('shows no latency text when there are no heartbeats', (
     tester,
   ) async {
-    final monitor = KumaMonitor(
+    const monitor = KumaMonitor(
       id: 3,
       name: 'NoHeartbeats',
       type: 'http',
@@ -47,7 +47,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(body: HealthyMonitorRow(monitor: monitor)),
       ),
     );

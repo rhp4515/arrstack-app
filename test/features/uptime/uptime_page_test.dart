@@ -13,7 +13,7 @@ void main() {
   ) async {
     const instanceId = 'kuma-1';
     final monitors = [
-      KumaMonitor(
+      const KumaMonitor(
         id: 1,
         name: 'Up1',
         type: 'http',
@@ -21,7 +21,7 @@ void main() {
         interval: 60,
         status: 1,
       ),
-      KumaMonitor(
+      const KumaMonitor(
         id: 2,
         name: 'Down1',
         type: 'http',
@@ -29,7 +29,7 @@ void main() {
         interval: 60,
         status: 0,
       ),
-      KumaMonitor(
+      const KumaMonitor(
         id: 3,
         name: 'Paused1',
         type: 'http',

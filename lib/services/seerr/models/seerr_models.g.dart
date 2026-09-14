@@ -197,3 +197,55 @@ _SeerrGenre _$SeerrGenreFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$SeerrGenreToJson(_SeerrGenre instance) =>
     <String, dynamic>{'id': instance.id, 'name': instance.name};
+
+_SeerrServiceProfile _$SeerrServiceProfileFromJson(Map<String, dynamic> json) =>
+    _SeerrServiceProfile(
+      id: (json['id'] as num).toInt(),
+      name: json['name'] as String,
+    );
+
+Map<String, dynamic> _$SeerrServiceProfileToJson(
+  _SeerrServiceProfile instance,
+) => <String, dynamic>{'id': instance.id, 'name': instance.name};
+
+_SeerrServiceRootFolder _$SeerrServiceRootFolderFromJson(
+  Map<String, dynamic> json,
+) => _SeerrServiceRootFolder(
+  path: json['path'] as String,
+  freeSpace: (json['freeSpace'] as num?)?.toInt(),
+  totalSpace: (json['totalSpace'] as num?)?.toInt(),
+);
+
+Map<String, dynamic> _$SeerrServiceRootFolderToJson(
+  _SeerrServiceRootFolder instance,
+) => <String, dynamic>{
+  'path': instance.path,
+  'freeSpace': instance.freeSpace,
+  'totalSpace': instance.totalSpace,
+};
+
+_SeerrServiceDetails _$SeerrServiceDetailsFromJson(Map<String, dynamic> json) =>
+    _SeerrServiceDetails(
+      profiles:
+          (json['profiles'] as List<dynamic>?)
+              ?.map(
+                (e) => SeerrServiceProfile.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          const [],
+      rootFolders:
+          (json['rootFolders'] as List<dynamic>?)
+              ?.map(
+                (e) =>
+                    SeerrServiceRootFolder.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          const [],
+    );
+
+Map<String, dynamic> _$SeerrServiceDetailsToJson(
+  _SeerrServiceDetails instance,
+) => <String, dynamic>{
+  'profiles': instance.profiles,
+  'rootFolders': instance.rootFolders,
+};

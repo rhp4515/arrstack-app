@@ -161,6 +161,38 @@ abstract class SeerrGenre with _$SeerrGenre {
       _$SeerrGenreFromJson(json);
 }
 
+@freezed
+abstract class SeerrServiceProfile with _$SeerrServiceProfile {
+  const factory SeerrServiceProfile({required int id, required String name}) =
+      _SeerrServiceProfile;
+
+  factory SeerrServiceProfile.fromJson(Map<String, dynamic> json) =>
+      _$SeerrServiceProfileFromJson(json);
+}
+
+@freezed
+abstract class SeerrServiceRootFolder with _$SeerrServiceRootFolder {
+  const factory SeerrServiceRootFolder({
+    required String path,
+    int? freeSpace,
+    int? totalSpace,
+  }) = _SeerrServiceRootFolder;
+
+  factory SeerrServiceRootFolder.fromJson(Map<String, dynamic> json) =>
+      _$SeerrServiceRootFolderFromJson(json);
+}
+
+@freezed
+abstract class SeerrServiceDetails with _$SeerrServiceDetails {
+  const factory SeerrServiceDetails({
+    @Default([]) List<SeerrServiceProfile> profiles,
+    @Default([]) List<SeerrServiceRootFolder> rootFolders,
+  }) = _SeerrServiceDetails;
+
+  factory SeerrServiceDetails.fromJson(Map<String, dynamic> json) =>
+      _$SeerrServiceDetailsFromJson(json);
+}
+
 extension SeerrResultX on SeerrResult {
   String? get displayTitle => title ?? name;
   String? get displayDate => releaseDate ?? firstAirDate;

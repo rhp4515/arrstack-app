@@ -35,6 +35,9 @@ class IndexersPage extends ConsumerWidget {
       ref.invalidate(prowlarrIndexerStatsLast24hProvider(instanceId));
     }
 
+    final stats30dFailed = _asyncStatsFailed(stats30dAsync);
+    final stats24hFailed = _asyncStatsFailed(stats24hAsync);
+
     return Scaffold(
       appBar: SubPageHeader(
         kicker: 'PROWLARR',
@@ -55,6 +58,8 @@ class IndexersPage extends ConsumerWidget {
               indexers: value,
               stats30d: stats30dAsync.asData?.value,
               stats24h: stats24hAsync.asData?.value,
+              stats30dFailed: stats30dFailed,
+              stats24hFailed: stats24hFailed,
             ),
             Err(:final error) => EmptyState(
               icon: Icons.error_outline,
@@ -74,12 +79,25 @@ class IndexersPage extends ConsumerWidget {
   }
 }
 
+/// True when [async] is loading, has an error, or resolved to an [Err] —
+/// i.e. any case where the stats numbers should NOT be trusted as real data.
+bool _asyncStatsFailed(AsyncValue<Result<IndexerStatsResponse>> async) =>
+    async.isLoading || async.hasError || async.asData?.value is Err;
+
 class _IndexersBody extends StatelessWidget {
-  const _IndexersBody({required this.indexers, this.stats30d, this.stats24h});
+  const _IndexersBody({
+    required this.indexers,
+    required this.stats30dFailed,
+    required this.stats24hFailed,
+    this.stats30d,
+    this.stats24h,
+  });
 
   final List<Indexer> indexers;
   final Result<IndexerStatsResponse>? stats30d;
   final Result<IndexerStatsResponse>? stats24h;
+  final bool stats30dFailed;
+  final bool stats24hFailed;
 
   @override
   Widget build(BuildContext context) {
@@ -110,12 +128,16 @@ class _IndexersBody extends StatelessWidget {
           children: [
             _Stat(value: '$enabledCount', label: 'ENABLED'),
             const SizedBox(width: AppSpacing.space8),
-            _Stat(value: '${totals30d.totalGrabs}', label: 'GRABS 30D'),
+            _Stat(
+              value: stats30dFailed ? '—' : '${totals30d.totalGrabs}',
+              label: 'GRABS 30D',
+            ),
             const SizedBox(width: AppSpacing.space8),
             _Stat(
-              value: '${totals30d.slowestResponseMs}',
+              value: stats30dFailed ? '—' : '${totals30d.slowestResponseMs}',
               label: 'SLOWEST ms',
-              color: isSlowResponse(totals30d.slowestResponseMs)
+              color:
+                  !stats30dFailed && isSlowResponse(totals30d.slowestResponseMs)
                   ? AppColors.warning
                   : null,
             ),
@@ -136,12 +158,20 @@ class _IndexersBody extends StatelessWidget {
         const SizedBox(height: AppSpacing.space4),
         const Text('LAST 24H', style: AppTypography.kicker),
         const SizedBox(height: AppSpacing.space3),
-        _TotalsRow(label: 'Queries', value: totals24h.queries),
-        _TotalsRow(label: 'Grabs', value: totals24h.grabs),
+        _TotalsRow(
+          label: 'Queries',
+          value: stats24hFailed ? '—' : '${totals24h.queries}',
+        ),
+        _TotalsRow(
+          label: 'Grabs',
+          value: stats24hFailed ? '—' : '${totals24h.grabs}',
+        ),
         _TotalsRow(
           label: 'Failures',
-          value: totals24h.failures,
-          color: totals24h.failures > 0 ? AppColors.warning : null,
+          value: stats24hFailed ? '—' : '${totals24h.failures}',
+          color: !stats24hFailed && totals24h.failures > 0
+              ? AppColors.warning
+              : null,
         ),
       ],
     );
@@ -239,7 +269,7 @@ class _TotalsRow extends StatelessWidget {
   const _TotalsRow({required this.label, required this.value, this.color});
 
   final String label;
-  final int value;
+  final String value;
   final Color? color;
 
   @override
@@ -251,7 +281,7 @@ class _TotalsRow extends StatelessWidget {
         children: [
           Text(label, style: AppTypography.meta),
           Text(
-            '$value',
+            value,
             style: AppTypography.meta.copyWith(
               color: color,
               fontFeatures: const [FontFeature.tabularFigures()],

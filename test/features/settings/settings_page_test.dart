@@ -87,4 +87,36 @@ void main() {
 
     expect(find.text('Unreachable'), findsOneWidget);
   });
+
+  testWidgets(
+    'shows "Status unavailable" rather than a silent no-summary fallback '
+    'when the summaries fetch itself fails',
+    (tester) async {
+      const instance = ServiceInstance(
+        id: 'sonarr-1',
+        name: 'Sonarr',
+        serviceType: ServiceType.sonarr,
+        authType: AuthType.apiKey,
+        localBaseUrl: 'http://10.0.0.1:8989',
+        endpointMode: EndpointMode.auto,
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            configStoreProvider.overrideWithValue(FakeConfigStore()),
+            instancesProvider.overrideWith((ref) async => const Ok([instance])),
+            homeServiceSummariesProvider.overrideWith(
+              (ref) async => throw Exception('summaries fetch failed'),
+            ),
+          ],
+          child: const MaterialApp(home: SettingsPage()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Sonarr'), findsOneWidget);
+      expect(find.text('Status unavailable'), findsOneWidget);
+    },
+  );
 }

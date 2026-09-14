@@ -26,6 +26,7 @@ class SettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final instancesAsync = ref.watch(instancesProvider);
     final summariesAsync = ref.watch(homeServiceSummariesProvider);
+    final summariesFailed = summariesAsync.hasError;
 
     return Scaffold(
       appBar: SubPageHeader(
@@ -46,6 +47,7 @@ class SettingsPage extends ConsumerWidget {
               Ok(:final value) => _InstancesSection(
                 instances: value,
                 summaries: summariesAsync.asData?.value ?? const [],
+                summariesFailed: summariesFailed,
               ),
               Err(:final error) => Text('Error: ${error.userMessage}'),
             },
@@ -78,10 +80,15 @@ class SettingsPage extends ConsumerWidget {
 }
 
 class _InstancesSection extends StatelessWidget {
-  const _InstancesSection({required this.instances, required this.summaries});
+  const _InstancesSection({
+    required this.instances,
+    required this.summaries,
+    required this.summariesFailed,
+  });
 
   final List<ServiceInstance> instances;
   final List<HomeServiceSummary> summaries;
+  final bool summariesFailed;
 
   @override
   Widget build(BuildContext context) {
@@ -119,6 +126,7 @@ class _InstancesSection extends StatelessWidget {
             summary: summaries
                 .where((s) => s.instanceId == instance.id)
                 .firstOrNull,
+            summariesFailed: summariesFailed,
           ),
       ],
     );
@@ -126,10 +134,15 @@ class _InstancesSection extends StatelessWidget {
 }
 
 class _InstanceRow extends ConsumerWidget {
-  const _InstanceRow({required this.instance, required this.summary});
+  const _InstanceRow({
+    required this.instance,
+    required this.summary,
+    required this.summariesFailed,
+  });
 
   final ServiceInstance instance;
   final HomeServiceSummary? summary;
+  final bool summariesFailed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -137,9 +150,15 @@ class _InstanceRow extends ConsumerWidget {
     final dotColor = summary == null
         ? AppColors.n600
         : (summary.isReachable ? AppColors.up : AppColors.down);
-    final statusLine = summary == null
-        ? null
-        : (summary.isReachable ? 'Reachable' : summary.summaryLine);
+    // A `null` summary means either "the summaries fetch itself failed" or
+    // "this instance has no matching summary in an otherwise successful
+    // fetch" (a real design fallback, e.g. a non-default duplicate
+    // instance). Those are different situations for the user, so give the
+    // failed-fetch case its own distinct meta text instead of silently
+    // falling back to the same neutral no-summary state.
+    final statusLine = summary != null
+        ? (summary.isReachable ? 'Reachable' : summary.summaryLine)
+        : (summariesFailed ? 'Status unavailable' : null);
 
     return InkWell(
       onTap: () => context.go(RoutePaths.homeEditInstance(instance.id)),
@@ -183,9 +202,11 @@ class _InstanceRow extends ConsumerWidget {
                     Text(
                       statusLine,
                       style: AppTypography.meta.copyWith(
-                        color: summary!.isReachable
+                        color: summary == null
                             ? AppColors.n500
-                            : AppColors.down,
+                            : (summary.isReachable
+                                  ? AppColors.n500
+                                  : AppColors.down),
                       ),
                     ),
                 ],

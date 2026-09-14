@@ -262,11 +262,17 @@ text below, unchanged from today.
   user never actually saw.
 
 **Action bar:** flexible primary "Request" (`+`, calls the extended `request()`
-with the selected `serverId`/`profileId`/`rootFolder`), secondary "Browse releases"
-→ `ReleaseSearchPage`. **The secondary button only renders when the title is
-already in Radarr/Sonarr** (`mediaInfo` has a Radarr/Sonarr-side id, not just a
-Seerr request) — interactive search needs an existing `movieId`/`episodeId`, a real
-constraint carried over from 3b's own availability discussion, not styling.
+with the selected `serverId`/`profileId`/`rootFolder`).
+
+**Correction found during plan-writing:** the mock's secondary "Browse releases" →
+`ReleaseSearchPage` action is **not implemented in Phase 7**. This section
+originally assumed it could be gated on "the title already existing in
+Radarr/Sonarr," but `SeerrMediaInfo` carries no Radarr/Sonarr-side
+`movieId`/`episodeId` — `ReleaseSearchPage`'s required `targetId` has nothing to
+bind to from Seerr's own data. The gating condition isn't just usually false, it's
+unsatisfiable with today's data model. Shipping a button with no working
+destination would violate the same no-fake-confidence principle as Decision 2, so
+it's cut rather than faked or half-wired. See the plan's Out-of-scope section.
 
 ## 3c — Requests queue (`/home/requests`, new route)
 

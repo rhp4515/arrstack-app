@@ -20,6 +20,15 @@ import 'package:uuid/uuid.dart';
 
 part 'onboarding_providers.g.dart';
 
+/// Sentinel used by [InstanceFormState.copyWith] to distinguish "leave this
+/// field unchanged" (the default, `_unset`) from "set this field to null"
+/// (an explicit `null` argument) for fields whose type is itself nullable.
+class _Unset {
+  const _Unset();
+}
+
+const _unset = _Unset();
+
 /// A short, user-facing title for the error-first Edit-instance view
 /// (README §2n) — e.g. "Local URL refused the connection".
 String errorCardTitle(AppError error) => switch (error) {
@@ -86,10 +95,10 @@ class InstanceFormState {
     bool? isDefault,
     bool? isTestingLocal,
     bool? isTestingRemote,
-    Result<ServiceIdentity>? localTestResult,
-    Result<ServiceIdentity>? remoteTestResult,
+    Object? localTestResult = _unset,
+    Object? remoteTestResult = _unset,
     bool? isSaving,
-    AppError? saveError,
+    Object? saveError = _unset,
   }) {
     return InstanceFormState(
       id: id ?? this.id,
@@ -104,10 +113,16 @@ class InstanceFormState {
       isDefault: isDefault ?? this.isDefault,
       isTestingLocal: isTestingLocal ?? this.isTestingLocal,
       isTestingRemote: isTestingRemote ?? this.isTestingRemote,
-      localTestResult: localTestResult ?? this.localTestResult,
-      remoteTestResult: remoteTestResult ?? this.remoteTestResult,
+      localTestResult: identical(localTestResult, _unset)
+          ? this.localTestResult
+          : localTestResult as Result<ServiceIdentity>?,
+      remoteTestResult: identical(remoteTestResult, _unset)
+          ? this.remoteTestResult
+          : remoteTestResult as Result<ServiceIdentity>?,
       isSaving: isSaving ?? this.isSaving,
-      saveError: saveError ?? this.saveError,
+      saveError: identical(saveError, _unset)
+          ? this.saveError
+          : saveError as AppError?,
     );
   }
 

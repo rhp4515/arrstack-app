@@ -134,7 +134,7 @@ class _IndexersBody extends StatelessWidget {
         const SizedBox(height: AppSpacing.space4),
         const FadingRule(),
         const SizedBox(height: AppSpacing.space4),
-        Text('LAST 24H', style: AppTypography.kicker),
+        const Text('LAST 24H', style: AppTypography.kicker),
         const SizedBox(height: AppSpacing.space3),
         _TotalsRow(label: 'Queries', value: totals24h.queries),
         _TotalsRow(label: 'Grabs', value: totals24h.grabs),
@@ -245,7 +245,7 @@ class _TotalsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.8),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.space2 / 2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

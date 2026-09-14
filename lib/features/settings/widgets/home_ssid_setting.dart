@@ -6,6 +6,7 @@ import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/features/settings/settings_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 class HomeSsidSetting extends ConsumerStatefulWidget {
   const HomeSsidSetting({super.key});
@@ -41,7 +42,7 @@ class _HomeSsidSettingState extends ConsumerState<HomeSsidSetting> {
       children: [
         Row(
           children: [
-            const Icon(Icons.wifi_outlined, size: 24),
+            const Icon(PhosphorIconsRegular.wifiHigh, size: 17),
             const SizedBox(width: LegacySpacing.md),
             const Expanded(
               child: Text(
@@ -84,7 +85,7 @@ class _HomeSsidSettingState extends ConsumerState<HomeSsidSetting> {
                   );
                 }
               },
-              icon: const Icon(Icons.wifi_find, size: 18),
+              icon: const Icon(PhosphorIconsRegular.wifiHigh, size: 17),
               label: const Text('Detect'),
             ),
           ],
@@ -104,11 +105,33 @@ class _HomeSsidSettingState extends ConsumerState<HomeSsidSetting> {
                   ),
                 )
               : Wrap(
-                  spacing: LegacySpacing.sm,
+                  spacing: AppSpacing.space3,
+                  runSpacing: AppSpacing.space2,
                   children: ssids.map((ssid) {
-                    return Chip(
-                      label: Text(ssid),
-                      onDeleted: () => notifier.removeHomeSsid(ssid),
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.space3,
+                        vertical: AppSpacing.space2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.n900,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(ssid, style: AppTypography.cardTitle),
+                          const SizedBox(width: AppSpacing.space2),
+                          InkWell(
+                            onTap: () => notifier.removeHomeSsid(ssid),
+                            child: const Icon(
+                              PhosphorIconsRegular.x,
+                              size: 12,
+                              color: AppColors.n500,
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   }).toList(),
                 ),

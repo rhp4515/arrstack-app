@@ -1,5 +1,5 @@
-/// Settings tab: Instance management, networking configuration, and
-/// appearance settings (spec §7).
+/// Settings tab: instance management, networking, and appearance
+/// (README §2m).
 library;
 
 import 'package:arrstack/app/route_paths.dart';
@@ -8,11 +8,16 @@ import 'package:arrstack/app/theme/theme_mode_provider.dart';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
+import 'package:arrstack/core/widgets/detail_chip.dart';
+import 'package:arrstack/core/widgets/fading_rule.dart';
+import 'package:arrstack/core/widgets/sub_page_header.dart';
+import 'package:arrstack/features/home/home_providers.dart';
 import 'package:arrstack/features/settings/settings_providers.dart';
 import 'package:arrstack/features/settings/widgets/home_ssid_setting.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -20,170 +25,209 @@ class SettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final instancesAsync = ref.watch(instancesProvider);
-    final themeMode = ref.watch(appThemeModeProvider);
+    final summariesAsync = ref.watch(homeServiceSummariesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: SubPageHeader(
+        title: 'Settings',
+        actions: [
+          TextButton.icon(
+            onPressed: () => context.go(RoutePaths.homeAddInstance),
+            icon: const Icon(PhosphorIconsRegular.plus, size: 15),
+            label: const Text('Add'),
+          ),
+        ],
+      ),
       body: ListView(
         padding: AppInsets.pageMd,
         children: [
-          _SectionHeader(
-            title: 'Instances',
-            action: TextButton.icon(
-              onPressed: () => context.go(RoutePaths.homeAddInstance),
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add'),
-            ),
-          ),
           instancesAsync.when(
             data: (result) => switch (result) {
-              Ok(:final value) =>
-                value.isEmpty
-                    ? const _EmptyInstances()
-                    : Column(
-                        children: value
-                            .map(
-                              (instance) => _InstanceTile(instance: instance),
-                            )
-                            .toList(),
-                      ),
+              Ok(:final value) => _InstancesSection(
+                instances: value,
+                summaries: summariesAsync.asData?.value ?? const [],
+              ),
               Err(:final error) => Text('Error: ${error.userMessage}'),
             },
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, stack) => Text('Error: $err'),
           ),
-          const Divider(height: LegacySpacing.xxl),
-          const _SectionHeader(title: 'Networking'),
-          const HomeSsidSetting(),
-          const SizedBox(height: LegacySpacing.lg),
-          const _DefaultEndpointModeSetting(),
-          const Divider(height: LegacySpacing.xxl),
-          const _SectionHeader(title: 'Appearance'),
-          ListTile(
-            leading: const Icon(Icons.palette_outlined),
-            title: const Text('Theme Mode'),
-            subtitle: const Text('Adjust app colors and contrast'),
-            trailing: DropdownButton<ThemeMode>(
-              value: themeMode,
-              underline: const SizedBox.shrink(),
-              items: const [
-                DropdownMenuItem(
-                  value: ThemeMode.system,
-                  child: Text('System'),
-                ),
-                DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
-                DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
-              ],
-              onChanged: (mode) => mode != null
-                  ? ref.read(appThemeModeProvider.notifier).update(mode)
-                  : null,
-            ),
+          const SizedBox(height: AppSpacing.space6),
+          const FadingRule(),
+          const SizedBox(height: AppSpacing.space6),
+          const Text('HOME NETWORKS', style: AppTypography.kicker),
+          const SizedBox(height: AppSpacing.space2),
+          const Text(
+            "On these networks the app uses each instance's Local URL; "
+            'anywhere else it uses Remote.',
+            style: AppTypography.meta,
           ),
-          const SizedBox(height: LegacySpacing.xxl),
+          const SizedBox(height: AppSpacing.space4),
+          const HomeSsidSetting(),
+          const SizedBox(height: AppSpacing.space6),
+          const FadingRule(),
+          const SizedBox(height: AppSpacing.space6),
+          const _DefaultEndpointModeSetting(),
+          const SizedBox(height: AppSpacing.space4),
+          const _ThemeSetting(),
+          const SizedBox(height: AppSpacing.space6),
         ],
       ),
     );
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, this.action});
-  final String title;
-  final Widget? action;
+class _InstancesSection extends StatelessWidget {
+  const _InstancesSection({required this.instances, required this.summaries});
+
+  final List<ServiceInstance> instances;
+  final List<HomeServiceSummary> summaries;
 
   @override
   Widget build(BuildContext context) {
-    final action = this.action;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: LegacySpacing.sm),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    if (instances.isEmpty) {
+      return const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text('INSTANCES · 0', style: AppTypography.kicker),
+          SizedBox(height: AppSpacing.space4),
           Text(
-            title.toUpperCase(),
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              letterSpacing: 1.2,
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
+            'No services configured yet. Tap "Add" to get started.',
+            style: AppTypography.meta,
           ),
-          ?action,
         ],
-      ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'INSTANCES · ${instances.length}',
+              style: AppTypography.kicker,
+            ),
+            const Text('tap to edit', style: AppTypography.meta),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.space4),
+        for (final instance in instances)
+          _InstanceRow(
+            instance: instance,
+            summary: summaries
+                .where((s) => s.instanceId == instance.id)
+                .firstOrNull,
+          ),
+      ],
     );
   }
 }
 
-class _InstanceTile extends ConsumerWidget {
-  const _InstanceTile({required this.instance});
+class _InstanceRow extends ConsumerWidget {
+  const _InstanceRow({required this.instance, required this.summary});
+
   final ServiceInstance instance;
+  final HomeServiceSummary? summary;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ListTile(
+    final summary = this.summary;
+    final dotColor = summary == null
+        ? AppColors.n600
+        : (summary.isReachable ? AppColors.up : AppColors.down);
+    final statusLine = summary == null
+        ? null
+        : (summary.isReachable ? 'Reachable' : summary.summaryLine);
+
+    return InkWell(
       onTap: () => context.go(RoutePaths.homeEditInstance(instance.id)),
-      leading: CircleAvatar(
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-        child: Text(instance.serviceType.displayName[0]),
-      ),
-      title: Text(instance.name),
-      subtitle: Text(instance.serviceType.displayName),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (instance.isDefault)
-            const Padding(
-              padding: EdgeInsets.only(right: 8),
-              child: Badge(label: Text('Default')),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.space3),
+        child: Row(
+          children: [
+            Container(
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(
+                color: dotColor,
+                shape: BoxShape.circle,
+              ),
             ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline),
-            onPressed: () async {
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Delete Instance?'),
-                  content: Text(
-                    'Are you sure you want to remove ${instance.name}?',
+            const SizedBox(width: AppSpacing.space3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          instance.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.cardTitle,
+                        ),
+                      ),
+                      if (instance.isDefault) ...[
+                        const SizedBox(width: AppSpacing.space2),
+                        const DetailChip(
+                          label: 'Default',
+                          color: AppColors.accent,
+                        ),
+                      ],
+                    ],
                   ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
+                  if (statusLine != null)
+                    Text(
+                      statusLine,
+                      style: AppTypography.meta.copyWith(
+                        color: summary!.isReachable
+                            ? AppColors.n500
+                            : AppColors.down,
+                      ),
                     ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Delete'),
-                    ),
-                  ],
-                ),
-              );
-              if (confirmed == true) {
-                await ref.read(instanceRepositoryProvider).delete(instance.id);
-                ref.invalidate(instancesProvider);
-              }
-            },
+                ],
+              ),
+            ),
+            IconButton(
+              icon: const Icon(PhosphorIconsRegular.trash, size: 15),
+              onPressed: () => _confirmDelete(context, ref),
+            ),
+            const Icon(
+              PhosphorIconsRegular.caretRight,
+              size: 12,
+              color: AppColors.n500,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Instance?'),
+        content: Text('Are you sure you want to remove ${instance.name}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
           ),
         ],
       ),
     );
-  }
-}
-
-class _EmptyInstances extends StatelessWidget {
-  const _EmptyInstances();
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: LegacySpacing.lg),
-      child: Center(
-        child: Text(
-          'No services configured yet.\nTap "Add" to get started.',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.grey),
-        ),
-      ),
-    );
+    if (confirmed == true) {
+      await ref.read(instanceRepositoryProvider).delete(instance.id);
+      ref.invalidate(instancesProvider);
+    }
   }
 }
 
@@ -195,28 +239,59 @@ class _DefaultEndpointModeSetting extends ConsumerWidget {
     final modeAsync = ref.watch(defaultEndpointModeSettingsProvider);
 
     return modeAsync.when(
-      data: (mode) => ListTile(
-        leading: const Icon(Icons.hub_outlined),
-        title: const Text('Default Endpoint Mode'),
-        subtitle: const Text('Preferred connection for new instances'),
-        trailing: DropdownButton<EndpointMode>(
-          value: mode,
-          underline: const SizedBox.shrink(),
-          items: EndpointMode.values.map((m) {
-            return DropdownMenuItem(
-              value: m,
-              child: Text(m.name.toUpperCase()),
-            );
-          }).toList(),
-          onChanged: (newMode) => newMode != null
-              ? ref
-                    .read(defaultEndpointModeSettingsProvider.notifier)
-                    .updateMode(newMode)
-              : null,
-        ),
+      data: (mode) => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Default endpoint', style: AppTypography.cardTitle),
+              Text('For newly added instances', style: AppTypography.meta),
+            ],
+          ),
+          DropdownButton<EndpointMode>(
+            value: mode,
+            underline: const SizedBox.shrink(),
+            items: EndpointMode.values
+                .map((m) => DropdownMenuItem(value: m, child: Text(m.name)))
+                .toList(),
+            onChanged: (newMode) => newMode != null
+                ? ref
+                      .read(defaultEndpointModeSettingsProvider.notifier)
+                      .updateMode(newMode)
+                : null,
+          ),
+        ],
       ),
       loading: () => const LinearProgressIndicator(),
       error: (err, stack) => Text('Error: $err'),
+    );
+  }
+}
+
+class _ThemeSetting extends ConsumerWidget {
+  const _ThemeSetting();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(appThemeModeProvider);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text('Theme', style: AppTypography.cardTitle),
+        DropdownButton<ThemeMode>(
+          value: themeMode,
+          underline: const SizedBox.shrink(),
+          items: const [
+            DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
+            DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
+            DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
+          ],
+          onChanged: (mode) => mode != null
+              ? ref.read(appThemeModeProvider.notifier).update(mode)
+              : null,
+        ),
+      ],
     );
   }
 }

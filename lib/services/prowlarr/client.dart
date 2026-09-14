@@ -41,8 +41,8 @@ class ProwlarrClient {
     DateTime? endDate,
   }) {
     final query = <String, dynamic>{};
-    if (startDate != null) query['startDate'] = _isoDate(startDate);
-    if (endDate != null) query['endDate'] = _isoDate(endDate);
+    if (startDate != null) query['startDate'] = _isoDateTime(startDate);
+    if (endDate != null) query['endDate'] = _isoDateTime(endDate);
 
     return dioCall(
       () => _dio.get('api/v1/indexerstats', queryParameters: query),
@@ -51,8 +51,5 @@ class ProwlarrClient {
     );
   }
 
-  static String _isoDate(DateTime date) =>
-      '${date.year.toString().padLeft(4, '0')}-'
-      '${date.month.toString().padLeft(2, '0')}-'
-      '${date.day.toString().padLeft(2, '0')}';
+  static String _isoDateTime(DateTime date) => date.toUtc().toIso8601String();
 }

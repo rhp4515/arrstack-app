@@ -25,7 +25,14 @@ routes, no new persisted state beyond what's already modeled.
    Nothing is written to `ServiceInstance.endpointMode` (the persisted field).
 4. **Settings reuses `homeServiceSummariesProvider`** for live status dots and
    per-instance error text — one reachability definition shared with Home, not a
-   second cheaper health check.
+   second cheaper health check. Caveat discovered during recon:
+   `homeServiceSummariesProvider` only summarizes the *default* instance per
+   service type (`_defaultInstanceOfType`), matching what Home's tile grid shows.
+   A non-default second instance of the same type (e.g. two Radarr instances) has
+   no entry in that list. Settings looks up each row's summary by `instanceId`;
+   rows with no match render a neutral/grey dot and no status line rather than a
+   fabricated check — building full per-instance health checks for every instance
+   is out of scope (that's exactly the "second mechanism" this decision avoids).
 5. **Verbatim exception text is available.** `AppError.cause` always carries the raw
    exception (`dio_exception_mapper.dart` populates it on every branch). Edit-instance's
    error card renders `error.cause.toString()` (falling back to `userMessage` if null),
@@ -98,17 +105,21 @@ PAUSED in `AppColors.n500`. Computed from `monitors`: `up = status == 1 && activ
   newest-first. Walk from index 0 while `status == 0`, keeping the `time` of the
   last (oldest-in-that-run) entry seen; the duration is `now - thatTime`. If the
   walk exits immediately (index 0 isn't down — stale data mid-transition) or
-  `heartbeats` is empty, fall back to `"just now"`. Format with a new
-  `formatCompactDuration(Duration)` helper in `core/utils/format_utils.dart`
-  (`"38m"`, `"2h 14m"`, `"3d"` — reused by the paused-row duration below).
+  `heartbeats` is empty, fall back to `"just now"`. Format the duration with the
+  **existing** `FormatUtils.formatReleaseAge(int minutes)`
+  (`core/utils/format_utils.dart` — already produces `"38m"`/`"2h"`/`"3d"` and
+  `"just now"` for non-positive input) via `duration.inMinutes` — no new
+  formatting helper needed, this is exactly what it already does. Reused by the
+  paused-row duration below.
 - Kicker "HEALTHY · {n}", then one `HealthyMonitorRow` per up-and-active monitor:
   7px dot, name, `HeartbeatStrip(beatCount: 12, height: 14)` (74px wide), trailing
   tabular latency (`{latestPing} ms`).
 - Paused monitors: a trivial inline row (grey dot, name at reduced opacity, "paused
   {duration}", no strip) built directly in `uptime_page.dart` — not its own file,
   it's a three-line `Row`. Duration here is `now - monitor.heartbeats.first.time`
-  (most recent heartbeat before pausing), same `formatCompactDuration` helper,
-  falling back to `"paused"` (no duration suffix) if there are no heartbeats.
+  (most recent heartbeat before pausing), formatted with the same
+  `FormatUtils.formatReleaseAge`, falling back to `"paused"` (no duration suffix)
+  if there are no heartbeats.
 
 **Empty/error/no-instance states:** keep existing `EmptyState` usage, restyled with
 Nocturne tokens where it renders inline (icon/title/message colors from `AppColors`).
@@ -120,11 +131,21 @@ predates the design system entirely, plain `ListTile`s).
 
 **Header:** `SubPageHeader(kicker: 'PROWLARR', title: 'Indexers', actions: [refresh])`.
 
+**Data-window fix (discovered during planning):** `ProwlarrClient.getIndexerStats()`
+calls `api/v1/indexerstats` with no `startDate`/`endDate` params, so it returns
+Prowlarr's all-time totals — not scoped to 30 days or 24 hours. The header's
+"GRABS 30D" and the footer's "LAST 24H" block need two genuinely different windows,
+so `getIndexerStats` gains optional `startDate`/`endDate` `DateTime` params
+(Prowlarr's real API accepts these as ISO date query params), and two providers
+call it with different ranges: `prowlarrIndexerStats30dProvider` (now minus 30 days
+→ now) backs the header, `prowlarrIndexerStatsLast24hProvider` (now minus 24 hours
+→ now) backs the footer. This is a small, additive client change, not a new
+architecture — see the amended Out-of-scope note below.
+
 **Stat row:** ENABLED (count of `indexer.enable`), GRABS 30D (sum of
-`stat.numberOfGrabs` across all indexers — the existing `prowlarrIndexerStatsProvider`
-call already scopes to a 30-day window server-side), SLOWEST ms (max
-`averageResponseTime` across indexers, colored `AppColors.warning` when it clears the
-slow threshold below).
+`stat.numberOfGrabs` from `prowlarrIndexerStats30dProvider`), SLOWEST ms (max
+`averageResponseTime` from the same 30-day dataset, colored `AppColors.warning`
+when it clears the slow threshold below).
 
 **Slow-indexer threshold:** `averageResponseTime > 1000ms` is "slow" — not specified
 numerically in the README (only the 1284ms example), so this is a judgment call
@@ -145,7 +166,8 @@ magic number, easy to retune.
   indexer).
 
 **Footer:** `FadingRule`, then "LAST 24H" kicker block — Queries / Grabs / Failures
-summed across all `IndexerStat`s, Failures in `AppColors.warning` when nonzero.
+summed across all `IndexerStat`s from `prowlarrIndexerStatsLast24hProvider`,
+Failures in `AppColors.warning` when nonzero.
 
 ## Settings (`/home/settings`) — README §2m
 
@@ -153,12 +175,17 @@ summed across all `IndexerStat`s, Failures in `AppColors.warning` when nonzero.
 
 **Header:** `SubPageHeader(kicker: null, title: 'Settings', actions: [primary "Add"])`.
 
-**Instances section:** kicker "INSTANCES · {n}" with "tap to edit" meta. Each row:
-live status dot from `homeServiceSummariesProvider` (`isReachable` → up/down color,
-matching `ServiceTile`'s dot treatment), name + `DetailChip` "Default" when
-`isDefault`, tabular meta line `"{endpoint} · v{version}"` when reachable or the
-summary's error label (e.g. "Connection refused · retried 4×" — sourced from the
-summary's existing error surfacing) when not, trailing caret. Delete stays a confirm
+**Instances section:** kicker "INSTANCES · {n}" with "tap to edit" meta. Each row
+looks up its `HomeServiceSummary` from `homeServiceSummariesProvider` by
+`instanceId` (`firstWhereOrNull`): live status dot when found (`isReachable` →
+up/down color, matching `ServiceTile`'s dot treatment) and a tabular meta line —
+`"Reachable"` when `isReachable`, else the summary's `summaryLine` (e.g.
+"Unreachable" today; Home's per-service summary builders are where a richer
+message like "Connection refused · retried 4×" would come from, not something
+Settings computes itself). Rows with no matching summary (non-default duplicate
+instance of an already-summarized type — see Decision 4) get a neutral grey dot
+and no status line. Every row also gets name + `DetailChip` "Default" when
+`isDefault`, and a trailing caret. Delete stays a confirm
 dialog (existing behavior, restyled to Nocturne button treatment, not the
 destructive-confirm pattern from 3g since that pattern isn't built until Phase 8 —
 a plain `AlertDialog` is acceptable here and matches what's already shipped).
@@ -224,5 +251,7 @@ When there's no error (normal add/edit), the page renders exactly as it does tod
 - The 3g destructive-confirm pattern (Phase 8) — Settings' delete dialog stays a
   plain `AlertDialog`.
 - Retrofitting `episode_detail_page.dart` onto `SubPageHeader`.
-- Any change to `EndpointMode`, `ServiceInstance`, or the Prowlarr/Kuma API clients
-  themselves — this phase is UI-layer only, built on existing providers.
+- Any change to `EndpointMode` or `ServiceInstance` — this phase is UI-layer only,
+  built on existing providers, **except** the narrow `getIndexerStats` date-window
+  addition above (Prowlarr's client/repository/provider layer), which is required
+  for the header/footer stats to be honest rather than a UI restructuring.

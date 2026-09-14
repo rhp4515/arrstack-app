@@ -2464,12 +2464,14 @@ git commit -m "feat(onboarding): auto-test on load, add error-title mapping and 
 ```dart
 // test/features/onboarding/add_instance_page_test.dart
 import 'package:arrstack/core/models/models.dart';
+import 'package:arrstack/core/network/instance_dio_providers.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/features/onboarding/add_instance_page.dart';
 import 'package:arrstack/features/onboarding/onboarding_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 void main() {
   testWidgets('shows the error card first when editing with a failed local test', (
@@ -2501,6 +2503,38 @@ void main() {
     expect(find.text('Local URL refused the connection'), findsNothing);
     expect(find.text('Add service'), findsOneWidget);
   });
+
+  testWidgets('Use Remote for now sets a session override to forceRemote and pops', (
+    tester,
+  ) async {
+    final overrideNotifier = _RecordingEndpointSessionOverride();
+    final router = GoRouter(
+      initialLocation: '/edit',
+      routes: [
+        GoRoute(path: '/', builder: (context, state) => const SizedBox()),
+        GoRoute(
+          path: '/edit',
+          builder: (context, state) => const AddInstancePage(instanceId: 'bazarr-1'),
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          instanceFormProvider.overrideWith(() => _FakeFailingInstanceForm()),
+          endpointSessionOverrideProvider.overrideWith(() => overrideNotifier),
+        ],
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.text('Use Remote for now'));
+    await tester.pumpAndSettle();
+
+    expect(overrideNotifier.calls, [('bazarr-1', EndpointMode.forceRemote)]);
+  });
 }
 
 class _FakeFailingInstanceForm extends InstanceForm {
@@ -2514,6 +2548,22 @@ class _FakeFailingInstanceForm extends InstanceForm {
       NetworkError(cause: 'SocketException: Connection refused'),
     ),
   );
+}
+
+/// Records every session-override call instead of just applying it, so the
+/// "Use Remote for now" test can assert on instanceId + mode without
+/// depending on resolvedEndpointProvider's full resolution chain.
+class _RecordingEndpointSessionOverride extends EndpointSessionOverride {
+  final calls = <(String, EndpointMode?)>[];
+
+  @override
+  Map<String, EndpointMode?> build() => const {};
+
+  @override
+  void update(String instanceId, EndpointMode? mode) {
+    calls.add((instanceId, mode));
+    super.update(instanceId, mode);
+  }
 }
 ```
 

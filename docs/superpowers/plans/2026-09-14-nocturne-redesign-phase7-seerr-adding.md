@@ -176,7 +176,7 @@ git commit -m "feat(seerr): add mediaStatusPresentation pure status-label mappin
 
 **Interfaces:**
 - Consumes: `SeerrMediaInfo`/`SeerrMediaStatus` from `seerr_models.dart`.
-- Produces: `MediaStatusBadge({required SeerrMediaInfo? mediaInfo})`. Task 10 (Discover carousels) and Task 11 (genre grid) construct it in `PosterCard`'s existing `badge` slot.
+- Produces: `MediaStatusBadge({required SeerrMediaInfo? mediaInfo})`. Task 11 (Discover carousels) and Task 12 (genre grid) construct it in `PosterCard`'s existing `badge` slot.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -332,7 +332,7 @@ git commit -m "feat(discover): add MediaStatusBadge poster-corner badge widget"
 - Test: `test/core/widgets/labeled_dropdown_field_test.dart`
 
 **Interfaces:**
-- Produces: `LabeledDropdownField<T>({required String label, required T? value, required List<DropdownMenuItem<T>> items, required ValueChanged<T?> onChanged, String? caption})`. Task 12 (3b request panel) and Task 13 (3d add sheets) construct it.
+- Produces: `LabeledDropdownField<T>({required String label, required T? value, required List<DropdownMenuItem<T>> items, required ValueChanged<T?> onChanged, String? caption})`. Task 13 (3b request panel) and Task 14 (3d add sheets) construct it.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -516,7 +516,7 @@ git commit -m "feat(core): add LabeledDropdownField shared widget"
 - Test: `test/core/widgets/labeled_toggle_row_test.dart`
 
 **Interfaces:**
-- Produces: `LabeledToggleRow({required String title, required String subtitle, required bool value, required ValueChanged<bool> onChanged})`. Task 12 and Task 13 construct it.
+- Produces: `LabeledToggleRow({required String title, required String subtitle, required bool value, required ValueChanged<bool> onChanged})`. Task 13 and Task 14 construct it.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -658,7 +658,7 @@ git commit -m "feat(core): add LabeledToggleRow shared widget"
 - Test: `test/features/library/widgets/media_detail_header_test.dart` (update to the new signature)
 
 **Interfaces:**
-- Produces: `MediaDetailHeader({required Widget poster, required String title, required List<String> metaParts, required List<Widget> chips, required List<(String value, String caption)> stats})` — **breaking change**: `posterUrl`/`service`/`instanceId` are removed; callers now construct their own poster widget, sized to 104×156 (the fixed 2e/2g poster size). Task 12 (3b) constructs a plain `CachedNetworkImage`-backed poster from Seerr's already-absolute TMDB URL; the two existing callers construct `ResolvedPoster(...)` explicitly.
+- Produces: `MediaDetailHeader({required Widget poster, required String title, required List<String> metaParts, required List<Widget> chips, required List<(String value, String caption)> stats})` — **breaking change**: `posterUrl`/`service`/`instanceId` are removed; callers now construct their own poster widget, sized to 104×156 (the fixed 2e/2g poster size). Task 13 (3b) constructs a plain `CachedNetworkImage`-backed poster from Seerr's already-absolute TMDB URL; the two existing callers construct `ResolvedPoster(...)` explicitly.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -875,7 +875,7 @@ git commit -m "refactor(library): give MediaDetailHeader a caller-supplied poste
 - Test: `test/services/seerr/models/seerr_models_test.dart` (create if it doesn't exist; check first — `find test/services/seerr -type f`)
 
 **Interfaces:**
-- Produces: `SeerrServiceProfile({required int id, required String name})`, `SeerrServiceRootFolder({required String path, int? freeSpace, int? totalSpace})`, `SeerrServiceDetails({List<SeerrServiceProfile> profiles = [], List<SeerrServiceRootFolder> rootFolders = []})`, each with the standard freezed `fromJson`/`toJson`. Task 7's client methods parse into `SeerrServiceDetails`; Task 12 consumes `profiles`/`rootFolders`.
+- Produces: `SeerrServiceProfile({required int id, required String name})`, `SeerrServiceRootFolder({required String path, int? freeSpace, int? totalSpace})`, `SeerrServiceDetails({List<SeerrServiceProfile> profiles = [], List<SeerrServiceRootFolder> rootFolders = []})`, each with the standard freezed `fromJson`/`toJson`. Task 7's client methods parse into `SeerrServiceDetails`; Task 13 consumes `profiles`/`rootFolders`.
 
 Field names below match Overseerr/Jellyseerr's documented `/service/radarr/:id`
 shape as best known — **verify against a live instance or the shipped
@@ -1025,7 +1025,7 @@ git commit -m "feat(seerr): add SeerrServiceProfile/RootFolder/Details models"
 
 **Interfaces:**
 - Consumes: `SeerrServiceDetails` (Task 6).
-- Produces: `SeerrClient.getRadarrService(int serviceId)`, `.getSonarrService(int serviceId)`, `.approveRequest(int requestId)`, `.declineRequest(int requestId)` (all `Future<Result<...>>`); `request()` gains optional `int? serverId, int? profileId, String? rootFolder`. `SeerrRepository` mirrors all four plus `request()`. New providers: `seerrRadarrServiceProvider({required String instanceId, required int serviceId})`, `seerrSonarrServiceProvider({required String instanceId, required int serviceId})` (both `Future<Result<SeerrServiceDetails>>`), and `seerrAllRequestsProvider(String instanceId)` (`Future<Result<List<SeerrRequest>>>`, paginates `getRequests(filter: 'all')` to completion — see the doc comment for why). Task 9 (Requests page) consumes `seerrAllRequestsProvider` and the approve/decline repository methods; Task 12 (3b) consumes the service-detail providers and extended `request()`.
+- Produces: `SeerrClient.getRadarrService(int serviceId)`, `.getSonarrService(int serviceId)`, `.approveRequest(int requestId)`, `.declineRequest(int requestId)` (all `Future<Result<...>>`); `request()` gains optional `int? serverId, int? profileId, String? rootFolder`. `SeerrRepository` mirrors all four plus `request()`. New providers: `seerrRadarrServiceProvider({required String instanceId, required int serviceId})`, `seerrSonarrServiceProvider({required String instanceId, required int serviceId})` (both `Future<Result<SeerrServiceDetails>>`), and `seerrAllRequestsProvider(String instanceId)` (`Future<Result<List<SeerrRequest>>>`, paginates `getRequests(filter: 'all')` to completion — see the doc comment for why). Task 10 (Requests page) consumes `seerrAllRequestsProvider` and the approve/decline repository methods; Task 13 (3b) consumes the service-detail providers and extended `request()`.
 
 - [ ] **Step 1: Write the failing tests**
 

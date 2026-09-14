@@ -1,18 +1,18 @@
-/// The poster-beside-title detail header shared by series (2e) and movie
-/// (2g) detail screens: a 104x156 poster left, then title/meta/chips/a
-/// 2-up stat row right. Replaces the old centered-poster layout.
+/// The poster-beside-title detail header shared by series (2e), movie
+/// (2g), and Discover detail (3b): a poster left, then title/meta/chips/a
+/// 2-up stat row right. The poster is caller-supplied (sized to 104×156)
+/// rather than resolved internally — Radarr/Sonarr callers construct
+/// `ResolvedPoster` (relative-URL-by-instance resolution); Seerr's Discover
+/// detail page (3b) constructs a plain `CachedNetworkImage` from its
+/// already-absolute TMDB URL, which `ResolvedPoster` has no branch for.
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
-import 'package:arrstack/core/models/service_type.dart';
-import 'package:arrstack/core/widgets/resolved_poster.dart';
 import 'package:flutter/material.dart';
 
 class MediaDetailHeader extends StatelessWidget {
   const MediaDetailHeader({
-    required this.service,
-    required this.instanceId,
-    required this.posterUrl,
+    required this.poster,
     required this.title,
     required this.metaParts,
     required this.chips,
@@ -20,9 +20,7 @@ class MediaDetailHeader extends StatelessWidget {
     super.key,
   });
 
-  final ServiceType service;
-  final String instanceId;
-  final String? posterUrl;
+  final Widget poster;
   final String title;
   final List<String> metaParts;
   final List<Widget> chips;
@@ -37,14 +35,7 @@ class MediaDetailHeader extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ResolvedPoster(
-          service: service,
-          instanceId: instanceId,
-          relativeUrl: posterUrl,
-          width: 104,
-          height: 156,
-          radius: AppRadius.md,
-        ),
+        poster,
         const SizedBox(width: AppSpacing.space4),
         Expanded(
           child: Column(

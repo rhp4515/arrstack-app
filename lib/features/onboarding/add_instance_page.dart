@@ -1,13 +1,20 @@
-/// The page to add a new service instance (spec §7).
+/// The page to add a new service instance, or edit an existing one — README
+/// §2b (add) and §2n (edit, error-first when the local URL is unreachable).
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
+import 'package:arrstack/core/models/models.dart';
+import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/core/storage/storage_providers.dart';
+import 'package:arrstack/core/widgets/error_card.dart';
+import 'package:arrstack/core/widgets/sub_page_header.dart';
 import 'package:arrstack/features/onboarding/onboarding_providers.dart';
 import 'package:arrstack/features/onboarding/widgets/instance_form.dart'
     as widgets;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 class AddInstancePage extends ConsumerStatefulWidget {
   const AddInstancePage({super.key, this.instanceId});
@@ -38,21 +45,50 @@ class _AddInstancePageState extends ConsumerState<AddInstancePage> {
     final state = ref.watch(instanceFormProvider);
     final notifier = ref.read(instanceFormProvider.notifier);
     final isEditing = state.isEditing;
+    final localError = state.localTestResult;
+    final showErrorFirst = isEditing && localError is Err<ServiceIdentity>;
 
     return Scaffold(
-      appBar: AppBar(title: Text(isEditing ? 'Edit Service' : 'Add Service')),
+      appBar: SubPageHeader(
+        kicker: isEditing ? state.type.displayName.toUpperCase() : null,
+        title: isEditing ? 'Edit instance' : 'Add service',
+        actions: isEditing
+            ? [
+                IconButton(
+                  icon: const Icon(PhosphorIconsRegular.trash, size: 17),
+                  onPressed: () => _confirmDelete(context, state.id!),
+                ),
+              ]
+            : null,
+      ),
       body: SingleChildScrollView(
         padding: AppInsets.pageMd,
         child: Column(
           children: [
+            if (showErrorFirst) ...[
+              ErrorCard(
+                title: errorCardTitle(localError.error),
+                message:
+                    (localError.error.cause ?? localError.error.userMessage)
+                        .toString(),
+                primaryActionLabel: 'Test again',
+                onPrimaryAction: notifier.testLocal,
+                secondaryActionLabel: 'Use Remote for now',
+                onSecondaryAction: () {
+                  notifier.useRemoteForNow();
+                  context.pop();
+                },
+              ),
+              const SizedBox(height: AppSpacing.space6),
+            ],
             const widgets.InstanceForm(),
-            const SizedBox(height: LegacySpacing.xxl),
+            const SizedBox(height: AppSpacing.space8),
             if (state.saveError != null) ...[
               Text(
                 state.saveError!.userMessage,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
-              const SizedBox(height: LegacySpacing.md),
+              const SizedBox(height: AppSpacing.space4),
             ],
             SizedBox(
               width: double.infinity,
@@ -76,12 +112,37 @@ class _AddInstancePageState extends ConsumerState<AddInstancePage> {
                         ),
                       )
                     : Icon(isEditing ? Icons.save_outlined : Icons.add),
-                label: Text(isEditing ? 'Save Changes' : 'Add Instance'),
+                label: Text(isEditing ? 'Save changes' : 'Add Instance'),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, String instanceId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Instance?'),
+        content: const Text('Are you sure you want to remove this instance?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && context.mounted) {
+      await ref.read(instanceRepositoryProvider).delete(instanceId);
+      ref.invalidate(instancesProvider);
+      if (context.mounted) context.pop();
+    }
   }
 }

@@ -20,6 +20,19 @@ import 'package:uuid/uuid.dart';
 
 part 'onboarding_providers.g.dart';
 
+/// A short, user-facing title for the error-first Edit-instance view
+/// (README §2n) — e.g. "Local URL refused the connection".
+String errorCardTitle(AppError error) => switch (error) {
+  NetworkError() => 'Local URL refused the connection',
+  AuthError() => 'Local URL rejected the credentials',
+  NotFoundError() => 'Local URL has nothing at that address',
+  RateLimitedError() => 'Local URL is rate-limiting requests',
+  ServerError() => 'Local URL returned a server error',
+  ValidationError() => 'Local URL is not valid',
+  StorageError() => 'Could not read the saved instance',
+  UnknownError() => 'Local URL failed to respond',
+};
+
 /// The state of the add-instance form.
 class InstanceFormState {
   const InstanceFormState({
@@ -140,6 +153,9 @@ class InstanceForm extends _$InstanceForm {
           ? credential.password
           : '',
     );
+
+    if (state.localUrl.isNotEmpty) await testLocal();
+    if (state.remoteUrl.isNotEmpty) await testRemote();
   }
 
   void updateName(String name) => state = state.copyWith(name: name);
@@ -356,6 +372,18 @@ class InstanceForm extends _$InstanceForm {
         return false;
       }(),
     };
+  }
+
+  /// Session-only escape hatch for the error-first Edit-instance view
+  /// (README §2n): forces this instance's effective endpoint to remote for
+  /// the current app session without touching its saved [EndpointMode].
+  void useRemoteForNow() {
+    final id = state.id;
+    if (id == null) return;
+    ref
+        .read(endpointSessionOverrideProvider.notifier)
+        .update(id, EndpointMode.forceRemote);
+    ref.invalidate(resolvedEndpointProvider(id));
   }
 }
 

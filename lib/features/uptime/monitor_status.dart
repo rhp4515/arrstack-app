@@ -14,6 +14,16 @@ bool isMonitorDown(KumaMonitor monitor) =>
 
 bool isMonitorPaused(KumaMonitor monitor) => !monitor.active;
 
+/// A human-readable label for an active monitor whose status is neither
+/// up (1) nor down (0) — i.e. Kuma's "Pending" (2) or "Maintenance" (3)
+/// states. These monitors are still active/configured, so they must not
+/// silently disappear from the page (README §2k final-review finding 6).
+String statusLabel(KumaMonitor monitor) => switch (monitor.status) {
+  2 => 'Pending',
+  3 => 'Maintenance',
+  _ => 'Unknown',
+};
+
 /// How long [monitor] has been down, as a compact string ("38m", "2h", "3d"),
 /// or "just now" if the down-transition can't be determined from the
 /// (newest-first) heartbeat history.

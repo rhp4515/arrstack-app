@@ -93,6 +93,15 @@ class _MonitorContent extends ConsumerWidget {
     final down = monitors.where(isMonitorDown).toList();
     final up = monitors.where(isMonitorUp).toList();
     final paused = monitors.where(isMonitorPaused).toList();
+    // Active monitors whose Kuma status is neither up nor down (e.g.
+    // Pending or Maintenance) — these must still show up somewhere on the
+    // page rather than silently vanishing (README §2k final-review finding
+    // 6).
+    final other = monitors
+        .where(
+          (m) => !isMonitorUp(m) && !isMonitorDown(m) && !isMonitorPaused(m),
+        )
+        .toList();
 
     return ListView(
       padding: AppInsets.pageMd,
@@ -109,11 +118,24 @@ class _MonitorContent extends ConsumerWidget {
           const SizedBox(height: AppSpacing.space4),
           for (final monitor in up) HealthyMonitorRow(monitor: monitor),
         ],
+        if (other.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.space4),
+          const FadingRule(),
+          const SizedBox(height: AppSpacing.space4),
+          Text('OTHER · ${other.length}', style: AppTypography.kicker),
+          const SizedBox(height: AppSpacing.space4),
+          for (final monitor in other)
+            _CompactMonitorRow(monitor: monitor, label: statusLabel(monitor)),
+        ],
         if (paused.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.space4),
           const FadingRule(),
           const SizedBox(height: AppSpacing.space4),
-          for (final monitor in paused) _PausedMonitorRow(monitor: monitor),
+          for (final monitor in paused)
+            _CompactMonitorRow(
+              monitor: monitor,
+              label: pausedDurationLabel(monitor),
+            ),
         ],
       ],
     );
@@ -160,9 +182,14 @@ class _Stat extends StatelessWidget {
   }
 }
 
-class _PausedMonitorRow extends StatelessWidget {
-  const _PausedMonitorRow({required this.monitor});
+/// A small dot + name + status-label row used for monitors that don't get
+/// a full [DownMonitorCard] or [HealthyMonitorRow] treatment — paused
+/// monitors, and active monitors in a non-up/down Kuma status (Pending,
+/// Maintenance).
+class _CompactMonitorRow extends StatelessWidget {
+  const _CompactMonitorRow({required this.monitor, required this.label});
   final KumaMonitor monitor;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +214,7 @@ class _PausedMonitorRow extends StatelessWidget {
               style: AppTypography.cardTitle.copyWith(color: AppColors.n500),
             ),
           ),
-          Text(pausedDurationLabel(monitor), style: AppTypography.meta),
+          Text(label, style: AppTypography.meta),
         ],
       ),
     );

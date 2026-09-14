@@ -44,6 +44,16 @@ void main() {
     });
   });
 
+  group('statusLabel', () {
+    test('maps status 2 to Pending', () {
+      expect(statusLabel(_monitor(active: true, status: 2)), 'Pending');
+    });
+
+    test('maps status 3 to Maintenance', () {
+      expect(statusLabel(_monitor(active: true, status: 3)), 'Maintenance');
+    });
+  });
+
   group('downDurationLabel', () {
     test('measures back to the oldest heartbeat in the current down run', () {
       final now = DateTime(2026, 1, 1, 12, 0);

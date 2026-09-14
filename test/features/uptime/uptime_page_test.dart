@@ -67,6 +67,50 @@ void main() {
     expect(find.textContaining('HEALTHY'), findsOneWidget);
     expect(find.text('Up1'), findsOneWidget);
   });
+
+  testWidgets(
+    'shows a Pending monitor in an OTHER section instead of dropping it',
+    (tester) async {
+      const instanceId = 'kuma-1';
+      final monitors = [
+        const KumaMonitor(
+          id: 1,
+          name: 'Up1',
+          type: 'http',
+          active: true,
+          interval: 60,
+          status: 1,
+        ),
+        const KumaMonitor(
+          id: 2,
+          name: 'Pending1',
+          type: 'http',
+          active: true,
+          interval: 60,
+          status: 2,
+        ),
+      ];
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            selectedUptimeInstanceIdProvider.overrideWith(
+              () => _FakeSelectedUptimeInstanceId(instanceId),
+            ),
+            kumaMonitorsProvider(instanceId)
+                .overrideWith(() => _FakeKumaMonitors(monitors)),
+          ],
+          child: const MaterialApp(home: UptimePage()),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.textContaining('OTHER'), findsOneWidget);
+      expect(find.text('Pending1'), findsOneWidget);
+      expect(find.text('Pending'), findsOneWidget);
+    },
+  );
 }
 
 class _FakeSelectedUptimeInstanceId extends SelectedUptimeInstanceId {

@@ -40,59 +40,46 @@ class _HomeSsidSettingState extends ConsumerState<HomeSsidSetting> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Icon(PhosphorIconsRegular.wifiHigh, size: 17),
-            const SizedBox(width: LegacySpacing.md),
-            const Expanded(
-              child: Text(
-                'Home WiFi SSIDs',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            TextButton.icon(
-              onPressed: () async {
-                final current = await notifier.detectCurrentSsid();
-                if (!context.mounted) return;
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: () async {
+              final current = await notifier.detectCurrentSsid();
+              if (!context.mounted) return;
 
-                if (current != null) {
-                  final ssids = ssidsAsync.value ?? [];
-                  if (ssids.contains(current)) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '"$current" is already in your home networks.',
-                        ),
-                      ),
-                    );
-                  } else {
-                    await notifier.addHomeSsid(current);
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Added "$current" to home networks.'),
-                        ),
-                      );
-                    }
-                  }
-                } else {
+              if (current != null) {
+                final ssids = ssidsAsync.value ?? [];
+                if (ssids.contains(current)) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
+                    SnackBar(
                       content: Text(
-                        'Could not detect SSID. Ensure WiFi and Location are on.',
+                        '"$current" is already in your home networks.',
                       ),
                     ),
                   );
+                } else {
+                  await notifier.addHomeSsid(current);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Added "$current" to home networks.'),
+                      ),
+                    );
+                  }
                 }
-              },
-              icon: const Icon(PhosphorIconsRegular.wifiHigh, size: 17),
-              label: const Text('Detect'),
-            ),
-          ],
-        ),
-        const Text(
-          'Endpoints switch to "Local" automatically when connected to these networks.',
-          style: TextStyle(fontSize: 12, color: Colors.grey),
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Could not detect SSID. Ensure WiFi and Location are on.',
+                    ),
+                  ),
+                );
+              }
+            },
+            icon: const Icon(PhosphorIconsRegular.wifiHigh, size: 17),
+            label: const Text('Detect'),
+          ),
         ),
         const SizedBox(height: LegacySpacing.sm),
         ssidsAsync.when(
@@ -122,12 +109,23 @@ class _HomeSsidSettingState extends ConsumerState<HomeSsidSetting> {
                         children: [
                           Text(ssid, style: AppTypography.cardTitle),
                           const SizedBox(width: AppSpacing.space2),
-                          InkWell(
-                            onTap: () => notifier.removeHomeSsid(ssid),
-                            child: const Icon(
-                              PhosphorIconsRegular.x,
-                              size: 12,
-                              color: AppColors.n500,
+                          Semantics(
+                            label: 'Remove $ssid',
+                            button: true,
+                            child: InkWell(
+                              onTap: () => notifier.removeHomeSsid(ssid),
+                              borderRadius: BorderRadius.circular(AppRadius.sm),
+                              child: const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: Center(
+                                  child: Icon(
+                                    PhosphorIconsRegular.x,
+                                    size: 12,
+                                    color: AppColors.n500,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ],

@@ -50,6 +50,17 @@ void main() {
       ];
       expect(inProgress(requests), isEmpty);
     });
+
+    test('excludes requests whose media has been deleted', () {
+      final requests = [
+        req(
+          id: 1,
+          status: SeerrRequestStatus.completed,
+          mediaStatus: SeerrMediaStatus.deleted,
+        ),
+      ];
+      expect(inProgress(requests), isEmpty);
+    });
   });
 
   group('declined and failed requests appear in no bucket', () {
@@ -78,6 +89,77 @@ void main() {
         ),
       ];
       expect(availableRequests(requests).map((r) => r.id), [1]);
+    });
+
+    test(
+      'excludes pending requests even when the shared media is already '
+      'available (e.g. a duplicate/late request for an already-fulfilled '
+      'title) — that request still needs a decision, not a "ready" badge',
+      () {
+        final requests = [
+          req(
+            id: 1,
+            status: SeerrRequestStatus.pending,
+            mediaStatus: SeerrMediaStatus.available,
+          ),
+        ];
+        expect(availableRequests(requests), isEmpty);
+        expect(needsDecision(requests).map((r) => r.id), [1]);
+      },
+    );
+  });
+
+  group('mutual exclusivity', () {
+    test('every request lands in at most one of the three buckets', () {
+      final requests = [
+        // Needs a decision only.
+        req(id: 1, status: SeerrRequestStatus.pending),
+        // Pending + media already available (shared MediaInfo from another,
+        // already-fulfilled request) — must stay in needsDecision only, NOT
+        // also in availableRequests.
+        req(
+          id: 2,
+          status: SeerrRequestStatus.pending,
+          mediaStatus: SeerrMediaStatus.available,
+        ),
+        // In progress only (the dual-axis trap case).
+        req(
+          id: 3,
+          status: SeerrRequestStatus.approved,
+          mediaStatus: SeerrMediaStatus.processing,
+        ),
+        // Available only.
+        req(
+          id: 4,
+          status: SeerrRequestStatus.completed,
+          mediaStatus: SeerrMediaStatus.available,
+        ),
+        // Approved but media later deleted — must land in NO bucket, not
+        // linger in inProgress forever.
+        req(
+          id: 5,
+          status: SeerrRequestStatus.approved,
+          mediaStatus: SeerrMediaStatus.deleted,
+        ),
+        // Declined/failed — no bucket.
+        req(
+          id: 6,
+          status: SeerrRequestStatus.declined,
+          mediaStatus: SeerrMediaStatus.available,
+        ),
+      ];
+
+      final decisionIds = needsDecision(requests).map((r) => r.id).toSet();
+      final progressIds = inProgress(requests).map((r) => r.id).toSet();
+      final availableIds = availableRequests(requests).map((r) => r.id).toSet();
+
+      expect(decisionIds, {1, 2});
+      expect(progressIds, {3});
+      expect(availableIds, {4});
+
+      expect(decisionIds.intersection(progressIds), isEmpty);
+      expect(decisionIds.intersection(availableIds), isEmpty);
+      expect(progressIds.intersection(availableIds), isEmpty);
     });
   });
 

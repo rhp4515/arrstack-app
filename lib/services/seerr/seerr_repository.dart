@@ -41,7 +41,17 @@ class SeerrRepository {
     int tmdbId,
     String mediaType, {
     List<int>? seasons,
-  }) => _client.request(tmdbId, mediaType, seasons: seasons);
+    int? serverId,
+    int? profileId,
+    String? rootFolder,
+  }) => _client.request(
+    tmdbId,
+    mediaType,
+    seasons: seasons,
+    serverId: serverId,
+    profileId: profileId,
+    rootFolder: rootFolder,
+  );
 
   Future<Result<SeerrRequestsResponse>> getRequests({
     String filter = 'all',
@@ -52,4 +62,16 @@ class SeerrRepository {
 
   Future<Result<void>> deleteRequest(int requestId) =>
       _client.deleteRequest(requestId);
+
+  Future<Result<SeerrServiceDetails>> getRadarrService(int serviceId) =>
+      _client.getRadarrService(serviceId);
+
+  Future<Result<SeerrServiceDetails>> getSonarrService(int serviceId) =>
+      _client.getSonarrService(serviceId);
+
+  Future<Result<SeerrRequest>> approveRequest(int requestId) =>
+      _client.approveRequest(requestId);
+
+  Future<Result<SeerrRequest>> declineRequest(int requestId) =>
+      _client.declineRequest(requestId);
 }

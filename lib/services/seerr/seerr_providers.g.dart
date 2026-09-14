@@ -1095,3 +1095,295 @@ final class SeerrRequestsFamily extends $Family
   @override
   String toString() => r'seerrRequestsProvider';
 }
+
+@ProviderFor(seerrRadarrService)
+final seerrRadarrServiceProvider = SeerrRadarrServiceFamily._();
+
+final class SeerrRadarrServiceProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<SeerrServiceDetails>>,
+          Result<SeerrServiceDetails>,
+          FutureOr<Result<SeerrServiceDetails>>
+        >
+    with
+        $FutureModifier<Result<SeerrServiceDetails>>,
+        $FutureProvider<Result<SeerrServiceDetails>> {
+  SeerrRadarrServiceProvider._({
+    required SeerrRadarrServiceFamily super.from,
+    required ({String instanceId, int serviceId}) super.argument,
+  }) : super(
+         retry: null,
+         name: r'seerrRadarrServiceProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$seerrRadarrServiceHash();
+
+  @override
+  String toString() {
+    return r'seerrRadarrServiceProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<SeerrServiceDetails>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<SeerrServiceDetails>> create(Ref ref) {
+    final argument = this.argument as ({String instanceId, int serviceId});
+    return seerrRadarrService(
+      ref,
+      instanceId: argument.instanceId,
+      serviceId: argument.serviceId,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SeerrRadarrServiceProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$seerrRadarrServiceHash() =>
+    r'f322ebdd4f3512630759161ee97559711cae5a30';
+
+final class SeerrRadarrServiceFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Result<SeerrServiceDetails>>,
+          ({String instanceId, int serviceId})
+        > {
+  SeerrRadarrServiceFamily._()
+    : super(
+        retry: null,
+        name: r'seerrRadarrServiceProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  SeerrRadarrServiceProvider call({
+    required String instanceId,
+    required int serviceId,
+  }) => SeerrRadarrServiceProvider._(
+    argument: (instanceId: instanceId, serviceId: serviceId),
+    from: this,
+  );
+
+  @override
+  String toString() => r'seerrRadarrServiceProvider';
+}
+
+@ProviderFor(seerrSonarrService)
+final seerrSonarrServiceProvider = SeerrSonarrServiceFamily._();
+
+final class SeerrSonarrServiceProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<SeerrServiceDetails>>,
+          Result<SeerrServiceDetails>,
+          FutureOr<Result<SeerrServiceDetails>>
+        >
+    with
+        $FutureModifier<Result<SeerrServiceDetails>>,
+        $FutureProvider<Result<SeerrServiceDetails>> {
+  SeerrSonarrServiceProvider._({
+    required SeerrSonarrServiceFamily super.from,
+    required ({String instanceId, int serviceId}) super.argument,
+  }) : super(
+         retry: null,
+         name: r'seerrSonarrServiceProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$seerrSonarrServiceHash();
+
+  @override
+  String toString() {
+    return r'seerrSonarrServiceProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<SeerrServiceDetails>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<SeerrServiceDetails>> create(Ref ref) {
+    final argument = this.argument as ({String instanceId, int serviceId});
+    return seerrSonarrService(
+      ref,
+      instanceId: argument.instanceId,
+      serviceId: argument.serviceId,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SeerrSonarrServiceProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$seerrSonarrServiceHash() =>
+    r'14f8c43db8841e7ca8e4b81c1e1b5f1debe97331';
+
+final class SeerrSonarrServiceFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Result<SeerrServiceDetails>>,
+          ({String instanceId, int serviceId})
+        > {
+  SeerrSonarrServiceFamily._()
+    : super(
+        retry: null,
+        name: r'seerrSonarrServiceProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  SeerrSonarrServiceProvider call({
+    required String instanceId,
+    required int serviceId,
+  }) => SeerrSonarrServiceProvider._(
+    argument: (instanceId: instanceId, serviceId: serviceId),
+    from: this,
+  );
+
+  @override
+  String toString() => r'seerrSonarrServiceProvider';
+}
+
+/// Every request across every status, fetched by paginating
+/// `getRequests(filter: 'all')` to completion. The Requests queue (README
+/// §3c) needs the *complete* set to bucket and count correctly — see
+/// `requests_bucketing.dart` — so a single default-`take` page is not
+/// enough once there are more requests than that page size.
+
+@ProviderFor(seerrAllRequests)
+final seerrAllRequestsProvider = SeerrAllRequestsFamily._();
+
+/// Every request across every status, fetched by paginating
+/// `getRequests(filter: 'all')` to completion. The Requests queue (README
+/// §3c) needs the *complete* set to bucket and count correctly — see
+/// `requests_bucketing.dart` — so a single default-`take` page is not
+/// enough once there are more requests than that page size.
+
+final class SeerrAllRequestsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<List<SeerrRequest>>>,
+          Result<List<SeerrRequest>>,
+          FutureOr<Result<List<SeerrRequest>>>
+        >
+    with
+        $FutureModifier<Result<List<SeerrRequest>>>,
+        $FutureProvider<Result<List<SeerrRequest>>> {
+  /// Every request across every status, fetched by paginating
+  /// `getRequests(filter: 'all')` to completion. The Requests queue (README
+  /// §3c) needs the *complete* set to bucket and count correctly — see
+  /// `requests_bucketing.dart` — so a single default-`take` page is not
+  /// enough once there are more requests than that page size.
+  SeerrAllRequestsProvider._({
+    required SeerrAllRequestsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'seerrAllRequestsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$seerrAllRequestsHash();
+
+  @override
+  String toString() {
+    return r'seerrAllRequestsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<List<SeerrRequest>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<List<SeerrRequest>>> create(Ref ref) {
+    final argument = this.argument as String;
+    return seerrAllRequests(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SeerrAllRequestsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$seerrAllRequestsHash() => r'7bef56a7d3060ac8c856e847fb9d16756194047a';
+
+/// Every request across every status, fetched by paginating
+/// `getRequests(filter: 'all')` to completion. The Requests queue (README
+/// §3c) needs the *complete* set to bucket and count correctly — see
+/// `requests_bucketing.dart` — so a single default-`take` page is not
+/// enough once there are more requests than that page size.
+
+final class SeerrAllRequestsFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Result<List<SeerrRequest>>>,
+          String
+        > {
+  SeerrAllRequestsFamily._()
+    : super(
+        retry: null,
+        name: r'seerrAllRequestsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Every request across every status, fetched by paginating
+  /// `getRequests(filter: 'all')` to completion. The Requests queue (README
+  /// §3c) needs the *complete* set to bucket and count correctly — see
+  /// `requests_bucketing.dart` — so a single default-`take` page is not
+  /// enough once there are more requests than that page size.
+
+  SeerrAllRequestsProvider call(String instanceId) =>
+      SeerrAllRequestsProvider._(argument: instanceId, from: this);
+
+  @override
+  String toString() => r'seerrAllRequestsProvider';
+}

@@ -120,10 +120,27 @@ abstract class RadarrMovieFile with _$RadarrMovieFile {
     int? size,
     DateTime? dateAdded,
     RadarrQualityInfo? quality,
+    String? releaseGroup,
+    RadarrMediaInfo? mediaInfo,
   }) = _RadarrMovieFile;
 
   factory RadarrMovieFile.fromJson(Map<String, dynamic> json) =>
       _$RadarrMovieFileFromJson(json);
+}
+
+/// Technical media details Radarr extracts from the file (spec 2g "FILE").
+@freezed
+abstract class RadarrMediaInfo with _$RadarrMediaInfo {
+  const factory RadarrMediaInfo({
+    String? videoCodec,
+    String? audioCodec,
+    double? audioChannels,
+    String? resolution,
+    String? videoDynamicRangeType,
+  }) = _RadarrMediaInfo;
+
+  factory RadarrMediaInfo.fromJson(Map<String, dynamic> json) =>
+      _$RadarrMediaInfoFromJson(json);
 }
 
 /// Quality wrapper matching Radarr's `quality: { quality: { name } }` shape.

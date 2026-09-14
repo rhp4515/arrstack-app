@@ -42,7 +42,7 @@ class _AddSeriesPageState extends ConsumerState<AddSeriesPage> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(64),
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(LegacySpacing.md),
             child: SearchBar(
               controller: _searchController,
               hintText: 'Search TVDB...',
@@ -132,7 +132,7 @@ class _SearchResultTile extends ConsumerWidget {
         : const AsyncData<String?>(null);
 
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      contentPadding: const EdgeInsets.symmetric(vertical: LegacySpacing.sm),
       leading: SizedBox(
         width: 60,
         child: fullUrlAsync.when(

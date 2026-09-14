@@ -138,10 +138,12 @@ class _ReleaseDetailSheetState extends ConsumerState<_ReleaseDetailSheet> {
                         r.title,
                         style: theme.textTheme.titleMedium,
                       ),
-                      const SizedBox(height: AppSpacing.md),
+                      const SizedBox(height: LegacySpacing.md),
                       for (final (label, value) in rows)
                         Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                          padding: const EdgeInsets.only(
+                            bottom: LegacySpacing.sm,
+                          ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -164,14 +166,14 @@ class _ReleaseDetailSheetState extends ConsumerState<_ReleaseDetailSheet> {
                           ),
                         ),
                       if (r.rejections.isNotEmpty) ...[
-                        const SizedBox(height: AppSpacing.sm),
+                        const SizedBox(height: LegacySpacing.sm),
                         Text(
                           'Rejected because',
                           style: theme.textTheme.labelLarge?.copyWith(
                             color: theme.colorScheme.error,
                           ),
                         ),
-                        const SizedBox(height: AppSpacing.xs),
+                        const SizedBox(height: LegacySpacing.xs),
                         for (final reason in r.rejections)
                           Text(
                             '• $reason',
@@ -185,7 +187,7 @@ class _ReleaseDetailSheetState extends ConsumerState<_ReleaseDetailSheet> {
                 ),
               ),
               if (_error != null) ...[
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: LegacySpacing.sm),
                 Text(
                   _error!,
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -193,7 +195,7 @@ class _ReleaseDetailSheetState extends ConsumerState<_ReleaseDetailSheet> {
                   ),
                 ),
               ],
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: LegacySpacing.md),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(

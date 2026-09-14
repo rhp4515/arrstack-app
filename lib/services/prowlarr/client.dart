@@ -36,11 +36,20 @@ class ProwlarrClient {
     );
   }
 
-  Future<Result<IndexerStatsResponse>> getIndexerStats() {
+  Future<Result<IndexerStatsResponse>> getIndexerStats({
+    DateTime? startDate,
+    DateTime? endDate,
+  }) {
+    final query = <String, dynamic>{};
+    if (startDate != null) query['startDate'] = _isoDateTime(startDate);
+    if (endDate != null) query['endDate'] = _isoDateTime(endDate);
+
     return dioCall(
-      () => _dio.get('api/v1/indexerstats'),
+      () => _dio.get('api/v1/indexerstats', queryParameters: query),
       map: (data) =>
           IndexerStatsResponse.fromJson(data as Map<String, dynamic>),
     );
   }
+
+  static String _isoDateTime(DateTime date) => date.toUtc().toIso8601String();
 }

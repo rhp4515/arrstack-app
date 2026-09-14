@@ -84,8 +84,8 @@ class _Tile extends ConsumerWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs,
+        horizontal: LegacySpacing.md,
+        vertical: LegacySpacing.xs,
       ),
       child: Padding(
         padding: AppInsets.pageMd,
@@ -111,7 +111,7 @@ class _Tile extends ConsumerWidget {
                       ),
                     ),
             ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: LegacySpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,10 +124,10 @@ class _Tile extends ConsumerWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: LegacySpacing.xs),
                   Wrap(
-                    spacing: AppSpacing.xs,
-                    runSpacing: AppSpacing.xs,
+                    spacing: LegacySpacing.xs,
+                    runSpacing: LegacySpacing.xs,
                     children: [
                       StatusChip(
                         label: isTv ? 'TV' : 'Movie',
@@ -137,7 +137,7 @@ class _Tile extends ConsumerWidget {
                     ],
                   ),
                   if (isTv && request.seasons.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.xs),
+                    const SizedBox(height: LegacySpacing.xs),
                     Text(
                       'Seasons: ${request.seasons.map((s) => s.seasonNumber).join(', ')}',
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -145,7 +145,7 @@ class _Tile extends ConsumerWidget {
                       ),
                     ),
                   ],
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: LegacySpacing.xs),
                   Text(
                     'Requested by ${request.requestedBy?.displayName ?? 'unknown'}'
                     '${request.createdAt != null ? ' • ${formatRelativeTime(request.createdAt!)}' : ''}',
@@ -200,11 +200,7 @@ class _Tile extends ConsumerWidget {
       case 'edit':
         if (media?.tmdbId != null) {
           context.go(
-            RoutePaths.discoverDetail(
-              instanceId,
-              media!.tmdbId!,
-              media.mediaType,
-            ),
+            RoutePaths.homeDiscoverDetail(media!.tmdbId!, media.mediaType),
           );
         }
       case 'tmdb':

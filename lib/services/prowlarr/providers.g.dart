@@ -320,3 +320,170 @@ final class ProwlarrIndexerStatsFamily extends $Family
   @override
   String toString() => r'prowlarrIndexerStatsProvider';
 }
+
+@ProviderFor(prowlarrIndexerStats30d)
+final prowlarrIndexerStats30dProvider = ProwlarrIndexerStats30dFamily._();
+
+final class ProwlarrIndexerStats30dProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<IndexerStatsResponse>>,
+          Result<IndexerStatsResponse>,
+          FutureOr<Result<IndexerStatsResponse>>
+        >
+    with
+        $FutureModifier<Result<IndexerStatsResponse>>,
+        $FutureProvider<Result<IndexerStatsResponse>> {
+  ProwlarrIndexerStats30dProvider._({
+    required ProwlarrIndexerStats30dFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'prowlarrIndexerStats30dProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$prowlarrIndexerStats30dHash();
+
+  @override
+  String toString() {
+    return r'prowlarrIndexerStats30dProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<IndexerStatsResponse>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<IndexerStatsResponse>> create(Ref ref) {
+    final argument = this.argument as String;
+    return prowlarrIndexerStats30d(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ProwlarrIndexerStats30dProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$prowlarrIndexerStats30dHash() =>
+    r'e5f9779fb77e18d10ce43ee20e57d055ad63e765';
+
+final class ProwlarrIndexerStats30dFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Result<IndexerStatsResponse>>,
+          String
+        > {
+  ProwlarrIndexerStats30dFamily._()
+    : super(
+        retry: null,
+        name: r'prowlarrIndexerStats30dProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  ProwlarrIndexerStats30dProvider call(String instanceId) =>
+      ProwlarrIndexerStats30dProvider._(argument: instanceId, from: this);
+
+  @override
+  String toString() => r'prowlarrIndexerStats30dProvider';
+}
+
+@ProviderFor(prowlarrIndexerStatsLast24h)
+final prowlarrIndexerStatsLast24hProvider =
+    ProwlarrIndexerStatsLast24hFamily._();
+
+final class ProwlarrIndexerStatsLast24hProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<IndexerStatsResponse>>,
+          Result<IndexerStatsResponse>,
+          FutureOr<Result<IndexerStatsResponse>>
+        >
+    with
+        $FutureModifier<Result<IndexerStatsResponse>>,
+        $FutureProvider<Result<IndexerStatsResponse>> {
+  ProwlarrIndexerStatsLast24hProvider._({
+    required ProwlarrIndexerStatsLast24hFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'prowlarrIndexerStatsLast24hProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$prowlarrIndexerStatsLast24hHash();
+
+  @override
+  String toString() {
+    return r'prowlarrIndexerStatsLast24hProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<IndexerStatsResponse>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<IndexerStatsResponse>> create(Ref ref) {
+    final argument = this.argument as String;
+    return prowlarrIndexerStatsLast24h(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ProwlarrIndexerStatsLast24hProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$prowlarrIndexerStatsLast24hHash() =>
+    r'8b5c98458e220c4f174a9a032a05c44a45c69711';
+
+final class ProwlarrIndexerStatsLast24hFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Result<IndexerStatsResponse>>,
+          String
+        > {
+  ProwlarrIndexerStatsLast24hFamily._()
+    : super(
+        retry: null,
+        name: r'prowlarrIndexerStatsLast24hProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  ProwlarrIndexerStatsLast24hProvider call(String instanceId) =>
+      ProwlarrIndexerStatsLast24hProvider._(argument: instanceId, from: this);
+
+  @override
+  String toString() => r'prowlarrIndexerStatsLast24hProvider';
+}

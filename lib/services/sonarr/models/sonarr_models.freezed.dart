@@ -1907,7 +1907,7 @@ $SonarrEpisodeFileCopyWith<$Res>? get episodeFile {
 /// @nodoc
 mixin _$SonarrEpisodeFile {
 
- int get id; String? get relativePath; int get size; DateTime? get dateAdded; SonarrQualityInfo? get quality;
+ int get id; String? get relativePath; int get size; DateTime? get dateAdded; SonarrQualityInfo? get quality; String? get releaseGroup; SonarrMediaInfo? get mediaInfo;
 /// Create a copy of SonarrEpisodeFile
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1920,16 +1920,16 @@ $SonarrEpisodeFileCopyWith<SonarrEpisodeFile> get copyWith => _$SonarrEpisodeFil
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SonarrEpisodeFile&&(identical(other.id, id) || other.id == id)&&(identical(other.relativePath, relativePath) || other.relativePath == relativePath)&&(identical(other.size, size) || other.size == size)&&(identical(other.dateAdded, dateAdded) || other.dateAdded == dateAdded)&&(identical(other.quality, quality) || other.quality == quality));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SonarrEpisodeFile&&(identical(other.id, id) || other.id == id)&&(identical(other.relativePath, relativePath) || other.relativePath == relativePath)&&(identical(other.size, size) || other.size == size)&&(identical(other.dateAdded, dateAdded) || other.dateAdded == dateAdded)&&(identical(other.quality, quality) || other.quality == quality)&&(identical(other.releaseGroup, releaseGroup) || other.releaseGroup == releaseGroup)&&(identical(other.mediaInfo, mediaInfo) || other.mediaInfo == mediaInfo));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,relativePath,size,dateAdded,quality);
+int get hashCode => Object.hash(runtimeType,id,relativePath,size,dateAdded,quality,releaseGroup,mediaInfo);
 
 @override
 String toString() {
-  return 'SonarrEpisodeFile(id: $id, relativePath: $relativePath, size: $size, dateAdded: $dateAdded, quality: $quality)';
+  return 'SonarrEpisodeFile(id: $id, relativePath: $relativePath, size: $size, dateAdded: $dateAdded, quality: $quality, releaseGroup: $releaseGroup, mediaInfo: $mediaInfo)';
 }
 
 
@@ -1940,11 +1940,11 @@ abstract mixin class $SonarrEpisodeFileCopyWith<$Res>  {
   factory $SonarrEpisodeFileCopyWith(SonarrEpisodeFile value, $Res Function(SonarrEpisodeFile) _then) = _$SonarrEpisodeFileCopyWithImpl;
 @useResult
 $Res call({
- int id, String? relativePath, int size, DateTime? dateAdded, SonarrQualityInfo? quality
+ int id, String? relativePath, int size, DateTime? dateAdded, SonarrQualityInfo? quality, String? releaseGroup, SonarrMediaInfo? mediaInfo
 });
 
 
-$SonarrQualityInfoCopyWith<$Res>? get quality;
+$SonarrQualityInfoCopyWith<$Res>? get quality;$SonarrMediaInfoCopyWith<$Res>? get mediaInfo;
 
 }
 /// @nodoc
@@ -1957,14 +1957,16 @@ class _$SonarrEpisodeFileCopyWithImpl<$Res>
 
 /// Create a copy of SonarrEpisodeFile
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? relativePath = freezed,Object? size = null,Object? dateAdded = freezed,Object? quality = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? relativePath = freezed,Object? size = null,Object? dateAdded = freezed,Object? quality = freezed,Object? releaseGroup = freezed,Object? mediaInfo = freezed,}) {
   return _then(SonarrEpisodeFile(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,relativePath: freezed == relativePath ? _self.relativePath : relativePath // ignore: cast_nullable_to_non_nullable
 as String?,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
 as int,dateAdded: freezed == dateAdded ? _self.dateAdded : dateAdded // ignore: cast_nullable_to_non_nullable
 as DateTime?,quality: freezed == quality ? _self.quality : quality // ignore: cast_nullable_to_non_nullable
-as SonarrQualityInfo?,
+as SonarrQualityInfo?,releaseGroup: freezed == releaseGroup ? _self.releaseGroup : releaseGroup // ignore: cast_nullable_to_non_nullable
+as String?,mediaInfo: freezed == mediaInfo ? _self.mediaInfo : mediaInfo // ignore: cast_nullable_to_non_nullable
+as SonarrMediaInfo?,
   ));
 }
 /// Create a copy of SonarrEpisodeFile
@@ -1978,6 +1980,18 @@ $SonarrQualityInfoCopyWith<$Res>? get quality {
 
   return $SonarrQualityInfoCopyWith<$Res>(_self.quality!, (value) {
     return _then(_self.copyWith(quality: value));
+  });
+}/// Create a copy of SonarrEpisodeFile
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SonarrMediaInfoCopyWith<$Res>? get mediaInfo {
+    if (_self.mediaInfo == null) {
+    return null;
+  }
+
+  return $SonarrMediaInfoCopyWith<$Res>(_self.mediaInfo!, (value) {
+    return _then(_self.copyWith(mediaInfo: value));
   });
 }
 }
@@ -2061,10 +2075,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? relativePath,  int size,  DateTime? dateAdded,  SonarrQualityInfo? quality)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? relativePath,  int size,  DateTime? dateAdded,  SonarrQualityInfo? quality,  String? releaseGroup,  SonarrMediaInfo? mediaInfo)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SonarrEpisodeFile() when $default != null:
-return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.quality);case _:
+return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.quality,_that.releaseGroup,_that.mediaInfo);case _:
   return orElse();
 
 }
@@ -2082,10 +2096,10 @@ return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.qua
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? relativePath,  int size,  DateTime? dateAdded,  SonarrQualityInfo? quality)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? relativePath,  int size,  DateTime? dateAdded,  SonarrQualityInfo? quality,  String? releaseGroup,  SonarrMediaInfo? mediaInfo)  $default,) {final _that = this;
 switch (_that) {
 case _SonarrEpisodeFile():
-return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.quality);case _:
+return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.quality,_that.releaseGroup,_that.mediaInfo);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2102,10 +2116,10 @@ return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.qua
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? relativePath,  int size,  DateTime? dateAdded,  SonarrQualityInfo? quality)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? relativePath,  int size,  DateTime? dateAdded,  SonarrQualityInfo? quality,  String? releaseGroup,  SonarrMediaInfo? mediaInfo)?  $default,) {final _that = this;
 switch (_that) {
 case _SonarrEpisodeFile() when $default != null:
-return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.quality);case _:
+return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.quality,_that.releaseGroup,_that.mediaInfo);case _:
   return null;
 
 }
@@ -2117,7 +2131,7 @@ return $default(_that.id,_that.relativePath,_that.size,_that.dateAdded,_that.qua
 @JsonSerializable()
 
 class _SonarrEpisodeFile implements SonarrEpisodeFile {
-  const _SonarrEpisodeFile({required this.id, this.relativePath, this.size = 0, this.dateAdded, this.quality});
+  const _SonarrEpisodeFile({required this.id, this.relativePath, this.size = 0, this.dateAdded, this.quality, this.releaseGroup, this.mediaInfo});
   factory _SonarrEpisodeFile.fromJson(Map<String, dynamic> json) => _$SonarrEpisodeFileFromJson(json);
 
 @override final  int id;
@@ -2125,6 +2139,8 @@ class _SonarrEpisodeFile implements SonarrEpisodeFile {
 @override@JsonKey() final  int size;
 @override final  DateTime? dateAdded;
 @override final  SonarrQualityInfo? quality;
+@override final  String? releaseGroup;
+@override final  SonarrMediaInfo? mediaInfo;
 
 /// Create a copy of SonarrEpisodeFile
 /// with the given fields replaced by the non-null parameter values.
@@ -2139,16 +2155,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SonarrEpisodeFile&&(identical(other.id, id) || other.id == id)&&(identical(other.relativePath, relativePath) || other.relativePath == relativePath)&&(identical(other.size, size) || other.size == size)&&(identical(other.dateAdded, dateAdded) || other.dateAdded == dateAdded)&&(identical(other.quality, quality) || other.quality == quality));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SonarrEpisodeFile&&(identical(other.id, id) || other.id == id)&&(identical(other.relativePath, relativePath) || other.relativePath == relativePath)&&(identical(other.size, size) || other.size == size)&&(identical(other.dateAdded, dateAdded) || other.dateAdded == dateAdded)&&(identical(other.quality, quality) || other.quality == quality)&&(identical(other.releaseGroup, releaseGroup) || other.releaseGroup == releaseGroup)&&(identical(other.mediaInfo, mediaInfo) || other.mediaInfo == mediaInfo));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,relativePath,size,dateAdded,quality);
+int get hashCode => Object.hash(runtimeType,id,relativePath,size,dateAdded,quality,releaseGroup,mediaInfo);
 
 @override
 String toString() {
-  return 'SonarrEpisodeFile(id: $id, relativePath: $relativePath, size: $size, dateAdded: $dateAdded, quality: $quality)';
+  return 'SonarrEpisodeFile(id: $id, relativePath: $relativePath, size: $size, dateAdded: $dateAdded, quality: $quality, releaseGroup: $releaseGroup, mediaInfo: $mediaInfo)';
 }
 
 
@@ -2159,11 +2175,11 @@ abstract mixin class _$SonarrEpisodeFileCopyWith<$Res> implements $SonarrEpisode
   factory _$SonarrEpisodeFileCopyWith(_SonarrEpisodeFile value, $Res Function(_SonarrEpisodeFile) _then) = __$SonarrEpisodeFileCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String? relativePath, int size, DateTime? dateAdded, SonarrQualityInfo? quality
+ int id, String? relativePath, int size, DateTime? dateAdded, SonarrQualityInfo? quality, String? releaseGroup, SonarrMediaInfo? mediaInfo
 });
 
 
-@override $SonarrQualityInfoCopyWith<$Res>? get quality;
+@override $SonarrQualityInfoCopyWith<$Res>? get quality;@override $SonarrMediaInfoCopyWith<$Res>? get mediaInfo;
 
 }
 /// @nodoc
@@ -2176,14 +2192,16 @@ class __$SonarrEpisodeFileCopyWithImpl<$Res>
 
 /// Create a copy of SonarrEpisodeFile
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? relativePath = freezed,Object? size = null,Object? dateAdded = freezed,Object? quality = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? relativePath = freezed,Object? size = null,Object? dateAdded = freezed,Object? quality = freezed,Object? releaseGroup = freezed,Object? mediaInfo = freezed,}) {
   return _then(_SonarrEpisodeFile(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,relativePath: freezed == relativePath ? _self.relativePath : relativePath // ignore: cast_nullable_to_non_nullable
 as String?,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
 as int,dateAdded: freezed == dateAdded ? _self.dateAdded : dateAdded // ignore: cast_nullable_to_non_nullable
 as DateTime?,quality: freezed == quality ? _self.quality : quality // ignore: cast_nullable_to_non_nullable
-as SonarrQualityInfo?,
+as SonarrQualityInfo?,releaseGroup: freezed == releaseGroup ? _self.releaseGroup : releaseGroup // ignore: cast_nullable_to_non_nullable
+as String?,mediaInfo: freezed == mediaInfo ? _self.mediaInfo : mediaInfo // ignore: cast_nullable_to_non_nullable
+as SonarrMediaInfo?,
   ));
 }
 
@@ -2199,7 +2217,288 @@ $SonarrQualityInfoCopyWith<$Res>? get quality {
   return $SonarrQualityInfoCopyWith<$Res>(_self.quality!, (value) {
     return _then(_self.copyWith(quality: value));
   });
+}/// Create a copy of SonarrEpisodeFile
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SonarrMediaInfoCopyWith<$Res>? get mediaInfo {
+    if (_self.mediaInfo == null) {
+    return null;
+  }
+
+  return $SonarrMediaInfoCopyWith<$Res>(_self.mediaInfo!, (value) {
+    return _then(_self.copyWith(mediaInfo: value));
+  });
 }
+}
+
+
+/// @nodoc
+mixin _$SonarrMediaInfo {
+
+ String? get videoCodec; String? get audioCodec; double? get audioChannels;
+/// Create a copy of SonarrMediaInfo
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SonarrMediaInfoCopyWith<SonarrMediaInfo> get copyWith => _$SonarrMediaInfoCopyWithImpl<SonarrMediaInfo>(this as SonarrMediaInfo, _$identity);
+
+  /// Serializes this SonarrMediaInfo to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SonarrMediaInfo&&(identical(other.videoCodec, videoCodec) || other.videoCodec == videoCodec)&&(identical(other.audioCodec, audioCodec) || other.audioCodec == audioCodec)&&(identical(other.audioChannels, audioChannels) || other.audioChannels == audioChannels));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,videoCodec,audioCodec,audioChannels);
+
+@override
+String toString() {
+  return 'SonarrMediaInfo(videoCodec: $videoCodec, audioCodec: $audioCodec, audioChannels: $audioChannels)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SonarrMediaInfoCopyWith<$Res>  {
+  factory $SonarrMediaInfoCopyWith(SonarrMediaInfo value, $Res Function(SonarrMediaInfo) _then) = _$SonarrMediaInfoCopyWithImpl;
+@useResult
+$Res call({
+ String? videoCodec, String? audioCodec, double? audioChannels
+});
+
+
+
+
+}
+/// @nodoc
+class _$SonarrMediaInfoCopyWithImpl<$Res>
+    implements $SonarrMediaInfoCopyWith<$Res> {
+  _$SonarrMediaInfoCopyWithImpl(this._self, this._then);
+
+  final SonarrMediaInfo _self;
+  final $Res Function(SonarrMediaInfo) _then;
+
+/// Create a copy of SonarrMediaInfo
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? videoCodec = freezed,Object? audioCodec = freezed,Object? audioChannels = freezed,}) {
+  return _then(SonarrMediaInfo(
+videoCodec: freezed == videoCodec ? _self.videoCodec : videoCodec // ignore: cast_nullable_to_non_nullable
+as String?,audioCodec: freezed == audioCodec ? _self.audioCodec : audioCodec // ignore: cast_nullable_to_non_nullable
+as String?,audioChannels: freezed == audioChannels ? _self.audioChannels : audioChannels // ignore: cast_nullable_to_non_nullable
+as double?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [SonarrMediaInfo].
+extension SonarrMediaInfoPatterns on SonarrMediaInfo {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _SonarrMediaInfo value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _SonarrMediaInfo() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _SonarrMediaInfo value)  $default,){
+final _that = this;
+switch (_that) {
+case _SonarrMediaInfo():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _SonarrMediaInfo value)?  $default,){
+final _that = this;
+switch (_that) {
+case _SonarrMediaInfo() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? videoCodec,  String? audioCodec,  double? audioChannels)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _SonarrMediaInfo() when $default != null:
+return $default(_that.videoCodec,_that.audioCodec,_that.audioChannels);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? videoCodec,  String? audioCodec,  double? audioChannels)  $default,) {final _that = this;
+switch (_that) {
+case _SonarrMediaInfo():
+return $default(_that.videoCodec,_that.audioCodec,_that.audioChannels);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? videoCodec,  String? audioCodec,  double? audioChannels)?  $default,) {final _that = this;
+switch (_that) {
+case _SonarrMediaInfo() when $default != null:
+return $default(_that.videoCodec,_that.audioCodec,_that.audioChannels);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _SonarrMediaInfo implements SonarrMediaInfo {
+  const _SonarrMediaInfo({this.videoCodec, this.audioCodec, this.audioChannels});
+  factory _SonarrMediaInfo.fromJson(Map<String, dynamic> json) => _$SonarrMediaInfoFromJson(json);
+
+@override final  String? videoCodec;
+@override final  String? audioCodec;
+@override final  double? audioChannels;
+
+/// Create a copy of SonarrMediaInfo
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SonarrMediaInfoCopyWith<_SonarrMediaInfo> get copyWith => __$SonarrMediaInfoCopyWithImpl<_SonarrMediaInfo>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$SonarrMediaInfoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SonarrMediaInfo&&(identical(other.videoCodec, videoCodec) || other.videoCodec == videoCodec)&&(identical(other.audioCodec, audioCodec) || other.audioCodec == audioCodec)&&(identical(other.audioChannels, audioChannels) || other.audioChannels == audioChannels));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,videoCodec,audioCodec,audioChannels);
+
+@override
+String toString() {
+  return 'SonarrMediaInfo(videoCodec: $videoCodec, audioCodec: $audioCodec, audioChannels: $audioChannels)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SonarrMediaInfoCopyWith<$Res> implements $SonarrMediaInfoCopyWith<$Res> {
+  factory _$SonarrMediaInfoCopyWith(_SonarrMediaInfo value, $Res Function(_SonarrMediaInfo) _then) = __$SonarrMediaInfoCopyWithImpl;
+@override @useResult
+$Res call({
+ String? videoCodec, String? audioCodec, double? audioChannels
+});
+
+
+
+
+}
+/// @nodoc
+class __$SonarrMediaInfoCopyWithImpl<$Res>
+    implements _$SonarrMediaInfoCopyWith<$Res> {
+  __$SonarrMediaInfoCopyWithImpl(this._self, this._then);
+
+  final _SonarrMediaInfo _self;
+  final $Res Function(_SonarrMediaInfo) _then;
+
+/// Create a copy of SonarrMediaInfo
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? videoCodec = freezed,Object? audioCodec = freezed,Object? audioChannels = freezed,}) {
+  return _then(_SonarrMediaInfo(
+videoCodec: freezed == videoCodec ? _self.videoCodec : videoCodec // ignore: cast_nullable_to_non_nullable
+as String?,audioCodec: freezed == audioCodec ? _self.audioCodec : audioCodec // ignore: cast_nullable_to_non_nullable
+as String?,audioChannels: freezed == audioChannels ? _self.audioChannels : audioChannels // ignore: cast_nullable_to_non_nullable
+as double?,
+  ));
+}
+
+
 }
 
 

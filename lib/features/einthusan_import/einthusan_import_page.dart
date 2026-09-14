@@ -105,20 +105,20 @@ class _InputStepState extends State<_InputStep> {
             size: AppSizes.emptyStateIcon,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           Text(
             'Import from Einthusan',
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: LegacySpacing.sm),
           Text(
             'Paste an Einthusan movie page URL to look up a TMDB match and '
             'download it into Radarr.',
             style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           TextField(
             controller: _controller,
             enabled: !widget.isSubmitting,
@@ -129,7 +129,7 @@ class _InputStepState extends State<_InputStep> {
               border: OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           FilledButton(
             onPressed: widget.isSubmitting || _controller.text.trim().isEmpty
                 ? null
@@ -159,7 +159,7 @@ class _ResolvingStep extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           Text(
             'Fetching page and searching TMDB…',
             style: Theme.of(context).textTheme.bodyMedium,
@@ -234,7 +234,7 @@ class _PreviewStep extends StatelessWidget {
                   child: const Text('Cancel'),
                 ),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: LegacySpacing.md),
               Expanded(
                 child: FilledButton(
                   onPressed: isSubmitting || selectedTmdbId == null
@@ -274,7 +274,7 @@ class _CandidateTile extends StatelessWidget {
     final selected = candidate.tmdbId == selectedTmdbId;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      margin: const EdgeInsets.only(bottom: LegacySpacing.sm),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.md),
         side: BorderSide(
@@ -344,10 +344,10 @@ class _RunningStep extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(label, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           if (progress != null && progress.totalBytes > 0) ...[
             LinearProgressIndicator(value: progress.percent / 100),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: LegacySpacing.sm),
             Text(
               '${_formatBytes(progress.downloadedBytes)} / '
               '${_formatBytes(progress.totalBytes)} • '
@@ -396,21 +396,21 @@ class _DoneStep extends ConsumerWidget {
             size: AppSizes.emptyStateIcon,
             color: Theme.of(context).colorScheme.primary,
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           Text(
             'Imported successfully',
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
           if (result != null) ...[
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: LegacySpacing.sm),
             Text(
               result.file,
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
           ],
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           if (result != null)
             radarrInstanceIdAsync.when(
               data: (radarrInstanceId) => radarrInstanceId == null
@@ -428,7 +428,7 @@ class _DoneStep extends ConsumerWidget {
               loading: () => const SizedBox.shrink(),
               error: (_, _) => const SizedBox.shrink(),
             ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           OutlinedButton(
             onPressed: onReset,
             child: const Text('Import another movie'),

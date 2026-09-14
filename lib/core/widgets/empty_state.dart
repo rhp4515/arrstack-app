@@ -35,14 +35,14 @@ class EmptyState extends StatelessWidget {
               size: AppSizes.emptyStateIcon,
               color: colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: LegacySpacing.md),
             Text(
               title,
               style: textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             if (message != null) ...[
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: LegacySpacing.sm),
               Text(
                 message!,
                 style: textTheme.bodyMedium?.copyWith(
@@ -52,7 +52,7 @@ class EmptyState extends StatelessWidget {
               ),
             ],
             if (action != null) ...[
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: LegacySpacing.lg),
               action!,
             ],
           ],

@@ -55,10 +55,10 @@ class ReleaseSearchPage extends ConsumerWidget {
           preferredSize: const Size.fromHeight(96),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
-              AppSpacing.md,
+              LegacySpacing.md,
               0,
-              AppSpacing.md,
-              AppSpacing.sm,
+              LegacySpacing.md,
+              LegacySpacing.sm,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,7 +69,7 @@ class ReleaseSearchPage extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: LegacySpacing.sm),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: SegmentedButton<ReleaseSort>(
@@ -139,7 +139,7 @@ class _SearchingState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             CircularProgressIndicator(),
-            SizedBox(height: AppSpacing.md),
+            SizedBox(height: LegacySpacing.md),
             Text(
               'Searching all indexers… this can take up to a minute.',
               textAlign: TextAlign.center,
@@ -187,7 +187,7 @@ class _Results extends StatelessWidget {
       itemBuilder: (context, index) {
         if (index == 0) {
           return Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(LegacySpacing.md),
             child: Text(
               '${releases.length} release${releases.length == 1 ? '' : 's'}',
               style: Theme.of(context).textTheme.labelLarge,

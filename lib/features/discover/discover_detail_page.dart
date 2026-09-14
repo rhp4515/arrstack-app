@@ -115,7 +115,7 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
                   )
                 : const Icon(Icons.movie_outlined, size: 100),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           Text(
             item.displayTitle ?? '',
             textAlign: TextAlign.center,
@@ -124,14 +124,14 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
             ),
           ),
           if (item.displayDate != null) ...[
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: LegacySpacing.xs),
             Text(
               item.displayDate!,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium?.copyWith(color: Colors.grey),
             ),
           ],
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -140,15 +140,15 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
                   label: '★ ${item.voteAverage!.toStringAsFixed(1)}',
                   color: Colors.orange,
                 ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: LegacySpacing.sm),
               _RequestStatusChip(mediaInfo: item.mediaInfo),
             ],
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           Text('Overview', style: theme.textTheme.titleMedium),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: LegacySpacing.sm),
           Text(item.overview ?? 'No overview available.'),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: LegacySpacing.xl),
           if (_canRequest(item.mediaInfo))
             FilledButton.icon(
               onPressed: _isRequesting ? null : _handleRequest,

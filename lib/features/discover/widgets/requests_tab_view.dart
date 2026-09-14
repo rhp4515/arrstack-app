@@ -46,7 +46,7 @@ class _RequestsTabViewState extends ConsumerState<RequestsTabView> {
     return Column(
       children: [
         Padding(
-          padding: AppInsets.horizontalMd,
+          padding: AppInsets.screenHorizontal,
           child: Row(
             children: [
               _FilterSortPill(
@@ -56,7 +56,7 @@ class _RequestsTabViewState extends ConsumerState<RequestsTabView> {
                 selected: _filter,
                 onSelected: (value) => setState(() => _filter = value),
               ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: LegacySpacing.sm),
               _FilterSortPill(
                 icon: Icons.swap_vert,
                 label: 'Sort: ${_sortLabels[_sort]}',
@@ -67,7 +67,7 @@ class _RequestsTabViewState extends ConsumerState<RequestsTabView> {
             ],
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: LegacySpacing.sm),
         Expanded(
           child: requestsAsync.when(
             data: (result) => switch (result) {
@@ -87,7 +87,9 @@ class _RequestsTabViewState extends ConsumerState<RequestsTabView> {
                           ),
                         ),
                         child: ListView.builder(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                          padding: const EdgeInsets.only(
+                            bottom: LegacySpacing.md,
+                          ),
                           itemCount: value.results.length,
                           itemBuilder: (context, index) => RequestListTile(
                             instanceId: widget.instanceId,

@@ -48,7 +48,7 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
             'Add "${widget.movie.title}"',
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
           profilesAsync.when(
             data: (result) => switch (result) {
               Ok(:final value) => DropdownButtonFormField<int>(
@@ -73,7 +73,7 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
             loading: () => const LinearProgressIndicator(),
             error: (err, _) => Text('Error: $err'),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           foldersAsync.when(
             data: (result) => switch (result) {
               Ok(:final value) => DropdownButtonFormField<String>(
@@ -98,14 +98,14 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
             loading: () => const LinearProgressIndicator(),
             error: (err, _) => Text('Error: $err'),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: LegacySpacing.md),
           SwitchListTile(
             title: const Text('Search for movie now'),
             value: _searchNow,
             onChanged: (val) => setState(() => _searchNow = val),
             contentPadding: EdgeInsets.zero,
           ),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: LegacySpacing.xl),
           FilledButton.icon(
             onPressed: _isSaving ? null : _save,
             icon: _isSaving
@@ -120,7 +120,7 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
                 : const Icon(Icons.add),
             label: const Text('Add to Library'),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: LegacySpacing.lg),
         ],
       ),
     );

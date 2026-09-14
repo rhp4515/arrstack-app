@@ -31,8 +31,8 @@ class ReleaseTile extends StatelessWidget {
 
     final content = Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
+        horizontal: LegacySpacing.md,
+        vertical: LegacySpacing.sm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,10 +43,10 @@ class ReleaseTile extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodyMedium,
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: LegacySpacing.xs),
           Text(facts, style: theme.textTheme.bodySmall?.copyWith(color: muted)),
           if (release.isRejected && release.rejections.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: LegacySpacing.xs),
             Text(
               release.rejections.length > 1
                   ? '${release.rejections.first}  +${release.rejections.length - 1} more'

@@ -43,3 +43,29 @@ Future<Result<IndexerStatsResponse>> prowlarrIndexerStats(
   final repo = await ref.watch(prowlarrRepositoryProvider(instanceId).future);
   return await repo.getIndexerStats();
 }
+
+@riverpod
+Future<Result<IndexerStatsResponse>> prowlarrIndexerStats30d(
+  Ref ref,
+  String instanceId,
+) async {
+  final repo = await ref.watch(prowlarrRepositoryProvider(instanceId).future);
+  final now = DateTime.now();
+  return repo.getIndexerStats(
+    startDate: now.subtract(const Duration(days: 30)),
+    endDate: now,
+  );
+}
+
+@riverpod
+Future<Result<IndexerStatsResponse>> prowlarrIndexerStatsLast24h(
+  Ref ref,
+  String instanceId,
+) async {
+  final repo = await ref.watch(prowlarrRepositoryProvider(instanceId).future);
+  final now = DateTime.now();
+  return repo.getIndexerStats(
+    startDate: now.subtract(const Duration(hours: 24)),
+    endDate: now,
+  );
+}

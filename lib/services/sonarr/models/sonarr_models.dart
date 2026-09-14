@@ -181,10 +181,25 @@ abstract class SonarrEpisodeFile with _$SonarrEpisodeFile {
     @Default(0) int size,
     DateTime? dateAdded,
     SonarrQualityInfo? quality,
+    String? releaseGroup,
+    SonarrMediaInfo? mediaInfo,
   }) = _SonarrEpisodeFile;
 
   factory SonarrEpisodeFile.fromJson(Map<String, dynamic> json) =>
       _$SonarrEpisodeFileFromJson(json);
+}
+
+/// Technical media details Sonarr extracts from the file (spec 2f "FILE").
+@freezed
+abstract class SonarrMediaInfo with _$SonarrMediaInfo {
+  const factory SonarrMediaInfo({
+    String? videoCodec,
+    String? audioCodec,
+    double? audioChannels,
+  }) = _SonarrMediaInfo;
+
+  factory SonarrMediaInfo.fromJson(Map<String, dynamic> json) =>
+      _$SonarrMediaInfoFromJson(json);
 }
 
 /// Quality wrapper matching Sonarr's `quality: { quality: { name } }` shape.

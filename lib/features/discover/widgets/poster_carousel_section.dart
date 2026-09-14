@@ -1,6 +1,6 @@
 /// A labeled section with a horizontal poster carousel — the shared shape
 /// behind "Trending"/"Popular Movies"/"Upcoming Movies"/etc. on the Seerr
-/// Discover page. Mirrors the label+row pattern used by DashboardPage.
+/// Discover page. Mirrors the label+row pattern used elsewhere in the app.
 library;
 
 import 'package:arrstack/app/route_paths.dart';
@@ -32,7 +32,7 @@ class PosterCarouselSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: AppInsets.horizontalMd,
+          padding: AppInsets.screenHorizontal,
           child: Text(
             label.toUpperCase(),
             style: theme.textTheme.labelMedium?.copyWith(
@@ -42,17 +42,17 @@ class PosterCarouselSection extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: LegacySpacing.sm),
         SizedBox(
           height: 240,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: AppInsets.horizontalMd,
+            padding: AppInsets.screenHorizontal,
             itemCount: items.length,
             itemBuilder: (context, index) {
               final item = items[index];
               return Padding(
-                padding: const EdgeInsets.only(right: AppSpacing.sm),
+                padding: const EdgeInsets.only(right: LegacySpacing.sm),
                 child: SizedBox(
                   width: 130,
                   child: PosterCard(
@@ -67,11 +67,7 @@ class PosterCarouselSection extends StatelessWidget {
                           )
                         : null,
                     onTap: () => context.go(
-                      RoutePaths.discoverDetail(
-                        instanceId,
-                        item.id,
-                        item.mediaType,
-                      ),
+                      RoutePaths.homeDiscoverDetail(item.id, item.mediaType),
                     ),
                   ),
                 ),
@@ -79,7 +75,7 @@ class PosterCarouselSection extends StatelessWidget {
             },
           ),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: LegacySpacing.md),
       ],
     );
   }

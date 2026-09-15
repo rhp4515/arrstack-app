@@ -104,6 +104,29 @@ void main() {
     expect(tiles.first.release.guid, 'small');
   });
 
+  testWidgets('shows the found count in the header, not the results list', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        Ok<List<ReleaseCandidate>>([
+          rc('one', seeders: 5),
+          rc('two', seeders: 3),
+        ]),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('2 found'), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(AppBar), matching: find.text('2 found')),
+      findsOneWidget,
+    );
+    // The results list holds exactly the release tiles plus the closing
+    // footer note — the count is no longer a leading list item.
+    expect(find.byType(ReleaseTile), findsNWidgets(2));
+  });
+
   testWidgets('error result shows an EmptyState with retry', (tester) async {
     await tester.pumpWidget(
       _host(

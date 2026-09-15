@@ -1,10 +1,12 @@
 // The tile is the scannable row: title + a facts line (quality, size, peers,
 // indexer, age). Rejected releases are dimmed and surface their first reason.
 
+import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/features/release_search/models/release_candidate.dart';
 import 'package:arrstack/features/release_search/widgets/release_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 ReleaseCandidate release({
   bool rejected = false,
@@ -80,5 +82,29 @@ void main() {
     await _pump(tester, release(), onTap: () => tapped = true);
     await tester.tap(find.byType(ReleaseTile));
     expect(tapped, isTrue);
+  });
+
+  testWidgets('an allowed release shows an accent download icon', (
+    tester,
+  ) async {
+    await _pump(tester, release(rejected: false));
+    final icon = tester.widget<Icon>(
+      find.byIcon(PhosphorIconsRegular.downloadSimple),
+    );
+    expect(icon.color, AppColors.accent);
+  });
+
+  testWidgets('a rejected release shows a red prohibit icon instead', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      release(rejected: true, rejections: const ['Below quality cutoff']),
+    );
+    expect(find.byIcon(PhosphorIconsRegular.downloadSimple), findsNothing);
+    final icon = tester.widget<Icon>(
+      find.byIcon(PhosphorIconsRegular.prohibit),
+    );
+    expect(icon.color, AppColors.down);
   });
 }

@@ -1,6 +1,17 @@
 /// Discover detail / request (README §3b): the 2g header anatomy, a
-/// request panel (quality profile, root folder with free space, search-
-/// immediately toggle), and a best-effort AVAILABILITY block.
+/// request panel (quality profile, root folder with free space), and a
+/// best-effort AVAILABILITY block.
+///
+/// No "search immediately" toggle here: Overseerr/Jellyseerr's
+/// `POST /api/v1/request` has no field for it — whether Radarr/Sonarr
+/// searches on approval is controlled by their own settings, not something
+/// a per-request API call can influence. An earlier draft rendered such a
+/// toggle anyway; it updated local state but never reached the request body
+/// or `SeerrClient.request()`, which has no matching parameter. Removed
+/// rather than shown disabled, to avoid implying a control that doesn't
+/// exist. Contrast `add_movie_options.dart`/`add_series_options.dart`'s
+/// "search now" toggle, which drives a real Radarr/Sonarr add-options field
+/// and is unrelated to this one.
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
@@ -10,7 +21,6 @@ import 'package:arrstack/core/widgets/detail_chip.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/core/widgets/fading_rule.dart';
 import 'package:arrstack/core/widgets/labeled_dropdown_field.dart';
-import 'package:arrstack/core/widgets/labeled_toggle_row.dart';
 import 'package:arrstack/features/discover/availability_lines.dart';
 import 'package:arrstack/features/discover/discover_providers.dart';
 import 'package:arrstack/features/library/widgets/media_detail_header.dart';
@@ -22,9 +32,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Both Radarr/Sonarr calls default to Seerr's first configured server.
-/// A server picker for multi-server Seerr setups is out of scope (Phase 7
-/// design spec, Out of scope).
+/// Hardcoded to Seerr's server id 0 (its typical first-configured server).
+/// Does not look up the actual first server — Overseerr/Jellyseerr assigns
+/// server ids incrementally and does not renumber on delete, so a user who
+/// removed and re-added their Radarr/Sonarr server in Seerr could have an
+/// actual first server at id 1 or higher, which this literal would not
+/// match. A proper server picker for multi-server Seerr setups is out of
+/// scope for this phase (Phase 7 design spec, Out of scope).
 const _defaultServiceId = 0;
 
 class DiscoverDetailPage extends ConsumerWidget {
@@ -111,7 +125,6 @@ class _DetailContent extends ConsumerStatefulWidget {
 class _DetailContentState extends ConsumerState<_DetailContent> {
   int? _selectedProfileId;
   String? _selectedRootFolder;
-  bool _searchImmediately = true;
   bool _requesting = false;
   String? _requestError;
 
@@ -220,13 +233,6 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
                 'Error loading profiles: $err',
                 style: AppTypography.meta.copyWith(color: AppColors.down),
               ),
-            ),
-            const SizedBox(height: AppSpacing.space4),
-            LabeledToggleRow(
-              title: 'Search immediately',
-              subtitle: 'Otherwise it waits for the next RSS sweep',
-              value: _searchImmediately,
-              onChanged: (v) => setState(() => _searchImmediately = v),
             ),
             if (lines.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.space4),

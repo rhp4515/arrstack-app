@@ -41,11 +41,11 @@ Future<Result<List<ReleaseCandidate>>> releaseSearchResults(
   );
 }
 
-/// The active sort for the results list. Defaults to [ReleaseSort.peers].
+/// The active sort for the results list. Defaults to [ReleaseSort.best].
 @riverpod
 class ReleaseSortController extends _$ReleaseSortController {
   @override
-  ReleaseSort build() => ReleaseSort.peers;
+  ReleaseSort build() => ReleaseSort.best;
 
   void select(ReleaseSort value) => state = value;
 }

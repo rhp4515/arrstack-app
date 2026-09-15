@@ -1,5 +1,5 @@
 // releaseSearchResults dispatches to the Sonarr or Radarr repository based on
-// ServiceType; releaseSortController defaults to Peers and updates on select.
+// ServiceType; releaseSortController defaults to Best match and updates on select.
 
 import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/network/result.dart';
@@ -106,10 +106,10 @@ void main() {
     expect(result.isErr, isTrue);
   });
 
-  test('releaseSortController defaults to peers and updates', () {
+  test('releaseSortController defaults to best and updates', () {
     final container = _container(const []);
 
-    expect(container.read(releaseSortControllerProvider), ReleaseSort.peers);
+    expect(container.read(releaseSortControllerProvider), ReleaseSort.best);
     container
         .read(releaseSortControllerProvider.notifier)
         .select(ReleaseSort.size);

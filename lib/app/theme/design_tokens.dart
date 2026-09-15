@@ -234,6 +234,17 @@ abstract final class AppTypography {
     fontWeight: FontWeight.w500,
     fontVariations: [FontVariation('wght', 500)],
   );
+
+  /// Lens/filter chip labels (e.g. the release-search sort chips): 11px/500,
+  /// per the original spec's "Lens chips" section. Color is left to the
+  /// caller since chips carry active/inactive states.
+  static const TextStyle chipLabel = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 11,
+    height: 1.0,
+    fontWeight: FontWeight.w500,
+    fontVariations: [FontVariation('wght', 500)],
+  );
 }
 
 /// Fixed component sizes (logical pixels) that don't belong to the spacing

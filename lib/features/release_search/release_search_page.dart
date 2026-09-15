@@ -152,16 +152,17 @@ class _SortChip extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.sm),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.space3,
+          vertical: AppSpacing.space2,
+        ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: active ? Border.all(color: AppColors.accent, width: 1) : null,
+          border: active ? Border.all(color: AppColors.accent) : null,
         ),
         child: Text(
           label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
+          style: AppTypography.chipLabel.copyWith(
             color: active ? AppColors.accent : AppColors.n400,
           ),
         ),

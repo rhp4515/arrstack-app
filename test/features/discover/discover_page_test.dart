@@ -29,7 +29,7 @@ List<Override> _emptyDiscoverOverrides({
   List<SeerrResult> trending = const [],
 }) => [
   hasSeerrInstanceProvider.overrideWith((ref) async => true),
-  selectedSeerrInstanceIdProvider.overrideWith(() => _FakeSelectedInstance()),
+  selectedSeerrInstanceIdProvider.overrideWith(_FakeSelectedInstance.new),
   instancesProvider.overrideWith((ref) async => const Ok(<ServiceInstance>[])),
   seerrMovieGenresProvider(instanceId)
       .overrideWith((ref) async => const Ok([])),

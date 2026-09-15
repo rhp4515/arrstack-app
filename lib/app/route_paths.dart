@@ -24,6 +24,8 @@ abstract final class RoutePaths {
   static String homeDiscoverGenre(String mediaType, int genreId, String name) =>
       '/home/discover/genre/$mediaType/$genreId?name=${Uri.encodeComponent(name)}';
 
+  static const String homeRequests = '/home/requests';
+
   static String movieDetail(String instanceId, int movieId) =>
       '/library/radarr/$instanceId/movie/$movieId';
   static String addMovie(String instanceId) =>

@@ -6,7 +6,7 @@ library;
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/widgets/poster_card.dart';
-import 'package:arrstack/core/widgets/status_chip.dart';
+import 'package:arrstack/features/discover/widgets/media_status_badge.dart';
 import 'package:arrstack/services/seerr/models/seerr_models.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -60,12 +60,7 @@ class PosterCarouselSection extends StatelessWidget {
                     title: item.displayTitle ?? '',
                     subtitle: item.displayYear,
                     titleBelow: true,
-                    badge: item.mediaInfo?.status == SeerrMediaStatus.available
-                        ? const StatusChip(
-                            label: 'Available',
-                            color: Colors.green,
-                          )
-                        : null,
+                    badge: MediaStatusBadge(mediaInfo: item.mediaInfo),
                     onTap: () => context.go(
                       RoutePaths.homeDiscoverDetail(item.id, item.mediaType),
                     ),

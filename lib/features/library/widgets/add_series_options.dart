@@ -3,6 +3,7 @@ library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/core/widgets/labeled_dropdown_field.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
 import 'package:flutter/material.dart';
@@ -59,18 +60,18 @@ class _AddSeriesOptionsSheetState extends ConsumerState<AddSeriesOptionsSheet> {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: LegacySpacing.lg),
-          DropdownButtonFormField<String>(
-            decoration: const InputDecoration(labelText: 'Monitor Mode'),
-            initialValue: _selectedMonitorMode,
+          LabeledDropdownField<String>(
+            label: 'Monitor Mode',
+            value: _selectedMonitorMode,
             items: _monitorModes,
             onChanged: (val) => setState(() => _selectedMonitorMode = val!),
           ),
           const SizedBox(height: LegacySpacing.md),
           profilesAsync.when(
             data: (result) => switch (result) {
-              Ok(:final value) => DropdownButtonFormField<int>(
-                decoration: const InputDecoration(labelText: 'Quality Profile'),
-                initialValue:
+              Ok(:final value) => LabeledDropdownField<int>(
+                label: 'Quality Profile',
+                value:
                     _selectedProfileId ??
                     (value.isNotEmpty ? value.first.id : null),
                 items: value
@@ -93,9 +94,9 @@ class _AddSeriesOptionsSheetState extends ConsumerState<AddSeriesOptionsSheet> {
           const SizedBox(height: LegacySpacing.md),
           foldersAsync.when(
             data: (result) => switch (result) {
-              Ok(:final value) => DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Root Folder'),
-                initialValue:
+              Ok(:final value) => LabeledDropdownField<String>(
+                label: 'Root Folder',
+                value:
                     _selectedPath ??
                     (value.isNotEmpty ? value.first.path : null),
                 items: value

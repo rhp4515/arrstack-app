@@ -3,6 +3,8 @@ library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/core/widgets/labeled_dropdown_field.dart';
+import 'package:arrstack/core/widgets/labeled_toggle_row.dart';
 import 'package:arrstack/services/radarr/models/radarr_models.dart';
 import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:flutter/material.dart';
@@ -51,9 +53,9 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
           const SizedBox(height: LegacySpacing.lg),
           profilesAsync.when(
             data: (result) => switch (result) {
-              Ok(:final value) => DropdownButtonFormField<int>(
-                decoration: const InputDecoration(labelText: 'Quality Profile'),
-                initialValue:
+              Ok(:final value) => LabeledDropdownField<int>(
+                label: 'Quality Profile',
+                value:
                     _selectedProfileId ??
                     (value.isNotEmpty ? value.first.id : null),
                 items: value
@@ -76,9 +78,9 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
           const SizedBox(height: LegacySpacing.md),
           foldersAsync.when(
             data: (result) => switch (result) {
-              Ok(:final value) => DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Root Folder'),
-                initialValue:
+              Ok(:final value) => LabeledDropdownField<String>(
+                label: 'Root Folder',
+                value:
                     _selectedPath ??
                     (value.isNotEmpty ? value.first.path : null),
                 items: value
@@ -99,11 +101,11 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
             error: (err, _) => Text('Error: $err'),
           ),
           const SizedBox(height: LegacySpacing.md),
-          SwitchListTile(
-            title: const Text('Search for movie now'),
+          LabeledToggleRow(
+            title: 'Search for it now',
+            subtitle: 'Uses your enabled indexers',
             value: _searchNow,
             onChanged: (val) => setState(() => _searchNow = val),
-            contentPadding: EdgeInsets.zero,
           ),
           const SizedBox(height: LegacySpacing.xl),
           FilledButton.icon(

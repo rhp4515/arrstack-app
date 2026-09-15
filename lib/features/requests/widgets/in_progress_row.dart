@@ -1,9 +1,13 @@
-/// A compact "in progress" row (README §3c): poster, title, a status line,
-/// and a trailing tag. `processing` → "searching indexers" for both movies
-/// and TV, since Overseerr's request API exposes no per-episode download
-/// detail (Phase 7 design spec, Decision 9); `partiallyAvailable` → a
-/// season-list line plus a green "Partial" tag, shortened from
-/// `mediaStatusPresentation`'s literal "Partially Available" label.
+/// A compact row shared by three Requests-queue buckets (README §3c):
+/// in-progress `processing`, in-progress `partiallyAvailable`, and the
+/// "N available requests" drill-down's `available` rows. Renders a poster,
+/// title, a status line, and a trailing tag. `processing` → "searching
+/// indexers" for both movies and TV, since Overseerr's request API exposes
+/// no per-episode download detail (Phase 7 design spec, Decision 9);
+/// `partiallyAvailable` → a season-list line plus a green "Partial" tag,
+/// shortened from `mediaStatusPresentation`'s literal "Partially Available"
+/// label; `available` → an explicit "available" status line so it doesn't
+/// contradict the green "Available" tag next to it.
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
@@ -75,7 +79,7 @@ class InProgressRow extends ConsumerWidget {
               children: [
                 Text(title, style: AppTypography.cardTitle),
                 Text(
-                  _statusLine(isPartial),
+                  _statusLine(mediaStatus),
                   style: AppTypography.meta.copyWith(color: AppColors.n500),
                 ),
               ],
@@ -101,11 +105,21 @@ class InProgressRow extends ConsumerWidget {
     );
   }
 
-  String _statusLine(bool isPartial) {
+  /// Exhaustive over the three media statuses this row can actually
+  /// represent (per the class doc): `partiallyAvailable` with known seasons,
+  /// `available`, and everything else (`processing`, plus a
+  /// `partiallyAvailable` row with no season data — Overseerr's request API
+  /// doesn't always populate `seasons`), which falls back to the
+  /// `processing` line since that's this row's most common state.
+  String _statusLine(int mediaStatus) {
     final by = 'by ${request.requestedBy?.displayName ?? 'unknown'}';
-    if (isPartial && request.seasons.isNotEmpty) {
+    if (mediaStatus == SeerrMediaStatus.partiallyAvailable &&
+        request.seasons.isNotEmpty) {
       final seasons = request.seasons.map((s) => s.seasonNumber).join(', ');
       return '$by · seasons $seasons';
+    }
+    if (mediaStatus == SeerrMediaStatus.available) {
+      return '$by · available';
     }
     return '$by · searching indexers';
   }

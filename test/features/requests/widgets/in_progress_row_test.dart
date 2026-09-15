@@ -78,4 +78,29 @@ void main() {
       expect(find.text('Partial'), findsOneWidget);
     },
   );
+
+  testWidgets(
+    'an available series shows "available", not "searching indexers", '
+    'next to the Available tag',
+    (tester) async {
+      const request = SeerrRequest(
+        id: 1,
+        status: SeerrRequestStatus.approved,
+        media: SeerrRequestMedia(
+          id: 200,
+          tmdbId: 200,
+          mediaType: 'tv',
+          status: SeerrMediaStatus.available,
+        ),
+        requestedBy: SeerrRequestUser(displayName: 'harivin'),
+      );
+
+      await tester.pumpWidget(host(request));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('available'), findsOneWidget);
+      expect(find.textContaining('searching indexers'), findsNothing);
+      expect(find.text('Available'), findsOneWidget);
+    },
+  );
 }

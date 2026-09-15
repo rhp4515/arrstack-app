@@ -39,7 +39,7 @@ void main() {
         const SeerrMediaInfo(id: 1, status: SeerrMediaStatus.available),
       );
       final text = tester.widget<Text>(find.text('In library'));
-      expect(text.style?.color, AppColors.n900);
+      expect(text.style?.color, AppColors.bg);
       expect(text.style?.color, isNot(AppColors.text));
     },
   );

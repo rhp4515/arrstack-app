@@ -176,6 +176,7 @@ class _RequestsList extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.space3),
                 child: RequestCard(
+                  key: ValueKey(request.id),
                   instanceId: instanceId,
                   request: request,
                   onDecided: refresh,
@@ -190,12 +191,20 @@ class _RequestsList extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.space4),
             for (final request in progress)
-              InProgressRow(instanceId: instanceId, request: request),
+              InProgressRow(
+                key: ValueKey(request.id),
+                instanceId: instanceId,
+                request: request,
+              ),
             const SizedBox(height: AppSpacing.space6),
           ],
           if (available.isNotEmpty) ...[
             for (final request in available)
-              InProgressRow(instanceId: instanceId, request: request),
+              InProgressRow(
+                key: ValueKey(request.id),
+                instanceId: instanceId,
+                request: request,
+              ),
           ],
           if (filter == RequestsFilter.all && stats.available > 0)
             InkWell(

@@ -1,12 +1,31 @@
+/// Discover detail / request (README §3b): the 2g header anatomy, a
+/// request panel (quality profile, root folder with free space, search-
+/// immediately toggle), and a best-effort AVAILABILITY block.
+library;
+
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/core/utils/format_utils.dart';
 import 'package:arrstack/core/widgets/detail_chip.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
+import 'package:arrstack/core/widgets/fading_rule.dart';
+import 'package:arrstack/core/widgets/labeled_dropdown_field.dart';
+import 'package:arrstack/core/widgets/labeled_toggle_row.dart';
+import 'package:arrstack/features/discover/availability_lines.dart';
 import 'package:arrstack/features/discover/discover_providers.dart';
+import 'package:arrstack/features/library/widgets/media_detail_header.dart';
 import 'package:arrstack/services/seerr/models/seerr_models.dart';
 import 'package:arrstack/services/seerr/seerr_providers.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+/// Both Radarr/Sonarr calls default to Seerr's first configured server.
+/// A server picker for multi-server Seerr setups is out of scope (Phase 7
+/// design spec, Out of scope).
+const _defaultServiceId = 0;
 
 class DiscoverDetailPage extends ConsumerWidget {
   const DiscoverDetailPage({
@@ -90,94 +109,232 @@ class _DetailContent extends ConsumerStatefulWidget {
 }
 
 class _DetailContentState extends ConsumerState<_DetailContent> {
-  bool _isRequesting = false;
+  int? _selectedProfileId;
+  String? _selectedRootFolder;
+  bool _searchImmediately = true;
+  bool _requesting = false;
+  String? _requestError;
+
+  bool get _isTv => widget.item.mediaType == 'tv';
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final item = widget.item;
+    final serviceAsync = _isTv
+        ? ref.watch(
+            seerrSonarrServiceProvider(
+              instanceId: widget.instanceId,
+              serviceId: _defaultServiceId,
+            ),
+          )
+        : ref.watch(
+            seerrRadarrServiceProvider(
+              instanceId: widget.instanceId,
+              serviceId: _defaultServiceId,
+            ),
+          );
+    final serviceDetails = switch (serviceAsync.asData?.value) {
+      Ok(:final value) => value,
+      _ => null,
+    };
+    final lines = availabilityLines(item.mediaInfo);
 
     return Scaffold(
-      appBar: AppBar(title: Text(item.displayTitle ?? 'Details')),
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: const Icon(PhosphorIconsRegular.arrowSquareOut, size: 17),
+            tooltip: 'Open in TMDB',
+            onPressed: () => _openTmdb(item),
+          ),
+        ],
+      ),
       body: ListView(
         padding: AppInsets.pageMd,
         children: [
-          Center(
-            child: item.posterUrl != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                    child: Image.network(
-                      item.posterUrl!,
-                      width: 200,
-                      height: 300,
-                      fit: BoxFit.cover,
-                    ),
-                  )
-                : const Icon(Icons.movie_outlined, size: 100),
-          ),
-          const SizedBox(height: LegacySpacing.lg),
-          Text(
-            item.displayTitle ?? '',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
+          MediaDetailHeader(
+            poster: ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              child: SizedBox(
+                width: 104,
+                height: 156,
+                child: item.posterUrl != null
+                    ? CachedNetworkImage(
+                        imageUrl: item.posterUrl!,
+                        fit: BoxFit.cover,
+                        placeholder: (_, _) => const _PosterFallback(),
+                        errorWidget: (_, _, _) => const _PosterFallback(),
+                      )
+                    : const _PosterFallback(),
+              ),
             ),
-          ),
-          if (item.displayDate != null) ...[
-            const SizedBox(height: LegacySpacing.xs),
-            Text(
-              item.displayDate!,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium?.copyWith(color: Colors.grey),
-            ),
-          ],
-          const SizedBox(height: LegacySpacing.md),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (item.voteAverage != null && item.voteAverage! > 0)
+            title: item.displayTitle ?? '',
+            metaParts: [if (item.displayYear != null) item.displayYear!],
+            chips: [
+              if ((item.voteAverage ?? 0) > 0)
                 DetailChip(
                   label: '★ ${item.voteAverage!.toStringAsFixed(1)}',
-                  color: Colors.orange,
+                  color: AppColors.accent,
                 ),
-              const SizedBox(width: LegacySpacing.sm),
-              _RequestStatusChip(mediaInfo: item.mediaInfo),
+              DetailChip(
+                label: _libraryChipLabel(item.mediaInfo),
+                color: _isInLibrary(item.mediaInfo)
+                    ? AppColors.accent
+                    : AppColors.n500,
+              ),
             ],
+            stats: const [],
           ),
-          const SizedBox(height: LegacySpacing.lg),
-          Text('Overview', style: theme.textTheme.titleMedium),
-          const SizedBox(height: LegacySpacing.sm),
-          Text(item.overview ?? 'No overview available.'),
-          const SizedBox(height: LegacySpacing.xl),
-          if (_canRequest(item.mediaInfo))
-            FilledButton.icon(
-              onPressed: _isRequesting ? null : _handleRequest,
-              icon: _isRequesting
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.add_circle_outline),
-              label: const Text('Request Media'),
+          const SizedBox(height: AppSpacing.space6),
+          Text(
+            item.overview ?? 'No overview available.',
+            style: AppTypography.body,
+          ),
+          if (_canRequest(item.mediaInfo)) ...[
+            const SizedBox(height: AppSpacing.space6),
+            const FadingRule(),
+            const SizedBox(height: AppSpacing.space4),
+            Text(
+              'REQUEST TO ${_isTv ? 'SONARR' : 'RADARR'}',
+              style: AppTypography.kicker,
             ),
+            const SizedBox(height: AppSpacing.space4),
+            serviceAsync.when(
+              data: (result) => switch (result) {
+                Ok(:final value) => _RequestFields(
+                  details: value,
+                  selectedProfileId: _selectedProfileId,
+                  selectedRootFolder: _selectedRootFolder,
+                  onProfileChanged: (v) =>
+                      setState(() => _selectedProfileId = v),
+                  onRootFolderChanged: (v) =>
+                      setState(() => _selectedRootFolder = v),
+                ),
+                Err(:final error) => Text(
+                  'Error loading profiles: ${error.userMessage}',
+                  style: AppTypography.meta.copyWith(color: AppColors.down),
+                ),
+              },
+              loading: () => const LinearProgressIndicator(),
+              error: (err, _) => Text(
+                'Error loading profiles: $err',
+                style: AppTypography.meta.copyWith(color: AppColors.down),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.space4),
+            LabeledToggleRow(
+              title: 'Search immediately',
+              subtitle: 'Otherwise it waits for the next RSS sweep',
+              value: _searchImmediately,
+              onChanged: (v) => setState(() => _searchImmediately = v),
+            ),
+            if (lines.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.space4),
+              const FadingRule(),
+              const SizedBox(height: AppSpacing.space4),
+              const Text('AVAILABILITY', style: AppTypography.kicker),
+              const SizedBox(height: AppSpacing.space3),
+              for (final (label, value) in lines)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(label, style: AppTypography.meta),
+                      Text(value, style: AppTypography.meta),
+                    ],
+                  ),
+                ),
+            ],
+            const SizedBox(height: AppSpacing.space6),
+            if (_requestError != null) ...[
+              Text(
+                _requestError!,
+                style: AppTypography.meta.copyWith(color: AppColors.down),
+              ),
+              const SizedBox(height: AppSpacing.space2),
+            ],
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: (_requesting || serviceDetails == null)
+                    ? null
+                    : _handleRequest,
+                icon: _requesting
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(PhosphorIconsRegular.plus, size: 15),
+                label: const Text('Request'),
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 
-  bool _canRequest(SeerrMediaInfo? info) {
-    if (info == null) return true;
-    // MediaStatus (server/constants/media.ts): only a fully AVAILABLE item
-    // has nothing left to request.
-    return info.status != SeerrMediaStatus.available;
+  bool _isInLibrary(SeerrMediaInfo? info) =>
+      info?.status == SeerrMediaStatus.available ||
+      info?.status == SeerrMediaStatus.partiallyAvailable;
+
+  bool _isRequested(SeerrMediaInfo? info) =>
+      info?.status == SeerrMediaStatus.pending ||
+      info?.status == SeerrMediaStatus.processing;
+
+  String _libraryChipLabel(SeerrMediaInfo? info) {
+    if (_isInLibrary(info)) return 'In library';
+    if (_isRequested(info)) return 'Requested';
+    return 'Not in library';
+  }
+
+  /// Matches today's exact gate — only a fully `available` item has
+  /// nothing left to request; `partiallyAvailable` TV can still request
+  /// more seasons.
+  bool _canRequest(SeerrMediaInfo? info) =>
+      info == null || info.status != SeerrMediaStatus.available;
+
+  Future<void> _openTmdb(SeerrResult item) async {
+    final path = item.mediaType == 'tv' ? 'tv' : 'movie';
+    final uri = Uri.parse('https://www.themoviedb.org/$path/${item.id}');
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   Future<void> _handleRequest() async {
-    setState(() => _isRequesting = true);
+    final serviceAsync = _isTv
+        ? ref.read(
+            seerrSonarrServiceProvider(
+              instanceId: widget.instanceId,
+              serviceId: _defaultServiceId,
+            ),
+          )
+        : ref.read(
+            seerrRadarrServiceProvider(
+              instanceId: widget.instanceId,
+              serviceId: _defaultServiceId,
+            ),
+          );
+    final details = switch (serviceAsync.asData?.value) {
+      Ok(:final value) => value,
+      _ => null,
+    };
+    if (details == null) return;
+
+    final profileId =
+        _selectedProfileId ??
+        (details.profiles.isNotEmpty ? details.profiles.first.id : null);
+    final rootFolder =
+        _selectedRootFolder ??
+        (details.rootFolders.isNotEmpty
+            ? details.rootFolders.first.path
+            : null);
+
+    setState(() {
+      _requesting = true;
+      _requestError = null;
+    });
 
     final repository = await ref.read(
       seerrRepositoryProvider(widget.instanceId).future,
@@ -185,11 +342,15 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
     final result = await repository.request(
       widget.item.id,
       widget.item.mediaType,
+      serverId: _defaultServiceId,
+      profileId: profileId,
+      rootFolder: rootFolder,
     );
 
-    if (mounted) {
-      setState(() => _isRequesting = false);
-      if (result is Ok) {
+    if (!mounted) return;
+    switch (result) {
+      case Ok():
+        setState(() => _requesting = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Request submitted successfully!')),
         );
@@ -200,39 +361,93 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
             mediaType: widget.item.mediaType,
           ),
         );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Request failed: ${(result as Err).error.userMessage}',
-            ),
-          ),
-        );
-      }
+      case Err(:final error):
+        setState(() {
+          _requesting = false;
+          _requestError = 'Request failed: ${error.userMessage}';
+        });
     }
   }
 }
 
-class _RequestStatusChip extends StatelessWidget {
-  const _RequestStatusChip({this.mediaInfo});
-  final SeerrMediaInfo? mediaInfo;
+/// Static (non-animating) poster placeholder/error fallback — mirrors
+/// `ResolvedPoster`'s `_PosterFallback`. Deliberately avoids an
+/// indeterminate `CircularProgressIndicator`: that keeps scheduling frames
+/// forever while a `CachedNetworkImage` never resolves in the test
+/// environment (no real network), which would make `pumpAndSettle` hang.
+class _PosterFallback extends StatelessWidget {
+  const _PosterFallback();
 
   @override
   Widget build(BuildContext context) {
-    if (mediaInfo == null) return const SizedBox.shrink();
+    return Container(
+      color: AppColors.n800,
+      child: const Icon(Icons.movie_outlined, color: AppColors.n500, size: 28),
+    );
+  }
+}
 
-    final (label, color) = switch (mediaInfo!.status) {
-      SeerrMediaStatus.pending => ('Pending', Colors.orange),
-      SeerrMediaStatus.processing => ('Processing', Colors.purple),
-      SeerrMediaStatus.partiallyAvailable => (
-        'Partially Available',
-        Colors.lightGreen,
-      ),
-      SeerrMediaStatus.available => ('Available', Colors.green),
-      SeerrMediaStatus.deleted => ('Deleted', Colors.grey),
-      _ => ('Unknown', Colors.grey),
-    };
+class _RequestFields extends StatelessWidget {
+  const _RequestFields({
+    required this.details,
+    required this.selectedProfileId,
+    required this.selectedRootFolder,
+    required this.onProfileChanged,
+    required this.onRootFolderChanged,
+  });
 
-    return DetailChip(label: label, color: color);
+  final SeerrServiceDetails details;
+  final int? selectedProfileId;
+  final String? selectedRootFolder;
+  final ValueChanged<int?> onProfileChanged;
+  final ValueChanged<String?> onRootFolderChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final profileValue =
+        selectedProfileId ??
+        (details.profiles.isNotEmpty ? details.profiles.first.id : null);
+    final folder = details.rootFolders.isEmpty
+        ? null
+        : details.rootFolders.firstWhere(
+            (f) => f.path == selectedRootFolder,
+            orElse: () => details.rootFolders.first,
+          );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LabeledDropdownField<int>(
+          label: 'Quality profile',
+          value: profileValue,
+          items: [
+            for (final profile in details.profiles)
+              DropdownMenuItem(value: profile.id, child: Text(profile.name)),
+          ],
+          onChanged: onProfileChanged,
+        ),
+        const SizedBox(height: AppSpacing.space4),
+        LabeledDropdownField<String>(
+          label: 'Root folder',
+          value: folder?.path,
+          items: [
+            for (final rootFolder in details.rootFolders)
+              DropdownMenuItem(
+                value: rootFolder.path,
+                child: Text(rootFolder.path),
+              ),
+          ],
+          onChanged: onRootFolderChanged,
+          caption: folder == null ? null : _freeSpaceCaption(folder),
+        ),
+      ],
+    );
+  }
+
+  String? _freeSpaceCaption(SeerrServiceRootFolder folder) {
+    final free = folder.freeSpace;
+    final total = folder.totalSpace;
+    if (free == null || total == null) return null;
+    return '${FormatUtils.formatBytes(free)} free of ${FormatUtils.formatBytes(total)}';
   }
 }

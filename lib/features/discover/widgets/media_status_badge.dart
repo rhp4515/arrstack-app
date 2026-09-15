@@ -5,6 +5,15 @@
 /// through `mediaStatusPresentation` (seerr_status_presentation.dart)
 /// because "In library"/"Requested" don't match that function's literal
 /// media-status vocabulary.
+///
+/// The "In library" variant's text uses `AppColors.n900` rather than
+/// `AppColors.text`: `AppColors.text` on the `AppColors.accent` fill
+/// measures roughly 2.6:1, below WCAG AA's 4.5:1 threshold for this
+/// 9px/600 text (see `design_tokens.dart`'s own note that the accent ramp
+/// is only ~3:1 on dark grounds — fine for icons/large text, not small
+/// paragraph-weight copy). `n900` on `accent` gives real contrast. The
+/// "Requested" variant's neutral-900 fill with `AppColors.text` is
+/// unaffected — `text` on `n900` clears AA comfortably.
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
@@ -25,9 +34,15 @@ class MediaStatusBadge extends StatelessWidget {
       SeerrMediaStatus.available || SeerrMediaStatus.partiallyAvailable => (
         label: 'In library',
         fill: AppColors.accent,
+        // AppColors.text on accent is only ~2.6:1 — below WCAG AA for this
+        // small text. n900 on accent gives real contrast.
+        text: AppColors.n900,
       ),
-      SeerrMediaStatus.pending ||
-      SeerrMediaStatus.processing => (label: 'Requested', fill: AppColors.n900),
+      SeerrMediaStatus.pending || SeerrMediaStatus.processing => (
+        label: 'Requested',
+        fill: AppColors.n900,
+        text: AppColors.text,
+      ),
       _ => null,
     };
     if (style == null) return const SizedBox.shrink();
@@ -40,8 +55,8 @@ class MediaStatusBadge extends StatelessWidget {
       ),
       child: Text(
         style.label,
-        style: const TextStyle(
-          color: AppColors.text,
+        style: TextStyle(
+          color: style.text,
           fontSize: 9,
           fontWeight: FontWeight.w600,
         ),

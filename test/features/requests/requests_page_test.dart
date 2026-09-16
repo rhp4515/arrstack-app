@@ -111,4 +111,77 @@ void main() {
     expect(find.text('Could not reach Seerr'), findsOneWidget);
     expect(find.text('No requests'), findsNothing);
   });
+
+  testWidgets(
+    'lazily builds request rows: a far-down request\'s detail provider is '
+    'never watched while only the top of a long list is on screen',
+    (tester) async {
+      const farDownId = 999;
+      const farDownTmdbId = 4242;
+      var farDownProviderWatched = false;
+
+      final requests = [
+        for (var i = 1; i <= 30; i++)
+          req(id: i, status: SeerrRequestStatus.pending),
+        const SeerrRequest(
+          id: farDownId,
+          status: SeerrRequestStatus.pending,
+          media: SeerrRequestMedia(
+            id: farDownId,
+            tmdbId: farDownTmdbId,
+            mediaType: 'movie',
+          ),
+        ),
+      ];
+
+      final scope = ProviderScope(
+        overrides: [
+          selectedSeerrInstanceIdProvider.overrideWith(
+            _FakeSelectedInstance.new,
+          ),
+          seerrAllRequestsProvider(instanceId)
+              .overrideWith((ref) async => Ok(requests)),
+          // If SliverList ever stops being lazy (e.g. reverts to a plain
+          // ListView(children: [...])), this far-down request's card would
+          // be built immediately, this provider would be watched, and the
+          // flag below would flip to true even though the item never
+          // scrolled into view.
+          seerrDetailProvider(
+            instanceId: instanceId,
+            id: farDownTmdbId,
+            mediaType: 'movie',
+          ).overrideWith((ref) async {
+            farDownProviderWatched = true;
+            return const Err(
+              UnknownError(
+                userMessage: 'far-down request should not be queried',
+              ),
+            );
+          }),
+        ],
+        child: const MaterialApp(home: RequestsPage()),
+      );
+
+      await tester.pumpWidget(scope);
+      await tester.pumpAndSettle();
+
+      expect(
+        farDownProviderWatched,
+        isFalse,
+        reason:
+            'the 31st pending request is far below the fold; its detail '
+            'provider must not be watched until it scrolls into view',
+      );
+
+      // Structural check: the pending-request list is built by a lazy
+      // delegate, not a fixed-children container.
+      expect(find.byType(ListView), findsNothing);
+      final slivers = tester.widgetList<SliverList>(find.byType(SliverList));
+      expect(slivers, isNotEmpty);
+      expect(
+        slivers.every((s) => s.delegate is SliverChildBuilderDelegate),
+        isTrue,
+      );
+    },
+  );
 }

@@ -131,106 +131,153 @@ class _RequestsList extends ConsumerWidget {
 
     return RefreshIndicator(
       onRefresh: () async => refresh(),
-      child: ListView(
-        padding: AppInsets.pageMd,
-        children: [
-          if (filter != RequestsFilter.availableOnly) ...[
-            Row(
-              children: [
-                _Stat(
-                  value: '${stats.pending}',
-                  label: 'PENDING',
-                  color: AppColors.warning,
-                ),
-                const SizedBox(width: AppSpacing.space8),
-                _Stat(
-                  value: '${stats.processing}',
-                  label: 'PROCESSING',
-                  color: AppColors.accent,
-                ),
-                const SizedBox(width: AppSpacing.space8),
-                _Stat(
-                  value: '${stats.available}',
-                  label: 'AVAILABLE',
-                  color: AppColors.up,
-                ),
+      child: CustomScrollView(
+        slivers: [
+          SliverPadding(
+            padding: AppInsets.pageMd,
+            sliver: SliverMainAxisGroup(
+              slivers: [
+                if (filter != RequestsFilter.availableOnly) ...[
+                  SliverToBoxAdapter(
+                    child: Row(
+                      children: [
+                        _Stat(
+                          value: '${stats.pending}',
+                          label: 'PENDING',
+                          color: AppColors.warning,
+                        ),
+                        const SizedBox(width: AppSpacing.space8),
+                        _Stat(
+                          value: '${stats.processing}',
+                          label: 'PROCESSING',
+                          color: AppColors.accent,
+                        ),
+                        const SizedBox(width: AppSpacing.space8),
+                        _Stat(
+                          value: '${stats.available}',
+                          label: 'AVAILABLE',
+                          color: AppColors.up,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: AppSpacing.space6),
+                  ),
+                ],
+                if (pending.isEmpty && progress.isEmpty && available.isEmpty)
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: AppSpacing.space8,
+                      ),
+                      child: EmptyState(
+                        icon: Icons.inbox_outlined,
+                        title: 'No requests',
+                      ),
+                    ),
+                  ),
+                if (pending.isNotEmpty) ...[
+                  SliverToBoxAdapter(
+                    child: Text(
+                      'NEEDS A DECISION · ${pending.length}',
+                      style: AppTypography.kicker,
+                    ),
+                  ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: AppSpacing.space4),
+                  ),
+                  SliverList.builder(
+                    itemCount: pending.length,
+                    itemBuilder: (context, index) {
+                      final request = pending[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: AppSpacing.space3,
+                        ),
+                        child: RequestCard(
+                          key: ValueKey(request.id),
+                          instanceId: instanceId,
+                          request: request,
+                          onDecided: refresh,
+                        ),
+                      );
+                    },
+                  ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: AppSpacing.space6),
+                  ),
+                ],
+                if (progress.isNotEmpty) ...[
+                  SliverToBoxAdapter(
+                    child: Text(
+                      'IN PROGRESS · ${progress.length}',
+                      style: AppTypography.kicker,
+                    ),
+                  ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: AppSpacing.space4),
+                  ),
+                  SliverList.builder(
+                    itemCount: progress.length,
+                    itemBuilder: (context, index) {
+                      final request = progress[index];
+                      return InProgressRow(
+                        key: ValueKey(request.id),
+                        instanceId: instanceId,
+                        request: request,
+                      );
+                    },
+                  ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: AppSpacing.space6),
+                  ),
+                ],
+                if (available.isNotEmpty)
+                  SliverList.builder(
+                    itemCount: available.length,
+                    itemBuilder: (context, index) {
+                      final request = available[index];
+                      return InProgressRow(
+                        key: ValueKey(request.id),
+                        instanceId: instanceId,
+                        request: request,
+                      );
+                    },
+                  ),
+                if (filter == RequestsFilter.all && stats.available > 0)
+                  SliverToBoxAdapter(
+                    child: InkWell(
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const RequestsPage(
+                            initialFilter: RequestsFilter.availableOnly,
+                          ),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.space3,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${stats.available} available requests',
+                              style: AppTypography.body,
+                            ),
+                            const Icon(
+                              PhosphorIconsRegular.caretRight,
+                              size: 14,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
-            const SizedBox(height: AppSpacing.space6),
-          ],
-          if (pending.isEmpty && progress.isEmpty && available.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: AppSpacing.space8),
-              child: EmptyState(
-                icon: Icons.inbox_outlined,
-                title: 'No requests',
-              ),
-            ),
-          if (pending.isNotEmpty) ...[
-            Text(
-              'NEEDS A DECISION · ${pending.length}',
-              style: AppTypography.kicker,
-            ),
-            const SizedBox(height: AppSpacing.space4),
-            for (final request in pending)
-              Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.space3),
-                child: RequestCard(
-                  key: ValueKey(request.id),
-                  instanceId: instanceId,
-                  request: request,
-                  onDecided: refresh,
-                ),
-              ),
-            const SizedBox(height: AppSpacing.space6),
-          ],
-          if (progress.isNotEmpty) ...[
-            Text(
-              'IN PROGRESS · ${progress.length}',
-              style: AppTypography.kicker,
-            ),
-            const SizedBox(height: AppSpacing.space4),
-            for (final request in progress)
-              InProgressRow(
-                key: ValueKey(request.id),
-                instanceId: instanceId,
-                request: request,
-              ),
-            const SizedBox(height: AppSpacing.space6),
-          ],
-          if (available.isNotEmpty) ...[
-            for (final request in available)
-              InProgressRow(
-                key: ValueKey(request.id),
-                instanceId: instanceId,
-                request: request,
-              ),
-          ],
-          if (filter == RequestsFilter.all && stats.available > 0)
-            InkWell(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const RequestsPage(
-                    initialFilter: RequestsFilter.availableOnly,
-                  ),
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: AppSpacing.space3,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '${stats.available} available requests',
-                      style: AppTypography.body,
-                    ),
-                    const Icon(PhosphorIconsRegular.caretRight, size: 14),
-                  ],
-                ),
-              ),
-            ),
+          ),
         ],
       ),
     );

@@ -66,7 +66,8 @@ void main() {
     expect(find.textContaining('Searching all indexers'), findsOneWidget);
   });
 
-  testWidgets('renders results sorted by peers by default', (tester) async {
+  testWidgets('renders results in the service\'s original order by default '
+      '(Best match)', (tester) async {
     await tester.pumpWidget(
       _host(
         Ok<List<ReleaseCandidate>>([
@@ -75,6 +76,31 @@ void main() {
         ]),
       ),
     );
+    await tester.pumpAndSettle();
+
+    final tiles = tester
+        .widgetList<ReleaseTile>(find.byType(ReleaseTile))
+        .toList();
+    // Best match does not re-sort — it preserves the order the
+    // repository returned the candidates in.
+    expect(tiles.first.release.guid, 'low');
+    expect(tiles.last.release.guid, 'high');
+  });
+
+  testWidgets('switching sort to Seeders re-orders the list by peers', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        Ok<List<ReleaseCandidate>>([
+          rc('low', seeders: 2),
+          rc('high', seeders: 99),
+        ]),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Seeders'));
     await tester.pumpAndSettle();
 
     final tiles = tester

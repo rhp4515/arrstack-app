@@ -11,6 +11,7 @@ import 'package:phosphor_icons/phosphor_icons.dart';
 ReleaseCandidate release({
   bool rejected = false,
   List<String> rejections = const [],
+  bool downloadAllowed = true,
   int? seeders = 25,
   ReleaseProtocol protocol = ReleaseProtocol.torrent,
 }) => ReleaseCandidate(
@@ -25,7 +26,7 @@ ReleaseCandidate release({
   ageMinutes: 200,
   isRejected: rejected,
   rejections: rejections,
-  downloadAllowed: true,
+  downloadAllowed: downloadAllowed,
   seeders: seeders,
   leechers: 2,
 );
@@ -106,5 +107,31 @@ void main() {
       find.byIcon(PhosphorIconsRegular.prohibit),
     );
     expect(icon.color, AppColors.down);
+  });
+
+  testWidgets('a non-rejected but disallowed release is treated as blocked, '
+      'with no fabricated reason text', (tester) async {
+    await _pump(
+      tester,
+      // Realistic shape: downloadAllowed: false without isRejected means
+      // Sonarr/Radarr never populated a rejection reason — rejections
+      // stays empty, matching ReleaseCandidate.fromSonarr/fromRadarr,
+      // which always set both isRejected and rejections from the same
+      // API fields.
+      release(rejected: false, downloadAllowed: false, rejections: const []),
+    );
+
+    // Same blocked treatment as a rejected release: prohibit icon, down
+    // color, dimmed via Opacity.
+    expect(find.byIcon(PhosphorIconsRegular.downloadSimple), findsNothing);
+    final icon = tester.widget<Icon>(
+      find.byIcon(PhosphorIconsRegular.prohibit),
+    );
+    expect(icon.color, AppColors.down);
+    expect(find.byType(Opacity), findsWidgets);
+
+    // But no rejection-reason text is fabricated — there's nothing to
+    // show since this release was never actually rejected.
+    expect(find.textContaining('more'), findsNothing);
   });
 }

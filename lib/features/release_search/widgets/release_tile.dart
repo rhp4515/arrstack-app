@@ -1,7 +1,13 @@
 /// One row in the interactive-search results list (README §3e): a
 /// regular-weight release name over a tabular spec line, with a trailing
-/// download icon (allowed) or a red prohibit icon (rejected) instead of
-/// leaving rejected rows with no icon at all.
+/// download icon (allowed) or a red prohibit icon (blocked) instead of
+/// leaving blocked rows with no icon at all. "Blocked" covers both an
+/// outright rejection (`isRejected`) and a release that is merely
+/// `downloadAllowed: false` without a formal rejection — both require the
+/// same force-download confirmation in release_detail_sheet.dart, so both
+/// get the same dimmed, prohibit-icon treatment here. Only a genuine
+/// rejection with non-empty `rejections` gets reason text; a
+/// disallowed-but-not-rejected release has no reason string to show.
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
@@ -19,6 +25,13 @@ class ReleaseTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const muted = AppColors.n500;
+
+    // A release can be blocked from a normal download either because the
+    // service rejected it outright (isRejected) or because it's merely
+    // disallowed (downloadAllowed: false) without a formal rejection —
+    // release_detail_sheet.dart's `_isForce` treats both identically as
+    // requiring a force-download confirmation, so the tile mirrors that.
+    final isBlocked = release.isRejected || !release.downloadAllowed;
 
     final peers = release.protocol == ReleaseProtocol.torrent
         ? '▲${release.seeders ?? '—'} ▼${release.leechers ?? '—'}'
@@ -41,7 +54,7 @@ class ReleaseTile extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.body.copyWith(
-              color: release.isRejected ? AppColors.n500 : AppColors.text,
+              color: isBlocked ? AppColors.n500 : AppColors.text,
             ),
           ),
           const SizedBox(height: AppSpacing.space2),
@@ -76,11 +89,11 @@ class ReleaseTile extends StatelessWidget {
           textColumn,
           const SizedBox(width: AppSpacing.space3),
           Icon(
-            release.isRejected
+            isBlocked
                 ? PhosphorIconsRegular.prohibit
                 : PhosphorIconsRegular.downloadSimple,
             size: 15,
-            color: release.isRejected ? AppColors.down : AppColors.accent,
+            color: isBlocked ? AppColors.down : AppColors.accent,
           ),
         ],
       ),
@@ -88,9 +101,7 @@ class ReleaseTile extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      child: release.isRejected
-          ? Opacity(opacity: 0.55, child: content)
-          : content,
+      child: isBlocked ? Opacity(opacity: 0.55, child: content) : content,
     );
   }
 }

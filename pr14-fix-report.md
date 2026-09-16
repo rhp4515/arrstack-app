@@ -345,6 +345,6 @@ dart format --set-exit-if-changed .   # whole repo
 - None functional. Both fixes are narrowly scoped, match the task's exact specification (including the "don't fabricate reason text" and "still copy, don't mutate" constraints), and the one downstream test that encoded the old buggy behavior was found and corrected rather than left to bit-rot.
 - Minor style note: `dart format` re-wrapped two of my longer test-description strings across lines differently than I originally typed them (moved the string literal onto its own line instead of splitting mid-call-arguments) — purely cosmetic, no semantic change, already applied and verified clean.
 
-### Commits
+### Commit
 
-(recorded after commit — see below)
+`117f144` — `fix(release-search): distinguish Best-match sort and disallowed releases`

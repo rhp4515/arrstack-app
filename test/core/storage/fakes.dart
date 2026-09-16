@@ -41,6 +41,19 @@ class FakeConfigStore implements ConfigStore {
   Future<void> writeThemeMode(String mode) async {
     _themeMode = mode;
   }
+
+  List<Map<String, dynamic>> _cachedSummaries = const [];
+
+  @override
+  Future<List<Map<String, dynamic>>> readCachedSummaries() async =>
+      _cachedSummaries;
+
+  @override
+  Future<void> writeCachedSummaries(
+    List<Map<String, dynamic>> summaries,
+  ) async {
+    _cachedSummaries = List.unmodifiable(summaries);
+  }
 }
 
 class FakeSecureStore implements SecureStore {

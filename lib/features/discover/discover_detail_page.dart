@@ -356,6 +356,7 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
     final servicesResult = await (_isTv
         ? ref.read(seerrSonarrServicesProvider(widget.instanceId).future)
         : ref.read(seerrRadarrServicesProvider(widget.instanceId).future));
+    if (!mounted) return;
     final resolvedServiceId = switch (servicesResult) {
       Ok(:final value) => _pickDefaultServiceId(value),
       Err() => null,

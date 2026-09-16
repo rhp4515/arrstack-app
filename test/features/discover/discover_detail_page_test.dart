@@ -198,6 +198,32 @@ void main() {
   );
 
   testWidgets(
+    'a failed services-list fetch disables Request and shows a visible '
+    'error, not a silent fallback to any id',
+    (tester) async {
+      await tester.pumpWidget(
+        host([
+          seerrRadarrServicesProvider(instanceId).overrideWith(
+            (ref) async => const Err(
+              UnknownError(userMessage: 'Could not list Seerr servers'),
+            ),
+          ),
+        ]),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.textContaining('Could not list Seerr servers'),
+        findsOneWidget,
+      );
+      final requestButton = tester.widget<OutlinedButton>(
+        find.widgetWithText(OutlinedButton, 'Request'),
+      );
+      expect(requestButton.onPressed, isNull);
+    },
+  );
+
+  testWidgets(
     "prefers Seerr's activeProfileId/activeDirectory over the first entry",
     (tester) async {
       await tester.pumpWidget(

@@ -164,6 +164,28 @@ Future<Result<SeerrRequestsResponse>> seerrRequests(
 }
 
 @riverpod
+Future<Result<List<SeerrServiceSummary>>> seerrRadarrServices(
+  Ref ref,
+  String instanceId,
+) async {
+  final repository = await ref.watch(
+    seerrRepositoryProvider(instanceId).future,
+  );
+  return repository.getRadarrServices();
+}
+
+@riverpod
+Future<Result<List<SeerrServiceSummary>>> seerrSonarrServices(
+  Ref ref,
+  String instanceId,
+) async {
+  final repository = await ref.watch(
+    seerrRepositoryProvider(instanceId).future,
+  );
+  return repository.getSonarrServices();
+}
+
+@riverpod
 Future<Result<SeerrServiceDetails>> seerrRadarrService(
   Ref ref, {
   required String instanceId,

@@ -191,6 +191,35 @@ class SeerrClient implements ConnectionTestClient {
     );
   }
 
+  Future<Result<List<SeerrServiceSummary>>> _serviceSummaries(String path) {
+    return dioCall(
+      () => _dio.get(path),
+      map: (data) {
+        try {
+          return (data as List)
+              .map(
+                (e) => SeerrServiceSummary.fromJson(e as Map<String, dynamic>),
+              )
+              .toList();
+        } catch (e, st) {
+          developer.log(
+            'Seerr service list ($path) parse error: $e',
+            name: 'arrstack.seerr',
+            error: e,
+            stackTrace: st,
+          );
+          rethrow;
+        }
+      },
+    );
+  }
+
+  Future<Result<List<SeerrServiceSummary>>> getRadarrServices() =>
+      _serviceSummaries('api/v1/service/radarr');
+
+  Future<Result<List<SeerrServiceSummary>>> getSonarrServices() =>
+      _serviceSummaries('api/v1/service/sonarr');
+
   Future<Result<SeerrServiceDetails>> getRadarrService(int serviceId) {
     return dioCall(
       () => _dio.get('api/v1/service/radarr/$serviceId'),

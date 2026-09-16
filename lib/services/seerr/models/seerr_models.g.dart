@@ -224,6 +224,16 @@ Map<String, dynamic> _$SeerrServiceRootFolderToJson(
   'totalSpace': instance.totalSpace,
 };
 
+_SeerrServiceSummary _$SeerrServiceSummaryFromJson(Map<String, dynamic> json) =>
+    _SeerrServiceSummary(
+      id: (json['id'] as num).toInt(),
+      isDefault: json['isDefault'] as bool,
+    );
+
+Map<String, dynamic> _$SeerrServiceSummaryToJson(
+  _SeerrServiceSummary instance,
+) => <String, dynamic>{'id': instance.id, 'isDefault': instance.isDefault};
+
 _SeerrServiceDetails _$SeerrServiceDetailsFromJson(Map<String, dynamic> json) =>
     _SeerrServiceDetails(
       profiles:
@@ -241,6 +251,8 @@ _SeerrServiceDetails _$SeerrServiceDetailsFromJson(Map<String, dynamic> json) =>
               )
               .toList() ??
           const [],
+      activeProfileId: (json['activeProfileId'] as num?)?.toInt(),
+      activeDirectory: json['activeDirectory'] as String?,
     );
 
 Map<String, dynamic> _$SeerrServiceDetailsToJson(
@@ -248,4 +260,6 @@ Map<String, dynamic> _$SeerrServiceDetailsToJson(
 ) => <String, dynamic>{
   'profiles': instance.profiles,
   'rootFolders': instance.rootFolders,
+  'activeProfileId': instance.activeProfileId,
+  'activeDirectory': instance.activeDirectory,
 };

@@ -63,6 +63,12 @@ class SeerrRepository {
   Future<Result<void>> deleteRequest(int requestId) =>
       _client.deleteRequest(requestId);
 
+  Future<Result<List<SeerrServiceSummary>>> getRadarrServices() =>
+      _client.getRadarrServices();
+
+  Future<Result<List<SeerrServiceSummary>>> getSonarrServices() =>
+      _client.getSonarrServices();
+
   Future<Result<SeerrServiceDetails>> getRadarrService(int serviceId) =>
       _client.getRadarrService(serviceId);
 

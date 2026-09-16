@@ -1,3 +1,5 @@
+import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/services/seerr/models/seerr_models.dart';
 import 'package:arrstack/services/seerr/seerr_client.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,6 +32,43 @@ void main() {
     final result = await client.getRadarrService(3);
 
     expect(result.isOk, isTrue);
+  });
+
+  test('getRadarrServices parses the server list with isDefault', () async {
+    adapter.onGet(
+      'api/v1/service/radarr',
+      (server) => server.reply(200, [
+        {'id': 0, 'isDefault': false},
+        {'id': 2, 'isDefault': true},
+      ]),
+    );
+
+    final result = await client.getRadarrServices();
+
+    expect(result.isOk, isTrue);
+    final services = (result as Ok).value as List<SeerrServiceSummary>;
+    expect(services, hasLength(2));
+    expect(services[0].id, 0);
+    expect(services[0].isDefault, isFalse);
+    expect(services[1].id, 2);
+    expect(services[1].isDefault, isTrue);
+  });
+
+  test('getSonarrServices requests the no-id service-list endpoint', () async {
+    adapter.onGet(
+      'api/v1/service/sonarr',
+      (server) => server.reply(200, [
+        {'id': 1, 'isDefault': true},
+      ]),
+    );
+
+    final result = await client.getSonarrServices();
+
+    expect(result.isOk, isTrue);
+    final services = (result as Ok).value as List<SeerrServiceSummary>;
+    expect(services, hasLength(1));
+    expect(services.single.id, 1);
+    expect(services.single.isDefault, isTrue);
   });
 
   test('getSonarrService requests the service-detail endpoint', () async {

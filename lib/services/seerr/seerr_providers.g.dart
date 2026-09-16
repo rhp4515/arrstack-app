@@ -1096,6 +1096,170 @@ final class SeerrRequestsFamily extends $Family
   String toString() => r'seerrRequestsProvider';
 }
 
+@ProviderFor(seerrRadarrServices)
+final seerrRadarrServicesProvider = SeerrRadarrServicesFamily._();
+
+final class SeerrRadarrServicesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<List<SeerrServiceSummary>>>,
+          Result<List<SeerrServiceSummary>>,
+          FutureOr<Result<List<SeerrServiceSummary>>>
+        >
+    with
+        $FutureModifier<Result<List<SeerrServiceSummary>>>,
+        $FutureProvider<Result<List<SeerrServiceSummary>>> {
+  SeerrRadarrServicesProvider._({
+    required SeerrRadarrServicesFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'seerrRadarrServicesProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$seerrRadarrServicesHash();
+
+  @override
+  String toString() {
+    return r'seerrRadarrServicesProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<List<SeerrServiceSummary>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<List<SeerrServiceSummary>>> create(Ref ref) {
+    final argument = this.argument as String;
+    return seerrRadarrServices(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SeerrRadarrServicesProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$seerrRadarrServicesHash() =>
+    r'a27b2c338f8fdfa4d1e26afc1ea504e778d585c9';
+
+final class SeerrRadarrServicesFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Result<List<SeerrServiceSummary>>>,
+          String
+        > {
+  SeerrRadarrServicesFamily._()
+    : super(
+        retry: null,
+        name: r'seerrRadarrServicesProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  SeerrRadarrServicesProvider call(String instanceId) =>
+      SeerrRadarrServicesProvider._(argument: instanceId, from: this);
+
+  @override
+  String toString() => r'seerrRadarrServicesProvider';
+}
+
+@ProviderFor(seerrSonarrServices)
+final seerrSonarrServicesProvider = SeerrSonarrServicesFamily._();
+
+final class SeerrSonarrServicesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<List<SeerrServiceSummary>>>,
+          Result<List<SeerrServiceSummary>>,
+          FutureOr<Result<List<SeerrServiceSummary>>>
+        >
+    with
+        $FutureModifier<Result<List<SeerrServiceSummary>>>,
+        $FutureProvider<Result<List<SeerrServiceSummary>>> {
+  SeerrSonarrServicesProvider._({
+    required SeerrSonarrServicesFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'seerrSonarrServicesProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$seerrSonarrServicesHash();
+
+  @override
+  String toString() {
+    return r'seerrSonarrServicesProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<List<SeerrServiceSummary>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<List<SeerrServiceSummary>>> create(Ref ref) {
+    final argument = this.argument as String;
+    return seerrSonarrServices(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SeerrSonarrServicesProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$seerrSonarrServicesHash() =>
+    r'098af962b2bf42168b53cefb0906464f34ab688d';
+
+final class SeerrSonarrServicesFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Result<List<SeerrServiceSummary>>>,
+          String
+        > {
+  SeerrSonarrServicesFamily._()
+    : super(
+        retry: null,
+        name: r'seerrSonarrServicesProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  SeerrSonarrServicesProvider call(String instanceId) =>
+      SeerrSonarrServicesProvider._(argument: instanceId, from: this);
+
+  @override
+  String toString() => r'seerrSonarrServicesProvider';
+}
+
 @ProviderFor(seerrRadarrService)
 final seerrRadarrServiceProvider = SeerrRadarrServiceFamily._();
 

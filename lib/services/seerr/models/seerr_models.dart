@@ -182,11 +182,36 @@ abstract class SeerrServiceRootFolder with _$SeerrServiceRootFolder {
       _$SeerrServiceRootFolderFromJson(json);
 }
 
+/// One entry from `GET /service/radarr|sonarr` (no id) — the list of
+/// servers Seerr has configured for that media type. Only [id] and
+/// [isDefault] are modeled; the response also carries `name`, `is4k`, etc.,
+/// which nothing in this app needs yet.
+@freezed
+abstract class SeerrServiceSummary with _$SeerrServiceSummary {
+  const factory SeerrServiceSummary({
+    required int id,
+    required bool isDefault,
+  }) = _SeerrServiceSummary;
+
+  factory SeerrServiceSummary.fromJson(Map<String, dynamic> json) =>
+      _$SeerrServiceSummaryFromJson(json);
+}
+
 @freezed
 abstract class SeerrServiceDetails with _$SeerrServiceDetails {
   const factory SeerrServiceDetails({
     @Default([]) List<SeerrServiceProfile> profiles,
     @Default([]) List<SeerrServiceRootFolder> rootFolders,
+
+    /// Seerr's own configured default quality profile for this server, from
+    /// `GET /service/radarr|sonarr/{id}`'s `activeProfileId` field. Null
+    /// when Seerr reports none.
+    int? activeProfileId,
+
+    /// Seerr's own configured default root folder for this server, from the
+    /// same response's `activeDirectory` field. Null when Seerr reports
+    /// none.
+    String? activeDirectory,
   }) = _SeerrServiceDetails;
 
   factory SeerrServiceDetails.fromJson(Map<String, dynamic> json) =>

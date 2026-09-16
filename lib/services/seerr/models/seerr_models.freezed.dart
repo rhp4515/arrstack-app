@@ -3395,9 +3395,281 @@ as int?,
 
 
 /// @nodoc
+mixin _$SeerrServiceSummary {
+
+ int get id; bool get isDefault;
+/// Create a copy of SeerrServiceSummary
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SeerrServiceSummaryCopyWith<SeerrServiceSummary> get copyWith => _$SeerrServiceSummaryCopyWithImpl<SeerrServiceSummary>(this as SeerrServiceSummary, _$identity);
+
+  /// Serializes this SeerrServiceSummary to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SeerrServiceSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,isDefault);
+
+@override
+String toString() {
+  return 'SeerrServiceSummary(id: $id, isDefault: $isDefault)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SeerrServiceSummaryCopyWith<$Res>  {
+  factory $SeerrServiceSummaryCopyWith(SeerrServiceSummary value, $Res Function(SeerrServiceSummary) _then) = _$SeerrServiceSummaryCopyWithImpl;
+@useResult
+$Res call({
+ int id, bool isDefault
+});
+
+
+
+
+}
+/// @nodoc
+class _$SeerrServiceSummaryCopyWithImpl<$Res>
+    implements $SeerrServiceSummaryCopyWith<$Res> {
+  _$SeerrServiceSummaryCopyWithImpl(this._self, this._then);
+
+  final SeerrServiceSummary _self;
+  final $Res Function(SeerrServiceSummary) _then;
+
+/// Create a copy of SeerrServiceSummary
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? isDefault = null,}) {
+  return _then(SeerrServiceSummary(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,isDefault: null == isDefault ? _self.isDefault : isDefault // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [SeerrServiceSummary].
+extension SeerrServiceSummaryPatterns on SeerrServiceSummary {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _SeerrServiceSummary value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _SeerrServiceSummary() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _SeerrServiceSummary value)  $default,){
+final _that = this;
+switch (_that) {
+case _SeerrServiceSummary():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _SeerrServiceSummary value)?  $default,){
+final _that = this;
+switch (_that) {
+case _SeerrServiceSummary() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  bool isDefault)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _SeerrServiceSummary() when $default != null:
+return $default(_that.id,_that.isDefault);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  bool isDefault)  $default,) {final _that = this;
+switch (_that) {
+case _SeerrServiceSummary():
+return $default(_that.id,_that.isDefault);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  bool isDefault)?  $default,) {final _that = this;
+switch (_that) {
+case _SeerrServiceSummary() when $default != null:
+return $default(_that.id,_that.isDefault);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _SeerrServiceSummary implements SeerrServiceSummary {
+  const _SeerrServiceSummary({required this.id, required this.isDefault});
+  factory _SeerrServiceSummary.fromJson(Map<String, dynamic> json) => _$SeerrServiceSummaryFromJson(json);
+
+@override final  int id;
+@override final  bool isDefault;
+
+/// Create a copy of SeerrServiceSummary
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SeerrServiceSummaryCopyWith<_SeerrServiceSummary> get copyWith => __$SeerrServiceSummaryCopyWithImpl<_SeerrServiceSummary>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$SeerrServiceSummaryToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SeerrServiceSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,isDefault);
+
+@override
+String toString() {
+  return 'SeerrServiceSummary(id: $id, isDefault: $isDefault)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SeerrServiceSummaryCopyWith<$Res> implements $SeerrServiceSummaryCopyWith<$Res> {
+  factory _$SeerrServiceSummaryCopyWith(_SeerrServiceSummary value, $Res Function(_SeerrServiceSummary) _then) = __$SeerrServiceSummaryCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, bool isDefault
+});
+
+
+
+
+}
+/// @nodoc
+class __$SeerrServiceSummaryCopyWithImpl<$Res>
+    implements _$SeerrServiceSummaryCopyWith<$Res> {
+  __$SeerrServiceSummaryCopyWithImpl(this._self, this._then);
+
+  final _SeerrServiceSummary _self;
+  final $Res Function(_SeerrServiceSummary) _then;
+
+/// Create a copy of SeerrServiceSummary
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? isDefault = null,}) {
+  return _then(_SeerrServiceSummary(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,isDefault: null == isDefault ? _self.isDefault : isDefault // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$SeerrServiceDetails {
 
- List<SeerrServiceProfile> get profiles; List<SeerrServiceRootFolder> get rootFolders;
+ List<SeerrServiceProfile> get profiles; List<SeerrServiceRootFolder> get rootFolders;/// Seerr's own configured default quality profile for this server, from
+/// `GET /service/radarr|sonarr/{id}`'s `activeProfileId` field. Null
+/// when Seerr reports none.
+ int? get activeProfileId;/// Seerr's own configured default root folder for this server, from the
+/// same response's `activeDirectory` field. Null when Seerr reports
+/// none.
+ String? get activeDirectory;
 /// Create a copy of SeerrServiceDetails
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3410,16 +3682,16 @@ $SeerrServiceDetailsCopyWith<SeerrServiceDetails> get copyWith => _$SeerrService
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SeerrServiceDetails&&const DeepCollectionEquality().equals(other.profiles, profiles)&&const DeepCollectionEquality().equals(other.rootFolders, rootFolders));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SeerrServiceDetails&&const DeepCollectionEquality().equals(other.profiles, profiles)&&const DeepCollectionEquality().equals(other.rootFolders, rootFolders)&&(identical(other.activeProfileId, activeProfileId) || other.activeProfileId == activeProfileId)&&(identical(other.activeDirectory, activeDirectory) || other.activeDirectory == activeDirectory));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(profiles),const DeepCollectionEquality().hash(rootFolders));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(profiles),const DeepCollectionEquality().hash(rootFolders),activeProfileId,activeDirectory);
 
 @override
 String toString() {
-  return 'SeerrServiceDetails(profiles: $profiles, rootFolders: $rootFolders)';
+  return 'SeerrServiceDetails(profiles: $profiles, rootFolders: $rootFolders, activeProfileId: $activeProfileId, activeDirectory: $activeDirectory)';
 }
 
 
@@ -3430,7 +3702,7 @@ abstract mixin class $SeerrServiceDetailsCopyWith<$Res>  {
   factory $SeerrServiceDetailsCopyWith(SeerrServiceDetails value, $Res Function(SeerrServiceDetails) _then) = _$SeerrServiceDetailsCopyWithImpl;
 @useResult
 $Res call({
- List<SeerrServiceProfile> profiles, List<SeerrServiceRootFolder> rootFolders
+ List<SeerrServiceProfile> profiles, List<SeerrServiceRootFolder> rootFolders, int? activeProfileId, String? activeDirectory
 });
 
 
@@ -3447,11 +3719,13 @@ class _$SeerrServiceDetailsCopyWithImpl<$Res>
 
 /// Create a copy of SeerrServiceDetails
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? profiles = null,Object? rootFolders = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? profiles = null,Object? rootFolders = null,Object? activeProfileId = freezed,Object? activeDirectory = freezed,}) {
   return _then(SeerrServiceDetails(
 profiles: null == profiles ? _self.profiles : profiles // ignore: cast_nullable_to_non_nullable
 as List<SeerrServiceProfile>,rootFolders: null == rootFolders ? _self.rootFolders : rootFolders // ignore: cast_nullable_to_non_nullable
-as List<SeerrServiceRootFolder>,
+as List<SeerrServiceRootFolder>,activeProfileId: freezed == activeProfileId ? _self.activeProfileId : activeProfileId // ignore: cast_nullable_to_non_nullable
+as int?,activeDirectory: freezed == activeDirectory ? _self.activeDirectory : activeDirectory // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -3536,10 +3810,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<SeerrServiceProfile> profiles,  List<SeerrServiceRootFolder> rootFolders)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<SeerrServiceProfile> profiles,  List<SeerrServiceRootFolder> rootFolders,  int? activeProfileId,  String? activeDirectory)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SeerrServiceDetails() when $default != null:
-return $default(_that.profiles,_that.rootFolders);case _:
+return $default(_that.profiles,_that.rootFolders,_that.activeProfileId,_that.activeDirectory);case _:
   return orElse();
 
 }
@@ -3557,10 +3831,10 @@ return $default(_that.profiles,_that.rootFolders);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<SeerrServiceProfile> profiles,  List<SeerrServiceRootFolder> rootFolders)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<SeerrServiceProfile> profiles,  List<SeerrServiceRootFolder> rootFolders,  int? activeProfileId,  String? activeDirectory)  $default,) {final _that = this;
 switch (_that) {
 case _SeerrServiceDetails():
-return $default(_that.profiles,_that.rootFolders);case _:
+return $default(_that.profiles,_that.rootFolders,_that.activeProfileId,_that.activeDirectory);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -3577,10 +3851,10 @@ return $default(_that.profiles,_that.rootFolders);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<SeerrServiceProfile> profiles,  List<SeerrServiceRootFolder> rootFolders)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<SeerrServiceProfile> profiles,  List<SeerrServiceRootFolder> rootFolders,  int? activeProfileId,  String? activeDirectory)?  $default,) {final _that = this;
 switch (_that) {
 case _SeerrServiceDetails() when $default != null:
-return $default(_that.profiles,_that.rootFolders);case _:
+return $default(_that.profiles,_that.rootFolders,_that.activeProfileId,_that.activeDirectory);case _:
   return null;
 
 }
@@ -3592,7 +3866,7 @@ return $default(_that.profiles,_that.rootFolders);case _:
 @JsonSerializable()
 
 class _SeerrServiceDetails implements SeerrServiceDetails {
-  const _SeerrServiceDetails({ List<SeerrServiceProfile> profiles = const [],  List<SeerrServiceRootFolder> rootFolders = const []}): _profiles = profiles,_rootFolders = rootFolders;
+  const _SeerrServiceDetails({ List<SeerrServiceProfile> profiles = const [],  List<SeerrServiceRootFolder> rootFolders = const [], this.activeProfileId, this.activeDirectory}): _profiles = profiles,_rootFolders = rootFolders;
   factory _SeerrServiceDetails.fromJson(Map<String, dynamic> json) => _$SeerrServiceDetailsFromJson(json);
 
  final  List<SeerrServiceProfile> _profiles;
@@ -3609,6 +3883,14 @@ class _SeerrServiceDetails implements SeerrServiceDetails {
   return EqualUnmodifiableListView(_rootFolders);
 }
 
+/// Seerr's own configured default quality profile for this server, from
+/// `GET /service/radarr|sonarr/{id}`'s `activeProfileId` field. Null
+/// when Seerr reports none.
+@override final  int? activeProfileId;
+/// Seerr's own configured default root folder for this server, from the
+/// same response's `activeDirectory` field. Null when Seerr reports
+/// none.
+@override final  String? activeDirectory;
 
 /// Create a copy of SeerrServiceDetails
 /// with the given fields replaced by the non-null parameter values.
@@ -3623,16 +3905,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SeerrServiceDetails&&const DeepCollectionEquality().equals(other._profiles, _profiles)&&const DeepCollectionEquality().equals(other._rootFolders, _rootFolders));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SeerrServiceDetails&&const DeepCollectionEquality().equals(other._profiles, _profiles)&&const DeepCollectionEquality().equals(other._rootFolders, _rootFolders)&&(identical(other.activeProfileId, activeProfileId) || other.activeProfileId == activeProfileId)&&(identical(other.activeDirectory, activeDirectory) || other.activeDirectory == activeDirectory));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_profiles),const DeepCollectionEquality().hash(_rootFolders));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_profiles),const DeepCollectionEquality().hash(_rootFolders),activeProfileId,activeDirectory);
 
 @override
 String toString() {
-  return 'SeerrServiceDetails(profiles: $profiles, rootFolders: $rootFolders)';
+  return 'SeerrServiceDetails(profiles: $profiles, rootFolders: $rootFolders, activeProfileId: $activeProfileId, activeDirectory: $activeDirectory)';
 }
 
 
@@ -3643,7 +3925,7 @@ abstract mixin class _$SeerrServiceDetailsCopyWith<$Res> implements $SeerrServic
   factory _$SeerrServiceDetailsCopyWith(_SeerrServiceDetails value, $Res Function(_SeerrServiceDetails) _then) = __$SeerrServiceDetailsCopyWithImpl;
 @override @useResult
 $Res call({
- List<SeerrServiceProfile> profiles, List<SeerrServiceRootFolder> rootFolders
+ List<SeerrServiceProfile> profiles, List<SeerrServiceRootFolder> rootFolders, int? activeProfileId, String? activeDirectory
 });
 
 
@@ -3660,11 +3942,13 @@ class __$SeerrServiceDetailsCopyWithImpl<$Res>
 
 /// Create a copy of SeerrServiceDetails
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? profiles = null,Object? rootFolders = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? profiles = null,Object? rootFolders = null,Object? activeProfileId = freezed,Object? activeDirectory = freezed,}) {
   return _then(_SeerrServiceDetails(
 profiles: null == profiles ? _self._profiles : profiles // ignore: cast_nullable_to_non_nullable
 as List<SeerrServiceProfile>,rootFolders: null == rootFolders ? _self._rootFolders : rootFolders // ignore: cast_nullable_to_non_nullable
-as List<SeerrServiceRootFolder>,
+as List<SeerrServiceRootFolder>,activeProfileId: freezed == activeProfileId ? _self.activeProfileId : activeProfileId // ignore: cast_nullable_to_non_nullable
+as int?,activeDirectory: freezed == activeDirectory ? _self.activeDirectory : activeDirectory // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

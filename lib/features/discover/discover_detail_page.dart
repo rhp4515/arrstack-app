@@ -281,7 +281,7 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
         ),
       },
       loading: () => const AsyncValue.loading(),
-      error: (err, st) => AsyncValue.error(err, st),
+      error: AsyncValue.error,
     );
   }
 

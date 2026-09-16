@@ -130,11 +130,21 @@ class SeerrClient implements ConnectionTestClient {
     int tmdbId,
     String mediaType, {
     List<int>? seasons,
+    int? serverId,
+    int? profileId,
+    String? rootFolder,
   }) {
     return dioCall(
       () => _dio.post(
         'api/v1/request',
-        data: {'mediaType': mediaType, 'mediaId': tmdbId, 'seasons': ?seasons},
+        data: {
+          'mediaType': mediaType,
+          'mediaId': tmdbId,
+          'seasons': ?seasons,
+          'serverId': ?serverId,
+          'profileId': ?profileId,
+          'rootFolder': ?rootFolder,
+        },
       ),
       map: (data) => SeerrRequest.fromJson(data as Map<String, dynamic>),
     );
@@ -178,6 +188,63 @@ class SeerrClient implements ConnectionTestClient {
     return dioCall(
       () => _dio.delete('api/v1/request/$requestId'),
       map: (data) {},
+    );
+  }
+
+  Future<Result<List<SeerrServiceSummary>>> _serviceSummaries(String path) {
+    return dioCall(
+      () => _dio.get(path),
+      map: (data) {
+        try {
+          return (data as List)
+              .map(
+                (e) => SeerrServiceSummary.fromJson(e as Map<String, dynamic>),
+              )
+              .toList();
+        } catch (e, st) {
+          developer.log(
+            'Seerr service list ($path) parse error: $e',
+            name: 'arrstack.seerr',
+            error: e,
+            stackTrace: st,
+          );
+          rethrow;
+        }
+      },
+    );
+  }
+
+  Future<Result<List<SeerrServiceSummary>>> getRadarrServices() =>
+      _serviceSummaries('api/v1/service/radarr');
+
+  Future<Result<List<SeerrServiceSummary>>> getSonarrServices() =>
+      _serviceSummaries('api/v1/service/sonarr');
+
+  Future<Result<SeerrServiceDetails>> getRadarrService(int serviceId) {
+    return dioCall(
+      () => _dio.get('api/v1/service/radarr/$serviceId'),
+      map: (data) => SeerrServiceDetails.fromJson(data as Map<String, dynamic>),
+    );
+  }
+
+  Future<Result<SeerrServiceDetails>> getSonarrService(int serviceId) {
+    return dioCall(
+      () => _dio.get('api/v1/service/sonarr/$serviceId'),
+      map: (data) => SeerrServiceDetails.fromJson(data as Map<String, dynamic>),
+    );
+  }
+
+  Future<Result<SeerrRequest>> approveRequest(int requestId) {
+    return dioCall(
+      () => _dio.post('api/v1/request/$requestId/approve'),
+      map: (data) => SeerrRequest.fromJson(data as Map<String, dynamic>),
+    );
+  }
+
+  Future<Result<SeerrRequest>> declineRequest(int requestId) {
+    return dioCall(
+      () => _dio.post('api/v1/request/$requestId/decline'),
+      map: (data) => SeerrRequest.fromJson(data as Map<String, dynamic>),
     );
   }
 }

@@ -162,3 +162,85 @@ Future<Result<SeerrRequestsResponse>> seerrRequests(
   );
   return repository.getRequests(filter: filter, sort: sort);
 }
+
+@riverpod
+Future<Result<List<SeerrServiceSummary>>> seerrRadarrServices(
+  Ref ref,
+  String instanceId,
+) async {
+  final repository = await ref.watch(
+    seerrRepositoryProvider(instanceId).future,
+  );
+  return repository.getRadarrServices();
+}
+
+@riverpod
+Future<Result<List<SeerrServiceSummary>>> seerrSonarrServices(
+  Ref ref,
+  String instanceId,
+) async {
+  final repository = await ref.watch(
+    seerrRepositoryProvider(instanceId).future,
+  );
+  return repository.getSonarrServices();
+}
+
+@riverpod
+Future<Result<SeerrServiceDetails>> seerrRadarrService(
+  Ref ref, {
+  required String instanceId,
+  required int serviceId,
+}) async {
+  final repository = await ref.watch(
+    seerrRepositoryProvider(instanceId).future,
+  );
+  return repository.getRadarrService(serviceId);
+}
+
+@riverpod
+Future<Result<SeerrServiceDetails>> seerrSonarrService(
+  Ref ref, {
+  required String instanceId,
+  required int serviceId,
+}) async {
+  final repository = await ref.watch(
+    seerrRepositoryProvider(instanceId).future,
+  );
+  return repository.getSonarrService(serviceId);
+}
+
+/// Every request across every status, fetched by paginating
+/// `getRequests(filter: 'all')` to completion. The Requests queue (README
+/// §3c) needs the *complete* set to bucket and count correctly — see
+/// `requests_bucketing.dart` — so a single default-`take` page is not
+/// enough once there are more requests than that page size.
+@riverpod
+Future<Result<List<SeerrRequest>>> seerrAllRequests(
+  Ref ref,
+  String instanceId,
+) async {
+  final repository = await ref.watch(
+    seerrRepositoryProvider(instanceId).future,
+  );
+  final all = <SeerrRequest>[];
+  var skip = 0;
+  const pageSize = 50;
+
+  while (true) {
+    final result = await repository.getRequests(
+      filter: 'all',
+      take: pageSize,
+      skip: skip,
+    );
+    switch (result) {
+      case Err(:final error):
+        return Err(error);
+      case Ok(:final value):
+        all.addAll(value.results);
+        skip += value.results.length;
+        if (value.results.isEmpty || all.length >= value.pageInfo.results) {
+          return Ok(all);
+        }
+    }
+  }
+}

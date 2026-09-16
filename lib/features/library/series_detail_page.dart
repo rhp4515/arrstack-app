@@ -9,6 +9,7 @@ import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/utils/format_utils.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/core/widgets/fading_rule.dart';
+import 'package:arrstack/core/widgets/resolved_poster.dart';
 import 'package:arrstack/features/library/widgets/media_detail_header.dart';
 import 'package:arrstack/features/library/widgets/season_row.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
@@ -118,9 +119,14 @@ class _SeriesDetailContentState extends ConsumerState<_SeriesDetailContent> {
               child: LinearProgressIndicator(),
             ),
           MediaDetailHeader(
-            service: ServiceType.sonarr,
-            instanceId: widget.instanceId,
-            posterUrl: series.posterUrl,
+            poster: ResolvedPoster(
+              service: ServiceType.sonarr,
+              instanceId: widget.instanceId,
+              relativeUrl: series.posterUrl,
+              width: 104,
+              height: 156,
+              radius: AppRadius.md,
+            ),
             title: series.title,
             metaParts: [
               if (series.year != null) '${series.year}',

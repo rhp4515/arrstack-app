@@ -1,4 +1,3 @@
-import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/features/library/widgets/media_detail_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,9 +8,7 @@ void main() {
       const MaterialApp(
         home: Scaffold(
           body: MediaDetailHeader(
-            service: ServiceType.sonarr,
-            instanceId: 'inst-1',
-            posterUrl: null,
+            poster: SizedBox(width: 104, height: 156),
             title: 'Severance',
             metaParts: ['2022', 'Apple TV+', 'TV-MA'],
             chips: [Text('★ 8.7'), Text('Monitored')],
@@ -29,5 +26,23 @@ void main() {
     expect(find.text('EPISODES'), findsOneWidget);
     expect(find.text('61 GB'), findsOneWidget);
     expect(find.text('ON DISK'), findsOneWidget);
+  });
+
+  testWidgets('renders the given poster widget directly', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: MediaDetailHeader(
+            poster: Icon(Icons.movie, key: Key('custom-poster')),
+            title: 'Dune',
+            metaParts: [],
+            chips: [],
+            stats: [],
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byKey(const Key('custom-poster')), findsOneWidget);
   });
 }

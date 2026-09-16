@@ -24,6 +24,7 @@ import 'package:arrstack/features/library/movie_detail_page.dart';
 import 'package:arrstack/features/library/series_detail_page.dart';
 import 'package:arrstack/features/onboarding/add_instance_page.dart';
 import 'package:arrstack/features/release_search/release_search_page.dart';
+import 'package:arrstack/features/requests/requests_page.dart';
 import 'package:arrstack/features/settings/settings_page.dart';
 import 'package:arrstack/features/uptime/uptime_page.dart';
 import 'package:go_router/go_router.dart';
@@ -80,6 +81,10 @@ final GoRouter appRouter = GoRouter(
                       ),
                     ),
                   ],
+                ),
+                GoRoute(
+                  path: 'requests',
+                  builder: (context, state) => const RequestsPage(),
                 ),
                 GoRoute(
                   path: 'settings',

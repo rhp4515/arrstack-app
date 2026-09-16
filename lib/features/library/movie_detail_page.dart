@@ -10,6 +10,7 @@ import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/utils/format_utils.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/core/widgets/fading_rule.dart';
+import 'package:arrstack/core/widgets/resolved_poster.dart';
 import 'package:arrstack/features/library/widgets/media_detail_header.dart';
 import 'package:arrstack/features/library/widgets/spec_block.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
@@ -109,9 +110,14 @@ class _MovieDetailContentState extends ConsumerState<_MovieDetailContent> {
               child: LinearProgressIndicator(),
             ),
           MediaDetailHeader(
-            service: ServiceType.radarr,
-            instanceId: widget.instanceId,
-            posterUrl: movie.posterUrl,
+            poster: ResolvedPoster(
+              service: ServiceType.radarr,
+              instanceId: widget.instanceId,
+              relativeUrl: movie.posterUrl,
+              width: 104,
+              height: 156,
+              radius: AppRadius.md,
+            ),
             title: movie.title,
             metaParts: [
               '${movie.year}',

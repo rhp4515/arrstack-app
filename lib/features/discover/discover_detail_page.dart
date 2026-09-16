@@ -32,15 +32,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Hardcoded to Seerr's server id 0 (its typical first-configured server).
-/// Does not look up the actual first server — Overseerr/Jellyseerr assigns
-/// server ids incrementally and does not renumber on delete, so a user who
-/// removed and re-added their Radarr/Sonarr server in Seerr could have an
-/// actual first server at id 1 or higher, which this literal would not
-/// match. A proper server picker for multi-server Seerr setups is out of
-/// scope for this phase (Phase 7 design spec, Out of scope).
-const _defaultServiceId = 0;
-
 class DiscoverDetailPage extends ConsumerWidget {
   const DiscoverDetailPage({
     required this.instanceId,
@@ -133,19 +124,10 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
   @override
   Widget build(BuildContext context) {
     final item = widget.item;
-    final serviceAsync = _isTv
-        ? ref.watch(
-            seerrSonarrServiceProvider(
-              instanceId: widget.instanceId,
-              serviceId: _defaultServiceId,
-            ),
-          )
-        : ref.watch(
-            seerrRadarrServiceProvider(
-              instanceId: widget.instanceId,
-              serviceId: _defaultServiceId,
-            ),
-          );
+    final servicesAsync = _isTv
+        ? ref.watch(seerrSonarrServicesProvider(widget.instanceId))
+        : ref.watch(seerrRadarrServicesProvider(widget.instanceId));
+    final serviceAsync = _resolveServiceDetailsAsync(servicesAsync);
     final serviceDetails = switch (serviceAsync.asData?.value) {
       Ok(:final value) => value,
       _ => null,
@@ -282,6 +264,68 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
     );
   }
 
+  /// Resolves the Radarr/Sonarr service-detail fetch against the actual
+  /// server(s) Seerr has configured, instead of guessing an id. Overseerr/
+  /// Jellyseerr assigns server ids incrementally and does not renumber on
+  /// delete, so a hardcoded id (e.g. `0`) can silently point at the wrong
+  /// server — or at no server at all — once a Radarr/Sonarr server has been
+  /// removed and re-added in Seerr.
+  AsyncValue<Result<SeerrServiceDetails>> _resolveServiceDetailsAsync(
+    AsyncValue<Result<List<SeerrServiceSummary>>> servicesAsync,
+  ) {
+    return servicesAsync.when(
+      data: (result) => switch (result) {
+        Err(:final error) => AsyncValue.data(Err(error)),
+        Ok(:final value) => _detailsAsyncForResolvedId(
+          _pickDefaultServiceId(value),
+        ),
+      },
+      loading: () => const AsyncValue.loading(),
+      error: (err, st) => AsyncValue.error(err, st),
+    );
+  }
+
+  AsyncValue<Result<SeerrServiceDetails>> _detailsAsyncForResolvedId(
+    int? resolvedId,
+  ) {
+    if (resolvedId == null) {
+      return const AsyncValue.data(
+        Err(
+          UnknownError(
+            userMessage: 'No Radarr/Sonarr server is configured in Seerr.',
+          ),
+        ),
+      );
+    }
+    return _isTv
+        ? ref.watch(
+            seerrSonarrServiceProvider(
+              instanceId: widget.instanceId,
+              serviceId: resolvedId,
+            ),
+          )
+        : ref.watch(
+            seerrRadarrServiceProvider(
+              instanceId: widget.instanceId,
+              serviceId: resolvedId,
+            ),
+          );
+  }
+
+  /// Picks the server Seerr itself marked `isDefault` for this media type.
+  /// When none is marked default (uncommon, but Seerr does not require it),
+  /// falls back to the first entry the services-list endpoint returned — a
+  /// documented simplification; a full multi-server picker UI remains out
+  /// of scope for this phase (Phase 7 design spec, Out of scope). Returns
+  /// null when Seerr has no server configured at all for this media type.
+  int? _pickDefaultServiceId(List<SeerrServiceSummary> services) {
+    if (services.isEmpty) return null;
+    for (final service in services) {
+      if (service.isDefault) return service.id;
+    }
+    return services.first.id;
+  }
+
   bool _isInLibrary(SeerrMediaInfo? info) =>
       info?.status == SeerrMediaStatus.available ||
       info?.status == SeerrMediaStatus.partiallyAvailable;
@@ -309,17 +353,26 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
   }
 
   Future<void> _handleRequest() async {
+    final servicesResult = await (_isTv
+        ? ref.read(seerrSonarrServicesProvider(widget.instanceId).future)
+        : ref.read(seerrRadarrServicesProvider(widget.instanceId).future));
+    final resolvedServiceId = switch (servicesResult) {
+      Ok(:final value) => _pickDefaultServiceId(value),
+      Err() => null,
+    };
+    if (resolvedServiceId == null) return;
+
     final serviceAsync = _isTv
         ? ref.read(
             seerrSonarrServiceProvider(
               instanceId: widget.instanceId,
-              serviceId: _defaultServiceId,
+              serviceId: resolvedServiceId,
             ),
           )
         : ref.read(
             seerrRadarrServiceProvider(
               instanceId: widget.instanceId,
-              serviceId: _defaultServiceId,
+              serviceId: resolvedServiceId,
             ),
           );
     final details = switch (serviceAsync.asData?.value) {
@@ -328,14 +381,8 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
     };
     if (details == null) return;
 
-    final profileId =
-        _selectedProfileId ??
-        (details.profiles.isNotEmpty ? details.profiles.first.id : null);
-    final rootFolder =
-        _selectedRootFolder ??
-        (details.rootFolders.isNotEmpty
-            ? details.rootFolders.first.path
-            : null);
+    final profileId = _selectedProfileId ?? _defaultProfileId(details);
+    final rootFolder = _selectedRootFolder ?? _defaultRootFolder(details);
 
     setState(() {
       _requesting = true;
@@ -348,7 +395,7 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
     final result = await repository.request(
       widget.item.id,
       widget.item.mediaType,
-      serverId: _defaultServiceId,
+      serverId: resolvedServiceId,
       profileId: profileId,
       rootFolder: rootFolder,
     );
@@ -393,6 +440,35 @@ class _PosterFallback extends StatelessWidget {
   }
 }
 
+/// Resolves the quality profile id to use when the user hasn't made an
+/// explicit dropdown selection: prefers Seerr's own configured default
+/// (`activeProfileId`, from `GET /service/radarr|sonarr/{id}`), but only
+/// when that id still appears in the [details.profiles] Seerr returned in
+/// the same response. Falls back to the first profile — a documented
+/// simplification — when Seerr supplies no active profile, or supplies one
+/// that isn't actually in the list; selecting an unvalidated "active" value
+/// would be worse than falling back.
+int? _defaultProfileId(SeerrServiceDetails details) {
+  final activeProfileId = details.activeProfileId;
+  if (activeProfileId != null &&
+      details.profiles.any((profile) => profile.id == activeProfileId)) {
+    return activeProfileId;
+  }
+  return details.profiles.isNotEmpty ? details.profiles.first.id : null;
+}
+
+/// Root-folder counterpart to [_defaultProfileId]: prefers Seerr's
+/// `activeDirectory` when it validates against [details.rootFolders],
+/// otherwise falls back to the first root folder.
+String? _defaultRootFolder(SeerrServiceDetails details) {
+  final activeDirectory = details.activeDirectory;
+  if (activeDirectory != null &&
+      details.rootFolders.any((folder) => folder.path == activeDirectory)) {
+    return activeDirectory;
+  }
+  return details.rootFolders.isNotEmpty ? details.rootFolders.first.path : null;
+}
+
 class _RequestFields extends StatelessWidget {
   const _RequestFields({
     required this.details,
@@ -410,13 +486,13 @@ class _RequestFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profileValue =
-        selectedProfileId ??
-        (details.profiles.isNotEmpty ? details.profiles.first.id : null);
+    final profileValue = selectedProfileId ?? _defaultProfileId(details);
+    final effectiveRootFolder =
+        selectedRootFolder ?? _defaultRootFolder(details);
     final folder = details.rootFolders.isEmpty
         ? null
         : details.rootFolders.firstWhere(
-            (f) => f.path == selectedRootFolder,
+            (f) => f.path == effectiveRootFolder,
             orElse: () => details.rootFolders.first,
           );
 

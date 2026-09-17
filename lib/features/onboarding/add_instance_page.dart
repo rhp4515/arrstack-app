@@ -6,6 +6,7 @@ import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
+import 'package:arrstack/core/widgets/confirm_dialog.dart';
 import 'package:arrstack/core/widgets/error_card.dart';
 import 'package:arrstack/core/widgets/sub_page_header.dart';
 import 'package:arrstack/features/onboarding/onboarding_providers.dart';
@@ -56,7 +57,8 @@ class _AddInstancePageState extends ConsumerState<AddInstancePage> {
             ? [
                 IconButton(
                   icon: const Icon(PhosphorIconsRegular.trash, size: 17),
-                  onPressed: () => _confirmDelete(context, state.id!),
+                  onPressed: () =>
+                      _confirmDelete(context, state.id!, state.name),
                 ),
               ]
             : null,
@@ -121,28 +123,21 @@ class _AddInstancePageState extends ConsumerState<AddInstancePage> {
     );
   }
 
-  Future<void> _confirmDelete(BuildContext context, String instanceId) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Instance?'),
-        content: const Text('Are you sure you want to remove this instance?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+  Future<void> _confirmDelete(
+    BuildContext context,
+    String instanceId,
+    String instanceName,
+  ) async {
+    final result = await showDestructiveConfirmDialog(
+      context,
+      title: 'Remove $instanceName?',
+      message:
+          'This removes $instanceName and its stored credentials from '
+          'this device. The service itself keeps running elsewhere.',
     );
-    if (confirmed == true && context.mounted) {
-      await ref.read(instanceRepositoryProvider).delete(instanceId);
-      ref.invalidate(instancesProvider);
-      if (context.mounted) context.pop();
-    }
+    if (result == null || !context.mounted) return;
+    await ref.read(instanceRepositoryProvider).delete(instanceId);
+    ref.invalidate(instancesProvider);
+    if (context.mounted) context.pop();
   }
 }

@@ -6,6 +6,7 @@ library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/utils/format_utils.dart';
+import 'package:arrstack/core/widgets/confirm_dialog.dart';
 import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';
 import 'package:arrstack/services/qbittorrent/qbit_providers.dart';
 import 'package:flutter/material.dart';
@@ -152,51 +153,27 @@ class _DownloadingBlock extends ConsumerWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    var deleteFiles = false;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Delete Torrent?'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Are you sure you want to remove "${torrent.name}"?'),
-              const SizedBox(height: AppSpacing.space4),
-              CheckboxListTile(
-                title: const Text('Also delete files on disk'),
-                value: deleteFiles,
-                onChanged: (val) => setState(() => deleteFiles = val ?? false),
-                contentPadding: EdgeInsets.zero,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text(
-                'Delete',
-                style: TextStyle(color: AppColors.down),
-              ),
-            ),
-          ],
-        ),
-      ),
+    final result = await showDestructiveConfirmDialog(
+      context,
+      title: 'Remove this torrent?',
+      message:
+          '"${torrent.name}" will be removed from qBittorrent. If Sonarr '
+          'or Radarr is still monitoring it, they may grab it again.',
+      showDeleteFilesToggle: true,
+      deleteFilesSubtitle:
+          '${FormatUtils.formatBytes((torrent.size * torrent.progress).round())} '
+          'downloaded so far',
     );
 
+    if (!context.mounted || result == null) return;
+    final repository = await ref.read(
+      qbitRepositoryProvider(instanceId).future,
+    );
+    await repository.deleteTorrents([
+      torrent.hash,
+    ], deleteFiles: result.deleteFiles);
     if (!context.mounted) return;
-    if (confirmed == true) {
-      final repository = await ref.read(
-        qbitRepositoryProvider(instanceId).future,
-      );
-      await repository.deleteTorrents([torrent.hash], deleteFiles: deleteFiles);
-      if (!context.mounted) return;
-      ref.invalidate(qbitTorrentsProvider(instanceId));
-    }
+    ref.invalidate(qbitTorrentsProvider(instanceId));
   }
 }
 
@@ -274,7 +251,7 @@ class _StalledBlock extends ConsumerWidget {
               _IconAction(
                 icon: PhosphorIconsRegular.trash,
                 tooltip: 'Delete',
-                onPressed: () => _delete(context, ref),
+                onPressed: () => _confirmDelete(context, ref),
               ),
             ],
           ),
@@ -293,11 +270,26 @@ class _StalledBlock extends ConsumerWidget {
     );
   }
 
-  Future<void> _delete(BuildContext context, WidgetRef ref) async {
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final result = await showDestructiveConfirmDialog(
+      context,
+      title: 'Remove this torrent?',
+      message:
+          '"${torrent.name}" will be removed from qBittorrent. If Sonarr '
+          'or Radarr is still monitoring it, they may grab it again.',
+      showDeleteFilesToggle: true,
+      deleteFilesSubtitle:
+          '${FormatUtils.formatBytes((torrent.size * torrent.progress).round())} '
+          'downloaded so far',
+    );
+
+    if (!context.mounted || result == null) return;
     final repository = await ref.read(
       qbitRepositoryProvider(instanceId).future,
     );
-    await repository.deleteTorrents([torrent.hash], deleteFiles: false);
+    await repository.deleteTorrents([
+      torrent.hash,
+    ], deleteFiles: result.deleteFiles);
     if (!context.mounted) return;
     ref.invalidate(qbitTorrentsProvider(instanceId));
   }

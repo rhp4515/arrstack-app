@@ -277,69 +277,56 @@ void main() {
       );
     });
 
-    test(
-      "a currently-unreachable service's stale cache entry survives a "
-      'write-through triggered by a different service succeeding',
-      () async {
-        final radarr = buildInstance(
-          id: 'radarr-1',
-          serviceType: ServiceType.radarr,
-          isDefault: true,
-        );
-        final bazarr = buildInstance(
-          id: 'bazarr-1',
+    test("a currently-unreachable service's stale cache entry survives a "
+        'write-through triggered by a different service succeeding', () async {
+      final radarr = buildInstance(
+        id: 'radarr-1',
+        serviceType: ServiceType.radarr,
+        isDefault: true,
+      );
+      final bazarr = buildInstance(
+        id: 'bazarr-1',
+        serviceType: ServiceType.bazarr,
+        isDefault: true,
+      );
+      final configStore = FakeConfigStore();
+      final staleTimestamp = DateTime.now().subtract(const Duration(hours: 1));
+      await configStore.writeCachedSummaries([
+        CachedServiceSummary(
+          instanceId: 'bazarr-1',
+          instanceName: 'Home Bazarr',
           serviceType: ServiceType.bazarr,
-          isDefault: true,
-        );
-        final configStore = FakeConfigStore();
-        final staleTimestamp = DateTime.now().subtract(
-          const Duration(hours: 1),
-        );
-        await configStore.writeCachedSummaries([
-          CachedServiceSummary(
-            instanceId: 'bazarr-1',
-            instanceName: 'Home Bazarr',
-            serviceType: ServiceType.bazarr,
-            summaryLine: '4 wanted subtitles',
-            lastFetchedAt: staleTimestamp,
-          ).toJson(),
-        ]);
+          summaryLine: '4 wanted subtitles',
+          lastFetchedAt: staleTimestamp,
+        ).toJson(),
+      ]);
 
-        final container = ProviderContainer(
-          overrides: [
-            configStoreProvider.overrideWithValue(configStore),
-            instancesProvider.overrideWith(
-              (ref) async => Ok([radarr, bazarr]),
-            ),
-            radarrMoviesProvider(
-              radarr.id,
-            ).overrideWith((ref) async => const Ok([])),
-            bazarrWantedProvider(
-              bazarr.id,
-            ).overrideWith((ref) async => const Err(NetworkError())),
-          ],
-        );
-        addTearDown(container.dispose);
+      final container = ProviderContainer(
+        overrides: [
+          configStoreProvider.overrideWithValue(configStore),
+          instancesProvider.overrideWith((ref) async => Ok([radarr, bazarr])),
+          radarrMoviesProvider(radarr.id)
+              .overrideWith((ref) async => const Ok([])),
+          bazarrWantedProvider(bazarr.id)
+              .overrideWith((ref) async => const Err(NetworkError())),
+        ],
+      );
+      addTearDown(container.dispose);
 
-        await container.read(homeServiceSummariesProvider.future);
+      await container.read(homeServiceSummariesProvider.future);
 
-        final cached = await container.read(
-          cachedServiceSummariesProvider.future,
-        );
-        expect(cached, hasLength(2));
-        final bazarrEntry = cached.firstWhere(
-          (c) => c.instanceId == 'bazarr-1',
-        );
-        expect(bazarrEntry.lastFetchedAt, staleTimestamp);
-        final radarrEntry = cached.firstWhere(
-          (c) => c.instanceId == 'radarr-1',
-        );
-        expect(
-          DateTime.now().difference(radarrEntry.lastFetchedAt).inSeconds,
-          lessThan(5),
-        );
-      },
-    );
+      final cached = await container.read(
+        cachedServiceSummariesProvider.future,
+      );
+      expect(cached, hasLength(2));
+      final bazarrEntry = cached.firstWhere((c) => c.instanceId == 'bazarr-1');
+      expect(bazarrEntry.lastFetchedAt, staleTimestamp);
+      final radarrEntry = cached.firstWhere((c) => c.instanceId == 'radarr-1');
+      expect(
+        DateTime.now().difference(radarrEntry.lastFetchedAt).inSeconds,
+        lessThan(5),
+      );
+    });
 
     test('does not write to cache when nothing is reachable', () async {
       final radarr = buildInstance(
@@ -353,9 +340,8 @@ void main() {
         overrides: [
           configStoreProvider.overrideWithValue(configStore),
           instancesProvider.overrideWith((ref) async => Ok([radarr])),
-          radarrMoviesProvider(
-            radarr.id,
-          ).overrideWith((ref) async => const Err(NetworkError())),
+          radarrMoviesProvider(radarr.id)
+              .overrideWith((ref) async => const Err(NetworkError())),
         ],
       );
       addTearDown(container.dispose);

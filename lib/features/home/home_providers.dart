@@ -57,7 +57,42 @@ Future<List<HomeServiceSummary>> homeServiceSummaries(Ref ref) async {
     if (instance == null) continue;
     summaries.add(await _summaryFor(ref, instance));
   }
+
+  await _cacheReachableSummaries(ref, summaries);
   return summaries;
+}
+
+/// Write-through cache (README §3f `lastKnown`): upserts every reachable
+/// summary by instanceId, leaving cached entries for currently-unreachable
+/// or since-removed services untouched, so a partial outage doesn't wipe
+/// out other services' last-known-good data.
+Future<void> _cacheReachableSummaries(
+  Ref ref,
+  List<HomeServiceSummary> summaries,
+) async {
+  final reachable = summaries.where((s) => s.isReachable);
+  if (reachable.isEmpty) return;
+
+  final configStore = ref.read(configStoreProvider);
+  final existingRaw = await configStore.readCachedSummaries();
+  final existing = <String, Map<String, dynamic>>{
+    for (final json in existingRaw)
+      if (json['instanceId'] is String) json['instanceId'] as String: json,
+  };
+
+  final now = DateTime.now();
+  for (final summary in reachable) {
+    existing[summary.instanceId] = CachedServiceSummary(
+      instanceId: summary.instanceId,
+      instanceName: summary.instanceName,
+      serviceType: summary.serviceType,
+      summaryLine: summary.summaryLine,
+      lastFetchedAt: now,
+    ).toJson();
+  }
+
+  await configStore.writeCachedSummaries(existing.values.toList());
+  ref.invalidate(cachedServiceSummariesProvider);
 }
 
 ServiceInstance? _defaultInstanceOfType(

@@ -16,11 +16,19 @@ class HomeBandSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Full-bleed background, top inset added only to the internal padding
+    // — see the identical comment in OfflineBand.build.
+    final topInset = MediaQuery.paddingOf(context).top;
     return Opacity(
       opacity: 0.55,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(AppSpacing.space6),
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.space6,
+          AppSpacing.space6 + topInset,
+          AppSpacing.space6,
+          AppSpacing.space6,
+        ),
         decoration: const BoxDecoration(color: AppColors.section),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

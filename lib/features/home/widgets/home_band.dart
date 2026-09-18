@@ -21,9 +21,20 @@ class HomeBand extends ConsumerWidget {
     final summaryAsync = ref.watch(homeSummaryProvider);
     final representativeAsync = ref.watch(primaryDashboardInstanceProvider);
 
+    // Full-bleed background, top inset added only to the internal padding
+    // — see the identical comment in OfflineBand.build. HomeBand predates
+    // Phase 8's SafeArea rework but has the same full-bleed requirement and
+    // the same interactive gear button, so it gets the same treatment for
+    // consistency across all three band states.
+    final topInset = MediaQuery.paddingOf(context).top;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.space6),
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.space6,
+        AppSpacing.space6 + topInset,
+        AppSpacing.space6,
+        AppSpacing.space6,
+      ),
       decoration: const BoxDecoration(color: AppColors.section),
       child: Stack(
         clipBehavior: Clip.none,

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
@@ -109,6 +110,53 @@ void main() {
 
       instancesCompleter.complete(Ok([buildInstance()]));
       await tester.pump();
+    },
+  );
+
+  testWidgets(
+    'HomeBandSkeleton adds the device top inset to its internal padding, '
+    'so the gear button clears a status bar/notch',
+    (tester) async {
+      const topInset = 40.0;
+      final radarr = buildInstance(serviceType: ServiceType.radarr);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            instancesProvider.overrideWith((ref) async => Ok([radarr])),
+            currentSsidProvider.overrideWith((ref) => Stream.value(null)),
+          ],
+          child: MediaQuery(
+            data: const MediaQueryData(padding: EdgeInsets.only(top: topInset)),
+            child: MaterialApp.router(
+              routerConfig: GoRouter(
+                routes: [
+                  GoRoute(
+                    path: '/',
+                    builder: (_, _) => const HomeLoadingState(),
+                  ),
+                  GoRoute(
+                    path: '/home/settings',
+                    builder: (_, _) => const SizedBox(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      final container = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byType(HomeBandSkeleton),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      final padding = container.padding! as EdgeInsets;
+      expect(padding.top, AppSpacing.space6 + topInset);
     },
   );
 }

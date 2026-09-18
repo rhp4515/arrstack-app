@@ -74,7 +74,7 @@ final class HomeConnectionStateProvider
 }
 
 String _$homeConnectionStateHash() =>
-    r'eedecc30e01a15a0e3a41c2b45b196730831b327';
+    r'538b6d85223b70d1f6919dc635b087b27747800a';
 
 /// Debug-only override for visual QA (README §3f: "switchable via a chip
 /// row... for demo/dev purposes"). Null means "no override — use the real

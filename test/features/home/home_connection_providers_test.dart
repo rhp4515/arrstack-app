@@ -134,6 +134,89 @@ void main() {
       );
     });
 
+    test('is offline (not ready) when only Einthusan is configured, even '
+        'though its synthetic summary is always isReachable: true', () async {
+      final einthusan = buildInstance(
+        id: 'einthusan-1',
+        serviceType: ServiceType.einthusan,
+        isDefault: true,
+      );
+      final container = ProviderContainer(
+        overrides: [
+          instancesProvider.overrideWith((ref) async => Ok([einthusan])),
+          homeServiceSummariesProvider.overrideWith(
+            (ref) async => [
+              const HomeServiceSummary(
+                instanceId: 'einthusan-1',
+                instanceName: 'Home Einthusan',
+                serviceType: ServiceType.einthusan,
+                isReachable: true,
+                summaryLine: 'Connected',
+              ),
+            ],
+          ),
+          rightNowProvider.overrideWith((ref) async => null),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container.read(instancesProvider.future);
+      await container.read(homeServiceSummariesProvider.future);
+      await container.read(rightNowProvider.future);
+
+      expect(
+        container.read(homeConnectionStateProvider),
+        HomeConnectionState.offline,
+      );
+    });
+
+    test('is ready when Einthusan is unreachable but another service is '
+        'genuinely reachable', () async {
+      final einthusan = buildInstance(
+        id: 'einthusan-1',
+        serviceType: ServiceType.einthusan,
+      );
+      final radarr = buildInstance(
+        id: 'radarr-1',
+        serviceType: ServiceType.radarr,
+        isDefault: true,
+      );
+      final container = ProviderContainer(
+        overrides: [
+          instancesProvider.overrideWith(
+            (ref) async => Ok([einthusan, radarr]),
+          ),
+          homeServiceSummariesProvider.overrideWith(
+            (ref) async => const [
+              HomeServiceSummary(
+                instanceId: 'einthusan-1',
+                instanceName: 'Home Einthusan',
+                serviceType: ServiceType.einthusan,
+                isReachable: true,
+                summaryLine: 'Connected',
+              ),
+              HomeServiceSummary(
+                instanceId: 'radarr-1',
+                instanceName: 'Home Radarr',
+                serviceType: ServiceType.radarr,
+                isReachable: true,
+                summaryLine: '412 movies',
+              ),
+            ],
+          ),
+          rightNowProvider.overrideWith((ref) async => null),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container.read(instancesProvider.future);
+      await container.read(homeServiceSummariesProvider.future);
+      await container.read(rightNowProvider.future);
+
+      expect(
+        container.read(homeConnectionStateProvider),
+        HomeConnectionState.ready,
+      );
+    });
+
     test(
       'is ready when only qBittorrent is configured and it is reachable',
       () async {

@@ -48,7 +48,15 @@ HomeConnectionState homeConnectionState(Ref ref) {
 
   final summaries = summariesAsync.value ?? const [];
   final rightNow = rightNowAsync.value;
-  final anyReachable = summaries.any((s) => s.isReachable) || rightNow != null;
+  // Einthusan has no real connectivity check (home_providers.dart's
+  // _einthusanSummary always reports "Connected") — excluded here so an
+  // Einthusan-only configuration can't produce a false `ready` while every
+  // other, actually-checked service is unreachable.
+  final anyReachable =
+      summaries
+          .where((s) => s.serviceType != ServiceType.einthusan)
+          .any((s) => s.isReachable) ||
+      rightNow != null;
   return anyReachable ? HomeConnectionState.ready : HomeConnectionState.offline;
 }
 

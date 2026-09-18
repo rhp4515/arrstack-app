@@ -15,6 +15,7 @@ import 'package:arrstack/services/uptimekuma/models/kuma_models.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../core/storage/fakes.dart';
 import '../../support/fixtures.dart';
 
 class _FakeKumaMonitors extends KumaMonitors {
@@ -93,6 +94,7 @@ void main() {
 
         final container = ProviderContainer(
           overrides: [
+            configStoreProvider.overrideWithValue(FakeConfigStore()),
             instancesProvider.overrideWith((ref) async => Ok([radarr, qbit])),
             radarrMoviesProvider(radarr.id).overrideWith(
               (ref) async => const Ok([
@@ -135,6 +137,32 @@ void main() {
       );
       expect(summaries.single.isReachable, isFalse);
       expect(summaries.single.statusLabel, 'Unreachable');
+      expect(summaries.single.lastError, isA<NetworkError>());
+    });
+
+    test('carries a non-network error (e.g. bad credentials) through to '
+        'lastError, distinct from a network failure', () async {
+      final radarr = buildInstance(
+        id: 'radarr-1',
+        serviceType: ServiceType.radarr,
+        isDefault: true,
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          instancesProvider.overrideWith((ref) async => Ok([radarr])),
+          radarrMoviesProvider(radarr.id)
+              .overrideWith((ref) async => const Err(AuthError())),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final summaries = await container.read(
+        homeServiceSummariesProvider.future,
+      );
+      expect(summaries.single.isReachable, isFalse);
+      expect(summaries.single.lastError, isA<AuthError>());
+      expect(summaries.single.lastError, isNot(isA<NetworkError>()));
     });
 
     test(
@@ -152,6 +180,7 @@ void main() {
 
         final container = ProviderContainer(
           overrides: [
+            configStoreProvider.overrideWithValue(FakeConfigStore()),
             instancesProvider.overrideWith(
               (ref) async => Ok([nonDefault, theDefault]),
             ),
@@ -177,6 +206,7 @@ void main() {
 
       final container = ProviderContainer(
         overrides: [
+          configStoreProvider.overrideWithValue(FakeConfigStore()),
           instancesProvider.overrideWith((ref) async => Ok([bazarr])),
           bazarrWantedProvider(bazarr.id).overrideWith(
             (ref) async => const Ok([
@@ -205,6 +235,7 @@ void main() {
 
         final container = ProviderContainer(
           overrides: [
+            configStoreProvider.overrideWithValue(FakeConfigStore()),
             instancesProvider.overrideWith((ref) async => Ok([kuma])),
             kumaMonitorsProvider(kuma.id).overrideWith(
               () => _FakeKumaMonitors([
@@ -238,6 +269,152 @@ void main() {
     );
   });
 
+  group('homeServiceSummariesProvider cache write-through', () {
+    test('caches a reachable summary with the current timestamp', () async {
+      final radarr = buildInstance(
+        id: 'radarr-1',
+        serviceType: ServiceType.radarr,
+        isDefault: true,
+      );
+      final configStore = FakeConfigStore();
+
+      final container = ProviderContainer(
+        overrides: [
+          configStoreProvider.overrideWithValue(configStore),
+          instancesProvider.overrideWith((ref) async => Ok([radarr])),
+          radarrMoviesProvider(radarr.id).overrideWith(
+            (ref) async =>
+                const Ok([RadarrMovie(hasFile: true, monitored: true)]),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await container.read(homeServiceSummariesProvider.future);
+
+      final cached = await container.read(
+        cachedServiceSummariesProvider.future,
+      );
+      expect(cached, hasLength(1));
+      expect(cached.single.instanceId, 'radarr-1');
+      expect(
+        DateTime.now().difference(cached.single.lastFetchedAt).inSeconds,
+        lessThan(5),
+      );
+    });
+
+    test("a currently-unreachable service's stale cache entry survives a "
+        'write-through triggered by a different service succeeding', () async {
+      final radarr = buildInstance(
+        id: 'radarr-1',
+        serviceType: ServiceType.radarr,
+        isDefault: true,
+      );
+      final bazarr = buildInstance(
+        id: 'bazarr-1',
+        serviceType: ServiceType.bazarr,
+        isDefault: true,
+      );
+      final configStore = FakeConfigStore();
+      final staleTimestamp = DateTime.now().subtract(const Duration(hours: 1));
+      await configStore.writeCachedSummaries([
+        CachedServiceSummary(
+          instanceId: 'bazarr-1',
+          instanceName: 'Home Bazarr',
+          serviceType: ServiceType.bazarr,
+          summaryLine: '4 wanted subtitles',
+          lastFetchedAt: staleTimestamp,
+        ).toJson(),
+      ]);
+
+      final container = ProviderContainer(
+        overrides: [
+          configStoreProvider.overrideWithValue(configStore),
+          instancesProvider.overrideWith((ref) async => Ok([radarr, bazarr])),
+          radarrMoviesProvider(radarr.id)
+              .overrideWith((ref) async => const Ok([])),
+          bazarrWantedProvider(bazarr.id)
+              .overrideWith((ref) async => const Err(NetworkError())),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await container.read(homeServiceSummariesProvider.future);
+
+      final cached = await container.read(
+        cachedServiceSummariesProvider.future,
+      );
+      expect(cached, hasLength(2));
+      final bazarrEntry = cached.firstWhere((c) => c.instanceId == 'bazarr-1');
+      expect(bazarrEntry.lastFetchedAt, staleTimestamp);
+      final radarrEntry = cached.firstWhere((c) => c.instanceId == 'radarr-1');
+      expect(
+        DateTime.now().difference(radarrEntry.lastFetchedAt).inSeconds,
+        lessThan(5),
+      );
+    });
+
+    test('does not write to cache when nothing is reachable', () async {
+      final radarr = buildInstance(
+        id: 'radarr-1',
+        serviceType: ServiceType.radarr,
+        isDefault: true,
+      );
+      final configStore = FakeConfigStore();
+
+      final container = ProviderContainer(
+        overrides: [
+          configStoreProvider.overrideWithValue(configStore),
+          instancesProvider.overrideWith((ref) async => Ok([radarr])),
+          radarrMoviesProvider(radarr.id)
+              .overrideWith((ref) async => const Err(NetworkError())),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await container.read(homeServiceSummariesProvider.future);
+
+      final cached = await container.read(
+        cachedServiceSummariesProvider.future,
+      );
+      expect(cached, isEmpty);
+    });
+
+    test(
+      'a cache write failure does not hide already-fetched, valid summaries',
+      () async {
+        final radarr = buildInstance(
+          id: 'radarr-1',
+          serviceType: ServiceType.radarr,
+          isDefault: true,
+        );
+        final configStore = FakeConfigStore()
+          ..throwOnWriteCachedSummaries = true;
+
+        final container = ProviderContainer(
+          overrides: [
+            configStoreProvider.overrideWithValue(configStore),
+            instancesProvider.overrideWith((ref) async => Ok([radarr])),
+            radarrMoviesProvider(radarr.id).overrideWith(
+              (ref) async =>
+                  const Ok([RadarrMovie(hasFile: true, monitored: true)]),
+            ),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        // Must resolve with the real summary, not throw, even though
+        // persisting it to the cache failed underneath.
+        final summaries = await container.read(
+          homeServiceSummariesProvider.future,
+        );
+        expect(summaries, hasLength(1));
+        expect(summaries.single.instanceId, 'radarr-1');
+        expect(summaries.single.isReachable, isTrue);
+      },
+    );
+  });
+
   group('homeSummaryProvider', () {
     test(
       'counts healthy/total and lists unreachable services as status lines',
@@ -255,6 +432,7 @@ void main() {
 
         final container = ProviderContainer(
           overrides: [
+            configStoreProvider.overrideWithValue(FakeConfigStore()),
             instancesProvider.overrideWith((ref) async => Ok([radarr, bazarr])),
             radarrMoviesProvider(radarr.id)
                 .overrideWith((ref) async => const Ok([])),

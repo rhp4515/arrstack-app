@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 import '../../core/storage/fakes.dart';
 
@@ -90,6 +91,49 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(overrideNotifier.calls, [('bazarr-1', EndpointMode.forceRemote)]);
+    },
+  );
+
+  testWidgets(
+    'tapping delete on the edit page opens the shared confirm dialog, '
+    'and confirming deletes and pops',
+    (tester) async {
+      final fakeRepository = FakeInstanceRepository();
+      final router = GoRouter(
+        initialLocation: '/',
+        routes: [
+          GoRoute(path: '/', builder: (context, state) => const SizedBox()),
+          GoRoute(
+            path: '/edit',
+            builder: (context, state) =>
+                const AddInstancePage(instanceId: 'bazarr-1'),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            instanceFormProvider.overrideWith(_FakeFailingInstanceForm.new),
+            configStoreProvider.overrideWithValue(FakeConfigStore()),
+            instanceRepositoryProvider.overrideWithValue(fakeRepository),
+          ],
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
+      await tester.pump();
+      router.push('/edit');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(PhosphorIconsRegular.trash));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Remove Bazarr?'), findsOneWidget);
+
+      await tester.tap(find.text('Remove'));
+      await tester.pumpAndSettle();
+
+      expect(fakeRepository.deletedIds, ['bazarr-1']);
     },
   );
 }

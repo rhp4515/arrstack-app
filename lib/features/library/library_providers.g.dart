@@ -268,7 +268,7 @@ final class ContinueWatchingProvider
   }
 }
 
-String _$continueWatchingHash() => r'2d0bf7d484941f4de42f0a6477cf21467f09d522';
+String _$continueWatchingHash() => r'93b3afff39ab9dc1bfade24e2a678044118a9277';
 
 /// Shows with partial download progress and an episode air date within
 /// the window, nearest-airing first, capped at 3 (spec 2d "CONTINUE

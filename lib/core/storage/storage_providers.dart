@@ -7,6 +7,7 @@ import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/config_store.dart';
 import 'package:arrstack/core/storage/instance_repository.dart';
 import 'package:arrstack/core/storage/secure_store.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'storage_providers.g.dart';
@@ -67,4 +68,28 @@ Future<Result<EndpointMode>> defaultEndpointMode(Ref ref) async {
       ),
     );
   }
+}
+
+/// Each service's last-successful summary, read back for Home's offline
+/// layout (README §3f `lastKnown`). A corrupt individual entry is skipped
+/// rather than discarding the whole cache — these are independent
+/// per-service records, unlike the all-or-nothing instance list.
+@Riverpod(keepAlive: true)
+Future<List<CachedServiceSummary>> cachedServiceSummaries(Ref ref) async {
+  final raw = await ref.watch(configStoreProvider).readCachedSummaries();
+  final summaries = <CachedServiceSummary>[];
+  for (final json in raw) {
+    try {
+      summaries.add(CachedServiceSummary.fromJson(json));
+    } on FormatException {
+      continue;
+    } on CheckedFromJsonException {
+      continue;
+    } on TypeError {
+      continue;
+    } on ArgumentError {
+      continue;
+    }
+  }
+  return List.unmodifiable(summaries);
 }

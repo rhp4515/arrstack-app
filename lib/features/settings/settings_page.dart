@@ -8,6 +8,7 @@ import 'package:arrstack/app/theme/theme_mode_provider.dart';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
+import 'package:arrstack/core/widgets/confirm_dialog.dart';
 import 'package:arrstack/core/widgets/detail_chip.dart';
 import 'package:arrstack/core/widgets/fading_rule.dart';
 import 'package:arrstack/core/widgets/sub_page_header.dart';
@@ -228,27 +229,16 @@ class _InstanceRow extends ConsumerWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Instance?'),
-        content: Text('Are you sure you want to remove ${instance.name}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+    final result = await showDestructiveConfirmDialog(
+      context,
+      title: 'Remove ${instance.name}?',
+      message:
+          'This removes ${instance.name} and its stored credentials '
+          'from this device. The service itself keeps running elsewhere.',
     );
-    if (confirmed == true) {
-      await ref.read(instanceRepositoryProvider).delete(instance.id);
-      ref.invalidate(instancesProvider);
-    }
+    if (result == null) return;
+    await ref.read(instanceRepositoryProvider).delete(instance.id);
+    ref.invalidate(instancesProvider);
   }
 }
 

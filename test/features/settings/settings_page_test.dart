@@ -6,6 +6,7 @@ import 'package:arrstack/features/settings/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 import '../../core/storage/fakes.dart';
 
@@ -117,6 +118,45 @@ void main() {
 
       expect(find.text('Sonarr'), findsOneWidget);
       expect(find.text('Status unavailable'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'tapping delete on an instance row opens the shared confirm dialog, '
+    'and confirming deletes it',
+    (tester) async {
+      const instance = ServiceInstance(
+        id: 'radarr-1',
+        name: 'Radarr 4K',
+        serviceType: ServiceType.radarr,
+        authType: AuthType.apiKey,
+        localBaseUrl: 'http://10.0.0.1:7878',
+        endpointMode: EndpointMode.auto,
+      );
+      final fakeRepository = FakeInstanceRepository();
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            configStoreProvider.overrideWithValue(FakeConfigStore()),
+            instanceRepositoryProvider.overrideWithValue(fakeRepository),
+            instancesProvider.overrideWith((ref) async => const Ok([instance])),
+            homeServiceSummariesProvider.overrideWith((ref) async => const []),
+          ],
+          child: const MaterialApp(home: SettingsPage()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(PhosphorIconsRegular.trash));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Remove Radarr 4K?'), findsOneWidget);
+
+      await tester.tap(find.text('Remove'));
+      await tester.pumpAndSettle();
+
+      expect(fakeRepository.deletedIds, ['radarr-1']);
     },
   );
 }

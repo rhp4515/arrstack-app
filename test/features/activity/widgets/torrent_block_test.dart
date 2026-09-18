@@ -180,7 +180,7 @@ void main() {
     expect(fakeRepo.stoppedHashes, contains('h1'));
   });
 
-  testWidgets('downloading delete button calls deleteTorrents with hash', (
+  testWidgets('downloading delete button opens the shared confirm dialog', (
     tester,
   ) async {
     final fakeRepo = FakeQbitRepository();
@@ -190,30 +190,49 @@ void main() {
       fakeRepository: fakeRepo,
     );
 
-    final deleteButton = find.byTooltip('Delete');
-    expect(deleteButton, findsWidgets);
-
-    await tester.tap(deleteButton.first);
+    await tester.tap(find.byTooltip('Delete').first);
     await tester.pumpAndSettle();
 
-    // Dialog appears; tap Delete confirmation
-    await tester.tap(find.text('Delete').last);
+    expect(find.text('Remove this torrent?'), findsOneWidget);
+    expect(find.text('Also delete files on disk'), findsOneWidget);
+
+    await tester.tap(find.text('Remove'));
     await tester.pumpAndSettle();
 
     expect(fakeRepo.deletedHashes, contains('h1'));
     expect(fakeRepo.deleteFilesMap['h1'], isFalse);
   });
 
-  testWidgets('stalled delete button calls deleteTorrents non-destructively', (
+  testWidgets('downloading delete cancel does not delete anything', (
     tester,
   ) async {
     final fakeRepo = FakeQbitRepository();
+    await _pump(
+      tester,
+      _torrent(state: 'downloading'),
+      fakeRepository: fakeRepo,
+    );
+
+    await tester.tap(find.byTooltip('Delete').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(fakeRepo.deletedHashes, isEmpty);
+  });
+
+  testWidgets('stalled delete button now opens the shared confirm dialog '
+      '(previously deleted with no confirmation at all)', (tester) async {
+    final fakeRepo = FakeQbitRepository();
     await _pump(tester, _torrent(state: 'stalledDL'), fakeRepository: fakeRepo);
 
-    final deleteButton = find.byTooltip('Delete');
-    expect(deleteButton, findsOneWidget);
+    await tester.tap(find.byTooltip('Delete'));
+    await tester.pumpAndSettle();
 
-    await tester.tap(deleteButton);
+    expect(find.text('Remove this torrent?'), findsOneWidget);
+    expect(fakeRepo.deletedHashes, isEmpty);
+
+    await tester.tap(find.text('Remove'));
     await tester.pumpAndSettle();
 
     expect(fakeRepo.deletedHashes, contains('h1'));

@@ -154,6 +154,17 @@ String _$sonarrMissingEpisodesHash() =>
 /// surfaced — [BazarrWantedAggregate.hasUnreachableInstance] drives the
 /// Wanted lens's single offline error card — but other instances' results
 /// still show underneath it.
+///
+/// Fetches every instance concurrently via [Future.wait] (mirroring
+/// [sonarrMissingEpisodes]'s pattern) rather than sequentially: a
+/// sequential `for` loop that keeps calling `ref.watch` after an earlier
+/// iteration's watched dependency has already thrown trips Riverpod's
+/// "provider rebuilt while the previous build was still pending" guard —
+/// the erroring dependency's AsyncValue change invalidates this provider's
+/// in-flight build, and any subsequent `ref.watch` call in that same
+/// build then throws a "Ref used after disposed" error instead of
+/// reaching the next instance. Registering every dependency's watch
+/// up front (before any of them can resolve or throw) avoids that.
 
 @ProviderFor(bazarrWantedAggregate)
 final bazarrWantedAggregateProvider = BazarrWantedAggregateProvider._();
@@ -163,6 +174,17 @@ final bazarrWantedAggregateProvider = BazarrWantedAggregateProvider._();
 /// surfaced — [BazarrWantedAggregate.hasUnreachableInstance] drives the
 /// Wanted lens's single offline error card — but other instances' results
 /// still show underneath it.
+///
+/// Fetches every instance concurrently via [Future.wait] (mirroring
+/// [sonarrMissingEpisodes]'s pattern) rather than sequentially: a
+/// sequential `for` loop that keeps calling `ref.watch` after an earlier
+/// iteration's watched dependency has already thrown trips Riverpod's
+/// "provider rebuilt while the previous build was still pending" guard —
+/// the erroring dependency's AsyncValue change invalidates this provider's
+/// in-flight build, and any subsequent `ref.watch` call in that same
+/// build then throws a "Ref used after disposed" error instead of
+/// reaching the next instance. Registering every dependency's watch
+/// up front (before any of them can resolve or throw) avoids that.
 
 final class BazarrWantedAggregateProvider
     extends
@@ -179,6 +201,17 @@ final class BazarrWantedAggregateProvider
   /// surfaced — [BazarrWantedAggregate.hasUnreachableInstance] drives the
   /// Wanted lens's single offline error card — but other instances' results
   /// still show underneath it.
+  ///
+  /// Fetches every instance concurrently via [Future.wait] (mirroring
+  /// [sonarrMissingEpisodes]'s pattern) rather than sequentially: a
+  /// sequential `for` loop that keeps calling `ref.watch` after an earlier
+  /// iteration's watched dependency has already thrown trips Riverpod's
+  /// "provider rebuilt while the previous build was still pending" guard —
+  /// the erroring dependency's AsyncValue change invalidates this provider's
+  /// in-flight build, and any subsequent `ref.watch` call in that same
+  /// build then throws a "Ref used after disposed" error instead of
+  /// reaching the next instance. Registering every dependency's watch
+  /// up front (before any of them can resolve or throw) avoids that.
   BazarrWantedAggregateProvider._()
     : super(
         from: null,
@@ -206,7 +239,7 @@ final class BazarrWantedAggregateProvider
 }
 
 String _$bazarrWantedAggregateHash() =>
-    r'88711bbd19a19d859575d3bca863a96f8205d50e';
+    r'6ae0b34a9e872ff8654b3d363c514de754675d76';
 
 /// A session-only rolling buffer of the last 60 minutes of qBittorrent
 /// download-speed samples for [instanceId], powering the Transfers lens's
@@ -279,7 +312,7 @@ final class TransfersThroughputHistoryProvider
 }
 
 String _$transfersThroughputHistoryHash() =>
-    r'e7525a6bf314b321f6b6ec5c2276125420544213';
+    r'462c11bc46e6017234131e19542b319c72cab4ed';
 
 /// A session-only rolling buffer of the last 60 minutes of qBittorrent
 /// download-speed samples for [instanceId], powering the Transfers lens's

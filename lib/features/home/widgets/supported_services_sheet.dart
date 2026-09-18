@@ -3,17 +3,16 @@
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
+import 'package:arrstack/core/models/service_type.dart';
 import 'package:flutter/material.dart';
 
-const List<String> _supportedServices = [
-  'Sonarr',
-  'Radarr',
-  'Prowlarr',
-  'Bazarr',
-  'qBittorrent',
-  'Uptime Kuma',
-  'Seerr',
-];
+/// Derived from [ServiceType.values] rather than a hand-written list, so
+/// this sheet can't drift out of sync with what the instance form actually
+/// lets a user configure (as a hardcoded list once did — it silently
+/// omitted Einthusan Downloader).
+final List<String> _supportedServices = ServiceType.values
+    .map((type) => type.displayName)
+    .toList(growable: false);
 
 Future<void> showSupportedServicesSheet(BuildContext context) {
   final colorScheme = Theme.of(context).colorScheme;

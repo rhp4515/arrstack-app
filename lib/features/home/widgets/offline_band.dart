@@ -15,9 +15,20 @@ class OfflineBand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The background stays full-bleed to the very top of the screen (no
+    // SafeArea wrapper), but the gear button and chip are interactive
+    // content, not background — they get the device's actual top inset
+    // added to the fixed design spacing, so a tall status bar or notch
+    // never covers them.
+    final topInset = MediaQuery.paddingOf(context).top;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.space6),
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.space6,
+        AppSpacing.space6 + topInset,
+        AppSpacing.space6,
+        AppSpacing.space6,
+      ),
       decoration: const BoxDecoration(color: AppColors.n900),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

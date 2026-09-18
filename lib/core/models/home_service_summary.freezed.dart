@@ -15,7 +15,13 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$HomeServiceSummary {
 
- String get instanceId; String get instanceName; ServiceType get serviceType; bool get isReachable; String get summaryLine; String? get statusLabel;
+ String get instanceId; String get instanceName; ServiceType get serviceType; bool get isReachable; String get summaryLine; String? get statusLabel;/// The classified failure behind an unreachable summary, when known —
+/// null when reachable, or when the failure came from an unclassified
+/// exception (a repository-construction error, for example). Lets the
+/// offline layout distinguish a genuine network outage from bad
+/// credentials or a server error, instead of always blaming
+/// connectivity (README §3f offline card).
+ AppError? get lastError;
 /// Create a copy of HomeServiceSummary
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26,16 +32,16 @@ $HomeServiceSummaryCopyWith<HomeServiceSummary> get copyWith => _$HomeServiceSum
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeServiceSummary&&(identical(other.instanceId, instanceId) || other.instanceId == instanceId)&&(identical(other.instanceName, instanceName) || other.instanceName == instanceName)&&(identical(other.serviceType, serviceType) || other.serviceType == serviceType)&&(identical(other.isReachable, isReachable) || other.isReachable == isReachable)&&(identical(other.summaryLine, summaryLine) || other.summaryLine == summaryLine)&&(identical(other.statusLabel, statusLabel) || other.statusLabel == statusLabel));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeServiceSummary&&(identical(other.instanceId, instanceId) || other.instanceId == instanceId)&&(identical(other.instanceName, instanceName) || other.instanceName == instanceName)&&(identical(other.serviceType, serviceType) || other.serviceType == serviceType)&&(identical(other.isReachable, isReachable) || other.isReachable == isReachable)&&(identical(other.summaryLine, summaryLine) || other.summaryLine == summaryLine)&&(identical(other.statusLabel, statusLabel) || other.statusLabel == statusLabel)&&(identical(other.lastError, lastError) || other.lastError == lastError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,instanceId,instanceName,serviceType,isReachable,summaryLine,statusLabel);
+int get hashCode => Object.hash(runtimeType,instanceId,instanceName,serviceType,isReachable,summaryLine,statusLabel,lastError);
 
 @override
 String toString() {
-  return 'HomeServiceSummary(instanceId: $instanceId, instanceName: $instanceName, serviceType: $serviceType, isReachable: $isReachable, summaryLine: $summaryLine, statusLabel: $statusLabel)';
+  return 'HomeServiceSummary(instanceId: $instanceId, instanceName: $instanceName, serviceType: $serviceType, isReachable: $isReachable, summaryLine: $summaryLine, statusLabel: $statusLabel, lastError: $lastError)';
 }
 
 
@@ -46,7 +52,7 @@ abstract mixin class $HomeServiceSummaryCopyWith<$Res>  {
   factory $HomeServiceSummaryCopyWith(HomeServiceSummary value, $Res Function(HomeServiceSummary) _then) = _$HomeServiceSummaryCopyWithImpl;
 @useResult
 $Res call({
- String instanceId, String instanceName, ServiceType serviceType, bool isReachable, String summaryLine, String? statusLabel
+ String instanceId, String instanceName, ServiceType serviceType, bool isReachable, String summaryLine, String? statusLabel, AppError? lastError
 });
 
 
@@ -63,7 +69,7 @@ class _$HomeServiceSummaryCopyWithImpl<$Res>
 
 /// Create a copy of HomeServiceSummary
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? instanceId = null,Object? instanceName = null,Object? serviceType = null,Object? isReachable = null,Object? summaryLine = null,Object? statusLabel = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? instanceId = null,Object? instanceName = null,Object? serviceType = null,Object? isReachable = null,Object? summaryLine = null,Object? statusLabel = freezed,Object? lastError = freezed,}) {
   return _then(HomeServiceSummary(
 instanceId: null == instanceId ? _self.instanceId : instanceId // ignore: cast_nullable_to_non_nullable
 as String,instanceName: null == instanceName ? _self.instanceName : instanceName // ignore: cast_nullable_to_non_nullable
@@ -71,7 +77,8 @@ as String,serviceType: null == serviceType ? _self.serviceType : serviceType // 
 as ServiceType,isReachable: null == isReachable ? _self.isReachable : isReachable // ignore: cast_nullable_to_non_nullable
 as bool,summaryLine: null == summaryLine ? _self.summaryLine : summaryLine // ignore: cast_nullable_to_non_nullable
 as String,statusLabel: freezed == statusLabel ? _self.statusLabel : statusLabel // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,lastError: freezed == lastError ? _self.lastError : lastError // ignore: cast_nullable_to_non_nullable
+as AppError?,
   ));
 }
 
@@ -156,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String instanceId,  String instanceName,  ServiceType serviceType,  bool isReachable,  String summaryLine,  String? statusLabel)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String instanceId,  String instanceName,  ServiceType serviceType,  bool isReachable,  String summaryLine,  String? statusLabel,  AppError? lastError)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _HomeServiceSummary() when $default != null:
-return $default(_that.instanceId,_that.instanceName,_that.serviceType,_that.isReachable,_that.summaryLine,_that.statusLabel);case _:
+return $default(_that.instanceId,_that.instanceName,_that.serviceType,_that.isReachable,_that.summaryLine,_that.statusLabel,_that.lastError);case _:
   return orElse();
 
 }
@@ -177,10 +184,10 @@ return $default(_that.instanceId,_that.instanceName,_that.serviceType,_that.isRe
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String instanceId,  String instanceName,  ServiceType serviceType,  bool isReachable,  String summaryLine,  String? statusLabel)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String instanceId,  String instanceName,  ServiceType serviceType,  bool isReachable,  String summaryLine,  String? statusLabel,  AppError? lastError)  $default,) {final _that = this;
 switch (_that) {
 case _HomeServiceSummary():
-return $default(_that.instanceId,_that.instanceName,_that.serviceType,_that.isReachable,_that.summaryLine,_that.statusLabel);case _:
+return $default(_that.instanceId,_that.instanceName,_that.serviceType,_that.isReachable,_that.summaryLine,_that.statusLabel,_that.lastError);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +204,10 @@ return $default(_that.instanceId,_that.instanceName,_that.serviceType,_that.isRe
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String instanceId,  String instanceName,  ServiceType serviceType,  bool isReachable,  String summaryLine,  String? statusLabel)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String instanceId,  String instanceName,  ServiceType serviceType,  bool isReachable,  String summaryLine,  String? statusLabel,  AppError? lastError)?  $default,) {final _that = this;
 switch (_that) {
 case _HomeServiceSummary() when $default != null:
-return $default(_that.instanceId,_that.instanceName,_that.serviceType,_that.isReachable,_that.summaryLine,_that.statusLabel);case _:
+return $default(_that.instanceId,_that.instanceName,_that.serviceType,_that.isReachable,_that.summaryLine,_that.statusLabel,_that.lastError);case _:
   return null;
 
 }
@@ -212,7 +219,7 @@ return $default(_that.instanceId,_that.instanceName,_that.serviceType,_that.isRe
 
 
 class _HomeServiceSummary implements HomeServiceSummary {
-  const _HomeServiceSummary({required this.instanceId, required this.instanceName, required this.serviceType, required this.isReachable, required this.summaryLine, this.statusLabel});
+  const _HomeServiceSummary({required this.instanceId, required this.instanceName, required this.serviceType, required this.isReachable, required this.summaryLine, this.statusLabel, this.lastError});
   
 
 @override final  String instanceId;
@@ -221,6 +228,13 @@ class _HomeServiceSummary implements HomeServiceSummary {
 @override final  bool isReachable;
 @override final  String summaryLine;
 @override final  String? statusLabel;
+/// The classified failure behind an unreachable summary, when known —
+/// null when reachable, or when the failure came from an unclassified
+/// exception (a repository-construction error, for example). Lets the
+/// offline layout distinguish a genuine network outage from bad
+/// credentials or a server error, instead of always blaming
+/// connectivity (README §3f offline card).
+@override final  AppError? lastError;
 
 /// Create a copy of HomeServiceSummary
 /// with the given fields replaced by the non-null parameter values.
@@ -232,16 +246,16 @@ _$HomeServiceSummaryCopyWith<_HomeServiceSummary> get copyWith => __$HomeService
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HomeServiceSummary&&(identical(other.instanceId, instanceId) || other.instanceId == instanceId)&&(identical(other.instanceName, instanceName) || other.instanceName == instanceName)&&(identical(other.serviceType, serviceType) || other.serviceType == serviceType)&&(identical(other.isReachable, isReachable) || other.isReachable == isReachable)&&(identical(other.summaryLine, summaryLine) || other.summaryLine == summaryLine)&&(identical(other.statusLabel, statusLabel) || other.statusLabel == statusLabel));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HomeServiceSummary&&(identical(other.instanceId, instanceId) || other.instanceId == instanceId)&&(identical(other.instanceName, instanceName) || other.instanceName == instanceName)&&(identical(other.serviceType, serviceType) || other.serviceType == serviceType)&&(identical(other.isReachable, isReachable) || other.isReachable == isReachable)&&(identical(other.summaryLine, summaryLine) || other.summaryLine == summaryLine)&&(identical(other.statusLabel, statusLabel) || other.statusLabel == statusLabel)&&(identical(other.lastError, lastError) || other.lastError == lastError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,instanceId,instanceName,serviceType,isReachable,summaryLine,statusLabel);
+int get hashCode => Object.hash(runtimeType,instanceId,instanceName,serviceType,isReachable,summaryLine,statusLabel,lastError);
 
 @override
 String toString() {
-  return 'HomeServiceSummary(instanceId: $instanceId, instanceName: $instanceName, serviceType: $serviceType, isReachable: $isReachable, summaryLine: $summaryLine, statusLabel: $statusLabel)';
+  return 'HomeServiceSummary(instanceId: $instanceId, instanceName: $instanceName, serviceType: $serviceType, isReachable: $isReachable, summaryLine: $summaryLine, statusLabel: $statusLabel, lastError: $lastError)';
 }
 
 
@@ -252,7 +266,7 @@ abstract mixin class _$HomeServiceSummaryCopyWith<$Res> implements $HomeServiceS
   factory _$HomeServiceSummaryCopyWith(_HomeServiceSummary value, $Res Function(_HomeServiceSummary) _then) = __$HomeServiceSummaryCopyWithImpl;
 @override @useResult
 $Res call({
- String instanceId, String instanceName, ServiceType serviceType, bool isReachable, String summaryLine, String? statusLabel
+ String instanceId, String instanceName, ServiceType serviceType, bool isReachable, String summaryLine, String? statusLabel, AppError? lastError
 });
 
 
@@ -269,7 +283,7 @@ class __$HomeServiceSummaryCopyWithImpl<$Res>
 
 /// Create a copy of HomeServiceSummary
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? instanceId = null,Object? instanceName = null,Object? serviceType = null,Object? isReachable = null,Object? summaryLine = null,Object? statusLabel = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? instanceId = null,Object? instanceName = null,Object? serviceType = null,Object? isReachable = null,Object? summaryLine = null,Object? statusLabel = freezed,Object? lastError = freezed,}) {
   return _then(_HomeServiceSummary(
 instanceId: null == instanceId ? _self.instanceId : instanceId // ignore: cast_nullable_to_non_nullable
 as String,instanceName: null == instanceName ? _self.instanceName : instanceName // ignore: cast_nullable_to_non_nullable
@@ -277,7 +291,8 @@ as String,serviceType: null == serviceType ? _self.serviceType : serviceType // 
 as ServiceType,isReachable: null == isReachable ? _self.isReachable : isReachable // ignore: cast_nullable_to_non_nullable
 as bool,summaryLine: null == summaryLine ? _self.summaryLine : summaryLine // ignore: cast_nullable_to_non_nullable
 as String,statusLabel: freezed == statusLabel ? _self.statusLabel : statusLabel // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,lastError: freezed == lastError ? _self.lastError : lastError // ignore: cast_nullable_to_non_nullable
+as AppError?,
   ));
 }
 

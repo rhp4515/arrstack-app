@@ -339,7 +339,9 @@ git commit -m "feat(storage): add the last-known-summary cache store and provide
 
 **Interfaces:**
 - Consumes: `instancesProvider`, `homeServiceSummariesProvider`, `rightNowProvider` (all existing, from `lib/features/home/home_providers.dart` / `lib/core/storage/storage_providers.dart`).
-- Produces: `enum HomeConnectionState { unconfigured, loading, offline, ready }`; `homeConnectionStateProvider → Future<HomeConnectionState>`; `HomeConnectionStateDevOverride` (`@Riverpod(keepAlive: true) class`, state `HomeConnectionState?`, method `set(HomeConnectionState? value)`); `effectiveHomeConnectionStateProvider → Future<HomeConnectionState>`; `showDevConnectionSwitcherProvider → bool`.
+- Produces: `enum HomeConnectionState { unconfigured, loading, offline, ready }`; `homeConnectionStateProvider → HomeConnectionState` (synchronous — see note below); `HomeConnectionStateDevOverride` (`@Riverpod(keepAlive: true) class`, state `HomeConnectionState?`, method `set(HomeConnectionState? value)`); `effectiveHomeConnectionStateProvider → HomeConnectionState` (synchronous); `showDevConnectionSwitcherProvider → bool`.
+
+**Why synchronous, not `Future<HomeConnectionState>`:** an async version that does `await ref.watch(instancesProvider.future)` and then synchronously checks `homeServiceSummariesProvider`/`rightNowProvider`'s `AsyncValue` has a deterministic bug — those two providers are being watched for the first time at that exact point, so they are always in their initial `AsyncLoading` state (a Dart async `Future` can never resolve within the same synchronous continuation that creates it). The async wrapper's own `Future` then resolves to `HomeConnectionState.loading` immediately and is handed to whoever awaited `.future` — permanently, since that specific `Future` has already completed and Riverpod's later recomputation (once the dependencies genuinely resolve) has no path back to that already-resolved value. Making the provider synchronous (return `HomeConnectionState` directly, watching all three source providers' `AsyncValue`s in one pass) fixes this: Riverpod re-invokes a synchronous provider's build automatically whenever a watched dependency's `AsyncValue` changes, so callers that `ref.watch()` it in a widget observe it transition from `loading` to its final state exactly like any other reactive Riverpod state. Callers in tests that want the settled value pre-warm the dependencies first (`await container.read(xProvider.future)`) before reading this provider synchronously.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -360,6 +362,22 @@ import '../../support/fixtures.dart';
 
 void main() {
   group('homeConnectionStateProvider', () {
+    test('is loading before instances resolve', () {
+      final container = ProviderContainer(
+        overrides: [
+          instancesProvider.overrideWith(
+            (ref) => Completer<Result<List<ServiceInstance>>>().future,
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      expect(
+        container.read(homeConnectionStateProvider),
+        HomeConnectionState.loading,
+      );
+    });
+
     test('is unconfigured when there are no instances', () async {
       final container = ProviderContainer(
         overrides: [
@@ -367,9 +385,12 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
+      await container.read(instancesProvider.future);
 
-      final state = await container.read(homeConnectionStateProvider.future);
-      expect(state, HomeConnectionState.unconfigured);
+      expect(
+        container.read(homeConnectionStateProvider),
+        HomeConnectionState.unconfigured,
+      );
     });
 
     test('is loading on the initial fetch, before summaries resolve', () async {
@@ -377,22 +398,22 @@ void main() {
         serviceType: ServiceType.radarr,
         isDefault: true,
       );
-      final completer = Completer<List<HomeServiceSummary>>();
       final container = ProviderContainer(
         overrides: [
           instancesProvider.overrideWith((ref) async => Ok([radarr])),
           homeServiceSummariesProvider.overrideWith(
-            (ref) => completer.future,
+            (ref) => Completer<List<HomeServiceSummary>>().future,
           ),
           rightNowProvider.overrideWith((ref) async => null),
         ],
       );
       addTearDown(container.dispose);
+      await container.read(instancesProvider.future);
 
-      final state = await container.read(homeConnectionStateProvider.future);
-      expect(state, HomeConnectionState.loading);
-
-      completer.complete([]);
+      expect(
+        container.read(homeConnectionStateProvider),
+        HomeConnectionState.loading,
+      );
     });
 
     test('is offline when instances exist but nothing is reachable', () async {
@@ -419,9 +440,14 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
+      await container.read(instancesProvider.future);
+      await container.read(homeServiceSummariesProvider.future);
+      await container.read(rightNowProvider.future);
 
-      final state = await container.read(homeConnectionStateProvider.future);
-      expect(state, HomeConnectionState.offline);
+      expect(
+        container.read(homeConnectionStateProvider),
+        HomeConnectionState.offline,
+      );
     });
 
     test('is ready when at least one service is reachable', () async {
@@ -447,9 +473,14 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
+      await container.read(instancesProvider.future);
+      await container.read(homeServiceSummariesProvider.future);
+      await container.read(rightNowProvider.future);
 
-      final state = await container.read(homeConnectionStateProvider.future);
-      expect(state, HomeConnectionState.ready);
+      expect(
+        container.read(homeConnectionStateProvider),
+        HomeConnectionState.ready,
+      );
     });
 
     test(
@@ -480,11 +511,14 @@ void main() {
           ],
         );
         addTearDown(container.dispose);
+        await container.read(instancesProvider.future);
+        await container.read(homeServiceSummariesProvider.future);
+        await container.read(rightNowProvider.future);
 
-        final state = await container.read(
-          homeConnectionStateProvider.future,
+        expect(
+          container.read(homeConnectionStateProvider),
+          HomeConnectionState.ready,
         );
-        expect(state, HomeConnectionState.ready);
       },
     );
   });
@@ -497,11 +531,12 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
+      await container.read(instancesProvider.future);
 
-      final state = await container.read(
-        effectiveHomeConnectionStateProvider.future,
+      expect(
+        container.read(effectiveHomeConnectionStateProvider),
+        HomeConnectionState.unconfigured,
       );
-      expect(state, HomeConnectionState.unconfigured);
     });
 
     test(
@@ -513,15 +548,16 @@ void main() {
           ],
         );
         addTearDown(container.dispose);
+        await container.read(instancesProvider.future);
 
         container
             .read(homeConnectionStateDevOverrideProvider.notifier)
             .set(HomeConnectionState.offline);
 
-        final state = await container.read(
-          effectiveHomeConnectionStateProvider.future,
+        expect(
+          container.read(effectiveHomeConnectionStateProvider),
+          HomeConnectionState.offline,
         );
-        expect(state, HomeConnectionState.offline);
       },
     );
   });
@@ -566,12 +602,19 @@ part 'home_connection_providers.g.dart';
 
 enum HomeConnectionState { unconfigured, loading, offline, ready }
 
+/// Synchronous by design — see "Why synchronous" above. Watches all three
+/// source providers' `AsyncValue`s in one pass so Riverpod's own
+/// dependency tracking re-invokes this build automatically as each
+/// resolves, rather than this provider trying to await-then-peek them.
 @riverpod
-Future<HomeConnectionState> homeConnectionState(Ref ref) async {
-  final instancesResult = await ref.watch(instancesProvider.future);
-  final instances = switch (instancesResult) {
+HomeConnectionState homeConnectionState(Ref ref) {
+  final instancesAsync = ref.watch(instancesProvider);
+  if (instancesAsync.isLoading && !instancesAsync.hasValue) {
+    return HomeConnectionState.loading;
+  }
+  final instances = switch (instancesAsync.valueOrNull) {
     Ok(:final value) => value,
-    Err() => const <ServiceInstance>[],
+    _ => const <ServiceInstance>[],
   };
   if (instances.isEmpty) return HomeConnectionState.unconfigured;
 
@@ -609,10 +652,9 @@ class HomeConnectionStateDevOverride
 /// The state Home actually renders: the dev override when set, otherwise
 /// the real computed [homeConnectionStateProvider].
 @riverpod
-Future<HomeConnectionState> effectiveHomeConnectionState(Ref ref) async {
+HomeConnectionState effectiveHomeConnectionState(Ref ref) {
   final override = ref.watch(homeConnectionStateDevOverrideProvider);
-  if (override != null) return override;
-  return ref.watch(homeConnectionStateProvider.future);
+  return override ?? ref.watch(homeConnectionStateProvider);
 }
 
 /// Whether the dev connection-state switcher chip row should render.
@@ -2830,9 +2872,7 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final connectionStateAsync = ref.watch(
-      effectiveHomeConnectionStateProvider,
-    );
+    final connectionState = ref.watch(effectiveHomeConnectionStateProvider);
     final showDevSwitcher = ref.watch(showDevConnectionSwitcherProvider);
 
     return Scaffold(
@@ -2841,21 +2881,15 @@ class HomePage extends ConsumerWidget {
           children: [
             if (showDevSwitcher) const ConnectionStateDevChipRow(),
             Expanded(
-              child: connectionStateAsync.when(
-                data: (state) => switch (state) {
-                  HomeConnectionState.unconfigured => const _EmptyHome(),
-                  HomeConnectionState.loading => const HomeLoadingState(),
-                  HomeConnectionState.offline => const HomeOfflineState(),
-                  HomeConnectionState.ready => RefreshIndicator(
-                    onRefresh: () => refreshHome(ref),
-                    child: const _HomeContent(),
-                  ),
-                },
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
-                error: (err, _) =>
-                    Center(child: Text('Unexpected error: $err')),
-              ),
+              child: switch (connectionState) {
+                HomeConnectionState.unconfigured => const _EmptyHome(),
+                HomeConnectionState.loading => const HomeLoadingState(),
+                HomeConnectionState.offline => const HomeOfflineState(),
+                HomeConnectionState.ready => RefreshIndicator(
+                  onRefresh: () => refreshHome(ref),
+                  child: const _HomeContent(),
+                ),
+              },
             ),
           ],
         ),

@@ -1,17 +1,26 @@
+// lib/features/home/home_page.dart
 /// Home tab: Nocturne band, "Right now" card, and the service-tile grid
-/// (Phase 3 design §Widget plan). Replaces `dashboard_page.dart`.
+/// (Phase 3 design §Widget plan). Branches on
+/// [effectiveHomeConnectionStateProvider] to show the empty, loading,
+/// offline, or ready layout (README §3f). Each state embeds its own gear
+/// button (matching HomeBand/OfflineBand/HomeBandSkeleton) rather than a
+/// Scaffold AppBar, so the debug connection-state switcher can sit above
+/// all four states uniformly.
 library;
 
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
-import 'package:arrstack/core/network/network.dart';
-import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/features/activity/activity_providers.dart';
+import 'package:arrstack/features/home/home_connection_providers.dart';
 import 'package:arrstack/features/home/home_providers.dart';
+import 'package:arrstack/features/home/widgets/connection_state_dev_chip_row.dart';
 import 'package:arrstack/features/home/widgets/home_band.dart';
+import 'package:arrstack/features/home/widgets/home_loading_state.dart';
+import 'package:arrstack/features/home/widgets/home_offline_state.dart';
 import 'package:arrstack/features/home/widgets/right_now_card.dart';
 import 'package:arrstack/features/home/widgets/service_tile_grid.dart';
+import 'package:arrstack/features/home/widgets/supported_services_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,43 +31,27 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final instancesAsync = ref.watch(instancesProvider);
+    final connectionState = ref.watch(effectiveHomeConnectionStateProvider);
+    final showDevSwitcher = ref.watch(showDevConnectionSwitcherProvider);
 
     return Scaffold(
-      appBar: instancesAsync.when(
-        data: (result) => switch (result) {
-          Ok(:final value) =>
-            value.isEmpty
-                ? AppBar(
-                    elevation: 0,
-                    actions: [
-                      IconButton(
-                        icon: const Icon(PhosphorIconsRegular.gear),
-                        onPressed: () => context.go(RoutePaths.homeSettings),
-                      ),
-                    ],
-                  )
-                : null,
-          _ => null,
-        },
-        loading: () => null,
-        error: (_, _) => null,
-      ),
-      body: instancesAsync.when(
-        data: (result) => switch (result) {
-          Ok(:final value) =>
-            value.isEmpty
-                ? const _EmptyHome()
-                : RefreshIndicator(
-                    onRefresh: () => refreshHome(ref),
-                    child: const _HomeContent(),
-                  ),
-          Err(:final error) => Center(
-            child: Text('Error: ${error.userMessage}'),
-          ),
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text('Unexpected error: $err')),
+      body: SafeArea(
+        child: Column(
+          children: [
+            if (showDevSwitcher) const ConnectionStateDevChipRow(),
+            Expanded(
+              child: switch (connectionState) {
+                HomeConnectionState.unconfigured => const _EmptyHome(),
+                HomeConnectionState.loading => const HomeLoadingState(),
+                HomeConnectionState.offline => const HomeOfflineState(),
+                HomeConnectionState.ready => RefreshIndicator(
+                  onRefresh: () => refreshHome(ref),
+                  child: const _HomeContent(),
+                ),
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -118,15 +111,56 @@ class _EmptyHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EmptyState(
-      icon: PhosphorIconsRegular.house,
-      title: 'No services yet',
-      message: 'Add a service to see its status and activity here.',
-      action: FilledButton.icon(
-        onPressed: () => context.go(RoutePaths.homeAddInstance),
-        icon: const Icon(PhosphorIconsRegular.plus),
-        label: const Text('Add service'),
-      ),
+    return Column(
+      children: [
+        Align(
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding: const EdgeInsets.only(
+              top: AppSpacing.space2,
+              right: AppSpacing.space4,
+            ),
+            child: IconButton(
+              icon: const Icon(PhosphorIconsRegular.gear),
+              onPressed: () => context.go(RoutePaths.homeSettings),
+            ),
+          ),
+        ),
+        const Expanded(
+          child: EmptyState(
+            icon: PhosphorIconsRegular.hardDrives,
+            title: 'No services yet',
+            message:
+                'Add Radarr or Sonarr and this screen fills with your '
+                'library, your transfers and your uptime. Everything '
+                'stays on your device.',
+            action: _EmptyHomeActions(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _EmptyHomeActions extends StatelessWidget {
+  const _EmptyHomeActions();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FilledButton.icon(
+          onPressed: () => context.go(RoutePaths.homeAddInstance),
+          icon: const Icon(PhosphorIconsRegular.plus),
+          label: const Text('Add a service'),
+        ),
+        const SizedBox(height: AppSpacing.space3),
+        TextButton(
+          onPressed: () => showSupportedServicesSheet(context),
+          child: const Text("What's supported?"),
+        ),
+      ],
     );
   }
 }

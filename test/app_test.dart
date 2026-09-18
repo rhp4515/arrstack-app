@@ -4,7 +4,6 @@ import 'package:arrstack/app/app.dart';
 import 'package:arrstack/app/router.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
-import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/features/activity/activity_page.dart';
 import 'package:arrstack/features/home/home_page.dart';
 import 'package:arrstack/features/library/library_page.dart';
@@ -51,7 +50,7 @@ void main() {
     appRouter.go('/home');
     await tester.pumpAndSettle();
 
-    expect(find.byType(EmptyState), findsOneWidget);
+    expect(find.text('No services yet'), findsOneWidget);
     expect(find.byType(HomePage), findsOneWidget);
   });
 

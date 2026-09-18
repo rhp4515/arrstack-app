@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
-import 'package:arrstack/core/widgets/empty_state.dart';
+import 'package:arrstack/core/widgets/error_card.dart';
 import 'package:arrstack/features/home/home_connection_providers.dart';
 import 'package:arrstack/features/home/home_page.dart';
 import 'package:arrstack/features/home/home_providers.dart';
@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 import '../../support/fixtures.dart';
 
@@ -43,13 +44,54 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byType(EmptyState), findsOneWidget);
+    expect(find.byIcon(PhosphorIconsRegular.hardDrives), findsOneWidget);
+    expect(find.byType(ErrorCard), findsNothing);
     expect(find.byType(HomeBand), findsNothing);
     expect(find.byType(ConnectionStateDevChipRow), findsNothing);
     expect(find.text('No services yet'), findsOneWidget);
     expect(find.text('Add a service'), findsOneWidget);
     expect(find.text("What's supported?"), findsOneWidget);
   });
+
+  testWidgets(
+    'shows an error card instead of the empty-state copy when instances '
+    'fails to load',
+    (tester) async {
+      await tester.pumpWidget(
+        wrap([
+          showDevConnectionSwitcherProvider.overrideWithValue(false),
+          instancesProvider.overrideWith(
+            (ref) async => const Err(
+              StorageError(userMessage: 'Could not read your saved services.'),
+            ),
+          ),
+        ]),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ErrorCard), findsOneWidget);
+      expect(find.text("Couldn't load your services"), findsOneWidget);
+      expect(find.text('Could not read your saved services.'), findsOneWidget);
+      expect(find.text('No services yet'), findsNothing);
+      expect(find.text('Add a service'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'the normal empty state still renders for a genuinely empty Ok([]) list',
+    (tester) async {
+      await tester.pumpWidget(
+        wrap([
+          showDevConnectionSwitcherProvider.overrideWithValue(false),
+          instancesProvider.overrideWith((ref) async => const Ok([])),
+        ]),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ErrorCard), findsNothing);
+      expect(find.text('No services yet'), findsOneWidget);
+    },
+  );
 
   testWidgets('"What\'s supported?" opens the supported-services sheet', (
     tester,
@@ -191,7 +233,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byType(EmptyState), findsOneWidget);
+    expect(find.text('No services yet'), findsOneWidget);
 
     await tester.tap(find.text('offline'));
     await tester.pumpAndSettle();

@@ -20,12 +20,20 @@ class HomeLoadingState extends ConsumerWidget {
     final ssidAsync = ref.watch(currentSsidProvider);
     final instanceCount = switch (instancesAsync.value) {
       Ok(:final value) => value.length,
-      _ => 0,
+      _ => null,
     };
     final ssid = ssidAsync.value;
-    final caption = ssid == null
-        ? 'Contacting $instanceCount services…'
-        : 'Contacting $instanceCount services on $ssid…';
+    // HomeConnectionState.loading can be entered while instancesProvider is
+    // itself still resolving, not just while the summaries/rightNow
+    // providers are — so the count isn't always known yet on this frame.
+    // The design spec requires the caption to always show a real N, never
+    // a placeholder "0" (finding #4), so omit the count entirely rather
+    // than interpolating one that hasn't been confirmed.
+    final caption = switch ((instanceCount, ssid)) {
+      (null, _) => 'Contacting your services…',
+      (final count?, null) => 'Contacting $count services…',
+      (final count?, final ssid?) => 'Contacting $count services on $ssid…',
+    };
 
     return ListView(
       padding: EdgeInsets.zero,

@@ -7,6 +7,7 @@ import 'dart:async';
 
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/models.dart';
+import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/core/widgets/error_card.dart';
 import 'package:arrstack/features/home/home_providers.dart';
@@ -22,7 +23,22 @@ class HomeOfflineState extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cachedAsync = ref.watch(cachedServiceSummariesProvider);
-    final cached = cachedAsync.value ?? const [];
+    final instancesAsync = ref.watch(instancesProvider);
+    final rawCached = cachedAsync.value ?? const [];
+    // Only ids for instances that still exist prune orphaned cache rows
+    // left behind by deleted instances (finding #1). When the current
+    // instance list hasn't resolved yet or failed to load, there is no
+    // filter to apply, so fall back to showing the unfiltered cache rather
+    // than crashing or hiding everything.
+    final currentInstanceIds = switch (instancesAsync.value) {
+      Ok(:final value) => value.map((i) => i.id).toSet(),
+      _ => null,
+    };
+    final cached = currentInstanceIds == null
+        ? rawCached
+        : rawCached
+              .where((s) => currentInstanceIds.contains(s.instanceId))
+              .toList();
 
     return ListView(
       padding: EdgeInsets.zero,
@@ -72,7 +88,10 @@ class HomeOfflineState extends ConsumerWidget {
     final oldest = cached
         .map((s) => s.lastFetchedAt)
         .reduce((a, b) => a.isBefore(b) ? a : b);
-    return DateTime.now().difference(oldest).inMinutes;
+    final minutes = DateTime.now().difference(oldest).inMinutes;
+    // A clock correction or timezone shift between write and read could
+    // otherwise produce a negative value (finding #6).
+    return minutes.clamp(0, 1 << 31);
   }
 
   void _openTailscale() {

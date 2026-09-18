@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
@@ -73,4 +75,40 @@ void main() {
 
     expect(find.text('Contacting 1 services…'), findsOneWidget);
   });
+
+  testWidgets(
+    'omits the count entirely while instancesProvider is still resolving',
+    (tester) async {
+      final instancesCompleter = Completer<Result<List<ServiceInstance>>>();
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            instancesProvider.overrideWith((ref) => instancesCompleter.future),
+            currentSsidProvider.overrideWith(
+              (ref) => Stream.value('Harivin-5G'),
+            ),
+          ],
+          child: MaterialApp.router(
+            routerConfig: GoRouter(
+              routes: [
+                GoRoute(path: '/', builder: (_, _) => const HomeLoadingState()),
+                GoRoute(
+                  path: '/home/settings',
+                  builder: (_, _) => const SizedBox(),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Contacting your services…'), findsOneWidget);
+      expect(find.textContaining('0 services'), findsNothing);
+
+      instancesCompleter.complete(Ok([buildInstance()]));
+      await tester.pump();
+    },
+  );
 }

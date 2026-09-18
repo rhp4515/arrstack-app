@@ -111,8 +111,15 @@ class SharedPreferencesConfigStore implements ConfigStore {
     final raw = await _preferences.getString(_cachedSummariesKey);
     if (raw == null || raw.isEmpty) return const [];
     try {
-      final decoded = jsonDecode(raw) as List<dynamic>;
-      return decoded.cast<Map<String, dynamic>>();
+      final decoded = jsonDecode(raw);
+      // Valid JSON can still have the wrong shape (an object instead of a
+      // list, or a list containing a scalar) — degrade to an empty/filtered
+      // list rather than a throwing cast, so shape-corrupt storage can't
+      // fail the whole cached-summary provider and hide otherwise-valid
+      // history (unlike a single corrupt element, which the provider's own
+      // per-entry decode loop already tolerates).
+      if (decoded is! List) return const [];
+      return decoded.whereType<Map<String, dynamic>>().toList();
     } on FormatException {
       return const [];
     }

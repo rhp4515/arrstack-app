@@ -58,7 +58,15 @@ Future<List<HomeServiceSummary>> homeServiceSummaries(Ref ref) async {
     summaries.add(await _summaryFor(ref, instance));
   }
 
-  await _cacheReachableSummaries(ref, summaries);
+  try {
+    await _cacheReachableSummaries(ref, summaries);
+    // Persisting the cache is best-effort: a preference read/write failure
+    // must never hide already-fetched, valid summaries behind a provider
+    // error — that would turn a harmless storage hiccup into a false
+    // "everything is unreachable" signal.
+  } on Object {
+    // Swallow deliberately, per the comment above.
+  }
   return summaries;
 }
 
@@ -135,7 +143,7 @@ Future<HomeServiceSummary> _radarrSummary(
             '${value.length} movies · '
             '${value.where((m) => !m.hasFile && m.monitored).length} missing',
       ),
-      Err() => _unreachableSummary(instance),
+      Err(:final error) => _unreachableSummary(instance, error: error),
     };
     // Catches unexpected failures (e.g. repository construction) so one
     // service's outage doesn't fail the whole tile list.
@@ -160,7 +168,7 @@ Future<HomeServiceSummary> _sonarrSummary(
             '${value.length} series · '
             '${value.where((s) => s.statistics?.percentOfEpisodes != 100).length} incomplete',
       ),
-      Err() => _unreachableSummary(instance),
+      Err(:final error) => _unreachableSummary(instance, error: error),
     };
   } on Object {
     return _unreachableSummary(instance);
@@ -181,7 +189,7 @@ Future<HomeServiceSummary> _bazarrSummary(
         isReachable: true,
         summaryLine: '${value.length} wanted subtitles',
       ),
-      Err() => _unreachableSummary(instance),
+      Err(:final error) => _unreachableSummary(instance, error: error),
     };
   } on Object {
     return _unreachableSummary(instance);
@@ -204,7 +212,7 @@ Future<HomeServiceSummary> _kumaSummary(
             '${value.length} monitors · '
             '${value.where((m) => m.status == 0).length} down',
       ),
-      Err() => _unreachableSummary(instance),
+      Err(:final error) => _unreachableSummary(instance, error: error),
     };
   } on Object {
     return _unreachableSummary(instance);
@@ -232,7 +240,8 @@ Future<HomeServiceSummary> _prowlarrSummary(
             '${value.length} indexers · '
             '${_averageResponseMs(stats.indexers)}ms',
       ),
-      _ => _unreachableSummary(instance),
+      (Err(:final error), _) => _unreachableSummary(instance, error: error),
+      (_, Err(:final error)) => _unreachableSummary(instance, error: error),
     };
   } on Object {
     return _unreachableSummary(instance);
@@ -265,7 +274,7 @@ Future<HomeServiceSummary> _seerrSummary(
         isReachable: true,
         summaryLine: '${value.pageInfo.results} requests pending',
       ),
-      Err() => _unreachableSummary(instance),
+      Err(:final error) => _unreachableSummary(instance, error: error),
     };
   } on Object {
     return _unreachableSummary(instance);
@@ -284,15 +293,18 @@ HomeServiceSummary _einthusanSummary(ServiceInstance instance) =>
       summaryLine: 'Connected',
     );
 
-HomeServiceSummary _unreachableSummary(ServiceInstance instance) =>
-    HomeServiceSummary(
-      instanceId: instance.id,
-      instanceName: instance.name,
-      serviceType: instance.serviceType,
-      isReachable: false,
-      summaryLine: 'Unreachable',
-      statusLabel: 'Unreachable',
-    );
+HomeServiceSummary _unreachableSummary(
+  ServiceInstance instance, {
+  AppError? error,
+}) => HomeServiceSummary(
+  instanceId: instance.id,
+  instanceName: instance.name,
+  serviceType: instance.serviceType,
+  isReachable: false,
+  summaryLine: 'Unreachable',
+  statusLabel: 'Unreachable',
+  lastError: error,
+);
 
 @riverpod
 Future<HomeSummary> homeSummary(Ref ref) async {

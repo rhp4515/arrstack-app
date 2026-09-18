@@ -137,6 +137,32 @@ void main() {
       );
       expect(summaries.single.isReachable, isFalse);
       expect(summaries.single.statusLabel, 'Unreachable');
+      expect(summaries.single.lastError, isA<NetworkError>());
+    });
+
+    test('carries a non-network error (e.g. bad credentials) through to '
+        'lastError, distinct from a network failure', () async {
+      final radarr = buildInstance(
+        id: 'radarr-1',
+        serviceType: ServiceType.radarr,
+        isDefault: true,
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          instancesProvider.overrideWith((ref) async => Ok([radarr])),
+          radarrMoviesProvider(radarr.id)
+              .overrideWith((ref) async => const Err(AuthError())),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final summaries = await container.read(
+        homeServiceSummariesProvider.future,
+      );
+      expect(summaries.single.isReachable, isFalse);
+      expect(summaries.single.lastError, isA<AuthError>());
+      expect(summaries.single.lastError, isNot(isA<NetworkError>()));
     });
 
     test(
@@ -353,6 +379,40 @@ void main() {
       );
       expect(cached, isEmpty);
     });
+
+    test(
+      'a cache write failure does not hide already-fetched, valid summaries',
+      () async {
+        final radarr = buildInstance(
+          id: 'radarr-1',
+          serviceType: ServiceType.radarr,
+          isDefault: true,
+        );
+        final configStore = FakeConfigStore()
+          ..throwOnWriteCachedSummaries = true;
+
+        final container = ProviderContainer(
+          overrides: [
+            configStoreProvider.overrideWithValue(configStore),
+            instancesProvider.overrideWith((ref) async => Ok([radarr])),
+            radarrMoviesProvider(radarr.id).overrideWith(
+              (ref) async =>
+                  const Ok([RadarrMovie(hasFile: true, monitored: true)]),
+            ),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        // Must resolve with the real summary, not throw, even though
+        // persisting it to the cache failed underneath.
+        final summaries = await container.read(
+          homeServiceSummariesProvider.future,
+        );
+        expect(summaries, hasLength(1));
+        expect(summaries.single.instanceId, 'radarr-1');
+        expect(summaries.single.isReachable, isTrue);
+      },
+    );
   });
 
   group('homeSummaryProvider', () {

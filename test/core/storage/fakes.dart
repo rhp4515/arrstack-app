@@ -45,6 +45,11 @@ class FakeConfigStore implements ConfigStore {
 
   List<Map<String, dynamic>> _cachedSummaries = const [];
 
+  /// Test-only: when true, [writeCachedSummaries] throws instead of
+  /// persisting — simulates a storage failure so callers can verify they
+  /// degrade gracefully rather than propagating it.
+  bool throwOnWriteCachedSummaries = false;
+
   @override
   Future<List<Map<String, dynamic>>> readCachedSummaries() async =>
       _cachedSummaries;
@@ -53,6 +58,9 @@ class FakeConfigStore implements ConfigStore {
   Future<void> writeCachedSummaries(
     List<Map<String, dynamic>> summaries,
   ) async {
+    if (throwOnWriteCachedSummaries) {
+      throw const StorageError(userMessage: 'Simulated write failure');
+    }
     _cachedSummaries = List.unmodifiable(summaries);
   }
 }

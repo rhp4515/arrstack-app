@@ -1,5 +1,8 @@
-/// Interactive release-search screen: runs the search on open, shows the
-/// results sorted (default Peers ↓), and lets the user open any release.
+// lib/features/release_search/release_search_page.dart
+/// Interactive release-search screen (README §3e): runs the search on
+/// open, shows the results sorted (default Best match), and lets the user
+/// open any release. Rejected releases stay in the list, dimmed with the
+/// reason spelled out in red.
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
@@ -14,6 +17,13 @@ import 'package:arrstack/features/release_search/widgets/release_detail_sheet.da
 import 'package:arrstack/features/release_search/widgets/release_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
+
+const _sortLabels = {
+  ReleaseSort.best: 'Best match',
+  ReleaseSort.size: 'Size',
+  ReleaseSort.seeders: 'Seeders',
+};
 
 class ReleaseSearchPage extends ConsumerWidget {
   const ReleaseSearchPage({
@@ -28,7 +38,7 @@ class ReleaseSearchPage extends ConsumerWidget {
   final String instanceId;
   final int targetId;
 
-  /// Human label for the episode/movie being searched (app-bar subtitle).
+  /// Human label for the episode/movie being searched (header kicker).
   final String title;
 
   @override
@@ -43,57 +53,55 @@ class ReleaseSearchPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search Releases'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(title.toUpperCase(), style: AppTypography.kicker),
+            const Text('Releases', style: AppTypography.sectionTitle),
+          ],
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(PhosphorIconsRegular.arrowClockwise, size: 17),
             tooltip: 'Search again',
             onPressed: () => ref.invalidate(provider),
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(96),
+          preferredSize: const Size.fromHeight(48),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
-              AppSpacing.md,
+              AppSpacing.space6,
               0,
-              AppSpacing.md,
-              AppSpacing.sm,
+              AppSpacing.space6,
+              AppSpacing.space3,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: SegmentedButton<ReleaseSort>(
-                    segments: const [
-                      ButtonSegment(
-                        value: ReleaseSort.peers,
-                        label: Text('Peers'),
-                      ),
-                      ButtonSegment(
-                        value: ReleaseSort.size,
-                        label: Text('Size'),
-                      ),
-                      ButtonSegment(value: ReleaseSort.age, label: Text('Age')),
-                      ButtonSegment(
-                        value: ReleaseSort.quality,
-                        label: Text('Quality'),
-                      ),
-                    ],
-                    selected: {sort},
-                    showSelectedIcon: false,
-                    onSelectionChanged: (s) => ref
+                for (final option in ReleaseSort.values) ...[
+                  _SortChip(
+                    label: _sortLabels[option]!,
+                    active: option == sort,
+                    onTap: () => ref
                         .read(releaseSortControllerProvider.notifier)
-                        .select(s.first),
+                        .select(option),
                   ),
+                  const SizedBox(width: AppSpacing.space2),
+                ],
+                const Spacer(),
+                resultsAsync.maybeWhen(
+                  data: (result) => switch (result) {
+                    Ok(:final value) => Text(
+                      '${value.length} found',
+                      style: AppTypography.meta.copyWith(
+                        color: AppColors.n500,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    Err() => const SizedBox.shrink(),
+                  },
+                  orElse: () => const SizedBox.shrink(),
                 ),
               ],
             ),
@@ -127,6 +135,42 @@ class ReleaseSearchPage extends ConsumerWidget {
   }
 }
 
+class _SortChip extends StatelessWidget {
+  const _SortChip({
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.space3,
+          vertical: AppSpacing.space2,
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+          border: active ? Border.all(color: AppColors.accent) : null,
+        ),
+        child: Text(
+          label,
+          style: AppTypography.chipLabel.copyWith(
+            color: active ? AppColors.accent : AppColors.n400,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _SearchingState extends StatelessWidget {
   const _SearchingState();
 
@@ -139,7 +183,7 @@ class _SearchingState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             CircularProgressIndicator(),
-            SizedBox(height: AppSpacing.md),
+            SizedBox(height: AppSpacing.space4),
             Text(
               'Searching all indexers… this can take up to a minute.',
               textAlign: TextAlign.center,
@@ -185,16 +229,17 @@ class _Results extends StatelessWidget {
       itemCount: releases.length + 1,
       separatorBuilder: (_, _) => const Divider(height: 1),
       itemBuilder: (context, index) {
-        if (index == 0) {
-          return Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
+        if (index == releases.length) {
+          return const Padding(
+            padding: AppInsets.pageMd,
             child: Text(
-              '${releases.length} release${releases.length == 1 ? '' : 's'}',
-              style: Theme.of(context).textTheme.labelLarge,
+              'Rejected releases stay listed — tapping one downloads it anyway, '
+              'overriding the profile.',
+              style: AppTypography.meta,
             ),
           );
         }
-        final release = releases[index - 1];
+        final release = releases[index];
         return ReleaseTile(
           release: release,
           onTap: () => showReleaseDetailSheet(

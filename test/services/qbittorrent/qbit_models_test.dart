@@ -39,16 +39,19 @@ void main() {
   };
 
   group('QbitTorrent.fromJson', () {
-    test('parses a torrent whose seq_dl is a bool and ignores extra fields', () {
-      final torrent = QbitTorrent.fromJson(torrentJson());
+    test(
+      'parses a torrent whose seq_dl is a bool and ignores extra fields',
+      () {
+        final torrent = QbitTorrent.fromJson(torrentJson());
 
-      expect(torrent.name, 'The Big Bang Theory S10E11 1080p');
-      expect(torrent.size, 510510592);
-      expect(torrent.progress, closeTo(0.33, 0.001));
-      expect(torrent.state, 'stalledDL');
-      expect(torrent.tracker, 'https://open.demonii.com:443/announce');
-      expect(torrent.ratio, closeTo(0.33, 0.001));
-    });
+        expect(torrent.name, 'The Big Bang Theory S10E11 1080p');
+        expect(torrent.size, 510510592);
+        expect(torrent.progress, closeTo(0.33, 0.001));
+        expect(torrent.state, 'stalledDL');
+        expect(torrent.tracker, 'https://open.demonii.com:443/announce');
+        expect(torrent.ratio, closeTo(0.33, 0.001));
+      },
+    );
 
     test('defaults tracker to empty string when the field is absent', () {
       final json = torrentJson()..remove('tracker');

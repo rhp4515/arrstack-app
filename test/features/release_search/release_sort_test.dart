@@ -1,41 +1,54 @@
-// applySort orders the interactive-search results. Peers is high→low with
-// seeder-less releases last; Size is small→large (avoid the 40 GB remux
-// when you wanted a 2 GB web-dl); Age is new→old; Quality is best→worst.
+// applySort orders the interactive-search results. Best match preserves the
+// service's own original ordering (no re-sort); Seeders explicitly re-ranks
+// by seeder count (high→low, unknown last); Size is small→large.
 
 import 'package:arrstack/features/release_search/models/release_candidate.dart';
 import 'package:arrstack/features/release_search/release_sort.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-ReleaseCandidate rc({
-  String guid = 'g',
-  int? seeders,
-  int size = 0,
-  int ageMinutes = 0,
-  int qualityWeight = 0,
-}) => ReleaseCandidate(
-  guid: guid,
-  indexerId: 1,
-  indexerName: 'ix',
-  title: guid,
-  sizeBytes: size,
-  protocol: ReleaseProtocol.torrent,
-  qualityLabel: 'q',
-  qualityWeight: qualityWeight,
-  ageMinutes: ageMinutes,
-  isRejected: false,
-  rejections: const [],
-  downloadAllowed: true,
-  seeders: seeders,
-);
+ReleaseCandidate rc({String guid = 'g', int? seeders, int size = 0}) =>
+    ReleaseCandidate(
+      guid: guid,
+      indexerId: 1,
+      indexerName: 'ix',
+      title: guid,
+      sizeBytes: size,
+      protocol: ReleaseProtocol.torrent,
+      qualityLabel: 'q',
+      qualityWeight: 0,
+      ageMinutes: 0,
+      isRejected: false,
+      rejections: const [],
+      downloadAllowed: true,
+      seeders: seeders,
+    );
 
 void main() {
   group('applySort', () {
-    test('peers: descending, null seeders last', () {
+    test('best: preserves the original (service-provided) order', () {
       final out = applySort([
         rc(guid: 'a', seeders: 5),
         rc(guid: 'b', seeders: null),
         rc(guid: 'c', seeders: 50),
-      ], ReleaseSort.peers);
+      ], ReleaseSort.best);
+
+      expect(out.map((r) => r.guid), ['a', 'b', 'c']);
+    });
+
+    test('best: returns a new list instance, not the same one', () {
+      final input = [rc(guid: 'a', seeders: 5), rc(guid: 'b', seeders: 50)];
+      final out = applySort(input, ReleaseSort.best);
+
+      expect(identical(out, input), isFalse);
+      expect(out.map((r) => r.guid), ['a', 'b']);
+    });
+
+    test('seeders: descending by seeders, null seeders last', () {
+      final out = applySort([
+        rc(guid: 'a', seeders: 5),
+        rc(guid: 'b', seeders: null),
+        rc(guid: 'c', seeders: 50),
+      ], ReleaseSort.seeders);
 
       expect(out.map((r) => r.guid), ['c', 'a', 'b']);
     });
@@ -50,33 +63,14 @@ void main() {
       expect(out.map((r) => r.guid), ['small', 'mid', 'big']);
     });
 
-    test('age: ascending (newest first)', () {
-      final out = applySort([
-        rc(guid: 'old', ageMinutes: 9000),
-        rc(guid: 'new', ageMinutes: 30),
-      ], ReleaseSort.age);
-
-      expect(out.map((r) => r.guid), ['new', 'old']);
-    });
-
-    test('quality: descending by weight', () {
-      final out = applySort([
-        rc(guid: 'sd', qualityWeight: 1),
-        rc(guid: 'uhd', qualityWeight: 20),
-        rc(guid: 'hd', qualityWeight: 8),
-      ], ReleaseSort.quality);
-
-      expect(out.map((r) => r.guid), ['uhd', 'hd', 'sd']);
-    });
-
     test('does not mutate the input list', () {
       final input = [rc(guid: 'a', seeders: 1), rc(guid: 'b', seeders: 9)];
-      applySort(input, ReleaseSort.peers);
+      applySort(input, ReleaseSort.best);
       expect(input.map((r) => r.guid), ['a', 'b']);
     });
 
     test('empty list returns empty', () {
-      expect(applySort(const [], ReleaseSort.peers), isEmpty);
+      expect(applySort(const [], ReleaseSort.best), isEmpty);
     });
   });
 }

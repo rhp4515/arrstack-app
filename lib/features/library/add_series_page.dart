@@ -1,4 +1,6 @@
-/// Add series page (spec §7).
+/// Add series (README §3d): TMDB lookup via Sonarr, a primary/secondary
+/// add-button hierarchy, and already-in-library rows dimmed with a check
+/// instead of an add button so a duplicate can't be added by accident.
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
@@ -10,6 +12,7 @@ import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 class AddSeriesPage extends ConsumerStatefulWidget {
   const AddSeriesPage({required this.instanceId, super.key});
@@ -38,26 +41,20 @@ class _AddSeriesPageState extends ConsumerState<AddSeriesPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Series'),
+        title: const Text('Add series'),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(64),
+          preferredSize: const Size.fromHeight(56),
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: SearchBar(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.space6,
+              0,
+              AppSpacing.space6,
+              AppSpacing.space4,
+            ),
+            child: _ActiveSearchField(
               controller: _searchController,
-              hintText: 'Search TVDB...',
               onSubmitted: (value) => setState(() => _searchTerm = value),
-              leading: const Icon(Icons.search),
-              trailing: [
-                if (_searchTerm.isNotEmpty)
-                  IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      _searchController.clear();
-                      setState(() => _searchTerm = '');
-                    },
-                  ),
-              ],
+              onClear: () => setState(() => _searchTerm = ''),
             ),
           ),
         ),
@@ -75,7 +72,6 @@ class _AddSeriesPageState extends ConsumerState<AddSeriesPage> {
                       ? const EmptyState(
                           icon: Icons.search_off,
                           title: 'No results',
-                          message: 'No series found matching your search.',
                         )
                       : _SearchResults(
                           series: value,
@@ -88,8 +84,67 @@ class _AddSeriesPageState extends ConsumerState<AddSeriesPage> {
                 ),
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error: $err')),
+              error: (err, _) => Center(child: Text('Error: $err')),
             ),
+    );
+  }
+}
+
+class _ActiveSearchField extends StatelessWidget {
+  const _ActiveSearchField({
+    required this.controller,
+    required this.onSubmitted,
+    required this.onClear,
+  });
+
+  final TextEditingController controller;
+  final ValueChanged<String> onSubmitted;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 38,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.accent),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space4),
+      child: Row(
+        children: [
+          const Icon(
+            PhosphorIconsRegular.magnifyingGlass,
+            size: 17,
+            color: AppColors.accent,
+          ),
+          const SizedBox(width: AppSpacing.space3),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              onSubmitted: onSubmitted,
+              style: AppTypography.body.copyWith(color: AppColors.text),
+              decoration: const InputDecoration(
+                hintText: 'Search series to add',
+                border: InputBorder.none,
+                isDense: true,
+              ),
+            ),
+          ),
+          if (controller.text.isNotEmpty)
+            IconButton(
+              icon: const Icon(
+                PhosphorIconsRegular.x,
+                size: 15,
+                color: AppColors.n500,
+              ),
+              onPressed: () {
+                controller.clear();
+                onClear();
+              },
+            ),
+        ],
+      ),
     );
   }
 }
@@ -102,22 +157,52 @@ class _SearchResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: AppInsets.pageMd,
-      itemCount: series.length,
-      itemBuilder: (context, index) {
-        final item = series[index];
-        return _SearchResultTile(series: item, instanceId: instanceId);
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.space6,
+            AppSpacing.space3,
+            AppSpacing.space6,
+            0,
+          ),
+          child: Text(
+            '${series.length} results from TMDB via Sonarr',
+            style: AppTypography.meta.copyWith(
+              color: AppColors.n500,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: AppInsets.pageMd,
+            itemCount: series.length,
+            itemBuilder: (context, index) {
+              return _SearchResultTile(
+                series: series[index],
+                instanceId: instanceId,
+                isPrimary: index == 0,
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
 
 class _SearchResultTile extends ConsumerWidget {
-  const _SearchResultTile({required this.series, required this.instanceId});
+  const _SearchResultTile({
+    required this.series,
+    required this.instanceId,
+    required this.isPrimary,
+  });
 
   final SonarrSeries series;
   final String instanceId;
+  final bool isPrimary;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -130,11 +215,12 @@ class _SearchResultTile extends ConsumerWidget {
             ),
           )
         : const AsyncData<String?>(null);
+    final alreadyAdded = series.id != null;
 
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+    final row = ListTile(
+      contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.space2),
       leading: SizedBox(
-        width: 60,
+        width: 40,
         child: fullUrlAsync.when(
           data: (url) => PosterCard(imageUrl: url ?? '', monitored: true),
           loading: () =>
@@ -143,14 +229,18 @@ class _SearchResultTile extends ConsumerWidget {
         ),
       ),
       title: Text(series.title),
-      subtitle: Text('${series.year}'),
-      trailing: series.id != null
-          ? const Icon(Icons.check_circle, color: Colors.green)
-          : IconButton(
-              icon: const Icon(Icons.add_circle_outline),
+      subtitle: Text(
+        alreadyAdded ? '${series.year} · already in library' : '${series.year}',
+      ),
+      trailing: alreadyAdded
+          ? const Icon(Icons.check_circle, color: AppColors.up)
+          : _AddButton(
+              primary: isPrimary,
               onPressed: () => _showAddOptions(context, ref, series),
             ),
     );
+
+    return alreadyAdded ? Opacity(opacity: 0.6, child: row) : row;
   }
 
   void _showAddOptions(
@@ -172,5 +262,27 @@ class _SearchResultTile extends ConsumerWidget {
     if (added == true && context.mounted) {
       Navigator.pop(context);
     }
+  }
+}
+
+class _AddButton extends StatelessWidget {
+  const _AddButton({required this.primary, required this.onPressed});
+
+  final bool primary;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(PhosphorIconsRegular.plus, size: 15),
+      color: primary ? AppColors.accent : AppColors.n400,
+      style: IconButton.styleFrom(
+        side: BorderSide(color: primary ? AppColors.accent : AppColors.divider),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+        ),
+      ),
+      onPressed: onPressed,
+    );
   }
 }

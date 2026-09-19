@@ -20,6 +20,28 @@ import 'package:uuid/uuid.dart';
 
 part 'onboarding_providers.g.dart';
 
+/// Sentinel used by [InstanceFormState.copyWith] to distinguish "leave this
+/// field unchanged" (the default, `_unset`) from "set this field to null"
+/// (an explicit `null` argument) for fields whose type is itself nullable.
+class _Unset {
+  const _Unset();
+}
+
+const _unset = _Unset();
+
+/// A short, user-facing title for the error-first Edit-instance view
+/// (README §2n) — e.g. "Local URL refused the connection".
+String errorCardTitle(AppError error) => switch (error) {
+  NetworkError() => 'Local URL refused the connection',
+  AuthError() => 'Local URL rejected the credentials',
+  NotFoundError() => 'Local URL has nothing at that address',
+  RateLimitedError() => 'Local URL is rate-limiting requests',
+  ServerError() => 'Local URL returned a server error',
+  ValidationError() => 'Local URL is not valid',
+  StorageError() => 'Could not read the saved instance',
+  UnknownError() => 'Local URL failed to respond',
+};
+
 /// The state of the add-instance form.
 class InstanceFormState {
   const InstanceFormState({
@@ -73,10 +95,10 @@ class InstanceFormState {
     bool? isDefault,
     bool? isTestingLocal,
     bool? isTestingRemote,
-    Result<ServiceIdentity>? localTestResult,
-    Result<ServiceIdentity>? remoteTestResult,
+    Object? localTestResult = _unset,
+    Object? remoteTestResult = _unset,
     bool? isSaving,
-    AppError? saveError,
+    Object? saveError = _unset,
   }) {
     return InstanceFormState(
       id: id ?? this.id,
@@ -91,10 +113,16 @@ class InstanceFormState {
       isDefault: isDefault ?? this.isDefault,
       isTestingLocal: isTestingLocal ?? this.isTestingLocal,
       isTestingRemote: isTestingRemote ?? this.isTestingRemote,
-      localTestResult: localTestResult ?? this.localTestResult,
-      remoteTestResult: remoteTestResult ?? this.remoteTestResult,
+      localTestResult: identical(localTestResult, _unset)
+          ? this.localTestResult
+          : localTestResult as Result<ServiceIdentity>?,
+      remoteTestResult: identical(remoteTestResult, _unset)
+          ? this.remoteTestResult
+          : remoteTestResult as Result<ServiceIdentity>?,
       isSaving: isSaving ?? this.isSaving,
-      saveError: saveError ?? this.saveError,
+      saveError: identical(saveError, _unset)
+          ? this.saveError
+          : saveError as AppError?,
     );
   }
 
@@ -140,6 +168,9 @@ class InstanceForm extends _$InstanceForm {
           ? credential.password
           : '',
     );
+
+    if (state.localUrl.isNotEmpty) await testLocal();
+    if (state.remoteUrl.isNotEmpty) await testRemote();
   }
 
   void updateName(String name) => state = state.copyWith(name: name);
@@ -356,6 +387,18 @@ class InstanceForm extends _$InstanceForm {
         return false;
       }(),
     };
+  }
+
+  /// Session-only escape hatch for the error-first Edit-instance view
+  /// (README §2n): forces this instance's effective endpoint to remote for
+  /// the current app session without touching its saved [EndpointMode].
+  void useRemoteForNow() {
+    final id = state.id;
+    if (id == null) return;
+    ref
+        .read(endpointSessionOverrideProvider.notifier)
+        .update(id, EndpointMode.forceRemote);
+    ref.invalidate(resolvedEndpointProvider(id));
   }
 }
 

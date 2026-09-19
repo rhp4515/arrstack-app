@@ -33,12 +33,21 @@ abstract interface class ConfigStore {
   Future<String?> readThemeMode();
 
   Future<void> writeThemeMode(String mode);
+
+  /// The persisted last-known-good service summaries, as raw JSON maps
+  /// (the caller decodes them via [CachedServiceSummary.fromJson]) — used
+  /// by the offline layout (README §3f) to show stale-but-honest data.
+  Future<List<Map<String, dynamic>>> readCachedSummaries();
+
+  /// Persists the full cached-summary list (raw JSON maps).
+  Future<void> writeCachedSummaries(List<Map<String, dynamic>> summaries);
 }
 
 const String _instancesKey = 'config.instances';
 const String _homeSsidsKey = 'config.homeSsids';
 const String _defaultEndpointModeKey = 'config.defaultEndpointMode';
 const String _themeModeKey = 'config.themeMode';
+const String _cachedSummariesKey = 'config.cachedSummaries';
 
 /// [ConfigStore] backed by `shared_preferences`' async API.
 class SharedPreferencesConfigStore implements ConfigStore {
@@ -95,5 +104,29 @@ class SharedPreferencesConfigStore implements ConfigStore {
   @override
   Future<void> writeThemeMode(String mode) {
     return _preferences.setString(_themeModeKey, mode);
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> readCachedSummaries() async {
+    final raw = await _preferences.getString(_cachedSummariesKey);
+    if (raw == null || raw.isEmpty) return const [];
+    try {
+      final decoded = jsonDecode(raw);
+      // Valid JSON can still have the wrong shape (an object instead of a
+      // list, or a list containing a scalar) — degrade to an empty/filtered
+      // list rather than a throwing cast, so shape-corrupt storage can't
+      // fail the whole cached-summary provider and hide otherwise-valid
+      // history (unlike a single corrupt element, which the provider's own
+      // per-entry decode loop already tolerates).
+      if (decoded is! List) return const [];
+      return decoded.whereType<Map<String, dynamic>>().toList();
+    } on FormatException {
+      return const [];
+    }
+  }
+
+  @override
+  Future<void> writeCachedSummaries(List<Map<String, dynamic>> summaries) {
+    return _preferences.setString(_cachedSummariesKey, jsonEncode(summaries));
   }
 }

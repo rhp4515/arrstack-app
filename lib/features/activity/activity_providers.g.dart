@@ -1,0 +1,384 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'activity_providers.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// Which [ActivityLens] the Activity page shows. `go_router`'s
+/// `StatefulShellRoute` (or, after this phase, a single non-shell route)
+/// keeps the page's own widget state around across visits, so this
+/// provider — not local widget state — lets Home's tile taps and deep
+/// links force the right lens every time. Mirrors `ActiveLibraryTab`
+/// (`lib/features/library/library_providers.dart`).
+
+@ProviderFor(ActiveActivityLens)
+final activeActivityLensProvider = ActiveActivityLensProvider._();
+
+/// Which [ActivityLens] the Activity page shows. `go_router`'s
+/// `StatefulShellRoute` (or, after this phase, a single non-shell route)
+/// keeps the page's own widget state around across visits, so this
+/// provider — not local widget state — lets Home's tile taps and deep
+/// links force the right lens every time. Mirrors `ActiveLibraryTab`
+/// (`lib/features/library/library_providers.dart`).
+final class ActiveActivityLensProvider
+    extends $NotifierProvider<ActiveActivityLens, ActivityLens> {
+  /// Which [ActivityLens] the Activity page shows. `go_router`'s
+  /// `StatefulShellRoute` (or, after this phase, a single non-shell route)
+  /// keeps the page's own widget state around across visits, so this
+  /// provider — not local widget state — lets Home's tile taps and deep
+  /// links force the right lens every time. Mirrors `ActiveLibraryTab`
+  /// (`lib/features/library/library_providers.dart`).
+  ActiveActivityLensProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'activeActivityLensProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$activeActivityLensHash();
+
+  @$internal
+  @override
+  ActiveActivityLens create() => ActiveActivityLens();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ActivityLens value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ActivityLens>(value),
+    );
+  }
+}
+
+String _$activeActivityLensHash() =>
+    r'7118bf66c5087b860021efa479a466289ea83cd7';
+
+/// Which [ActivityLens] the Activity page shows. `go_router`'s
+/// `StatefulShellRoute` (or, after this phase, a single non-shell route)
+/// keeps the page's own widget state around across visits, so this
+/// provider — not local widget state — lets Home's tile taps and deep
+/// links force the right lens every time. Mirrors `ActiveLibraryTab`
+/// (`lib/features/library/library_providers.dart`).
+
+abstract class _$ActiveActivityLens extends $Notifier<ActivityLens> {
+  ActivityLens build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<ActivityLens, ActivityLens>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<ActivityLens, ActivityLens>,
+              ActivityLens,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Missing episodes (aired, no file) across every configured Sonarr
+/// instance, sorted by air date ascending. A single instance failing is
+/// dropped silently — the Wanted lens shows whatever could be reached, no
+/// banner (spec Decision 2: "Radarr and Sonarr are unaffected" by a Bazarr
+/// outage, and the reverse holds too — a broken Sonarr instance doesn't
+/// block the rest of the list).
+
+@ProviderFor(sonarrMissingEpisodes)
+final sonarrMissingEpisodesProvider = SonarrMissingEpisodesProvider._();
+
+/// Missing episodes (aired, no file) across every configured Sonarr
+/// instance, sorted by air date ascending. A single instance failing is
+/// dropped silently — the Wanted lens shows whatever could be reached, no
+/// banner (spec Decision 2: "Radarr and Sonarr are unaffected" by a Bazarr
+/// outage, and the reverse holds too — a broken Sonarr instance doesn't
+/// block the rest of the list).
+
+final class SonarrMissingEpisodesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<SonarrMissingEpisode>>,
+          List<SonarrMissingEpisode>,
+          FutureOr<List<SonarrMissingEpisode>>
+        >
+    with
+        $FutureModifier<List<SonarrMissingEpisode>>,
+        $FutureProvider<List<SonarrMissingEpisode>> {
+  /// Missing episodes (aired, no file) across every configured Sonarr
+  /// instance, sorted by air date ascending. A single instance failing is
+  /// dropped silently — the Wanted lens shows whatever could be reached, no
+  /// banner (spec Decision 2: "Radarr and Sonarr are unaffected" by a Bazarr
+  /// outage, and the reverse holds too — a broken Sonarr instance doesn't
+  /// block the rest of the list).
+  SonarrMissingEpisodesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'sonarrMissingEpisodesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$sonarrMissingEpisodesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<SonarrMissingEpisode>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<SonarrMissingEpisode>> create(Ref ref) {
+    return sonarrMissingEpisodes(ref);
+  }
+}
+
+String _$sonarrMissingEpisodesHash() =>
+    r'57b7378d272aaf7e3766f77b6e37b33f5b940fc9';
+
+/// Wanted subtitles aggregated across every configured Bazarr instance
+/// (spec Decision 2). Unlike [sonarrMissingEpisodes], a Bazarr failure is
+/// surfaced — [BazarrWantedAggregate.hasUnreachableInstance] drives the
+/// Wanted lens's single offline error card — but other instances' results
+/// still show underneath it.
+///
+/// Fetches every instance concurrently via [Future.wait] (mirroring
+/// [sonarrMissingEpisodes]'s pattern) rather than sequentially: a
+/// sequential `for` loop that keeps calling `ref.watch` after an earlier
+/// iteration's watched dependency has already thrown trips Riverpod's
+/// "provider rebuilt while the previous build was still pending" guard —
+/// the erroring dependency's AsyncValue change invalidates this provider's
+/// in-flight build, and any subsequent `ref.watch` call in that same
+/// build then throws a "Ref used after disposed" error instead of
+/// reaching the next instance. Registering every dependency's watch
+/// up front (before any of them can resolve or throw) avoids that.
+
+@ProviderFor(bazarrWantedAggregate)
+final bazarrWantedAggregateProvider = BazarrWantedAggregateProvider._();
+
+/// Wanted subtitles aggregated across every configured Bazarr instance
+/// (spec Decision 2). Unlike [sonarrMissingEpisodes], a Bazarr failure is
+/// surfaced — [BazarrWantedAggregate.hasUnreachableInstance] drives the
+/// Wanted lens's single offline error card — but other instances' results
+/// still show underneath it.
+///
+/// Fetches every instance concurrently via [Future.wait] (mirroring
+/// [sonarrMissingEpisodes]'s pattern) rather than sequentially: a
+/// sequential `for` loop that keeps calling `ref.watch` after an earlier
+/// iteration's watched dependency has already thrown trips Riverpod's
+/// "provider rebuilt while the previous build was still pending" guard —
+/// the erroring dependency's AsyncValue change invalidates this provider's
+/// in-flight build, and any subsequent `ref.watch` call in that same
+/// build then throws a "Ref used after disposed" error instead of
+/// reaching the next instance. Registering every dependency's watch
+/// up front (before any of them can resolve or throw) avoids that.
+
+final class BazarrWantedAggregateProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<BazarrWantedAggregate>,
+          BazarrWantedAggregate,
+          FutureOr<BazarrWantedAggregate>
+        >
+    with
+        $FutureModifier<BazarrWantedAggregate>,
+        $FutureProvider<BazarrWantedAggregate> {
+  /// Wanted subtitles aggregated across every configured Bazarr instance
+  /// (spec Decision 2). Unlike [sonarrMissingEpisodes], a Bazarr failure is
+  /// surfaced — [BazarrWantedAggregate.hasUnreachableInstance] drives the
+  /// Wanted lens's single offline error card — but other instances' results
+  /// still show underneath it.
+  ///
+  /// Fetches every instance concurrently via [Future.wait] (mirroring
+  /// [sonarrMissingEpisodes]'s pattern) rather than sequentially: a
+  /// sequential `for` loop that keeps calling `ref.watch` after an earlier
+  /// iteration's watched dependency has already thrown trips Riverpod's
+  /// "provider rebuilt while the previous build was still pending" guard —
+  /// the erroring dependency's AsyncValue change invalidates this provider's
+  /// in-flight build, and any subsequent `ref.watch` call in that same
+  /// build then throws a "Ref used after disposed" error instead of
+  /// reaching the next instance. Registering every dependency's watch
+  /// up front (before any of them can resolve or throw) avoids that.
+  BazarrWantedAggregateProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'bazarrWantedAggregateProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$bazarrWantedAggregateHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<BazarrWantedAggregate> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<BazarrWantedAggregate> create(Ref ref) {
+    return bazarrWantedAggregate(ref);
+  }
+}
+
+String _$bazarrWantedAggregateHash() =>
+    r'6ae0b34a9e872ff8654b3d363c514de754675d76';
+
+/// A session-only rolling buffer of the last 60 minutes of qBittorrent
+/// download-speed samples for [instanceId], powering the Transfers lens's
+/// throughput sparkline (spec Decision 3). Nothing in this app polls on an
+/// interval anywhere else — this notifier is the one exception, scoped
+/// tightly to stay alive only while the Transfers lens is mounted
+/// (`autoDispose` + a `Timer` cancelled in `ref.onDispose`).
+
+@ProviderFor(TransfersThroughputHistory)
+final transfersThroughputHistoryProvider = TransfersThroughputHistoryFamily._();
+
+/// A session-only rolling buffer of the last 60 minutes of qBittorrent
+/// download-speed samples for [instanceId], powering the Transfers lens's
+/// throughput sparkline (spec Decision 3). Nothing in this app polls on an
+/// interval anywhere else — this notifier is the one exception, scoped
+/// tightly to stay alive only while the Transfers lens is mounted
+/// (`autoDispose` + a `Timer` cancelled in `ref.onDispose`).
+final class TransfersThroughputHistoryProvider
+    extends
+        $NotifierProvider<TransfersThroughputHistory, List<ThroughputSample>> {
+  /// A session-only rolling buffer of the last 60 minutes of qBittorrent
+  /// download-speed samples for [instanceId], powering the Transfers lens's
+  /// throughput sparkline (spec Decision 3). Nothing in this app polls on an
+  /// interval anywhere else — this notifier is the one exception, scoped
+  /// tightly to stay alive only while the Transfers lens is mounted
+  /// (`autoDispose` + a `Timer` cancelled in `ref.onDispose`).
+  TransfersThroughputHistoryProvider._({
+    required TransfersThroughputHistoryFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'transfersThroughputHistoryProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$transfersThroughputHistoryHash();
+
+  @override
+  String toString() {
+    return r'transfersThroughputHistoryProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  TransfersThroughputHistory create() => TransfersThroughputHistory();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<ThroughputSample> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<ThroughputSample>>(value),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TransfersThroughputHistoryProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$transfersThroughputHistoryHash() =>
+    r'462c11bc46e6017234131e19542b319c72cab4ed';
+
+/// A session-only rolling buffer of the last 60 minutes of qBittorrent
+/// download-speed samples for [instanceId], powering the Transfers lens's
+/// throughput sparkline (spec Decision 3). Nothing in this app polls on an
+/// interval anywhere else — this notifier is the one exception, scoped
+/// tightly to stay alive only while the Transfers lens is mounted
+/// (`autoDispose` + a `Timer` cancelled in `ref.onDispose`).
+
+final class TransfersThroughputHistoryFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          TransfersThroughputHistory,
+          List<ThroughputSample>,
+          List<ThroughputSample>,
+          List<ThroughputSample>,
+          String
+        > {
+  TransfersThroughputHistoryFamily._()
+    : super(
+        retry: null,
+        name: r'transfersThroughputHistoryProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// A session-only rolling buffer of the last 60 minutes of qBittorrent
+  /// download-speed samples for [instanceId], powering the Transfers lens's
+  /// throughput sparkline (spec Decision 3). Nothing in this app polls on an
+  /// interval anywhere else — this notifier is the one exception, scoped
+  /// tightly to stay alive only while the Transfers lens is mounted
+  /// (`autoDispose` + a `Timer` cancelled in `ref.onDispose`).
+
+  TransfersThroughputHistoryProvider call(String instanceId) =>
+      TransfersThroughputHistoryProvider._(argument: instanceId, from: this);
+
+  @override
+  String toString() => r'transfersThroughputHistoryProvider';
+}
+
+/// A session-only rolling buffer of the last 60 minutes of qBittorrent
+/// download-speed samples for [instanceId], powering the Transfers lens's
+/// throughput sparkline (spec Decision 3). Nothing in this app polls on an
+/// interval anywhere else — this notifier is the one exception, scoped
+/// tightly to stay alive only while the Transfers lens is mounted
+/// (`autoDispose` + a `Timer` cancelled in `ref.onDispose`).
+
+abstract class _$TransfersThroughputHistory
+    extends $Notifier<List<ThroughputSample>> {
+  late final _$args = ref.$arg as String;
+  String get instanceId => _$args;
+
+  List<ThroughputSample> build(String instanceId);
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref as $Ref<List<ThroughputSample>, List<ThroughputSample>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<List<ThroughputSample>, List<ThroughputSample>>,
+              List<ThroughputSample>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, () => build(_$args));
+  }
+}

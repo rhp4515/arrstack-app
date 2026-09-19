@@ -1,6 +1,6 @@
-/// Add movie page (spec §7).
-///
-/// Handles movie lookup via Radarr and selecting add-options (root folder, profile).
+/// Add movie (README §3d): TMDB lookup via Radarr, a primary/secondary
+/// add-button hierarchy, and already-in-library rows dimmed with a check
+/// instead of an add button so a duplicate can't be added by accident.
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
@@ -12,6 +12,7 @@ import 'package:arrstack/services/radarr/models/radarr_models.dart';
 import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 class AddMoviePage extends ConsumerStatefulWidget {
   const AddMoviePage({required this.instanceId, super.key});
@@ -40,26 +41,20 @@ class _AddMoviePageState extends ConsumerState<AddMoviePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Movie'),
+        title: const Text('Add movie'),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(64),
+          preferredSize: const Size.fromHeight(56),
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: SearchBar(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.space6,
+              0,
+              AppSpacing.space6,
+              AppSpacing.space4,
+            ),
+            child: _ActiveSearchField(
               controller: _searchController,
-              hintText: 'Search TMDB...',
               onSubmitted: (value) => setState(() => _searchTerm = value),
-              leading: const Icon(Icons.search),
-              trailing: [
-                if (_searchTerm.isNotEmpty)
-                  IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      _searchController.clear();
-                      setState(() => _searchTerm = '');
-                    },
-                  ),
-              ],
+              onClear: () => setState(() => _searchTerm = ''),
             ),
           ),
         ),
@@ -77,7 +72,6 @@ class _AddMoviePageState extends ConsumerState<AddMoviePage> {
                       ? const EmptyState(
                           icon: Icons.search_off,
                           title: 'No results',
-                          message: 'No movies found matching your search.',
                         )
                       : _SearchResults(
                           movies: value,
@@ -90,8 +84,67 @@ class _AddMoviePageState extends ConsumerState<AddMoviePage> {
                 ),
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error: $err')),
+              error: (err, _) => Center(child: Text('Error: $err')),
             ),
+    );
+  }
+}
+
+class _ActiveSearchField extends StatelessWidget {
+  const _ActiveSearchField({
+    required this.controller,
+    required this.onSubmitted,
+    required this.onClear,
+  });
+
+  final TextEditingController controller;
+  final ValueChanged<String> onSubmitted;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 38,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.accent),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space4),
+      child: Row(
+        children: [
+          const Icon(
+            PhosphorIconsRegular.magnifyingGlass,
+            size: 17,
+            color: AppColors.accent,
+          ),
+          const SizedBox(width: AppSpacing.space3),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              onSubmitted: onSubmitted,
+              style: AppTypography.body.copyWith(color: AppColors.text),
+              decoration: const InputDecoration(
+                hintText: 'Search movies to add',
+                border: InputBorder.none,
+                isDense: true,
+              ),
+            ),
+          ),
+          if (controller.text.isNotEmpty)
+            IconButton(
+              icon: const Icon(
+                PhosphorIconsRegular.x,
+                size: 15,
+                color: AppColors.n500,
+              ),
+              onPressed: () {
+                controller.clear();
+                onClear();
+              },
+            ),
+        ],
+      ),
     );
   }
 }
@@ -104,22 +157,52 @@ class _SearchResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: AppInsets.pageMd,
-      itemCount: movies.length,
-      itemBuilder: (context, index) {
-        final movie = movies[index];
-        return _SearchResultTile(movie: movie, instanceId: instanceId);
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.space6,
+            AppSpacing.space3,
+            AppSpacing.space6,
+            0,
+          ),
+          child: Text(
+            '${movies.length} results from TMDB via Radarr',
+            style: AppTypography.meta.copyWith(
+              color: AppColors.n500,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: AppInsets.pageMd,
+            itemCount: movies.length,
+            itemBuilder: (context, index) {
+              return _SearchResultTile(
+                movie: movies[index],
+                instanceId: instanceId,
+                isPrimary: index == 0,
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
 
 class _SearchResultTile extends ConsumerWidget {
-  const _SearchResultTile({required this.movie, required this.instanceId});
+  const _SearchResultTile({
+    required this.movie,
+    required this.instanceId,
+    required this.isPrimary,
+  });
 
   final RadarrMovie movie;
   final String instanceId;
+  final bool isPrimary;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -132,11 +215,12 @@ class _SearchResultTile extends ConsumerWidget {
             ),
           )
         : const AsyncData<String?>(null);
+    final alreadyAdded = movie.id != null;
 
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+    final row = ListTile(
+      contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.space2),
       leading: SizedBox(
-        width: 60,
+        width: 40,
         child: fullUrlAsync.when(
           data: (url) => PosterCard(imageUrl: url ?? '', monitored: true),
           loading: () =>
@@ -145,14 +229,18 @@ class _SearchResultTile extends ConsumerWidget {
         ),
       ),
       title: Text(movie.title),
-      subtitle: Text('${movie.year}'),
-      trailing: movie.id != null
-          ? const Icon(Icons.check_circle, color: Colors.green)
-          : IconButton(
-              icon: const Icon(Icons.add_circle_outline),
+      subtitle: Text(
+        alreadyAdded ? '${movie.year} · already in library' : '${movie.year}',
+      ),
+      trailing: alreadyAdded
+          ? const Icon(Icons.check_circle, color: AppColors.up)
+          : _AddButton(
+              primary: isPrimary,
               onPressed: () => _showAddOptions(context, ref, movie),
             ),
     );
+
+    return alreadyAdded ? Opacity(opacity: 0.6, child: row) : row;
   }
 
   void _showAddOptions(
@@ -172,8 +260,29 @@ class _SearchResultTile extends ConsumerWidget {
     );
 
     if (added == true && context.mounted) {
-      // Return to library if added successfully
       Navigator.pop(context);
     }
+  }
+}
+
+class _AddButton extends StatelessWidget {
+  const _AddButton({required this.primary, required this.onPressed});
+
+  final bool primary;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(PhosphorIconsRegular.plus, size: 15),
+      color: primary ? AppColors.accent : AppColors.n400,
+      style: IconButton.styleFrom(
+        side: BorderSide(color: primary ? AppColors.accent : AppColors.divider),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+        ),
+      ),
+      onPressed: onPressed,
+    );
   }
 }

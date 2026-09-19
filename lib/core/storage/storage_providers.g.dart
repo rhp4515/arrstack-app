@@ -372,3 +372,59 @@ final class DefaultEndpointModeProvider
 
 String _$defaultEndpointModeHash() =>
     r'6c922d279c796d08e7a91c7c4ca645a075fb4886';
+
+/// Each service's last-successful summary, read back for Home's offline
+/// layout (README §3f `lastKnown`). A corrupt individual entry is skipped
+/// rather than discarding the whole cache — these are independent
+/// per-service records, unlike the all-or-nothing instance list.
+
+@ProviderFor(cachedServiceSummaries)
+final cachedServiceSummariesProvider = CachedServiceSummariesProvider._();
+
+/// Each service's last-successful summary, read back for Home's offline
+/// layout (README §3f `lastKnown`). A corrupt individual entry is skipped
+/// rather than discarding the whole cache — these are independent
+/// per-service records, unlike the all-or-nothing instance list.
+
+final class CachedServiceSummariesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<CachedServiceSummary>>,
+          List<CachedServiceSummary>,
+          FutureOr<List<CachedServiceSummary>>
+        >
+    with
+        $FutureModifier<List<CachedServiceSummary>>,
+        $FutureProvider<List<CachedServiceSummary>> {
+  /// Each service's last-successful summary, read back for Home's offline
+  /// layout (README §3f `lastKnown`). A corrupt individual entry is skipped
+  /// rather than discarding the whole cache — these are independent
+  /// per-service records, unlike the all-or-nothing instance list.
+  CachedServiceSummariesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'cachedServiceSummariesProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$cachedServiceSummariesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<CachedServiceSummary>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<CachedServiceSummary>> create(Ref ref) {
+    return cachedServiceSummaries(ref);
+  }
+}
+
+String _$cachedServiceSummariesHash() =>
+    r'1b703422776e4a13b1181fd1b2ba9199142e5162';

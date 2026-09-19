@@ -1,5 +1,7 @@
-/// Grid of results for a single tapped genre pill — reuses the same
-/// PosterCard grid treatment as the pre-redesign Discover grid.
+/// Grid of results for a single tapped genre pill — the "All →"
+/// destination from Discover's genre rows (README §3a). Not its own
+/// screen ID in the design doc, but restyled alongside 3a for visual
+/// consistency.
 library;
 
 import 'package:arrstack/app/route_paths.dart';
@@ -7,7 +9,9 @@ import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/core/widgets/poster_card.dart';
+import 'package:arrstack/core/widgets/sub_page_header.dart';
 import 'package:arrstack/features/discover/discover_providers.dart';
+import 'package:arrstack/features/discover/widgets/media_status_badge.dart';
 import 'package:arrstack/services/seerr/models/seerr_models.dart';
 import 'package:arrstack/services/seerr/seerr_providers.dart';
 import 'package:flutter/material.dart';
@@ -49,11 +53,11 @@ class GenreResultsPage extends ConsumerWidget {
         );
       },
       loading: () => Scaffold(
-        appBar: AppBar(),
+        appBar: SubPageHeader(title: genreName),
         body: const Center(child: CircularProgressIndicator()),
       ),
       error: (err, _) => Scaffold(
-        appBar: AppBar(),
+        appBar: SubPageHeader(title: genreName),
         body: Center(child: Text('Error: $err')),
       ),
     );
@@ -87,7 +91,7 @@ class _GenreResultsBody extends ConsumerWidget {
           );
 
     return Scaffold(
-      appBar: AppBar(title: Text(genreName)),
+      appBar: SubPageHeader(title: genreName),
       body: resultsAsync.when(
         data: (result) => switch (result) {
           Ok(:final value) =>
@@ -98,8 +102,8 @@ class _GenreResultsBody extends ConsumerWidget {
                     gridDelegate:
                         const SliverGridDelegateWithMaxCrossAxisExtent(
                           maxCrossAxisExtent: 150,
-                          mainAxisSpacing: AppSpacing.md,
-                          crossAxisSpacing: AppSpacing.md,
+                          mainAxisSpacing: AppSpacing.space4,
+                          crossAxisSpacing: AppSpacing.space4,
                           childAspectRatio: 2 / 3,
                         ),
                     itemCount: value.length,
@@ -108,9 +112,9 @@ class _GenreResultsBody extends ConsumerWidget {
                       return PosterCard(
                         imageUrl: item.posterUrl ?? '',
                         title: item.displayTitle ?? '',
+                        badge: MediaStatusBadge(mediaInfo: item.mediaInfo),
                         onTap: () => context.go(
-                          RoutePaths.discoverDetail(
-                            instanceId,
+                          RoutePaths.homeDiscoverDetail(
                             item.id,
                             item.mediaType,
                           ),

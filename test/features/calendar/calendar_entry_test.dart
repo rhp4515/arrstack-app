@@ -47,10 +47,7 @@ void main() {
         DateTime(2026, 8, 12),
         DateTime(2026, 8, 14),
       ]);
-      expect(
-        days[0].entries.map((e) => e.title),
-        ['ep1', 'ep2', 'ep3'],
-      );
+      expect(days[0].entries.map((e) => e.title), ['ep1', 'ep2', 'ep3']);
     });
   });
 
@@ -64,10 +61,7 @@ void main() {
           episodeNumber: 1,
           title: 'Pilot',
           airDateUtc: DateTime.utc(2026, 8, 12, 7),
-          series: const SonarrSeries(
-            title: 'Reacher',
-            network: 'Prime Video',
-          ),
+          series: const SonarrSeries(title: 'Reacher', network: 'Prime Video'),
         ),
         instanceId: 'sonarr-1',
       );

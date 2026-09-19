@@ -123,15 +123,15 @@ final class ReleaseSearchResultsFamily extends $Family
   String toString() => r'releaseSearchResultsProvider';
 }
 
-/// The active sort for the results list. Defaults to [ReleaseSort.peers].
+/// The active sort for the results list. Defaults to [ReleaseSort.best].
 
 @ProviderFor(ReleaseSortController)
 final releaseSortControllerProvider = ReleaseSortControllerProvider._();
 
-/// The active sort for the results list. Defaults to [ReleaseSort.peers].
+/// The active sort for the results list. Defaults to [ReleaseSort.best].
 final class ReleaseSortControllerProvider
     extends $NotifierProvider<ReleaseSortController, ReleaseSort> {
-  /// The active sort for the results list. Defaults to [ReleaseSort.peers].
+  /// The active sort for the results list. Defaults to [ReleaseSort.best].
   ReleaseSortControllerProvider._()
     : super(
         from: null,
@@ -160,9 +160,9 @@ final class ReleaseSortControllerProvider
 }
 
 String _$releaseSortControllerHash() =>
-    r'c97bd2b634076d2eab6917288e5d8e0e8981e025';
+    r'247126573f8b1fcc904951adb841dc21a1746919';
 
-/// The active sort for the results list. Defaults to [ReleaseSort.peers].
+/// The active sort for the results list. Defaults to [ReleaseSort.best].
 
 abstract class _$ReleaseSortController extends $Notifier<ReleaseSort> {
   ReleaseSort build();

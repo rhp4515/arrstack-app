@@ -1,12 +1,23 @@
-/// Bottom sheet to select options when adding a movie (spec §7).
+/// Bottom sheet to select options when adding a movie (spec §7): a grab
+/// handle, a poster-beside-title header with a "{year} · adding to Radarr"
+/// subtitle, the quality-profile/root-folder dropdowns, the search-now
+/// toggle (a real Radarr `addOptions.searchForMovie` field — unrelated to
+/// the Seerr *request* panel's removed toggle on `discover_detail_page.dart`,
+/// which had no working API field behind it), and a full-width
+/// accent-outlined primary button.
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
+import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/core/widgets/labeled_dropdown_field.dart';
+import 'package:arrstack/core/widgets/labeled_toggle_row.dart';
+import 'package:arrstack/core/widgets/resolved_poster.dart';
 import 'package:arrstack/services/radarr/models/radarr_models.dart';
 import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 class AddMovieOptionsSheet extends ConsumerStatefulWidget {
   const AddMovieOptionsSheet({
@@ -44,16 +55,43 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'Add "${widget.movie.title}"',
-            style: Theme.of(context).textTheme.titleLarge,
+          const Center(child: _GrabHandle()),
+          const SizedBox(height: AppSpacing.space4),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ResolvedPoster(
+                service: ServiceType.radarr,
+                instanceId: widget.instanceId,
+                relativeUrl: widget.movie.posterUrl,
+                width: 44,
+                height: 66,
+              ),
+              const SizedBox(width: AppSpacing.space4),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Add "${widget.movie.title}"',
+                      style: AppTypography.sectionTitle,
+                    ),
+                    const SizedBox(height: AppSpacing.space2),
+                    Text(
+                      '${widget.movie.year ?? '—'} · adding to Radarr',
+                      style: AppTypography.meta.copyWith(color: AppColors.n500),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.space6),
           profilesAsync.when(
             data: (result) => switch (result) {
-              Ok(:final value) => DropdownButtonFormField<int>(
-                decoration: const InputDecoration(labelText: 'Quality Profile'),
-                initialValue:
+              Ok(:final value) => LabeledDropdownField<int>(
+                label: 'Quality Profile',
+                value:
                     _selectedProfileId ??
                     (value.isNotEmpty ? value.first.id : null),
                 items: value
@@ -73,12 +111,12 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
             loading: () => const LinearProgressIndicator(),
             error: (err, _) => Text('Error: $err'),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.space4),
           foldersAsync.when(
             data: (result) => switch (result) {
-              Ok(:final value) => DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Root Folder'),
-                initialValue:
+              Ok(:final value) => LabeledDropdownField<String>(
+                label: 'Root Folder',
+                value:
                     _selectedPath ??
                     (value.isNotEmpty ? value.first.path : null),
                 items: value
@@ -98,29 +136,39 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
             loading: () => const LinearProgressIndicator(),
             error: (err, _) => Text('Error: $err'),
           ),
-          const SizedBox(height: AppSpacing.md),
-          SwitchListTile(
-            title: const Text('Search for movie now'),
+          const SizedBox(height: AppSpacing.space4),
+          LabeledToggleRow(
+            title: 'Search for it now',
+            subtitle: 'Uses your enabled indexers',
             value: _searchNow,
             onChanged: (val) => setState(() => _searchNow = val),
-            contentPadding: EdgeInsets.zero,
           ),
-          const SizedBox(height: AppSpacing.xl),
-          FilledButton.icon(
-            onPressed: _isSaving ? null : _save,
-            icon: _isSaving
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Icon(Icons.add),
-            label: const Text('Add to Library'),
+          const SizedBox(height: AppSpacing.space8),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: _isSaving ? null : _save,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.accent,
+                side: const BorderSide(color: AppColors.accent),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+              ),
+              icon: _isSaving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.accent,
+                      ),
+                    )
+                  : const Icon(PhosphorIconsRegular.plus, size: 15),
+              label: const Text('Add to library'),
+            ),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.space6),
         ],
       ),
     );
@@ -192,5 +240,24 @@ class _AddMovieOptionsSheetState extends ConsumerState<AddMovieOptionsSheet> {
           );
       }
     }
+  }
+}
+
+/// The sheet's drag affordance — a short rounded bar centered above the
+/// header, matching the divider-on-surface convention used for outlines
+/// elsewhere in this design system.
+class _GrabHandle extends StatelessWidget {
+  const _GrabHandle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 36,
+      height: 4,
+      decoration: BoxDecoration(
+        color: AppColors.divider,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+      ),
+    );
   }
 }

@@ -30,8 +30,8 @@ class DetailChip extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
+            horizontal: LegacySpacing.md,
+            vertical: LegacySpacing.sm,
           ),
           child: Text(
             label,

@@ -77,7 +77,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(ReleaseSearchPage), findsOneWidget);
-    expect(find.text('Dune (2021)'), findsOneWidget);
+    // The title renders as the header kicker (README §3e), which is
+    // always-uppercase — see AppTypography.kicker.
+    expect(find.text('DUNE (2021)'), findsOneWidget);
     expect(find.text('No releases found'), findsOneWidget);
   });
 
@@ -91,7 +93,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(ReleaseSearchPage), findsOneWidget);
-    expect(find.text('S01E05 · Pilot'), findsOneWidget);
+    // The title renders as the header kicker (README §3e), which is
+    // always-uppercase — see AppTypography.kicker.
+    expect(find.text('S01E05 · PILOT'), findsOneWidget);
     expect(find.text('No releases found'), findsOneWidget);
   });
 }

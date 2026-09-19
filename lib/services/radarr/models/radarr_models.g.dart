@@ -119,6 +119,10 @@ _RadarrMovieFile _$RadarrMovieFileFromJson(Map<String, dynamic> json) =>
       quality: json['quality'] == null
           ? null
           : RadarrQualityInfo.fromJson(json['quality'] as Map<String, dynamic>),
+      releaseGroup: json['releaseGroup'] as String?,
+      mediaInfo: json['mediaInfo'] == null
+          ? null
+          : RadarrMediaInfo.fromJson(json['mediaInfo'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$RadarrMovieFileToJson(_RadarrMovieFile instance) =>
@@ -128,6 +132,26 @@ Map<String, dynamic> _$RadarrMovieFileToJson(_RadarrMovieFile instance) =>
       'size': instance.size,
       'dateAdded': instance.dateAdded?.toIso8601String(),
       'quality': instance.quality,
+      'releaseGroup': instance.releaseGroup,
+      'mediaInfo': instance.mediaInfo,
+    };
+
+_RadarrMediaInfo _$RadarrMediaInfoFromJson(Map<String, dynamic> json) =>
+    _RadarrMediaInfo(
+      videoCodec: json['videoCodec'] as String?,
+      audioCodec: json['audioCodec'] as String?,
+      audioChannels: (json['audioChannels'] as num?)?.toDouble(),
+      resolution: json['resolution'] as String?,
+      videoDynamicRangeType: json['videoDynamicRangeType'] as String?,
+    );
+
+Map<String, dynamic> _$RadarrMediaInfoToJson(_RadarrMediaInfo instance) =>
+    <String, dynamic>{
+      'videoCodec': instance.videoCodec,
+      'audioCodec': instance.audioCodec,
+      'audioChannels': instance.audioChannels,
+      'resolution': instance.resolution,
+      'videoDynamicRangeType': instance.videoDynamicRangeType,
     };
 
 _RadarrQualityInfo _$RadarrQualityInfoFromJson(Map<String, dynamic> json) =>

@@ -1,20 +1,26 @@
+/// Discover (README §3a): search, alternating genre-pill rows and poster
+/// carousels, each poster badged with its library/request status before
+/// the tap. The Requests queue is its own route (`/home/requests`) reached
+/// via the header's receipt button, not an in-page tab (Phase 7 design
+/// spec, Decision 4).
+library;
+
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
+import 'package:arrstack/core/widgets/sub_page_header.dart';
 import 'package:arrstack/features/discover/discover_providers.dart';
 import 'package:arrstack/features/discover/widgets/genre_pill_row.dart';
 import 'package:arrstack/features/discover/widgets/poster_carousel_section.dart';
-import 'package:arrstack/features/discover/widgets/requests_tab_view.dart';
 import 'package:arrstack/services/seerr/models/seerr_models.dart';
 import 'package:arrstack/services/seerr/seerr_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-enum _MainTab { discover, requests }
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 class DiscoverPage extends ConsumerStatefulWidget {
   const DiscoverPage({this.instanceId, super.key});
@@ -26,7 +32,6 @@ class DiscoverPage extends ConsumerStatefulWidget {
 }
 
 class _DiscoverPageState extends ConsumerState<DiscoverPage> {
-  _MainTab _mainTab = _MainTab.discover;
   final _searchController = TextEditingController();
   String _query = '';
 
@@ -34,14 +39,6 @@ class _DiscoverPageState extends ConsumerState<DiscoverPage> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
-  }
-
-  void _onMainTabChanged(_MainTab tab) {
-    setState(() {
-      _mainTab = tab;
-      _query = '';
-      _searchController.clear();
-    });
   }
 
   @override
@@ -52,9 +49,9 @@ class _DiscoverPageState extends ConsumerState<DiscoverPage> {
     return hasSeerrAsync.when(
       data: (enabled) {
         if (!enabled) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Discover')),
-            body: const EmptyState(
+          return const Scaffold(
+            appBar: SubPageHeader(kicker: 'SEERR', title: 'Discover'),
+            body: EmptyState(
               icon: Icons.search_off_outlined,
               title: 'Seerr not configured',
               message: 'Add a Seerr instance in Settings to enable discovery.',
@@ -72,84 +69,99 @@ class _DiscoverPageState extends ConsumerState<DiscoverPage> {
             }
 
             return Scaffold(
-              appBar: AppBar(
-                title: const Text('Discover'),
-                bottom: PreferredSize(
-                  preferredSize: Size.fromHeight(
-                    _mainTab == _MainTab.discover ? 112 : 56,
+              appBar: SubPageHeader(
+                kicker: 'SEERR',
+                title: 'Discover',
+                actions: [
+                  IconButton(
+                    icon: const Icon(PhosphorIconsRegular.receipt, size: 17),
+                    tooltip: 'Requests',
+                    onPressed: () => context.push(RoutePaths.homeRequests),
                   ),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: AppInsets.horizontalMd,
-                        child: SegmentedButton<_MainTab>(
-                          segments: const [
-                            ButtonSegment(
-                              value: _MainTab.discover,
-                              label: Text('Discover'),
-                              icon: Icon(Icons.explore_outlined),
-                            ),
-                            ButtonSegment(
-                              value: _MainTab.requests,
-                              label: Text('Requests'),
-                              icon: Icon(Icons.receipt_long_outlined),
-                            ),
-                          ],
-                          selected: {_mainTab},
-                          onSelectionChanged: (set) =>
-                              _onMainTabChanged(set.first),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      if (_mainTab == _MainTab.discover)
-                        Padding(
-                          padding: AppInsets.horizontalMd,
-                          child: TextField(
-                            controller: _searchController,
-                            decoration: const InputDecoration(
-                              hintText: 'Search movies and TV...',
-                              prefixIcon: Icon(Icons.search),
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                            onChanged: (value) =>
-                                setState(() => _query = value),
-                          ),
-                        ),
-                      const SizedBox(height: AppSpacing.sm),
-                    ],
-                  ),
-                ),
+                ],
               ),
               body: Column(
                 children: [
                   const _InstanceSelector(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.space6,
+                      AppSpacing.space4,
+                      AppSpacing.space6,
+                      AppSpacing.space4,
+                    ),
+                    child: _SearchField(
+                      controller: _searchController,
+                      onChanged: (value) => setState(() => _query = value),
+                    ),
+                  ),
                   Expanded(
-                    child: _mainTab == _MainTab.discover
-                        ? _DiscoverContent(instanceId: finalId, query: _query)
-                        : RequestsTabView(instanceId: finalId),
+                    child: _DiscoverContent(instanceId: finalId, query: _query),
                   ),
                 ],
               ),
             );
           },
-          loading: () => Scaffold(
-            appBar: AppBar(),
-            body: const Center(child: CircularProgressIndicator()),
+          loading: () => const Scaffold(
+            appBar: SubPageHeader(kicker: 'SEERR', title: 'Discover'),
+            body: Center(child: CircularProgressIndicator()),
           ),
           error: (err, _) => Scaffold(
-            appBar: AppBar(),
+            appBar: const SubPageHeader(kicker: 'SEERR', title: 'Discover'),
             body: Center(child: Text('Error: $err')),
           ),
         );
       },
-      loading: () => Scaffold(
-        appBar: AppBar(),
-        body: const Center(child: CircularProgressIndicator()),
+      loading: () => const Scaffold(
+        appBar: SubPageHeader(kicker: 'SEERR', title: 'Discover'),
+        body: Center(child: CircularProgressIndicator()),
       ),
       error: (err, _) => Scaffold(
-        appBar: AppBar(),
+        appBar: const SubPageHeader(kicker: 'SEERR', title: 'Discover'),
         body: Center(child: Text('Error: $err')),
+      ),
+    );
+  }
+}
+
+class _SearchField extends StatelessWidget {
+  const _SearchField({required this.controller, required this.onChanged});
+
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 38,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.divider),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space4),
+      child: Row(
+        children: [
+          const Icon(
+            PhosphorIconsRegular.magnifyingGlass,
+            size: 17,
+            color: AppColors.n500,
+          ),
+          const SizedBox(width: AppSpacing.space3),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              onChanged: onChanged,
+              style: AppTypography.body.copyWith(color: AppColors.text),
+              decoration: const InputDecoration(
+                hintText: 'Search movies and TV',
+                hintStyle: TextStyle(color: AppColors.n500),
+                border: InputBorder.none,
+                isDense: true,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -170,10 +182,10 @@ class _DiscoverContent extends ConsumerWidget {
   }
 }
 
-/// The sectioned "home" view: genre pill rows + poster carousels, matching
-/// example_mockups/seerr_discover_listview.jpeg. Each section watches its
-/// own provider independently — if one section's endpoint fails, the rest
-/// of the page still renders rather than sinking the whole screen.
+/// The sectioned "home" view: genre pill rows + poster carousels. Each
+/// section watches its own provider independently — if one section's
+/// endpoint fails, the rest of the page still renders rather than sinking
+/// the whole screen.
 class _DiscoverSections extends ConsumerWidget {
   const _DiscoverSections({required this.instanceId});
 
@@ -194,14 +206,14 @@ class _DiscoverSections extends ConsumerWidget {
       },
       child: ListView(
         children: [
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.space2),
           _GenreRow(
             instanceId: instanceId,
             label: 'Movie Genres',
             mediaType: 'movie',
             async: ref.watch(seerrMovieGenresProvider(instanceId)),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.space4),
           _Carousel(
             instanceId: instanceId,
             label: 'Trending',
@@ -223,7 +235,7 @@ class _DiscoverSections extends ConsumerWidget {
             mediaType: 'tv',
             async: ref.watch(seerrTvGenresProvider(instanceId)),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.space4),
           _Carousel(
             instanceId: instanceId,
             label: 'Popular Series',
@@ -234,7 +246,7 @@ class _DiscoverSections extends ConsumerWidget {
             label: 'Upcoming Series',
             async: ref.watch(seerrUpcomingTvProvider(instanceId)),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.space6),
         ],
       ),
     );
@@ -264,14 +276,11 @@ class _Carousel extends StatelessWidget {
         Err() => const SizedBox.shrink(),
       },
       loading: () => Padding(
-        padding: AppInsets.pageMd,
+        padding: AppInsets.screenHorizontal,
         child: Row(
           children: [
-            Text(
-              label.toUpperCase(),
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
-            const SizedBox(width: AppSpacing.sm),
+            Text(label.toUpperCase(), style: AppTypography.kicker),
+            const SizedBox(width: AppSpacing.space3),
             const SizedBox(
               width: 16,
               height: 16,
@@ -309,25 +318,19 @@ class _GenreRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: AppInsets.horizontalMd,
+                      padding: AppInsets.screenHorizontal,
                       child: Text(
                         label.toUpperCase(),
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2,
-                            ),
+                        style: AppTypography.kicker,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: AppSpacing.space3),
                     GenrePillRow(
                       genres: value,
                       onTap: (genre) => context.go(
-                        RoutePaths.discoverGenre(
-                          instanceId,
-                          genre.id,
+                        RoutePaths.homeDiscoverGenre(
                           mediaType,
+                          genre.id,
                           genre.name,
                         ),
                       ),
@@ -370,11 +373,7 @@ class _SearchList extends ConsumerWidget {
                       title: Text(item.displayTitle ?? 'Unknown'),
                       subtitle: Text(item.displayDate ?? ''),
                       onTap: () => context.go(
-                        RoutePaths.discoverDetail(
-                          instanceId,
-                          item.id,
-                          item.mediaType,
-                        ),
+                        RoutePaths.homeDiscoverDetail(item.id, item.mediaType),
                       ),
                     );
                   },
@@ -405,19 +404,19 @@ class _InstanceSelector extends ConsumerWidget {
 
           return Container(
             height: 48,
-            padding: AppInsets.horizontalMd,
+            padding: AppInsets.screenHorizontal,
             child: Row(
               children: [
-                Text(
-                  'Instance: ',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
+                const Text('Instance: ', style: AppTypography.meta),
                 DropdownButton<String>(
                   value:
                       selectedIdAsync.asData?.value ?? seerrInstances.first.id,
-                  items: seerrInstances.map((i) {
-                    return DropdownMenuItem(value: i.id, child: Text(i.name));
-                  }).toList(),
+                  items: seerrInstances
+                      .map(
+                        (i) =>
+                            DropdownMenuItem(value: i.id, child: Text(i.name)),
+                      )
+                      .toList(),
                   onChanged: (id) => id != null
                       ? ref
                             .read(selectedSeerrInstanceIdProvider.notifier)

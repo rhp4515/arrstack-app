@@ -66,7 +66,8 @@ void main() {
     expect(find.textContaining('Searching all indexers'), findsOneWidget);
   });
 
-  testWidgets('renders results sorted by peers by default', (tester) async {
+  testWidgets('renders results in the service\'s original order by default '
+      '(Best match)', (tester) async {
     await tester.pumpWidget(
       _host(
         Ok<List<ReleaseCandidate>>([
@@ -75,6 +76,31 @@ void main() {
         ]),
       ),
     );
+    await tester.pumpAndSettle();
+
+    final tiles = tester
+        .widgetList<ReleaseTile>(find.byType(ReleaseTile))
+        .toList();
+    // Best match does not re-sort — it preserves the order the
+    // repository returned the candidates in.
+    expect(tiles.first.release.guid, 'low');
+    expect(tiles.last.release.guid, 'high');
+  });
+
+  testWidgets('switching sort to Seeders re-orders the list by peers', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        Ok<List<ReleaseCandidate>>([
+          rc('low', seeders: 2),
+          rc('high', seeders: 99),
+        ]),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Seeders'));
     await tester.pumpAndSettle();
 
     final tiles = tester
@@ -102,6 +128,29 @@ void main() {
         .widgetList<ReleaseTile>(find.byType(ReleaseTile))
         .toList();
     expect(tiles.first.release.guid, 'small');
+  });
+
+  testWidgets('shows the found count in the header, not the results list', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        Ok<List<ReleaseCandidate>>([
+          rc('one', seeders: 5),
+          rc('two', seeders: 3),
+        ]),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('2 found'), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(AppBar), matching: find.text('2 found')),
+      findsOneWidget,
+    );
+    // The results list holds exactly the release tiles plus the closing
+    // footer note — the count is no longer a leading list item.
+    expect(find.byType(ReleaseTile), findsNWidgets(2));
   });
 
   testWidgets('error result shows an EmptyState with retry', (tester) async {

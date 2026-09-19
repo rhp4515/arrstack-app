@@ -34,7 +34,10 @@ abstract class KumaHeartbeat with _$KumaHeartbeat {
     required int status,
     required DateTime time,
     String? msg,
-    required int ping,
+    // Uptime Kuma sends `ping: null` when a heartbeat has no latency to
+    // report — most commonly a Down-status heartbeat, since a failed check
+    // never completes a timed request.
+    int? ping,
     required bool important,
   }) = _KumaHeartbeat;
 

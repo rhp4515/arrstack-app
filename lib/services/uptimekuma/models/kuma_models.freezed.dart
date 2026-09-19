@@ -312,7 +312,7 @@ as List<KumaHeartbeat>,
 /// @nodoc
 mixin _$KumaHeartbeat {
 
-@JsonKey(name: 'monitorID') int get monitorId; int get status; DateTime get time; String? get msg; int get ping; bool get important;
+@JsonKey(name: 'monitorID') int get monitorId; int get status; DateTime get time; String? get msg; int? get ping; bool get important;
 /// Create a copy of KumaHeartbeat
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -345,7 +345,7 @@ abstract mixin class $KumaHeartbeatCopyWith<$Res>  {
   factory $KumaHeartbeatCopyWith(KumaHeartbeat value, $Res Function(KumaHeartbeat) _then) = _$KumaHeartbeatCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'monitorID') int monitorId, int status, DateTime time, String? msg, int ping, bool important
+@JsonKey(name: 'monitorID') int monitorId, int status, DateTime time, String? msg, int? ping, bool important
 });
 
 
@@ -362,14 +362,14 @@ class _$KumaHeartbeatCopyWithImpl<$Res>
 
 /// Create a copy of KumaHeartbeat
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? monitorId = null,Object? status = null,Object? time = null,Object? msg = freezed,Object? ping = null,Object? important = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? monitorId = null,Object? status = null,Object? time = null,Object? msg = freezed,Object? ping = freezed,Object? important = null,}) {
   return _then(KumaHeartbeat(
 monitorId: null == monitorId ? _self.monitorId : monitorId // ignore: cast_nullable_to_non_nullable
 as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as int,time: null == time ? _self.time : time // ignore: cast_nullable_to_non_nullable
 as DateTime,msg: freezed == msg ? _self.msg : msg // ignore: cast_nullable_to_non_nullable
-as String?,ping: null == ping ? _self.ping : ping // ignore: cast_nullable_to_non_nullable
-as int,important: null == important ? _self.important : important // ignore: cast_nullable_to_non_nullable
+as String?,ping: freezed == ping ? _self.ping : ping // ignore: cast_nullable_to_non_nullable
+as int?,important: null == important ? _self.important : important // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -455,7 +455,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'monitorID')  int monitorId,  int status,  DateTime time,  String? msg,  int ping,  bool important)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'monitorID')  int monitorId,  int status,  DateTime time,  String? msg,  int? ping,  bool important)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _KumaHeartbeat() when $default != null:
 return $default(_that.monitorId,_that.status,_that.time,_that.msg,_that.ping,_that.important);case _:
@@ -476,7 +476,7 @@ return $default(_that.monitorId,_that.status,_that.time,_that.msg,_that.ping,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'monitorID')  int monitorId,  int status,  DateTime time,  String? msg,  int ping,  bool important)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'monitorID')  int monitorId,  int status,  DateTime time,  String? msg,  int? ping,  bool important)  $default,) {final _that = this;
 switch (_that) {
 case _KumaHeartbeat():
 return $default(_that.monitorId,_that.status,_that.time,_that.msg,_that.ping,_that.important);case _:
@@ -496,7 +496,7 @@ return $default(_that.monitorId,_that.status,_that.time,_that.msg,_that.ping,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'monitorID')  int monitorId,  int status,  DateTime time,  String? msg,  int ping,  bool important)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'monitorID')  int monitorId,  int status,  DateTime time,  String? msg,  int? ping,  bool important)?  $default,) {final _that = this;
 switch (_that) {
 case _KumaHeartbeat() when $default != null:
 return $default(_that.monitorId,_that.status,_that.time,_that.msg,_that.ping,_that.important);case _:
@@ -511,14 +511,14 @@ return $default(_that.monitorId,_that.status,_that.time,_that.msg,_that.ping,_th
 @JsonSerializable()
 
 class _KumaHeartbeat implements KumaHeartbeat {
-  const _KumaHeartbeat({@JsonKey(name: 'monitorID') required this.monitorId, required this.status, required this.time, this.msg, required this.ping, required this.important});
+  const _KumaHeartbeat({@JsonKey(name: 'monitorID') required this.monitorId, required this.status, required this.time, this.msg, this.ping, required this.important});
   factory _KumaHeartbeat.fromJson(Map<String, dynamic> json) => _$KumaHeartbeatFromJson(json);
 
 @override@JsonKey(name: 'monitorID') final  int monitorId;
 @override final  int status;
 @override final  DateTime time;
 @override final  String? msg;
-@override final  int ping;
+@override final  int? ping;
 @override final  bool important;
 
 /// Create a copy of KumaHeartbeat
@@ -554,7 +554,7 @@ abstract mixin class _$KumaHeartbeatCopyWith<$Res> implements $KumaHeartbeatCopy
   factory _$KumaHeartbeatCopyWith(_KumaHeartbeat value, $Res Function(_KumaHeartbeat) _then) = __$KumaHeartbeatCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'monitorID') int monitorId, int status, DateTime time, String? msg, int ping, bool important
+@JsonKey(name: 'monitorID') int monitorId, int status, DateTime time, String? msg, int? ping, bool important
 });
 
 
@@ -571,14 +571,14 @@ class __$KumaHeartbeatCopyWithImpl<$Res>
 
 /// Create a copy of KumaHeartbeat
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? monitorId = null,Object? status = null,Object? time = null,Object? msg = freezed,Object? ping = null,Object? important = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? monitorId = null,Object? status = null,Object? time = null,Object? msg = freezed,Object? ping = freezed,Object? important = null,}) {
   return _then(_KumaHeartbeat(
 monitorId: null == monitorId ? _self.monitorId : monitorId // ignore: cast_nullable_to_non_nullable
 as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as int,time: null == time ? _self.time : time // ignore: cast_nullable_to_non_nullable
 as DateTime,msg: freezed == msg ? _self.msg : msg // ignore: cast_nullable_to_non_nullable
-as String?,ping: null == ping ? _self.ping : ping // ignore: cast_nullable_to_non_nullable
-as int,important: null == important ? _self.important : important // ignore: cast_nullable_to_non_nullable
+as String?,ping: freezed == ping ? _self.ping : ping // ignore: cast_nullable_to_non_nullable
+as int?,important: null == important ? _self.important : important // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

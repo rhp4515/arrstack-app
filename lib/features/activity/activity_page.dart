@@ -41,12 +41,27 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
   @override
   void initState() {
     super.initState();
-    final seeded = _lensFromQueryValue(widget.initialLens);
-    if (seeded != null) {
-      Future.microtask(() {
-        ref.read(activeActivityLensProvider.notifier).select(seeded);
-      });
+    _applyLensFromRoute(widget.initialLens);
+  }
+
+  @override
+  void didUpdateWidget(ActivityPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // The Activity branch is retained by the StatefulShell, so revisiting
+    // it with a new `?lens=` value rebuilds this widget rather than
+    // recreating its state — without this, the previously selected lens
+    // would keep showing regardless of the new route value.
+    if (widget.initialLens != oldWidget.initialLens) {
+      _applyLensFromRoute(widget.initialLens);
     }
+  }
+
+  void _applyLensFromRoute(String? queryValue) {
+    final lens = _lensFromQueryValue(queryValue);
+    if (lens == null) return;
+    Future.microtask(() {
+      ref.read(activeActivityLensProvider.notifier).select(lens);
+    });
   }
 
   @override

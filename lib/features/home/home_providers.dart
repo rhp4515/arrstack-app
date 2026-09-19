@@ -8,6 +8,7 @@ import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/features/activity/widgets/torrent_block.dart';
+import 'package:arrstack/features/uptime/monitor_status.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
 import 'package:arrstack/services/prowlarr/prowlarr.dart';
 import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';
@@ -51,12 +52,13 @@ Future<List<HomeServiceSummary>> homeServiceSummaries(Ref ref) async {
       .where((t) => t != ServiceType.qbittorrent)
       .toSet();
 
-  final summaries = <HomeServiceSummary>[];
-  for (final type in types) {
-    final instance = _defaultInstanceOfType(instances, type);
-    if (instance == null) continue;
-    summaries.add(await _summaryFor(ref, instance));
-  }
+  final selectedInstances = [
+    for (final type in types) _defaultInstanceOfType(instances, type),
+  ].whereType<ServiceInstance>().toList();
+
+  final summaries = await Future.wait([
+    for (final instance in selectedInstances) _summaryFor(ref, instance),
+  ]);
 
   try {
     await _cacheReachableSummaries(ref, summaries);
@@ -210,7 +212,7 @@ Future<HomeServiceSummary> _kumaSummary(
         isReachable: true,
         summaryLine:
             '${value.length} monitors · '
-            '${value.where((m) => m.status == 0).length} down',
+            '${value.where(isMonitorDown).length} down',
       ),
       Err(:final error) => _unreachableSummary(instance, error: error),
     };

@@ -226,6 +226,7 @@ class _RequestsList extends ConsumerWidget {
                         key: ValueKey(request.id),
                         instanceId: instanceId,
                         request: request,
+                        onDeleted: refresh,
                       );
                     },
                   ),
@@ -242,6 +243,7 @@ class _RequestsList extends ConsumerWidget {
                         key: ValueKey(request.id),
                         instanceId: instanceId,
                         request: request,
+                        onDeleted: refresh,
                       );
                     },
                   ),

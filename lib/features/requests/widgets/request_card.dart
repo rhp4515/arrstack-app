@@ -1,6 +1,10 @@
 /// A "needs a decision" card (README §3c): poster, title, a type tag + a
-/// fixed "Pending" tag, an attribution line, and inline Approve/Deny — no
-/// overflow menu. Every request rendered here is pending by construction
+/// fixed "Pending" tag, an attribution line, and inline Approve/Deny/Delete —
+/// no overflow menu. Delete calls `deleteRequest` directly (rather than
+/// Deny, which only marks the request declined server-side) so a pending
+/// request can be fully removed from Seerr (README §3c final-review
+/// finding: the redesign dropped the only `deleteRequest` caller). Every
+/// request rendered here is pending by construction
 /// (this page only places it in the "needs a decision" section), so
 /// "Pending" is a fixed style rather than derived from
 /// `mediaStatusPresentation`. The attribution line omits any quality-profile
@@ -10,6 +14,7 @@ library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/core/widgets/confirm_dialog.dart';
 import 'package:arrstack/features/discover/utils/relative_time.dart';
 import 'package:arrstack/services/seerr/models/seerr_models.dart';
 import 'package:arrstack/services/seerr/seerr_providers.dart';
@@ -147,6 +152,13 @@ class _RequestCardState extends ConsumerState<RequestCard> {
                 onPressed: _busy ? null : () => _decide(approve: false),
                 child: const Text('Deny'),
               ),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(PhosphorIconsRegular.trash, size: 16),
+                tooltip: 'Delete request',
+                color: AppColors.n500,
+                onPressed: _busy ? null : _confirmDelete,
+              ),
             ],
           ),
         ],
@@ -200,6 +212,39 @@ class _RequestCardState extends ConsumerState<RequestCard> {
         // remove the card once it reacts to `onDecided()`. Re-enabling the
         // buttons would only create a window to double-submit before that
         // removal happens.
+        widget.onDecided();
+      case Err(:final error):
+        setState(() {
+          _busy = false;
+          _error = error.userMessage;
+        });
+    }
+  }
+
+  Future<void> _confirmDelete() async {
+    final result = await showDestructiveConfirmDialog(
+      context,
+      title: 'Delete this request?',
+      message:
+          'This removes the request from Seerr. It will not remove '
+          'any media already downloaded.',
+      confirmLabel: 'Delete',
+    );
+    if (!mounted || result == null) return;
+
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+
+    final repository = await ref.read(
+      seerrRepositoryProvider(widget.instanceId).future,
+    );
+    final deleteResult = await repository.deleteRequest(widget.request.id);
+
+    if (!mounted) return;
+    switch (deleteResult) {
+      case Ok():
         widget.onDecided();
       case Err(:final error):
         setState(() {

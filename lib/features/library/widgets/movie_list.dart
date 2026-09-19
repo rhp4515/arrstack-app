@@ -72,6 +72,12 @@ class MovieList extends ConsumerWidget {
         if (db == null) return -1;
         return db.compareTo(da);
       });
+    // Radarr movies that are both unmonitored and fileless (e.g. imported
+    // then unmonitored) fall outside `missing` and `onDisk` — they must
+    // still get a row so they remain visible and navigable, without joining
+    // the monitored-only bulk-search action above.
+    final unmonitored = movies.where((m) => !m.monitored && !m.hasFile).toList()
+      ..sort((a, b) => a.title.compareTo(b.title));
     final onDisk = movies.where((m) => m.hasFile).toList()
       ..sort((a, b) {
         final da = a.added;
@@ -114,6 +120,30 @@ class MovieList extends ConsumerWidget {
                   ? null
                   : () => context.go(
                       RoutePaths.movieDetail(instanceId, missing[i].id!),
+                    ),
+            ),
+          const FadingRule(),
+          const SizedBox(height: AppSpacing.space4),
+        ],
+        if (unmonitored.isNotEmpty) ...[
+          Text(
+            'NOT MONITORED · ${unmonitored.length}',
+            style: AppTypography.kicker,
+          ),
+          const SizedBox(height: AppSpacing.space2),
+          for (var i = 0; i < unmonitored.length; i++)
+            LibraryRow(
+              service: ServiceType.radarr,
+              instanceId: instanceId,
+              posterUrl: unmonitored[i].posterUrl,
+              title: unmonitored[i].title,
+              metaParts: [unmonitored[i].status ?? 'Unmonitored'],
+              trailing: LibraryRowTrailing.unmonitored,
+              showRule: i < unmonitored.length - 1,
+              onTap: unmonitored[i].id == null
+                  ? null
+                  : () => context.go(
+                      RoutePaths.movieDetail(instanceId, unmonitored[i].id!),
                     ),
             ),
           const FadingRule(),

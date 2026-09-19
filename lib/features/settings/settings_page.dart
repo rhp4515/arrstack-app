@@ -157,8 +157,27 @@ class _InstanceRow extends ConsumerWidget {
     // instance). Those are different situations for the user, so give the
     // failed-fetch case its own distinct meta text instead of silently
     // falling back to the same neutral no-summary state.
+    // When reachable, show the configured endpoint plus a version/transport
+    // descriptor (README §2m: `192.168.1.10:7878 · v5.14.0`) rather than
+    // the word "Reachable" — the status dot already conveys reachability.
+    // The live version fetch is best-effort (see [instanceVersionProvider])
+    // and only requested once the instance is already known reachable, so
+    // it never runs a doomed extra call against an offline instance.
+    final endpoint = instance.localBaseUrl ?? instance.remoteBaseUrl;
+    final liveVersion = summary?.isReachable == true
+        ? ref
+              .watch(instanceVersionProvider(instance.id, instance.serviceType))
+              .asData
+              ?.value
+        : null;
     final statusLine = summary != null
-        ? (summary.isReachable ? 'Reachable' : summary.summaryLine)
+        ? (summary.isReachable
+              ? (_formatEndpoint(
+                      endpoint,
+                      _secondaryInfo(instance.serviceType, liveVersion),
+                    ) ??
+                    'Reachable')
+              : summary.summaryLine)
         : (summariesFailed ? 'Status unavailable' : null);
 
     return InkWell(
@@ -226,6 +245,33 @@ class _InstanceRow extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// Strips scheme and path from a stored base URL for display, e.g.
+  /// `http://192.168.1.10:7878/` → `192.168.1.10:7878`, optionally
+  /// appended with [secondary] (a live version or transport descriptor).
+  /// Returns null when [url] is absent or unparsable so the caller can
+  /// fall back to a generic label rather than showing a raw malformed
+  /// string.
+  String? _formatEndpoint(String? url, String? secondary) {
+    if (url == null || url.trim().isEmpty) return null;
+    final uri = Uri.tryParse(url);
+    if (uri == null || uri.host.isEmpty) return null;
+    final host = uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
+    return secondary == null ? host : '$host · $secondary';
+  }
+
+  /// A live version (`v5.14.0`) when [instanceVersionProvider] resolved
+  /// one, else a static transport descriptor for the one service type
+  /// whose client can't cheaply report a version (Uptime Kuma runs over a
+  /// persistent socket session, not a plain per-request call — see
+  /// [instanceVersionProvider]'s doc comment). Other types without a
+  /// live version (Prowlarr, Einthusan) get no secondary text rather than
+  /// a fabricated one.
+  String? _secondaryInfo(ServiceType type, String? liveVersion) {
+    if (liveVersion != null) return 'v$liveVersion';
+    if (type == ServiceType.uptimeKuma) return 'socket';
+    return null;
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {

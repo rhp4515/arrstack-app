@@ -4,6 +4,7 @@
 /// error management (spec §5, §11).
 library;
 
+import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:arrstack/services/sonarr/sonarr_client.dart';
@@ -12,6 +13,8 @@ class SonarrRepository {
   const SonarrRepository(this._client);
 
   final SonarrClient _client;
+
+  Future<Result<ServiceIdentity>> testConnection() => _client.testConnection();
 
   Future<Result<List<SonarrSeries>>> listSeries() => _client.getSeries();
 

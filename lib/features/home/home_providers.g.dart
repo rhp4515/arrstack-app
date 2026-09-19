@@ -96,7 +96,7 @@ final class HomeServiceSummariesProvider
 }
 
 String _$homeServiceSummariesHash() =>
-    r'589e20bc3e2819bfc6da89900d6db52f1715c65e';
+    r'd3322b7a9ce3d1e02d45490b75523f369fb53b24';
 
 @ProviderFor(homeSummary)
 final homeSummaryProvider = HomeSummaryProvider._();

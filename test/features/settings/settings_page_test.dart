@@ -12,7 +12,8 @@ import '../../core/storage/fakes.dart';
 
 void main() {
   testWidgets(
-    'shows a live status dot and Reachable text for a matched instance',
+    'shows a live status dot and the configured endpoint for a matched '
+    'instance',
     (tester) async {
       const instance = ServiceInstance(
         id: 'radarr-1',
@@ -47,7 +48,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Radarr 4K'), findsOneWidget);
-      expect(find.text('Reachable'), findsOneWidget);
+      expect(find.text('10.0.0.1:7878'), findsOneWidget);
       expect(find.text('Default'), findsOneWidget);
     },
   );

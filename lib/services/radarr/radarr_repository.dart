@@ -4,6 +4,7 @@
 /// error management (spec §5, §11).
 library;
 
+import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/services/radarr/models/radarr_models.dart';
 import 'package:arrstack/services/radarr/radarr_client.dart';
@@ -12,6 +13,8 @@ class RadarrRepository {
   const RadarrRepository(this._client);
 
   final RadarrClient _client;
+
+  Future<Result<ServiceIdentity>> testConnection() => _client.testConnection();
 
   Future<Result<List<RadarrMovie>>> listMovies() => _client.getMovies();
 

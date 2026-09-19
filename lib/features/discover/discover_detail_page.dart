@@ -14,8 +14,11 @@
 /// and is unrelated to this one.
 library;
 
+import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
+import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/core/utils/format_utils.dart';
 import 'package:arrstack/core/widgets/detail_chip.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
@@ -24,11 +27,14 @@ import 'package:arrstack/core/widgets/labeled_dropdown_field.dart';
 import 'package:arrstack/features/discover/availability_lines.dart';
 import 'package:arrstack/features/discover/discover_providers.dart';
 import 'package:arrstack/features/library/widgets/media_detail_header.dart';
+import 'package:arrstack/services/radarr/models/radarr_models.dart';
+import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:arrstack/services/seerr/models/seerr_models.dart';
 import 'package:arrstack/services/seerr/seerr_providers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -117,6 +123,7 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
   int? _selectedProfileId;
   String? _selectedRootFolder;
   bool _requesting = false;
+  bool _browsingReleases = false;
   String? _requestError;
 
   bool get _isTv => widget.item.mediaType == 'tv';
@@ -242,21 +249,48 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
               ),
               const SizedBox(height: AppSpacing.space2),
             ],
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: (_requesting || serviceDetails == null)
-                    ? null
-                    : _handleRequest,
-                icon: _requesting
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(PhosphorIconsRegular.plus, size: 15),
-                label: const Text('Request'),
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: (_requesting || serviceDetails == null)
+                        ? null
+                        : _handleRequest,
+                    icon: _requesting
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(PhosphorIconsRegular.plus, size: 15),
+                    label: const Text('Request'),
+                  ),
+                ),
+                // Sonarr's release search is per-episode, not per-series, so
+                // there is no single "browse releases" target for a TV show
+                // that isn't in the library yet — movies only (README §3b).
+                if (!_isTv) ...[
+                  const SizedBox(width: AppSpacing.space3),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: (_browsingReleases || serviceDetails == null)
+                          ? null
+                          : _handleBrowseReleases,
+                      icon: _browsingReleases
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(
+                              PhosphorIconsRegular.magnifyingGlass,
+                              size: 15,
+                            ),
+                      label: const Text('Browse releases'),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ],
@@ -421,6 +455,141 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
           _requestError = 'Request failed: ${error.userMessage}';
         });
     }
+  }
+
+  /// Adds this movie directly to the app's default local Radarr instance
+  /// with search disabled, then opens the existing per-movie release
+  /// search page (the same one Library uses) against it — Seerr's own
+  /// request API can't preview releases before a request is made, and its
+  /// service-detail endpoint doesn't expose the credentials needed to
+  /// call Radarr's release-search endpoint directly. Reuses an
+  /// already-added Radarr entry for this TMDB id instead of adding a
+  /// duplicate when the user has already browsed (or requested) it
+  /// before. Assumes the app's default Radarr `ServiceInstance` is the
+  /// same server Seerr is configured against — true for the single-NAS
+  /// household setup this app targets, but not verified against Seerr's
+  /// own server config (Seerr's API doesn't expose that to callers).
+  Future<void> _handleBrowseReleases() async {
+    final servicesResult = await ref.read(
+      seerrRadarrServicesProvider(widget.instanceId).future,
+    );
+    final resolvedServiceId = switch (servicesResult) {
+      Ok(:final value) => _pickDefaultServiceId(value),
+      Err() => null,
+    };
+    if (resolvedServiceId == null) return;
+
+    final serviceAsync = ref.read(
+      seerrRadarrServiceProvider(
+        instanceId: widget.instanceId,
+        serviceId: resolvedServiceId,
+      ),
+    );
+    final details = switch (serviceAsync.asData?.value) {
+      Ok(:final value) => value,
+      _ => null,
+    };
+    if (details == null) return;
+
+    final profileId = _selectedProfileId ?? _defaultProfileId(details);
+    final rootFolder = _selectedRootFolder ?? _defaultRootFolder(details);
+    if (profileId == null || rootFolder == null) return;
+
+    final instancesResult = await ref.read(instancesProvider.future);
+    final radarrInstance = switch (instancesResult) {
+      Ok(:final value) => _defaultRadarrInstance(value),
+      Err() => null,
+    };
+    if (radarrInstance == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No Radarr instance is configured in Settings.'),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _browsingReleases = true);
+
+    final radarrInstanceId = radarrInstance.id;
+    final repository = await ref.read(
+      radarrRepositoryProvider(radarrInstanceId).future,
+    );
+    final moviesResult = await ref.read(
+      radarrMoviesProvider(radarrInstanceId).future,
+    );
+    final existingId = switch (moviesResult) {
+      Ok(:final value) =>
+        value.where((m) => m.tmdbId == widget.item.id).firstOrNull?.id,
+      Err() => null,
+    };
+
+    var movieId = existingId;
+    if (movieId == null) {
+      final lookupResult = await repository.searchLookup(
+        'tmdb:${widget.item.id}',
+      );
+      final lookedUp = switch (lookupResult) {
+        Ok(:final value) => value.firstOrNull,
+        Err() => null,
+      };
+      if (lookedUp == null) {
+        if (!mounted) return;
+        setState(() => _browsingReleases = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not find this title in Radarr.')),
+        );
+        return;
+      }
+
+      final addResult = await repository.addMovie(
+        lookedUp.copyWith(
+          monitored: true,
+          qualityProfileId: profileId,
+          rootFolderPath: rootFolder,
+          addOptions: const RadarrAddOptions(
+            searchForMovie: false,
+            monitor: 'movieOnly',
+          ),
+        ),
+      );
+      switch (addResult) {
+        case Ok(:final value):
+          movieId = value.id;
+          ref.invalidate(radarrMoviesProvider(radarrInstanceId));
+        case Err(:final error):
+          if (!mounted) return;
+          setState(() => _browsingReleases = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to add to Radarr: ${error.userMessage}'),
+            ),
+          );
+          return;
+      }
+    }
+
+    if (!mounted || movieId == null) return;
+    setState(() => _browsingReleases = false);
+    context.push(
+      RoutePaths.movieReleaseSearch(
+        radarrInstanceId,
+        movieId,
+        widget.item.displayTitle ?? '',
+      ),
+    );
+  }
+
+  ServiceInstance? _defaultRadarrInstance(List<ServiceInstance> instances) {
+    final radarrInstances = instances
+        .where((i) => i.serviceType == ServiceType.radarr)
+        .toList();
+    if (radarrInstances.isEmpty) return null;
+    return radarrInstances.firstWhere(
+      (i) => i.isDefault,
+      orElse: () => radarrInstances.first,
+    );
   }
 }
 

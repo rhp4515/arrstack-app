@@ -15,9 +15,10 @@ class SeerrClient implements ConnectionTestClient {
   Future<Result<ServiceIdentity>> testConnection() async {
     return dioCall(
       () => _dio.get('api/v1/status'),
-      map: (data) {
-        return const ServiceIdentity(instanceName: 'Seerr', version: '1.0');
-      },
+      map: (data) => ServiceIdentity(
+        instanceName: 'Seerr',
+        version: (data as Map<String, dynamic>)['version'] as String?,
+      ),
     );
   }
 

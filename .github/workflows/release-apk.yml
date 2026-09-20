@@ -72,11 +72,30 @@ jobs:
             echo "channel=nightly" >> "$GITHUB_OUTPUT"
           fi
 
-      # Debug-signed (Flutter's default). Fine for personal sideloading; not
-      # for Play Store. To switch to a real keystore, add a release
-      # signingConfig in android/app/build.gradle.kts fed from secrets and
-      # materialize the keystore here before this step.
+      # Materializes the persistent release keystore from a repo secret so
+      # every build — nightly and tagged alike — signs with the same
+      # identity. Without this, Android refuses to install a new build over
+      # an existing one (different signing cert = different app identity).
+      #
+      # Credentials are passed to the build step as environment variables,
+      # not written into android/key.properties: that file is parsed with
+      # Java's Properties format, which interprets backslashes and line
+      # breaks in values instead of preserving them, silently corrupting
+      # any password/alias containing either and breaking every subsequent
+      # signed build (android/app/build.gradle.kts reads env vars first).
+      - name: Configure release signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          set -euo pipefail
+          echo "${ANDROID_KEYSTORE_BASE64}" | base64 -d > "${GITHUB_WORKSPACE}/android/app/release.jks"
+
       - name: Build release APK
+        env:
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/android/app/release.jks
         run: >
           flutter build apk --release
           --build-name "${{ steps.meta.outputs.app_version }}"
@@ -110,8 +129,10 @@ jobs:
           | Commit | [\`${{ steps.meta.outputs.short_sha }}\`](${{ github.server_url }}/${{ github.repository }}/commit/${GITHUB_SHA}) |
           | Built | $(date -u +'%Y-%m-%d %H:%M UTC') |
 
-          Debug-signed APK for personal sideloading. Android will ask you to
-          allow installs from your browser or file manager the first time.
+          Signed with the ArrStack Companion release key for personal
+          sideloading — installs in place over prior releases. Android will
+          ask you to allow installs from your browser or file manager the
+          first time.
           EOF
 
       - name: Publish nightly pre-release

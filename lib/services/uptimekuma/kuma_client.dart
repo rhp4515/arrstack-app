@@ -63,8 +63,15 @@ class KumaClient {
       _connectionController.add(false);
     });
 
+    // Both handlers below run synchronously inside socket_io_client's event
+    // emitter with no surrounding try/catch of its own — an uncaught
+    // exception here (e.g. an unexpected field shape from a Kuma version
+    // this app hasn't seen) reaches the Dart VM as an unhandled exception
+    // instead of merely failing this one event, so parsing is wrapped
+    // defensively rather than left to crash the whole live feed.
     _socket!.on('monitorList', (data) {
-      if (data is Map) {
+      if (data is! Map) return;
+      try {
         developer.log(
           'Received monitorList (${data.length} items)',
           name: 'arrstack.kuma',
@@ -77,13 +84,28 @@ class KumaClient {
           );
         });
         _monitorsController.add(monitors);
+      } on Object catch (err, st) {
+        developer.log(
+          'Failed to parse monitorList event',
+          name: 'arrstack.kuma',
+          error: err,
+          stackTrace: st,
+        );
       }
     });
 
     _socket!.on('heartbeat', (data) {
-      if (data is Map) {
+      if (data is! Map) return;
+      try {
         final heartbeat = KumaHeartbeat.fromJson(data as Map<String, dynamic>);
         _heartbeatController.add(heartbeat);
+      } on Object catch (err, st) {
+        developer.log(
+          'Failed to parse heartbeat event',
+          name: 'arrstack.kuma',
+          error: err,
+          stackTrace: st,
+        );
       }
     });
 

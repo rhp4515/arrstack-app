@@ -43,7 +43,7 @@ _KumaHeartbeat _$KumaHeartbeatFromJson(Map<String, dynamic> json) =>
       status: (json['status'] as num).toInt(),
       time: DateTime.parse(json['time'] as String),
       msg: json['msg'] as String?,
-      ping: (json['ping'] as num).toInt(),
+      ping: (json['ping'] as num?)?.toInt(),
       important: json['important'] as bool,
     );
 

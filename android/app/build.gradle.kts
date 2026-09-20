@@ -7,14 +7,35 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// Release signing identity (android/key.properties, gitignored — see .gitignore).
-// Loses in-place update capability for every existing install if regenerated,
-// so keep the keystore and these values backed up somewhere durable.
+// Release signing identity. Loses in-place update capability for every
+// existing install if regenerated, so keep the keystore and these values
+// backed up somewhere durable.
+//
+// CI supplies credentials via environment variables rather than
+// key.properties: that file is parsed with java.util.Properties, which
+// interprets backslashes and line breaks in values instead of preserving
+// them, silently corrupting any password/alias containing either and
+// breaking every subsequent signed build. Environment variables have no
+// such escaping. key.properties (gitignored — see .gitignore) remains
+// supported as a local-dev-only fallback for `flutter run --release`.
 val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
+
+fun releaseSigningValue(envVar: String, propertyKey: String): String? =
+    System.getenv(envVar) ?: keystoreProperties.getProperty(propertyKey)
+
+val releaseKeyAlias = releaseSigningValue("ANDROID_KEY_ALIAS", "keyAlias")
+val releaseKeyPassword = releaseSigningValue("ANDROID_KEY_PASSWORD", "keyPassword")
+val releaseStorePassword = releaseSigningValue("ANDROID_KEYSTORE_PASSWORD", "storePassword")
+val releaseStoreFile = releaseSigningValue("ANDROID_KEYSTORE_PATH", "storeFile")
+
+val hasReleaseSigning = releaseKeyAlias != null &&
+    releaseKeyPassword != null &&
+    releaseStorePassword != null &&
+    releaseStoreFile != null
 
 android {
     namespace = "dev.hraman.arrstack"
@@ -42,23 +63,23 @@ android {
     }
 
     signingConfigs {
-        if (keystorePropertiesFile.exists()) {
+        if (hasReleaseSigning) {
             create("release") {
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
-                storeFile = file(keystoreProperties["storeFile"] as String)
-                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+                storeFile = file(releaseStoreFile!!)
+                storePassword = releaseStorePassword
             }
         }
     }
 
     buildTypes {
         release {
-            // Uses the dedicated release keystore when android/key.properties
-            // is present (always true in CI). Falls back to Flutter's debug
-            // keystore so `flutter run --release` keeps working locally
-            // without requiring the release keystore to be set up.
-            signingConfig = if (keystorePropertiesFile.exists()) {
+            // Uses the dedicated release keystore when credentials are
+            // available (always true in CI, via env vars). Falls back to
+            // Flutter's debug keystore so `flutter run --release` keeps
+            // working locally without requiring the release keystore.
+            signingConfig = if (hasReleaseSigning) {
                 signingConfigs.getByName("release")
             } else {
                 signingConfigs.getByName("debug")

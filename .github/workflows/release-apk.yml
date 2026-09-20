@@ -72,28 +72,30 @@ jobs:
             echo "channel=nightly" >> "$GITHUB_OUTPUT"
           fi
 
-      # Materializes the persistent release keystore from repo secrets so
+      # Materializes the persistent release keystore from a repo secret so
       # every build — nightly and tagged alike — signs with the same
       # identity. Without this, Android refuses to install a new build over
       # an existing one (different signing cert = different app identity).
+      #
+      # Credentials are passed to the build step as environment variables,
+      # not written into android/key.properties: that file is parsed with
+      # Java's Properties format, which interprets backslashes and line
+      # breaks in values instead of preserving them, silently corrupting
+      # any password/alias containing either and breaking every subsequent
+      # signed build (android/app/build.gradle.kts reads env vars first).
       - name: Configure release signing
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           set -euo pipefail
-          keystore_path="${GITHUB_WORKSPACE}/android/app/release.jks"
-          echo "${ANDROID_KEYSTORE_BASE64}" | base64 -d > "${keystore_path}"
-          cat > android/key.properties <<EOF
-          storePassword=${ANDROID_KEYSTORE_PASSWORD}
-          keyPassword=${ANDROID_KEY_PASSWORD}
-          keyAlias=${ANDROID_KEY_ALIAS}
-          storeFile=${keystore_path}
-          EOF
+          echo "${ANDROID_KEYSTORE_BASE64}" | base64 -d > "${GITHUB_WORKSPACE}/android/app/release.jks"
 
       - name: Build release APK
+        env:
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/android/app/release.jks
         run: >
           flutter build apk --release
           --build-name "${{ steps.meta.outputs.app_version }}"

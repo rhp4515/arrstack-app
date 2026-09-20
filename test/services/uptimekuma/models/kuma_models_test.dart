@@ -1,9 +1,11 @@
 // Uptime Kuma sends `ping: null` on heartbeats where no latency was
 // measured — most commonly a "Down" status heartbeat, since a failed check
-// has nothing to time. KumaHeartbeat.fromJson must tolerate that instead of
-// crashing the live socket event handler that calls it (kuma_client.dart's
-// 'heartbeat' listener has no try/catch, so an uncaught exception here was
-// reaching the Dart VM as an unhandled exception in production).
+// has nothing to time. KumaHeartbeat.fromJson must tolerate that: before
+// this fix it threw, and reached production as an unhandled exception in
+// kuma_client.dart's 'heartbeat' socket listener (that listener is now
+// wrapped in try/catch and logs failures, but the model itself must still
+// parse this real payload shape correctly rather than relying on the
+// listener to mask a parsing bug).
 
 import 'package:arrstack/services/uptimekuma/models/kuma_models.dart';
 import 'package:flutter_test/flutter_test.dart';

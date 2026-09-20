@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ArrStack Companion talks directly to user-specified home-lab services
+  (Radarr, Sonarr, Bazarr, qBittorrent, Uptime Kuma, Seerr) over the LAN or a
+  Tailscale tunnel. Those services almost universally run plain HTTP with no
+  TLS, and Android blocks all cleartext traffic by default since API 28 —
+  so every local/remote connection would fail before it left the device
+  without this exception. Traffic never leaves the user's own network/VPN.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

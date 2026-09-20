@@ -470,115 +470,136 @@ class _DetailContentState extends ConsumerState<_DetailContent> {
   /// household setup this app targets, but not verified against Seerr's
   /// own server config (Seerr's API doesn't expose that to callers).
   Future<void> _handleBrowseReleases() async {
-    final servicesResult = await ref.read(
-      seerrRadarrServicesProvider(widget.instanceId).future,
-    );
-    final resolvedServiceId = switch (servicesResult) {
-      Ok(:final value) => _pickDefaultServiceId(value),
-      Err() => null,
-    };
-    if (resolvedServiceId == null) return;
-
-    final serviceAsync = ref.read(
-      seerrRadarrServiceProvider(
-        instanceId: widget.instanceId,
-        serviceId: resolvedServiceId,
-      ),
-    );
-    final details = switch (serviceAsync.asData?.value) {
-      Ok(:final value) => value,
-      _ => null,
-    };
-    if (details == null) return;
-
-    final profileId = _selectedProfileId ?? _defaultProfileId(details);
-    final rootFolder = _selectedRootFolder ?? _defaultRootFolder(details);
-    if (profileId == null || rootFolder == null) return;
-
-    final instancesResult = await ref.read(instancesProvider.future);
-    final radarrInstance = switch (instancesResult) {
-      Ok(:final value) => _defaultRadarrInstance(value),
-      Err() => null,
-    };
-    if (radarrInstance == null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No Radarr instance is configured in Settings.'),
-        ),
-      );
-      return;
-    }
-
+    // Guards against a rapid double-tap launching two overlapping runs: set
+    // synchronously, before the first await, rather than after the first
+    // few resolutions as an earlier draft did — that left a window where
+    // both taps could observe the movie as absent and each submit their
+    // own Radarr add.
+    if (_browsingReleases) return;
     setState(() => _browsingReleases = true);
 
-    final radarrInstanceId = radarrInstance.id;
-    final repository = await ref.read(
-      radarrRepositoryProvider(radarrInstanceId).future,
-    );
-    final moviesResult = await ref.read(
-      radarrMoviesProvider(radarrInstanceId).future,
-    );
-    final existingId = switch (moviesResult) {
-      Ok(:final value) =>
-        value.where((m) => m.tmdbId == widget.item.id).firstOrNull?.id,
-      Err() => null,
-    };
-
-    var movieId = existingId;
-    if (movieId == null) {
-      final lookupResult = await repository.searchLookup(
-        'tmdb:${widget.item.id}',
+    try {
+      final servicesResult = await ref.read(
+        seerrRadarrServicesProvider(widget.instanceId).future,
       );
-      final lookedUp = switch (lookupResult) {
-        Ok(:final value) => value.firstOrNull,
+      final resolvedServiceId = switch (servicesResult) {
+        Ok(:final value) => _pickDefaultServiceId(value),
         Err() => null,
       };
-      if (lookedUp == null) {
-        if (!mounted) return;
-        setState(() => _browsingReleases = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not find this title in Radarr.')),
+      if (resolvedServiceId == null) return;
+
+      final serviceAsync = ref.read(
+        seerrRadarrServiceProvider(
+          instanceId: widget.instanceId,
+          serviceId: resolvedServiceId,
+        ),
+      );
+      final details = switch (serviceAsync.asData?.value) {
+        Ok(:final value) => value,
+        _ => null,
+      };
+      if (details == null) return;
+
+      final profileId = _selectedProfileId ?? _defaultProfileId(details);
+      final rootFolder = _selectedRootFolder ?? _defaultRootFolder(details);
+      if (profileId == null || rootFolder == null) return;
+
+      final instancesResult = await ref.read(instancesProvider.future);
+      final radarrInstance = switch (instancesResult) {
+        Ok(:final value) => _defaultRadarrInstance(value),
+        Err() => null,
+      };
+      if (radarrInstance == null) {
+        _showBrowseReleasesError(
+          'No Radarr instance is configured in Settings.',
         );
         return;
       }
 
-      final addResult = await repository.addMovie(
-        lookedUp.copyWith(
-          monitored: true,
-          qualityProfileId: profileId,
-          rootFolderPath: rootFolder,
-          addOptions: const RadarrAddOptions(
-            searchForMovie: false,
-            monitor: 'movieOnly',
-          ),
-        ),
+      final radarrInstanceId = radarrInstance.id;
+      final repository = await ref.read(
+        radarrRepositoryProvider(radarrInstanceId).future,
       );
-      switch (addResult) {
+      final moviesResult = await ref.read(
+        radarrMoviesProvider(radarrInstanceId).future,
+      );
+
+      int? movieId;
+      switch (moviesResult) {
         case Ok(:final value):
-          movieId = value.id;
-          ref.invalidate(radarrMoviesProvider(radarrInstanceId));
+          movieId = value
+              .where((m) => m.tmdbId == widget.item.id)
+              .firstOrNull
+              ?.id;
         case Err(:final error):
-          if (!mounted) return;
-          setState(() => _browsingReleases = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to add to Radarr: ${error.userMessage}'),
-            ),
+          // A failed library read is not proof the movie is absent —
+          // treating it as such would proceed to add a title Radarr may
+          // already have, on nothing more than a transient or auth error.
+          _showBrowseReleasesError(
+            'Could not check Radarr library: ${error.userMessage}',
           );
           return;
       }
-    }
 
-    if (!mounted || movieId == null) return;
-    setState(() => _browsingReleases = false);
-    context.push(
-      RoutePaths.movieReleaseSearch(
-        radarrInstanceId,
-        movieId,
-        widget.item.displayTitle ?? '',
-      ),
-    );
+      if (movieId == null) {
+        final lookupResult = await repository.searchLookup(
+          'tmdb:${widget.item.id}',
+        );
+        final lookedUp = switch (lookupResult) {
+          Ok(:final value) => value.firstOrNull,
+          Err() => null,
+        };
+        if (lookedUp == null) {
+          _showBrowseReleasesError('Could not find this title in Radarr.');
+          return;
+        }
+
+        final addResult = await repository.addMovie(
+          lookedUp.copyWith(
+            monitored: true,
+            qualityProfileId: profileId,
+            rootFolderPath: rootFolder,
+            addOptions: const RadarrAddOptions(
+              searchForMovie: false,
+              monitor: 'movieOnly',
+            ),
+          ),
+        );
+        switch (addResult) {
+          case Ok(:final value):
+            movieId = value.id;
+            ref.invalidate(radarrMoviesProvider(radarrInstanceId));
+          case Err(:final error):
+            _showBrowseReleasesError(
+              'Failed to add to Radarr: ${error.userMessage}',
+            );
+            return;
+        }
+      }
+
+      if (movieId == null || !mounted) return;
+      context.push(
+        RoutePaths.movieReleaseSearch(
+          radarrInstanceId,
+          movieId,
+          widget.item.displayTitle ?? '',
+        ),
+      );
+      // A provider or repository-construction failure (e.g. a missing
+      // credential or bad endpoint config) throws rather than returning
+      // Err — without this, that exception would escape uncaught and
+      // leave the button disabled with its spinner shown indefinitely.
+    } on Object catch (err) {
+      _showBrowseReleasesError('Failed to browse releases: $err');
+    } finally {
+      if (mounted) setState(() => _browsingReleases = false);
+    }
+  }
+
+  void _showBrowseReleasesError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   ServiceInstance? _defaultRadarrInstance(List<ServiceInstance> instances) {

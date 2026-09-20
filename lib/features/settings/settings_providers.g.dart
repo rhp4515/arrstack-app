@@ -86,7 +86,7 @@ final class InstanceVersionProvider
   }
 }
 
-String _$instanceVersionHash() => r'8b355c82c1844c44a345ee66bee6246a12449d1b';
+String _$instanceVersionHash() => r'84acd2d55475bc689e15ab29f0081d8855d6e043';
 
 /// Live version string for a Settings instance row (README §2m: the
 /// `192.168.1.10:7878 · v5.14.0` subtitle). Only fetched for service types
@@ -127,6 +127,128 @@ final class InstanceVersionFamily extends $Family
 
   @override
   String toString() => r'instanceVersionProvider';
+}
+
+/// qBittorrent-specific reachability + identity check for a Settings
+/// instance row. qBittorrent is deliberately excluded from
+/// `homeServiceSummariesProvider` (it's summarized by the Home hub's
+/// `rightNowProvider` instead), so a qBittorrent `ServiceInstance` never
+/// has a matching `HomeServiceSummary` — the Settings row needs its own
+/// direct reachability signal rather than borrowing Home's, or its dot
+/// stays permanently neutral and its version never renders regardless of
+/// the instance's real state.
+
+@ProviderFor(qbitConnectionStatus)
+final qbitConnectionStatusProvider = QbitConnectionStatusFamily._();
+
+/// qBittorrent-specific reachability + identity check for a Settings
+/// instance row. qBittorrent is deliberately excluded from
+/// `homeServiceSummariesProvider` (it's summarized by the Home hub's
+/// `rightNowProvider` instead), so a qBittorrent `ServiceInstance` never
+/// has a matching `HomeServiceSummary` — the Settings row needs its own
+/// direct reachability signal rather than borrowing Home's, or its dot
+/// stays permanently neutral and its version never renders regardless of
+/// the instance's real state.
+
+final class QbitConnectionStatusProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<ServiceIdentity>>,
+          Result<ServiceIdentity>,
+          FutureOr<Result<ServiceIdentity>>
+        >
+    with
+        $FutureModifier<Result<ServiceIdentity>>,
+        $FutureProvider<Result<ServiceIdentity>> {
+  /// qBittorrent-specific reachability + identity check for a Settings
+  /// instance row. qBittorrent is deliberately excluded from
+  /// `homeServiceSummariesProvider` (it's summarized by the Home hub's
+  /// `rightNowProvider` instead), so a qBittorrent `ServiceInstance` never
+  /// has a matching `HomeServiceSummary` — the Settings row needs its own
+  /// direct reachability signal rather than borrowing Home's, or its dot
+  /// stays permanently neutral and its version never renders regardless of
+  /// the instance's real state.
+  QbitConnectionStatusProvider._({
+    required QbitConnectionStatusFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'qbitConnectionStatusProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$qbitConnectionStatusHash();
+
+  @override
+  String toString() {
+    return r'qbitConnectionStatusProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<ServiceIdentity>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<ServiceIdentity>> create(Ref ref) {
+    final argument = this.argument as String;
+    return qbitConnectionStatus(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is QbitConnectionStatusProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$qbitConnectionStatusHash() =>
+    r'40697b7ec8845760dceb374dabd1203aa3f4ad77';
+
+/// qBittorrent-specific reachability + identity check for a Settings
+/// instance row. qBittorrent is deliberately excluded from
+/// `homeServiceSummariesProvider` (it's summarized by the Home hub's
+/// `rightNowProvider` instead), so a qBittorrent `ServiceInstance` never
+/// has a matching `HomeServiceSummary` — the Settings row needs its own
+/// direct reachability signal rather than borrowing Home's, or its dot
+/// stays permanently neutral and its version never renders regardless of
+/// the instance's real state.
+
+final class QbitConnectionStatusFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<Result<ServiceIdentity>>, String> {
+  QbitConnectionStatusFamily._()
+    : super(
+        retry: null,
+        name: r'qbitConnectionStatusProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// qBittorrent-specific reachability + identity check for a Settings
+  /// instance row. qBittorrent is deliberately excluded from
+  /// `homeServiceSummariesProvider` (it's summarized by the Home hub's
+  /// `rightNowProvider` instead), so a qBittorrent `ServiceInstance` never
+  /// has a matching `HomeServiceSummary` — the Settings row needs its own
+  /// direct reachability signal rather than borrowing Home's, or its dot
+  /// stays permanently neutral and its version never renders regardless of
+  /// the instance's real state.
+
+  QbitConnectionStatusProvider call(String instanceId) =>
+      QbitConnectionStatusProvider._(argument: instanceId, from: this);
+
+  @override
+  String toString() => r'qbitConnectionStatusProvider';
 }
 
 @ProviderFor(HomeSsidsSettings)

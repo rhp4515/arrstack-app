@@ -148,37 +148,92 @@ class _InstanceRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final summary = this.summary;
-    final dotColor = summary == null
-        ? AppColors.n600
-        : (summary.isReachable ? AppColors.up : AppColors.down);
-    // A `null` summary means either "the summaries fetch itself failed" or
-    // "this instance has no matching summary in an otherwise successful
-    // fetch" (a real design fallback, e.g. a non-default duplicate
-    // instance). Those are different situations for the user, so give the
-    // failed-fetch case its own distinct meta text instead of silently
-    // falling back to the same neutral no-summary state.
-    // When reachable, show the configured endpoint plus a version/transport
-    // descriptor (README §2m: `192.168.1.10:7878 · v5.14.0`) rather than
-    // the word "Reachable" — the status dot already conveys reachability.
+    final isQbit = instance.serviceType == ServiceType.qbittorrent;
+
+    // qBittorrent has no entry in `summaries` — homeServiceSummariesProvider
+    // deliberately excludes it (it's summarized by the Home hub's
+    // `rightNowProvider` instead), so its reachability comes from a direct
+    // connection check rather than the shared Home summary every other row
+    // uses. Without this, a qBittorrent row's dot stayed permanently
+    // neutral and its version never rendered regardless of real state.
+    bool? isReachable;
+    String? liveVersion;
+    String? errorMessage;
+    if (isQbit) {
+      final qbitStatusAsync = ref.watch(
+        qbitConnectionStatusProvider(instance.id),
+      );
+      if (qbitStatusAsync.hasValue) {
+        switch (qbitStatusAsync.requireValue) {
+          case Ok(:final value):
+            isReachable = true;
+            liveVersion = value.version;
+          case Err(:final error):
+            isReachable = false;
+            errorMessage = error.userMessage;
+        }
+      } else if (qbitStatusAsync.hasError) {
+        isReachable = false;
+        errorMessage = 'Status unavailable';
+      }
+    } else {
+      isReachable = summary?.isReachable;
+      errorMessage = summary?.summaryLine;
+    }
+
+    final dotColor = switch (isReachable) {
+      true => AppColors.up,
+      false => AppColors.down,
+      null => AppColors.n600,
+    };
+
+    // When reachable, show the endpoint plus a version/transport descriptor
+    // (README §2m: `192.168.1.10:7878 · v5.14.0`) rather than the word
+    // "Reachable" — the status dot already conveys reachability. The
+    // endpoint comes from the same resolver that decides which URL
+    // requests actually use: a forced-remote instance, or one off its home
+    // network, can be resolved to its remote URL even with a local one
+    // configured, so showing the stored local URL unconditionally would
+    // show an address other than the one just used for this status check.
+    final resolvedEndpointAsync = isReachable == true
+        ? ref.watch(resolvedEndpointProvider(instance.id))
+        : null;
+    final resolvedUrl = switch (resolvedEndpointAsync?.asData?.value) {
+      Ok(:final value) => value.baseUrl,
+      _ => null,
+    };
+    final endpoint =
+        resolvedUrl ?? instance.localBaseUrl ?? instance.remoteBaseUrl;
+
     // The live version fetch is best-effort (see [instanceVersionProvider])
     // and only requested once the instance is already known reachable, so
     // it never runs a doomed extra call against an offline instance.
-    final endpoint = instance.localBaseUrl ?? instance.remoteBaseUrl;
-    final liveVersion = summary?.isReachable == true
-        ? ref
-              .watch(instanceVersionProvider(instance.id, instance.serviceType))
-              .asData
-              ?.value
-        : null;
-    final statusLine = summary != null
-        ? (summary.isReachable
-              ? (_formatEndpoint(
-                      endpoint,
-                      _secondaryInfo(instance.serviceType, liveVersion),
-                    ) ??
-                    'Reachable')
-              : summary.summaryLine)
-        : (summariesFailed ? 'Status unavailable' : null);
+    // qBittorrent's version came back with `qbitConnectionStatusProvider`
+    // above already — no separate fetch needed.
+    if (isReachable == true && !isQbit) {
+      liveVersion = ref
+          .watch(instanceVersionProvider(instance.id, instance.serviceType))
+          .asData
+          ?.value;
+    }
+
+    final statusLine = switch (isReachable) {
+      true =>
+        _formatEndpoint(
+              endpoint,
+              _secondaryInfo(instance.serviceType, liveVersion),
+            ) ??
+            'Reachable',
+      false => errorMessage,
+      // A `null` summary (non-qBit) means either "the summaries fetch
+      // itself failed" or "this instance has no matching summary in an
+      // otherwise successful fetch" (a real design fallback, e.g. a
+      // non-default duplicate instance). Those are different situations
+      // for the user, so give the failed-fetch case its own distinct meta
+      // text instead of silently falling back to blank. qBittorrent's own
+      // `null` here is a brief per-row loading state, not a fetch failure.
+      null => (!isQbit && summariesFailed) ? 'Status unavailable' : null,
+    };
 
     return InkWell(
       onTap: () => context.go(RoutePaths.homeEditInstance(instance.id)),
@@ -222,11 +277,9 @@ class _InstanceRow extends ConsumerWidget {
                     Text(
                       statusLine,
                       style: AppTypography.meta.copyWith(
-                        color: summary == null
-                            ? AppColors.n500
-                            : (summary.isReachable
-                                  ? AppColors.n500
-                                  : AppColors.down),
+                        color: isReachable == false
+                            ? AppColors.down
+                            : AppColors.n500,
                       ),
                     ),
                 ],
@@ -269,7 +322,11 @@ class _InstanceRow extends ConsumerWidget {
   /// live version (Prowlarr, Einthusan) get no secondary text rather than
   /// a fabricated one.
   String? _secondaryInfo(ServiceType type, String? liveVersion) {
-    if (liveVersion != null) return 'v$liveVersion';
+    if (liveVersion != null) {
+      // qBittorrent's own version string already carries a `v` prefix
+      // (e.g. `v4.6.0`) — prepending another would show `vv4.6.0`.
+      return liveVersion.startsWith('v') ? liveVersion : 'v$liveVersion';
+    }
     if (type == ServiceType.uptimeKuma) return 'socket';
     return null;
   }

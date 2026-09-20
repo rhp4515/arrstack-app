@@ -71,8 +71,9 @@ Future<String?> instanceVersion(
           Err() => null,
         };
       case ServiceType.qbittorrent:
-        final repo = await ref.watch(qbitRepositoryProvider(instanceId).future);
-        return switch (await repo.testConnection()) {
+        return switch (await ref.watch(
+          qbitConnectionStatusProvider(instanceId).future,
+        )) {
           Ok(:final value) => value.version,
           Err() => null,
         };
@@ -84,6 +85,23 @@ Future<String?> instanceVersion(
   } on Object {
     return null;
   }
+}
+
+/// qBittorrent-specific reachability + identity check for a Settings
+/// instance row. qBittorrent is deliberately excluded from
+/// `homeServiceSummariesProvider` (it's summarized by the Home hub's
+/// `rightNowProvider` instead), so a qBittorrent `ServiceInstance` never
+/// has a matching `HomeServiceSummary` — the Settings row needs its own
+/// direct reachability signal rather than borrowing Home's, or its dot
+/// stays permanently neutral and its version never renders regardless of
+/// the instance's real state.
+@riverpod
+Future<Result<ServiceIdentity>> qbitConnectionStatus(
+  Ref ref,
+  String instanceId,
+) async {
+  final repo = await ref.watch(qbitRepositoryProvider(instanceId).future);
+  return repo.testConnection();
 }
 
 @Riverpod(keepAlive: true)

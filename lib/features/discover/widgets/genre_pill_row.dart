@@ -1,6 +1,6 @@
-/// Horizontally-scrollable row of gradient pill buttons for genre browsing —
-/// mirrors the "Movie Genres"/"Series Genres" rows in the Seerr Discover
-/// mockup (example_mockups/seerr_discover_listview.jpeg).
+/// Horizontally-scrollable row of outlined pill buttons for genre browsing —
+/// mirrors the "Movie Genres"/"Series Genres" rows in the Nocturne Discover
+/// spec: a single accent-purple outline and text, no per-pill color coding.
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
@@ -12,17 +12,6 @@ class GenrePillRow extends StatelessWidget {
 
   final List<SeerrGenre> genres;
   final ValueChanged<SeerrGenre> onTap;
-
-  /// Fixed gradient palette cycled across pills, matching the varied
-  /// pink/blue/purple gradients seen in the mockup (no per-genre backdrop
-  /// image is used — flat gradients only).
-  static const _gradients = [
-    [Color(0xFFEC4899), Color(0xFFDB2777)],
-    [Color(0xFF3B82F6), Color(0xFF2563EB)],
-    [Color(0xFF8B5CF6), Color(0xFF7C3AED)],
-    [Color(0xFFF97316), Color(0xFFEA580C)],
-    [Color(0xFF10B981), Color(0xFF059669)],
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -36,18 +25,18 @@ class GenrePillRow extends StatelessWidget {
         itemCount: genres.length,
         itemBuilder: (context, index) {
           final genre = genres[index];
-          final gradient = _gradients[index % _gradients.length];
           return Padding(
             padding: const EdgeInsets.only(right: LegacySpacing.sm),
             child: Material(
+              color: Colors.transparent,
               borderRadius: BorderRadius.circular(AppRadius.pill),
               child: InkWell(
                 borderRadius: BorderRadius.circular(AppRadius.pill),
                 onTap: () => onTap(genre),
-                child: Ink(
+                child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(AppRadius.pill),
-                    gradient: LinearGradient(colors: gradient),
+                    border: Border.all(color: AppColors.accent),
                   ),
                   padding: const EdgeInsets.symmetric(
                     horizontal: LegacySpacing.lg,
@@ -57,7 +46,7 @@ class GenrePillRow extends StatelessWidget {
                     child: Text(
                       genre.name,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.accent,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

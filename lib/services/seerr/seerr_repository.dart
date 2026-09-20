@@ -1,3 +1,4 @@
+import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/services/seerr/models/seerr_models.dart';
 import 'package:arrstack/services/seerr/seerr_client.dart';
@@ -6,6 +7,8 @@ class SeerrRepository {
   const SeerrRepository(this._client);
 
   final SeerrClient _client;
+
+  Future<Result<ServiceIdentity>> testConnection() => _client.testConnection();
 
   Future<Result<List<SeerrResult>>> discoverMovies() =>
       _client.getDiscoverMovies();

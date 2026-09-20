@@ -15,6 +15,9 @@ class QbitRepository {
   final QbitClient _client;
   final ServiceCredential _credential;
 
+  Future<Result<ServiceIdentity>> testConnection() =>
+      _authenticatedCall(_client.testConnection);
+
   Future<Result<List<QbitTorrent>>> listTorrents() =>
       _authenticatedCall(_client.getTorrents);
 

@@ -1,3 +1,4 @@
+import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/features/activity/widgets/torrent_block.dart';
 import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';
@@ -72,6 +73,10 @@ class FakeQbitRepository implements QbitRepository {
 
   @override
   Future<Result<void>> addTorrent(String url) async => const Ok(null);
+
+  @override
+  Future<Result<ServiceIdentity>> testConnection() async =>
+      throw UnimplementedError();
 }
 
 Future<void> _pump(

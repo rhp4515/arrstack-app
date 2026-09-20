@@ -166,4 +166,28 @@ void main() {
       'rootFolder': '/data/media/movies',
     });
   });
+
+  test('testConnection parses the real version from api/v1/status', () async {
+    adapter.onGet(
+      'api/v1/status',
+      (server) =>
+          server.reply(200, {'version': '1.33.2', 'updateAvailable': false}),
+    );
+
+    final result = await client.testConnection();
+
+    expect(result.isOk, isTrue);
+    expect(result.valueOrNull?.version, '1.33.2');
+  });
+
+  test('testConnection maps a 5xx to an Err', () async {
+    adapter.onGet(
+      'api/v1/status',
+      (server) => server.reply(500, {'message': 'boom'}),
+    );
+
+    final result = await client.testConnection();
+
+    expect(result.isErr, isTrue);
+  });
 }

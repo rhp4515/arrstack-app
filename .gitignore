@@ -44,6 +44,12 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Release signing — the keystore is the app's permanent update identity;
+# never commit it. See android/app/build.gradle.kts.
+/android/key.properties
+*.jks
+*.keystore
+
 # Widget Preview related
 .widget_preview/
 

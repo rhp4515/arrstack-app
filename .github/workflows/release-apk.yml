@@ -72,10 +72,27 @@ jobs:
             echo "channel=nightly" >> "$GITHUB_OUTPUT"
           fi
 
-      # Debug-signed (Flutter's default). Fine for personal sideloading; not
-      # for Play Store. To switch to a real keystore, add a release
-      # signingConfig in android/app/build.gradle.kts fed from secrets and
-      # materialize the keystore here before this step.
+      # Materializes the persistent release keystore from repo secrets so
+      # every build — nightly and tagged alike — signs with the same
+      # identity. Without this, Android refuses to install a new build over
+      # an existing one (different signing cert = different app identity).
+      - name: Configure release signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          keystore_path="${GITHUB_WORKSPACE}/android/app/release.jks"
+          echo "${ANDROID_KEYSTORE_BASE64}" | base64 -d > "${keystore_path}"
+          cat > android/key.properties <<EOF
+          storePassword=${ANDROID_KEYSTORE_PASSWORD}
+          keyPassword=${ANDROID_KEY_PASSWORD}
+          keyAlias=${ANDROID_KEY_ALIAS}
+          storeFile=${keystore_path}
+          EOF
+
       - name: Build release APK
         run: >
           flutter build apk --release
@@ -110,8 +127,10 @@ jobs:
           | Commit | [\`${{ steps.meta.outputs.short_sha }}\`](${{ github.server_url }}/${{ github.repository }}/commit/${GITHUB_SHA}) |
           | Built | $(date -u +'%Y-%m-%d %H:%M UTC') |
 
-          Debug-signed APK for personal sideloading. Android will ask you to
-          allow installs from your browser or file manager the first time.
+          Signed with the ArrStack Companion release key for personal
+          sideloading — installs in place over prior releases. Android will
+          ask you to allow installs from your browser or file manager the
+          first time.
           EOF
 
       - name: Publish nightly pre-release

@@ -349,8 +349,16 @@ class _TestResultIndicator extends StatelessWidget {
         ],
       ),
       Err(:final error) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.error_outline, color: theme.colorScheme.error, size: 16),
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Icon(
+              Icons.error_outline,
+              color: theme.colorScheme.error,
+              size: 16,
+            ),
+          ),
           const SizedBox(width: LegacySpacing.xs),
           Expanded(
             child: Text(
@@ -358,8 +366,6 @@ class _TestResultIndicator extends StatelessWidget {
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.error,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

@@ -99,9 +99,18 @@ jobs:
       # corrupted in transit (e.g. mangled by a copy-paste through a
       # browser secret field), instead of surfacing as an opaque
       # KeytoolException deep inside :app:packageRelease.
+      #
+      # Validates with a real (throwaway) jarsigner operation rather than
+      # `keytool -list`: -list only opens the keystore with the store
+      # password and never touches the private key, so a wrong or empty
+      # ANDROID_KEY_PASSWORD would pass that check and still only fail
+      # later, mid Gradle build (confirmed locally — keytool even ignores
+      # -keypass entirely for PKCS12 keystores). jarsigner performs the
+      # same private-key unlock Gradle's signing step does.
       - name: Verify release keystore
         env:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
           set -euo pipefail
@@ -110,11 +119,16 @@ jobs:
             echo "::error::${keystore_path} is empty — ANDROID_KEYSTORE_BASE64 didn't decode to any content." >&2
             exit 1
           fi
-          if ! keytool -list \
+          verify_dir="$(mktemp -d)"
+          trap 'rm -rf "${verify_dir}"' EXIT
+          echo probe > "${verify_dir}/probe.txt"
+          (cd "${verify_dir}" && jar cf probe.jar probe.txt)
+          if ! jarsigner \
               -keystore "${keystore_path}" \
               -storepass "${ANDROID_KEYSTORE_PASSWORD}" \
-              -alias "${ANDROID_KEY_ALIAS}" > /dev/null; then
-            echo "::error::Release keystore failed to validate — check ANDROID_KEYSTORE_BASE64, ANDROID_KEY_ALIAS and ANDROID_KEYSTORE_PASSWORD secrets." >&2
+              -keypass "${ANDROID_KEY_PASSWORD}" \
+              "${verify_dir}/probe.jar" "${ANDROID_KEY_ALIAS}" > /dev/null; then
+            echo "::error::Release keystore failed to validate — check ANDROID_KEYSTORE_BASE64, ANDROID_KEY_ALIAS, ANDROID_KEYSTORE_PASSWORD and ANDROID_KEY_PASSWORD secrets." >&2
             exit 1
           fi
           echo "Release keystore OK (alias: ${ANDROID_KEY_ALIAS})"

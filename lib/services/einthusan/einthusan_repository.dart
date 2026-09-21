@@ -4,6 +4,7 @@
 /// shape (spec §5).
 library;
 
+import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/services/einthusan/einthusan_client.dart';
 import 'package:arrstack/services/einthusan/models/einthusan_models.dart';
@@ -12,6 +13,10 @@ class EinthusanRepository {
   const EinthusanRepository(this._client);
 
   final EinthusanClient _client;
+
+  /// Hits the service's health endpoint — the reachability probe behind the
+  /// Home tile and the Settings status dot.
+  Future<Result<ServiceIdentity>> testConnection() => _client.testConnection();
 
   Future<Result<EinthusanJob>> createJob(String einthusanUrl) =>
       _client.createJob(einthusanUrl);

@@ -5,6 +5,9 @@ import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/features/home/home_providers.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
 import 'package:arrstack/services/bazarr/models/bazarr_models.dart';
+import 'package:arrstack/services/einthusan/einthusan_client.dart';
+import 'package:arrstack/services/einthusan/einthusan_providers.dart';
+import 'package:arrstack/services/einthusan/einthusan_repository.dart';
 import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';
 import 'package:arrstack/services/qbittorrent/qbit_providers.dart';
 import 'package:arrstack/services/radarr/models/radarr_models.dart';
@@ -12,8 +15,10 @@ import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
 import 'package:arrstack/services/uptimekuma/kuma_providers.dart';
 import 'package:arrstack/services/uptimekuma/models/kuma_models.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http_mock_adapter/http_mock_adapter.dart';
 
 import '../../core/storage/fakes.dart';
 import '../../support/fixtures.dart';
@@ -115,6 +120,76 @@ void main() {
         expect(summaries.single.isReachable, isTrue);
       },
     );
+
+    test('probes Einthusan rather than reporting a hardcoded "Connected": '
+        'a healthy instance', () async {
+      final einthusan = buildInstance(
+        id: 'einthusan-1',
+        serviceType: ServiceType.einthusan,
+        isDefault: true,
+      );
+      final dio = Dio(BaseOptions(baseUrl: 'http://nas.ts.net:8503/'));
+      DioAdapter(dio: dio)
+          .onGet('api/v1/health', (s) => s.reply(200, {'status': 'ok'}));
+
+      final container = ProviderContainer(
+        overrides: [
+          configStoreProvider.overrideWithValue(FakeConfigStore()),
+          instancesProvider.overrideWith((ref) async => Ok([einthusan])),
+          einthusanRepositoryProvider(einthusan.id).overrideWith(
+            (ref) async => EinthusanRepository(EinthusanClient(dio)),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final summaries = await container.read(
+        homeServiceSummariesProvider.future,
+      );
+      expect(summaries.single.isReachable, isTrue);
+      expect(summaries.single.summaryLine, 'Connected');
+    });
+
+    test('probes Einthusan rather than reporting a hardcoded "Connected": '
+        'an unreachable instance is not green', () async {
+      // The old behaviour reported "Connected" unconditionally, which put a
+      // green dot on a dead service and — worse — wrote a bogus reachable
+      // row into the last-known cache while everything else was timing out.
+      final einthusan = buildInstance(
+        id: 'einthusan-1',
+        serviceType: ServiceType.einthusan,
+        isDefault: true,
+      );
+      final dio = Dio(BaseOptions(baseUrl: 'http://nas.ts.net:8503/'));
+      DioAdapter(dio: dio).onGet(
+        'api/v1/health',
+        (s) => s.throws(
+          503,
+          DioException(
+            requestOptions: RequestOptions(path: 'api/v1/health'),
+            type: DioExceptionType.connectionTimeout,
+          ),
+        ),
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          configStoreProvider.overrideWithValue(FakeConfigStore()),
+          instancesProvider.overrideWith((ref) async => Ok([einthusan])),
+          einthusanRepositoryProvider(einthusan.id).overrideWith(
+            (ref) async => EinthusanRepository(EinthusanClient(dio)),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final summaries = await container.read(
+        homeServiceSummariesProvider.future,
+      );
+      expect(summaries.single.isReachable, isFalse);
+      expect(summaries.single.statusLabel, 'Unreachable');
+      expect(summaries.single.lastError, isA<NetworkError>());
+    });
 
     test('marks a service unreachable when its provider returns Err', () async {
       final radarr = buildInstance(

@@ -34,6 +34,22 @@ void main() {
     expect(dio.options.sendTimeout, const Duration(seconds: 9));
   });
 
+  test('gives a remote endpoint a longer budget than a local one', () {
+    // A first request over a cold Tailscale tunnel pays for the link coming
+    // back up before the handshake even starts; the LAN profile stays tight.
+    final remote = DioFactory.forEndpoint(ResolvedEndpoint.remote);
+    final local = DioFactory.forEndpoint(ResolvedEndpoint.local);
+
+    expect(remote.connectTimeout, greaterThan(local.connectTimeout));
+    expect(remote.receiveTimeout, greaterThan(local.receiveTimeout));
+    expect(remote.sendTimeout, greaterThan(local.sendTimeout));
+
+    expect(
+      remote.create(baseUrl: 'http://example.test').options.connectTimeout,
+      remote.connectTimeout,
+    );
+  });
+
   test('always includes the error-mapping and redacting-log interceptors', () {
     const factory = DioFactory();
 

@@ -188,6 +188,92 @@ void main() {
     expect(find.text('Tailscale looks disconnected'), findsOneWidget);
   });
 
+  testWidgets(
+    'calls out unresolvable host names separately from timeouts: nothing '
+    'was dialled, so "timed out" would be the wrong advice',
+    (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            cachedServiceSummariesProvider.overrideWith(
+              (ref) async => const [],
+            ),
+            homeServiceSummariesProvider.overrideWith(
+              (ref) async => const [
+                HomeServiceSummary(
+                  instanceId: 'radarr-1',
+                  instanceName: 'Home Radarr',
+                  serviceType: ServiceType.radarr,
+                  isReachable: false,
+                  summaryLine: 'Unreachable',
+                  statusLabel: 'Unreachable',
+                  lastError: NetworkError(isDnsFailure: true),
+                ),
+                HomeServiceSummary(
+                  instanceId: 'sonarr-1',
+                  instanceName: 'Home Sonarr',
+                  serviceType: ServiceType.sonarr,
+                  isReachable: false,
+                  summaryLine: 'Unreachable',
+                  statusLabel: 'Unreachable',
+                  lastError: NetworkError(isDnsFailure: true),
+                ),
+              ],
+            ),
+          ],
+          child: const MaterialApp(home: HomeOfflineState()),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text("Can't resolve your services"), findsOneWidget);
+      expect(find.text('Tailscale looks disconnected'), findsNothing);
+      // Still a Tailscale problem, so the Tailscale action stays.
+      expect(find.text('Open Tailscale'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'keeps the timeout copy when only some failures were DNS failures',
+    (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            cachedServiceSummariesProvider.overrideWith(
+              (ref) async => const [],
+            ),
+            homeServiceSummariesProvider.overrideWith(
+              (ref) async => const [
+                HomeServiceSummary(
+                  instanceId: 'radarr-1',
+                  instanceName: 'Home Radarr',
+                  serviceType: ServiceType.radarr,
+                  isReachable: false,
+                  summaryLine: 'Unreachable',
+                  statusLabel: 'Unreachable',
+                  lastError: NetworkError(isDnsFailure: true),
+                ),
+                HomeServiceSummary(
+                  instanceId: 'sonarr-1',
+                  instanceName: 'Home Sonarr',
+                  serviceType: ServiceType.sonarr,
+                  isReachable: false,
+                  summaryLine: 'Unreachable',
+                  statusLabel: 'Unreachable',
+                  lastError: NetworkError(isTimeout: true),
+                ),
+              ],
+            ),
+          ],
+          child: const MaterialApp(home: HomeOfflineState()),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Tailscale looks disconnected'), findsOneWidget);
+    },
+  );
+
   testWidgets('adds the device top inset to its internal padding, so the gear '
       'button clears a status bar/notch', (tester) async {
     const topInset = 40.0;

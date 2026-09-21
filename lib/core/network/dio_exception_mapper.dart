@@ -18,11 +18,9 @@ AppError mapDioException(DioException exception) {
     DioExceptionType.transformTimeout => NetworkError(
       isTimeout: true,
       cause: exception,
+      userMessage: _timeoutMessage(_hostLabel(exception)),
     ),
-    DioExceptionType.connectionError => NetworkError(
-      isTimeout: false,
-      cause: exception,
-    ),
+    DioExceptionType.connectionError => _mapConnectionFailure(exception),
     DioExceptionType.badCertificate => NetworkError(
       cause: exception,
       userMessage: 'The server certificate could not be verified.',
@@ -55,9 +53,59 @@ AppError _mapStatusCode(DioException exception) {
 
 AppError _mapUnknown(DioException exception) {
   if (exception.error is SocketException) {
-    return NetworkError(cause: exception);
+    return _mapConnectionFailure(exception);
   }
   return UnknownError(cause: exception);
+}
+
+/// Splits "couldn't connect" into the two cases that need different advice
+/// from the user: the host name never resolved (DNS), or it resolved and
+/// the connection itself failed.
+NetworkError _mapConnectionFailure(DioException exception) {
+  final host = _hostLabel(exception);
+  if (_isHostLookupFailure(exception.error)) {
+    return NetworkError(
+      isDnsFailure: true,
+      cause: exception,
+      userMessage: host == null
+          ? "Couldn't look up that server's address. If it's a Tailscale "
+                'name, Tailscale has to be connected.'
+          : "Couldn't look up $host. If that's a Tailscale name, Tailscale "
+                'has to be connected to resolve it.',
+    );
+  }
+  return NetworkError(
+    cause: exception,
+    userMessage: host == null
+        ? 'Could not reach the server. Check the URL and your connection.'
+        : 'Could not reach $host. Check the URL and your connection.',
+  );
+}
+
+/// Dart reports an unresolvable host as a [SocketException] with no
+/// [SocketException.address] and a `Failed host lookup: '<host>'` message;
+/// the OS error code underneath varies by platform, so the message is the
+/// portable signal.
+bool _isHostLookupFailure(Object? error) {
+  if (error is! SocketException) return false;
+  return error.address == null &&
+      error.message.toLowerCase().contains('failed host lookup');
+}
+
+String _timeoutMessage(String? host) {
+  final target = host ?? 'The server';
+  return '$target did not respond in time. Off your home network this '
+      'needs Tailscale connected.';
+}
+
+/// `host:port` for the request that failed, for use in a user-facing
+/// message. Never the full URL: the path and query can carry an API key on
+/// services that accept one as a parameter, and [AppError.userMessage] is
+/// rendered verbatim in the UI.
+String? _hostLabel(DioException exception) {
+  final uri = exception.requestOptions.uri;
+  if (uri.host.isEmpty) return null;
+  return uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
 }
 
 Duration? _parseRetryAfter(DioException exception) {

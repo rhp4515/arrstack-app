@@ -26,6 +26,7 @@ sealed class AppError {
 final class NetworkError extends AppError {
   const NetworkError({
     this.isTimeout = false,
+    this.isDnsFailure = false,
     super.cause,
     super.userMessage =
         'Could not reach the server. Check the URL and your connection.',
@@ -33,6 +34,13 @@ final class NetworkError extends AppError {
 
   /// True when this was specifically a connect/send/receive timeout.
   final bool isTimeout;
+
+  /// True when the host name itself could not be resolved. Worth its own
+  /// flag because it is the signature of a MagicDNS name looked up while
+  /// Tailscale is down: the tunnel's DNS never answers, so the request
+  /// fails before a single packet is sent. That needs different advice
+  /// from a timeout, which means the name resolved but nothing answered.
+  final bool isDnsFailure;
 }
 
 /// The server rejected the request as unauthenticated/unauthorized

@@ -45,10 +45,29 @@
          https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
 
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <!--
+      Android 11+ hides other installed apps from this one unless they are
+      declared here. `url_launcher` resolves a handler before it starts an
+      intent, so without these entries every launch fails as if nothing on
+      the device could open the link: the Home offline card's "Open
+      Tailscale" button did nothing at all, and the same applies to the
+      external https links opened from Discover and Einthusan Import.
+    -->
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!-- Browser / external https links. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
+        <!-- The Tailscale app, opened from the offline card. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="tailscale"/>
+        </intent>
+        <package android:name="com.tailscale.ipn"/>
     </queries>
 </manifest>

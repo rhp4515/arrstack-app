@@ -242,7 +242,7 @@ class InstanceForm extends _$InstanceForm {
       isTestingLocal: true,
       localTestResult: null,
     );
-    final result = await _test(normalized);
+    final result = await _test(normalized, ResolvedEndpoint.local);
     state = state.copyWith(isTestingLocal: false, localTestResult: result);
   }
 
@@ -254,11 +254,18 @@ class InstanceForm extends _$InstanceForm {
       isTestingRemote: true,
       remoteTestResult: null,
     );
-    final result = await _test(normalized);
+    final result = await _test(normalized, ResolvedEndpoint.remote);
     state = state.copyWith(isTestingRemote: false, remoteTestResult: result);
   }
 
-  Future<Result<ServiceIdentity>> _test(String baseUrl) async {
+  /// [endpoint] only selects the timeout profile: testing a remote URL is
+  /// a request over Tailscale and gets the same longer budget the live app
+  /// uses for one, so a cold tunnel doesn't fail a test that would have
+  /// succeeded a second later.
+  Future<Result<ServiceIdentity>> _test(
+    String baseUrl,
+    ResolvedEndpoint endpoint,
+  ) async {
     final credential = state.authType == AuthType.apiKey
         ? ServiceCredential.apiKey(state.apiKey)
         : ServiceCredential.usernamePassword(
@@ -266,7 +273,7 @@ class InstanceForm extends _$InstanceForm {
             password: state.password,
           );
 
-    final client = _getTestClient(baseUrl, credential);
+    final client = _getTestClient(baseUrl, credential, endpoint);
     if (client == null) {
       return const Err(
         UnknownError(
@@ -280,9 +287,11 @@ class InstanceForm extends _$InstanceForm {
   ConnectionTestClient? _getTestClient(
     String baseUrl,
     ServiceCredential credential,
+    ResolvedEndpoint endpoint,
   ) {
+    final dioFactory = DioFactory.forEndpoint(endpoint);
     if (state.type == ServiceType.radarr) {
-      final dio = const DioFactory().create(
+      final dio = dioFactory.create(
         baseUrl: baseUrl,
         apiKeyInterceptor: credential is ApiKeyCredential
             ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
@@ -291,7 +300,7 @@ class InstanceForm extends _$InstanceForm {
       return RadarrClient(dio);
     }
     if (state.type == ServiceType.sonarr) {
-      final dio = const DioFactory().create(
+      final dio = dioFactory.create(
         baseUrl: baseUrl,
         apiKeyInterceptor: credential is ApiKeyCredential
             ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
@@ -301,13 +310,17 @@ class InstanceForm extends _$InstanceForm {
     }
     if (state.type == ServiceType.uptimeKuma) {
       final cleanBaseUrl = baseUrl.replaceAll(RegExp(r'/socket\.io/?$'), '');
-      return KumaTestClient(cleanBaseUrl, credential);
+      return KumaTestClient(
+        cleanBaseUrl,
+        credential,
+        connectTimeout: dioFactory.connectTimeout,
+      );
     }
     if (state.type == ServiceType.qbittorrent) {
-      return QbitTestClient(baseUrl, credential);
+      return QbitTestClient(baseUrl, credential, endpoint);
     }
     if (state.type == ServiceType.bazarr) {
-      final dio = const DioFactory().create(
+      final dio = dioFactory.create(
         baseUrl: baseUrl,
         apiKeyInterceptor: credential is ApiKeyCredential
             ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
@@ -316,7 +329,7 @@ class InstanceForm extends _$InstanceForm {
       return BazarrClient(dio);
     }
     if (state.type == ServiceType.seerr) {
-      final dio = const DioFactory().create(
+      final dio = dioFactory.create(
         baseUrl: baseUrl,
         apiKeyInterceptor: credential is ApiKeyCredential
             ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
@@ -325,7 +338,7 @@ class InstanceForm extends _$InstanceForm {
       return SeerrClient(dio);
     }
     if (state.type == ServiceType.einthusan) {
-      final dio = const DioFactory().create(
+      final dio = dioFactory.create(
         baseUrl: baseUrl,
         apiKeyInterceptor: credential is ApiKeyCredential
             ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
@@ -404,13 +417,18 @@ class InstanceForm extends _$InstanceForm {
 
 /// A wrapper for qBittorrent to implement [ConnectionTestClient].
 class QbitTestClient implements ConnectionTestClient {
-  QbitTestClient(this.baseUrl, this.credential);
+  QbitTestClient(this.baseUrl, this.credential, [this.endpoint]);
   final String baseUrl;
   final ServiceCredential credential;
 
+  /// Which endpoint [baseUrl] is, so this test borrows the matching timeout
+  /// profile. Defaults to the local (tighter) one when unspecified.
+  final ResolvedEndpoint? endpoint;
+
   @override
   Future<Result<ServiceIdentity>> testConnection() async {
-    final dio = const DioFactory().create(baseUrl: baseUrl);
+    final dio = DioFactory.forEndpoint(endpoint ?? ResolvedEndpoint.local)
+        .create(baseUrl: baseUrl);
     final client = QbitClient(dio);
 
     switch (credential) {
@@ -430,9 +448,18 @@ class QbitTestClient implements ConnectionTestClient {
 
 /// A wrapper for Uptime Kuma to implement [ConnectionTestClient].
 class KumaTestClient implements ConnectionTestClient {
-  KumaTestClient(this.baseUrl, this.credential);
+  KumaTestClient(
+    this.baseUrl,
+    this.credential, {
+    this.connectTimeout = const Duration(seconds: 5),
+  });
   final String baseUrl;
   final ServiceCredential credential;
+
+  /// How long to wait for the socket handshake. Kuma speaks Socket.IO
+  /// rather than plain HTTP, so it can't use the Dio timeouts — the caller
+  /// passes the matching profile's connect budget instead.
+  final Duration connectTimeout;
 
   @override
   Future<Result<ServiceIdentity>> testConnection() async {
@@ -441,7 +468,7 @@ class KumaTestClient implements ConnectionTestClient {
       client.connect();
       final isConnected = await client.connectionStream
           .firstWhere((c) => c)
-          .timeout(const Duration(seconds: 5), onTimeout: () => false);
+          .timeout(connectTimeout, onTimeout: () => false);
       if (!isConnected) {
         return const Err(
           NetworkError(userMessage: 'Could not connect to socket.'),

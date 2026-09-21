@@ -15,6 +15,7 @@ import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
+import 'package:arrstack/core/utils/tailscale_launcher.dart';
 import 'package:arrstack/core/widgets/error_card.dart';
 import 'package:arrstack/features/home/home_providers.dart';
 import 'package:arrstack/features/home/widgets/cached_summary_row.dart';
@@ -22,14 +23,6 @@ import 'package:arrstack/features/home/widgets/offline_band.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
-
-/// Ordered attempts for the "Open Tailscale" button: the app's own scheme
-/// first, then the store listing for a device that doesn't have it.
-final _tailscaleTargets = [
-  Uri.parse('tailscale://'),
-  Uri.parse('https://tailscale.com/download'),
-];
 
 /// The offline card's copy, chosen from the classified failures.
 class _OfflineDiagnosis {
@@ -192,21 +185,9 @@ class HomeOfflineState extends ConsumerWidget {
     return minutes.clamp(0, 1 << 31);
   }
 
-  /// Opens the Tailscale app, falling back to its store page when it isn't
-  /// installed (or when the platform refuses the custom scheme).
-  ///
-  /// `launchUrl` throws rather than returning false when nothing can handle
-  /// the intent, and on Android 11+ it can only see handlers the manifest
-  /// declares in `<queries>` — see AndroidManifest.xml, without which this
-  /// button did nothing at all.
-  Future<void> _openTailscale() async {
-    for (final uri in _tailscaleTargets) {
-      try {
-        if (await launchUrl(uri, mode: LaunchMode.externalApplication)) return;
-      } on Object {
-        // Try the next target rather than surfacing a platform exception
-        // from a best-effort convenience button.
-      }
-    }
+  /// Opens the Tailscale app — by package on Android, since it has no URL
+  /// scheme that opens it. See [TailscaleLauncher].
+  void _openTailscale() {
+    unawaited(const TailscaleLauncher().open());
   }
 }

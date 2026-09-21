@@ -47,27 +47,35 @@
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
     <!--
       Android 11+ hides other installed apps from this one unless they are
-      declared here. `url_launcher` resolves a handler before it starts an
-      intent, so without these entries every launch fails as if nothing on
-      the device could open the link: the Home offline card's "Open
-      Tailscale" button did nothing at all, and the same applies to the
-      external https links opened from Discover and Einthusan Import.
+      declared here, and the hiding is silent: `url_launcher` resolves a
+      handler before starting an intent, so an undeclared target fails as
+      if nothing on the device could open the link, and
+      `getLaunchIntentForPackage` returns null as if the app were not
+      installed.
     -->
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
-        <!-- Browser / external https links. -->
+        <!-- Browser / external https links (Discover, Einthusan Import,
+             and the Play Store fallback below). -->
         <intent>
             <action android:name="android.intent.action.VIEW"/>
             <data android:scheme="https"/>
         </intent>
-        <!-- The Tailscale app, opened from the offline card. -->
+        <!-- Hands the Play Store fallback to the Play Store app. -->
         <intent>
             <action android:name="android.intent.action.VIEW"/>
-            <data android:scheme="tailscale"/>
+            <data android:scheme="market"/>
         </intent>
+        <!--
+          Load-bearing for MainActivity.launchPackage: the Home offline
+          card's "Open Tailscale" button opens Tailscale by package,
+          because Tailscale registers no URL scheme that opens the app
+          (its `tailscale://` filter requires the host `navigate` and only
+          routes within the app; iOS has no scheme at all).
+        -->
         <package android:name="com.tailscale.ipn"/>
     </queries>
 </manifest>

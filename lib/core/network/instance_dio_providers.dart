@@ -110,9 +110,8 @@ Future<Result<Dio>> dioForInstance(Ref ref, String instanceId) async {
       : null;
 
   return Ok(
-    const DioFactory().create(
-      baseUrl: resolution.baseUrl,
-      apiKeyInterceptor: apiKeyInterceptor,
-    ),
+    DioFactory.forEndpoint(
+      resolution.endpoint,
+    ).create(baseUrl: resolution.baseUrl, apiKeyInterceptor: apiKeyInterceptor),
   );
 }

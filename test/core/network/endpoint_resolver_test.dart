@@ -179,6 +179,41 @@ void main() {
       expect(result.valueOrNull?.endpoint, ResolvedEndpoint.local);
     });
 
+    test('flags isFallback when the endpoint the rules picked has no URL', () {
+      // Away from home with no remote URL: requests go to the LAN address,
+      // which cannot answer from outside. The flag is what lets the UI say
+      // that instead of reporting an indistinguishable timeout.
+      final instance = buildInstance(remoteBaseUrl: null);
+
+      final result = resolver.resolve(
+        instance: instance,
+        appHomeSsids: appHomeSsids,
+        currentSsid: 'CoffeeShopWifi',
+      );
+
+      final resolution = result.valueOrNull;
+      expect(resolution!.endpoint, ResolvedEndpoint.local);
+      expect(resolution.isFallback, isTrue);
+    });
+
+    test('leaves isFallback false when the picked endpoint has a URL', () {
+      final instance = buildInstance();
+
+      final away = resolver.resolve(
+        instance: instance,
+        appHomeSsids: appHomeSsids,
+        currentSsid: 'CoffeeShopWifi',
+      );
+      expect(away.valueOrNull?.isFallback, isFalse);
+
+      final home = resolver.resolve(
+        instance: instance,
+        appHomeSsids: appHomeSsids,
+        currentSsid: 'HomeWifi',
+      );
+      expect(home.valueOrNull?.isFallback, isFalse);
+    });
+
     test('treats a blank (whitespace-only) URL as missing', () {
       final instance = buildInstance(localBaseUrl: '   ');
 

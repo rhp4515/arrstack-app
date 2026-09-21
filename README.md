@@ -42,6 +42,21 @@ APKs are debug-signed for personal sideloading; the iOS build is unsigned. Neith
 4.  **Security:** API keys and credentials are stored in your device's system keychain (Keystore on Android, Keychain on iOS).
 5.  **Bazarr & Prowlarr:** open these from their cards on the Dashboard.
 
+### Reaching your stack over Tailscale
+
+Off your home WiFi the app uses each instance's **Remote URL**. Every instance
+you want to reach from outside needs one: an instance with only a Local URL
+falls back to its LAN address, which can never answer over cellular. That case
+now says so in its Settings row instead of reporting an indistinguishable
+timeout.
+
+MagicDNS names (`nas.your-tailnet.ts.net`) only resolve while Tailscale is
+connected. When a name doesn't resolve the app says that specifically, rather
+than blaming a timeout — if you'd rather not depend on MagicDNS, a `100.x.y.z`
+Tailscale IP works as a Remote URL too. Requests to a remote URL also get a
+longer connect budget than LAN ones, because a tunnel that has gone idle can
+take several seconds to come back up on cellular.
+
 ## Development
 
 This project uses Flutter with Riverpod for state management and Freezed for data modeling. Generated sources (`*.g.dart`, `*.freezed.dart`) are committed to the repo.

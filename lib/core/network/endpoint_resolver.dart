@@ -18,6 +18,7 @@ class EndpointResolution {
     required this.baseUrl,
     required this.endpoint,
     required this.needsManualOverride,
+    this.isFallback = false,
   });
 
   /// The base URL Dio should use for this instance right now.
@@ -32,20 +33,30 @@ class EndpointResolution {
   /// (spec §6a).
   final bool needsManualOverride;
 
+  /// True when the endpoint the rules actually chose had no URL configured,
+  /// so the *other* one is in use instead (step 3 below). Worth surfacing:
+  /// an instance with no remote URL silently falls back to its LAN address
+  /// off the home network, where that address can never answer — the
+  /// resulting timeout looks identical to "Tailscale is down" unless the
+  /// UI can tell the user which URL was really tried.
+  final bool isFallback;
+
   @override
   bool operator ==(Object other) =>
       other is EndpointResolution &&
       other.baseUrl == baseUrl &&
       other.endpoint == endpoint &&
-      other.needsManualOverride == needsManualOverride;
+      other.needsManualOverride == needsManualOverride &&
+      other.isFallback == isFallback;
 
   @override
-  int get hashCode => Object.hash(baseUrl, endpoint, needsManualOverride);
+  int get hashCode =>
+      Object.hash(baseUrl, endpoint, needsManualOverride, isFallback);
 
   @override
   String toString() =>
       'EndpointResolution($endpoint, $baseUrl, '
-      'needsManualOverride: $needsManualOverride)';
+      'needsManualOverride: $needsManualOverride, isFallback: $isFallback)';
 }
 
 /// Resolves which base URL a [ServiceInstance] should use right now,
@@ -110,6 +121,7 @@ class EndpointResolver {
         baseUrl: resolved.url,
         endpoint: resolved.endpoint,
         needsManualOverride: (isAuto && currentSsid == null) || fellBack,
+        isFallback: fellBack,
       ),
     );
   }

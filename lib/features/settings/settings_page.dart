@@ -159,6 +159,7 @@ class _InstanceRow extends ConsumerWidget {
     bool? isReachable;
     String? liveVersion;
     String? errorMessage;
+    AppError? failureError;
     if (isQbit) {
       final qbitStatusAsync = ref.watch(
         qbitConnectionStatusProvider(instance.id),
@@ -170,6 +171,7 @@ class _InstanceRow extends ConsumerWidget {
             liveVersion = value.version;
           case Err(:final error):
             isReachable = false;
+            failureError = error;
             errorMessage = error.userMessage;
         }
       } else if (qbitStatusAsync.hasError) {
@@ -178,7 +180,11 @@ class _InstanceRow extends ConsumerWidget {
       }
     } else {
       isReachable = summary?.isReachable;
-      errorMessage = summary?.summaryLine;
+      failureError = summary?.lastError;
+      // The summary line is the Home tile's compact "Unreachable"; the row
+      // has room for the real diagnosis, which is the difference between
+      // "Tailscale is down" and "that API key is wrong".
+      errorMessage = failureError?.userMessage ?? summary?.summaryLine;
     }
 
     final dotColor = switch (isReachable) {
@@ -187,23 +193,42 @@ class _InstanceRow extends ConsumerWidget {
       null => AppColors.n600,
     };
 
-    // When reachable, show the endpoint plus a version/transport descriptor
-    // (README §2m: `192.168.1.10:7878 · v5.14.0`) rather than the word
-    // "Reachable" — the status dot already conveys reachability. The
-    // endpoint comes from the same resolver that decides which URL
-    // requests actually use: a forced-remote instance, or one off its home
-    // network, can be resolved to its remote URL even with a local one
-    // configured, so showing the stored local URL unconditionally would
-    // show an address other than the one just used for this status check.
-    final resolvedEndpointAsync = isReachable == true
-        ? ref.watch(resolvedEndpointProvider(instance.id))
-        : null;
-    final resolvedUrl = switch (resolvedEndpointAsync?.asData?.value) {
-      Ok(:final value) => value.baseUrl,
+    // Show the endpoint plus a version/transport descriptor (README §2m:
+    // `192.168.1.10:7878 · v5.14.0`) rather than the word "Reachable" — the
+    // status dot already conveys reachability. The endpoint comes from the
+    // same resolver that decides which URL requests actually use: a
+    // forced-remote instance, or one off its home network, can be resolved
+    // to its remote URL even with a local one configured, so showing the
+    // stored local URL unconditionally would show an address other than the
+    // one just used for this status check.
+    //
+    // It is watched for failing rows too, not just healthy ones. A row that
+    // says only "Unreachable" hides the one fact that explains an outage
+    // off the home network: which of the two URLs was actually tried.
+    final resolution = switch (ref
+        .watch(resolvedEndpointProvider(instance.id))
+        .asData
+        ?.value) {
+      Ok(:final value) => value,
       _ => null,
     };
     final endpoint =
-        resolvedUrl ?? instance.localBaseUrl ?? instance.remoteBaseUrl;
+        resolution?.baseUrl ?? instance.localBaseUrl ?? instance.remoteBaseUrl;
+
+    // The resolver silently falls back to the other URL when the one the
+    // rules picked is blank. Off the home network that means an instance
+    // with no remote URL quietly gets its LAN address, which cannot answer
+    // over cellular — and the resulting timeout is indistinguishable from
+    // "Tailscale is down" unless the row says so.
+    //
+    // Only when the failure was a network one, though: a 401 from that same
+    // LAN address proves the request arrived, so the missing remote URL
+    // isn't what went wrong and saying so would bury the real answer.
+    final missingRemoteUrl =
+        resolution != null &&
+        resolution.isFallback &&
+        resolution.endpoint == ResolvedEndpoint.local &&
+        (failureError == null || failureError is NetworkError);
 
     // The live version fetch is best-effort (see [instanceVersionProvider])
     // and only requested once the instance is already known reachable, so
@@ -224,7 +249,11 @@ class _InstanceRow extends ConsumerWidget {
               _secondaryInfo(instance.serviceType, liveVersion),
             ) ??
             'Reachable',
-      false => errorMessage,
+      false => _failureLine(
+        endpoint: endpoint,
+        errorMessage: errorMessage,
+        missingRemoteUrl: missingRemoteUrl,
+      ),
       // A `null` summary (non-qBit) means either "the summaries fetch
       // itself failed" or "this instance has no matching summary in an
       // otherwise successful fetch" (a real design fallback, e.g. a
@@ -298,6 +327,25 @@ class _InstanceRow extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// What an unreachable row says under its name: the address that was
+  /// actually tried, then why it failed. Naming the address is the point —
+  /// it is what tells the user whether the app reached for the Tailscale
+  /// URL or the LAN one.
+  String? _failureLine({
+    required String? endpoint,
+    required String? errorMessage,
+    required bool missingRemoteUrl,
+  }) {
+    final host = _formatEndpoint(endpoint, null);
+    final reason = missingRemoteUrl
+        ? 'No Remote URL set, so the local address was tried. Add this '
+              "instance's Tailscale URL to reach it from outside home."
+        : errorMessage;
+    if (host == null) return reason;
+    if (reason == null) return host;
+    return '$host · $reason';
   }
 
   /// Strips scheme and path from a stored base URL for display, e.g.

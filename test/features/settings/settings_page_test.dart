@@ -58,7 +58,8 @@ void main() {
     },
   );
 
-  testWidgets('shows the summary line for an unreachable instance', (
+  testWidgets('falls back to the summary line for an unreachable instance '
+      'with no classified error, still naming the address tried', (
     tester,
   ) async {
     const instance = ServiceInstance(
@@ -92,7 +93,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Unreachable'), findsOneWidget);
+    expect(find.text('10.0.0.1:6767 · Unreachable'), findsOneWidget);
   });
 
   testWidgets(
@@ -216,6 +217,118 @@ void main() {
     },
   );
 
+  testWidgets(
+    'an unreachable row names the address it tried and the real reason, '
+    'not the bare word "Unreachable"',
+    (tester) async {
+      const instance = ServiceInstance(
+        id: 'radarr-1',
+        name: 'Radarr 4K',
+        serviceType: ServiceType.radarr,
+        authType: AuthType.apiKey,
+        localBaseUrl: 'http://10.0.0.1:7878',
+        remoteBaseUrl: 'http://nas.tailnet-abcd.ts.net:7878',
+        endpointMode: EndpointMode.auto,
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            configStoreProvider.overrideWithValue(FakeConfigStore()),
+            instancesProvider.overrideWith((ref) async => const Ok([instance])),
+            homeServiceSummariesProvider.overrideWith(
+              (ref) async => [
+                const HomeServiceSummary(
+                  instanceId: 'radarr-1',
+                  instanceName: 'Radarr 4K',
+                  serviceType: ServiceType.radarr,
+                  isReachable: false,
+                  summaryLine: 'Unreachable',
+                  statusLabel: 'Unreachable',
+                  lastError: NetworkError(
+                    isDnsFailure: true,
+                    userMessage: "Couldn't look up that host.",
+                  ),
+                ),
+              ],
+            ),
+            resolvedEndpointProvider('radarr-1').overrideWith(
+              (ref) async => const Ok(
+                EndpointResolution(
+                  baseUrl: 'http://nas.tailnet-abcd.ts.net:7878',
+                  endpoint: ResolvedEndpoint.remote,
+                  needsManualOverride: false,
+                ),
+              ),
+            ),
+          ],
+          child: const MaterialApp(home: SettingsPage()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text("nas.tailnet-abcd.ts.net:7878 · Couldn't look up that host."),
+        findsOneWidget,
+      );
+      expect(find.text('Unreachable'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'an unreachable row whose instance has no remote URL says so, rather '
+    'than reporting the LAN timeout it silently fell back to',
+    (tester) async {
+      const instance = ServiceInstance(
+        id: 'radarr-1',
+        name: 'Radarr 4K',
+        serviceType: ServiceType.radarr,
+        authType: AuthType.apiKey,
+        localBaseUrl: 'http://10.0.0.1:7878',
+        endpointMode: EndpointMode.auto,
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            configStoreProvider.overrideWithValue(FakeConfigStore()),
+            instancesProvider.overrideWith((ref) async => const Ok([instance])),
+            homeServiceSummariesProvider.overrideWith(
+              (ref) async => [
+                const HomeServiceSummary(
+                  instanceId: 'radarr-1',
+                  instanceName: 'Radarr 4K',
+                  serviceType: ServiceType.radarr,
+                  isReachable: false,
+                  summaryLine: 'Unreachable',
+                  statusLabel: 'Unreachable',
+                  lastError: NetworkError(isTimeout: true),
+                ),
+              ],
+            ),
+            // Away from home, but the instance has no remote URL — the
+            // resolver fell back to the LAN address it can never reach.
+            resolvedEndpointProvider('radarr-1').overrideWith(
+              (ref) async => const Ok(
+                EndpointResolution(
+                  baseUrl: 'http://10.0.0.1:7878',
+                  endpoint: ResolvedEndpoint.local,
+                  needsManualOverride: true,
+                  isFallback: true,
+                ),
+              ),
+            ),
+          ],
+          child: const MaterialApp(home: SettingsPage()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('No Remote URL set'), findsOneWidget);
+      expect(find.textContaining('10.0.0.1:7878'), findsOneWidget);
+    },
+  );
+
   testWidgets('qBittorrent row checks its own connection and shows reachable '
       'endpoint + version without a double v prefix', (tester) async {
     const instance = ServiceInstance(
@@ -254,8 +367,8 @@ void main() {
     expect(find.text('10.0.0.1:8090 · vv4.6.0'), findsNothing);
   });
 
-  testWidgets('qBittorrent row shows a down dot and the connection error when '
-      'unreachable', (tester) async {
+  testWidgets('qBittorrent row shows the address it tried and the connection '
+      'error when unreachable', (tester) async {
     const instance = ServiceInstance(
       id: 'qbit-1',
       name: 'qBittorrent',
@@ -284,7 +397,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('10.0.0.1:8090'), findsNothing);
+    // A failing row names the endpoint too, not just the reason: which of
+    // the two URLs was tried is the fact that separates "my stack is down"
+    // from "I'm off my home network without Tailscale".
+    expect(find.textContaining('10.0.0.1:8090 · '), findsOneWidget);
     expect(find.text('qBittorrent'), findsOneWidget);
   });
 }

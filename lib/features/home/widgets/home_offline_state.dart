@@ -1,10 +1,11 @@
 /// The offline layout for Home (README §3f): the flattened band, an error
 /// card, then a read-only "last known" block built from the summary cache.
-/// The error card's copy depends on whether the reachable services' errors
-/// all look like a network outage — a Tailscale-specific diagnosis is only
-/// shown when every failure is a [NetworkError]; anything else (bad
-/// credentials, a 5xx, a malformed request) gets neutral copy instead, so a
-/// user with a wrong API key isn't sent chasing a VPN problem.
+/// The error card's copy depends on what the failures actually were — a
+/// Tailscale-specific diagnosis is only shown when every failure is a
+/// [NetworkError]; anything else (bad credentials, a 5xx, a malformed
+/// request) gets neutral copy instead, so a user with a wrong API key isn't
+/// sent chasing a VPN problem. Within a network outage the card separates
+/// names that never resolved from hosts that never answered.
 library;
 
 import 'dart:async';
@@ -23,6 +24,29 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// Ordered attempts for the "Open Tailscale" button: the app's own scheme
+/// first, then the store listing for a device that doesn't have it.
+final _tailscaleTargets = [
+  Uri.parse('tailscale://'),
+  Uri.parse('https://tailscale.com/download'),
+];
+
+/// The offline card's copy, chosen from the classified failures.
+class _OfflineDiagnosis {
+  const _OfflineDiagnosis({
+    required this.title,
+    required this.message,
+    required this.blamesTailscale,
+  });
+
+  final String title;
+  final String message;
+
+  /// Whether the secondary action should offer Tailscale rather than
+  /// Settings.
+  final bool blamesTailscale;
+}
+
 class HomeOfflineState extends ConsumerWidget {
   const HomeOfflineState({super.key});
 
@@ -31,9 +55,7 @@ class HomeOfflineState extends ConsumerWidget {
     final cachedAsync = ref.watch(cachedServiceSummariesProvider);
     final instancesAsync = ref.watch(instancesProvider);
     final liveSummariesAsync = ref.watch(homeServiceSummariesProvider);
-    final isNetworkOutage = _isNetworkOutage(
-      liveSummariesAsync.value ?? const [],
-    );
+    final diagnosis = _diagnose(liveSummariesAsync.value ?? const []);
     final rawCached = cachedAsync.value ?? const [];
     // Only ids for instances that still exist prune orphaned cache rows
     // left behind by deleted instances (finding #1). When the current
@@ -61,20 +83,14 @@ class HomeOfflineState extends ConsumerWidget {
             children: [
               const SizedBox(height: AppSpacing.space6),
               ErrorCard(
-                title: isNetworkOutage
-                    ? 'Tailscale looks disconnected'
-                    : "Couldn't reach your services",
-                message: isNetworkOutage
-                    ? 'All remote URLs timed out. On cellular the app '
-                          'needs Tailscale up to reach your stack.'
-                    : "This doesn't look like a connectivity issue — check "
-                          'each instance\'s URL and API key in Settings.',
+                title: diagnosis.title,
+                message: diagnosis.message,
                 primaryActionLabel: 'Retry all',
                 onPrimaryAction: () => refreshHome(ref),
-                secondaryActionLabel: isNetworkOutage
+                secondaryActionLabel: diagnosis.blamesTailscale
                     ? 'Open Tailscale'
                     : 'Check settings',
-                onSecondaryAction: isNetworkOutage
+                onSecondaryAction: diagnosis.blamesTailscale
                     ? _openTailscale
                     : () => context.go(RoutePaths.homeSettings),
               ),
@@ -102,23 +118,68 @@ class HomeOfflineState extends ConsumerWidget {
     );
   }
 
-  /// False only when we have positive evidence of a non-network failure —
-  /// at least one unreachable summary whose classified error is NOT a
-  /// [NetworkError] (bad credentials, a 5xx, a malformed request). This
-  /// widget only ever renders once [HomeConnectionState] has already
-  /// settled to `offline`, which itself requires `homeServiceSummariesProvider`
-  /// to have already resolved — so "no unreachable summaries to classify
-  /// yet" isn't a real steady state, just a brief timing gap, and defaults
-  /// to the historical network-outage copy rather than guessing "neutral"
-  /// for a case that shouldn't persist. An unclassified failure (no error
-  /// captured, e.g. a generic catch-all) doesn't count as contrary evidence
-  /// either, so it doesn't downgrade the diagnosis on its own.
-  bool _isNetworkOutage(List<HomeServiceSummary> liveSummaries) {
-    final nonNetworkFailures = liveSummaries.where(
-      (s) =>
-          !s.isReachable && s.lastError != null && s.lastError is! NetworkError,
+  /// Reads the classified failures and picks copy that matches them.
+  ///
+  /// Only positive evidence of a non-network failure — an unreachable
+  /// summary whose error is NOT a [NetworkError] (bad credentials, a 5xx, a
+  /// malformed request) — moves off the connectivity diagnosis. This widget
+  /// only ever renders once [HomeConnectionState] has already settled to
+  /// `offline`, which itself requires `homeServiceSummariesProvider` to have
+  /// resolved, so "no unreachable summaries to classify yet" isn't a real
+  /// steady state, just a brief timing gap, and defaults to the
+  /// network-outage copy rather than guessing "neutral" for a case that
+  /// shouldn't persist. An unclassified failure (no error captured, e.g. a
+  /// generic catch-all) isn't contrary evidence either, so it doesn't
+  /// downgrade the diagnosis on its own.
+  ///
+  /// Within a network outage, a failure to resolve the host is called out
+  /// separately from a timeout. They need different fixes: an unresolvable
+  /// MagicDNS name means the tunnel's DNS isn't answering this device at
+  /// all (Tailscale down, or the name only exists inside the tailnet),
+  /// while a timeout means the name resolved and nothing replied.
+  _OfflineDiagnosis _diagnose(List<HomeServiceSummary> liveSummaries) {
+    final failures = liveSummaries
+        .where((s) => !s.isReachable && s.lastError != null)
+        .toList();
+
+    final hasNonNetworkFailure = failures.any(
+      (s) => s.lastError is! NetworkError,
     );
-    return nonNetworkFailures.isEmpty;
+    if (hasNonNetworkFailure) {
+      return const _OfflineDiagnosis(
+        title: "Couldn't reach your services",
+        message:
+            "This doesn't look like a connectivity issue — check each "
+            "instance's URL and API key in Settings.",
+        blamesTailscale: false,
+      );
+    }
+
+    final networkFailures = failures
+        .map((s) => s.lastError)
+        .whereType<NetworkError>()
+        .toList();
+    final allDnsFailures =
+        networkFailures.isNotEmpty &&
+        networkFailures.every((e) => e.isDnsFailure);
+    if (allDnsFailures) {
+      return const _OfflineDiagnosis(
+        title: "Can't resolve your services",
+        message:
+            "Your services' host names didn't resolve, so nothing was even "
+            'dialled. Connect Tailscale (MagicDNS answers only while it is '
+            'up), then retry.',
+        blamesTailscale: true,
+      );
+    }
+
+    return const _OfflineDiagnosis(
+      title: 'Tailscale looks disconnected',
+      message:
+          'All remote URLs timed out. On cellular the app needs Tailscale '
+          'up to reach your stack.',
+      blamesTailscale: true,
+    );
   }
 
   int _staleness(List<CachedServiceSummary> cached) {
@@ -131,7 +192,21 @@ class HomeOfflineState extends ConsumerWidget {
     return minutes.clamp(0, 1 << 31);
   }
 
-  void _openTailscale() {
-    unawaited(launchUrl(Uri.parse('tailscale://')).catchError((_) => false));
+  /// Opens the Tailscale app, falling back to its store page when it isn't
+  /// installed (or when the platform refuses the custom scheme).
+  ///
+  /// `launchUrl` throws rather than returning false when nothing can handle
+  /// the intent, and on Android 11+ it can only see handlers the manifest
+  /// declares in `<queries>` — see AndroidManifest.xml, without which this
+  /// button did nothing at all.
+  Future<void> _openTailscale() async {
+    for (final uri in _tailscaleTargets) {
+      try {
+        if (await launchUrl(uri, mode: LaunchMode.externalApplication)) return;
+      } on Object {
+        // Try the next target rather than surfacing a platform exception
+        // from a best-effort convenience button.
+      }
+    }
   }
 }

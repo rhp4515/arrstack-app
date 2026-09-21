@@ -40,7 +40,22 @@ Future<KumaRepository> kumaRepository(Ref ref, String instanceId) async {
     throw Exception('No credentials found for instance $instanceId');
   }
 
-  return KumaRepository(client, credential);
+  // Borrow the connect budget from the same profile the HTTP services use
+  // for this endpoint, so a Kuma instance reached over Tailscale isn't the
+  // one service still held to the LAN handshake deadline.
+  final resolution = await ref.watch(
+    resolvedEndpointProvider(instanceId).future,
+  );
+  final endpoint = switch (resolution) {
+    Ok(:final value) => value.endpoint,
+    Err() => ResolvedEndpoint.local,
+  };
+
+  return KumaRepository(
+    client,
+    credential,
+    connectTimeout: DioFactory.forEndpoint(endpoint).connectTimeout,
+  );
 }
 
 /// The live state of all monitors for a Kuma instance.

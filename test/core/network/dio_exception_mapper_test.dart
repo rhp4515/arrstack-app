@@ -132,6 +132,89 @@ void main() {
     expect(mapDioException(exception), isA<NetworkError>());
   });
 
+  group('reaching the host', () {
+    // A base URL is required for the mapper to name the host it failed to
+    // reach; RequestOptions(path:) alone has no host to report.
+    RequestOptions remoteOptions() => RequestOptions(
+      path: 'api/v3/system/status',
+      baseUrl: 'http://nas.tailnet-xxxx.ts.net:7878/',
+    );
+
+    test('an unresolvable host is flagged as a DNS failure and named', () {
+      final exception = DioException(
+        requestOptions: remoteOptions(),
+        type: DioExceptionType.connectionError,
+        error: const SocketException(
+          "Failed host lookup: 'nas.tailnet-xxxx.ts.net'",
+        ),
+      );
+
+      final error = mapDioException(exception);
+
+      expect(error, isA<NetworkError>());
+      expect((error as NetworkError).isDnsFailure, isTrue);
+      expect(error.isTimeout, isFalse);
+      expect(error.userMessage, contains('nas.tailnet-xxxx.ts.net:7878'));
+      expect(error.userMessage, contains('Tailscale'));
+    });
+
+    test('a refused connection is a network error but not a DNS one', () {
+      final exception = DioException(
+        requestOptions: remoteOptions(),
+        type: DioExceptionType.connectionError,
+        error: const SocketException(
+          'Connection refused',
+          address: null,
+          osError: OSError('Connection refused', 111),
+        ),
+      );
+
+      final error = mapDioException(exception);
+
+      expect((error as NetworkError).isDnsFailure, isFalse);
+      expect(error.userMessage, contains('nas.tailnet-xxxx.ts.net:7878'));
+    });
+
+    test('a timeout names the host that did not answer', () {
+      final exception = DioException(
+        requestOptions: remoteOptions(),
+        type: DioExceptionType.connectionTimeout,
+      );
+
+      final error = mapDioException(exception);
+
+      expect((error as NetworkError).isTimeout, isTrue);
+      expect(error.isDnsFailure, isFalse);
+      expect(error.userMessage, contains('nas.tailnet-xxxx.ts.net:7878'));
+    });
+
+    test('never puts the request path or query in the user message: an API '
+        'key passed as a query parameter would leak into the UI', () {
+      final exception = DioException(
+        requestOptions: RequestOptions(
+          path: 'api/v1/health',
+          baseUrl: 'http://nas.tailnet-xxxx.ts.net:8503/',
+          queryParameters: const {'apikey': 'super-secret'},
+        ),
+        type: DioExceptionType.connectionTimeout,
+      );
+
+      final error = mapDioException(exception);
+
+      expect(error.userMessage, isNot(contains('super-secret')));
+      expect(error.userMessage, isNot(contains('api/v1/health')));
+    });
+
+    test('falls back to generic copy when there is no host to name', () {
+      final exception = DioException(
+        requestOptions: _options(),
+        type: DioExceptionType.connectionTimeout,
+      );
+
+      expect(mapDioException(exception).userMessage, isNotEmpty);
+    });
+  });
+
   test('every mapped error carries a non-empty userMessage', () {
     final exceptions = [
       DioException(

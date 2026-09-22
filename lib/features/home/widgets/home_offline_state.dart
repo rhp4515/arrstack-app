@@ -202,8 +202,8 @@ class HomeOfflineState extends ConsumerWidget {
         title: "Tailscale isn't carrying this app",
         message:
             'Your tailnet addresses timed out. If Tailscale is connected '
-            'and other apps reach your stack, check this app is not '
-            "excluded in Tailscale's App-based split tunneling.",
+            'and other apps reach your stack, check this app is allowed '
+            "in Tailscale's App-based split tunneling.",
         blamesTailscale: true,
       );
     }

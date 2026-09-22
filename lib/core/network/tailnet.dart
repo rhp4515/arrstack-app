@@ -1,12 +1,18 @@
 /// Recognises addresses that only exist inside a tailnet.
 ///
 /// Worth singling out because a failure against one of these has a cause
-/// the generic copy gets wrong. Android routes traffic per app: an app
-/// excluded from Tailscale's VPN (Tailscale → avatar → App-based split
-/// tunneling) has "its traffic and DNS queries" bypass the tunnel, so
-/// MagicDNS names stop resolving *and* tailnet IPs stop answering for that
-/// app alone while every other app on the device is fine. Telling that user
-/// to connect Tailscale is useless — it is already connected.
+/// the generic copy gets wrong. Android routes traffic per app: an app the
+/// tunnel doesn't cover (Tailscale → avatar → App-based split tunneling,
+/// which has both an exclude list and an include-only list) has "its
+/// traffic and DNS queries" bypass the tunnel, so MagicDNS names stop
+/// resolving *and* tailnet IPs stop answering for that app alone while
+/// every other app on the device is fine. Telling that user to connect
+/// Tailscale is useless — it is already connected.
+///
+/// Observed in the wild as an include-only list holding the browser but
+/// not this app, which is why the copy asks whether the app is *allowed*
+/// rather than whether it was excluded: in that configuration nothing was
+/// ticked to exclude it.
 ///
 /// The failure mode is a timeout rather than a fast "no route", which is
 /// easy to misread as a dead service: Tailscale addresses live in

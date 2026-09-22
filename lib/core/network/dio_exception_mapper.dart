@@ -115,9 +115,14 @@ NetworkError _mapTimeout(DioException exception) {
       isTimeout: true,
       isTailnetTarget: true,
       cause: exception,
+      // "allowed" rather than "not excluded": Tailscale's split tunneling
+      // has both an exclude list and an include-only list, and the way
+      // this actually bit was an include list that simply never had this
+      // app in it. Nothing was ticked to exclude, so "check it isn't
+      // excluded" would have sent the reader looking for the wrong thing.
       userMessage:
           '$target did not respond. If Tailscale is connected and other '
-          "apps can reach it, check this app isn't excluded in "
+          'apps can reach it, check this app is allowed in '
           "Tailscale's App-based split tunneling.",
     );
   }

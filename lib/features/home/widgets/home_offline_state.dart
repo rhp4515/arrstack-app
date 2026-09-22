@@ -189,6 +189,25 @@ class HomeOfflineState extends ConsumerWidget {
       );
     }
 
+    // Timeouts against addresses that only exist inside the tailnet say
+    // something more specific than "Tailscale looks disconnected": the
+    // packets had nowhere else to go, so the tunnel is not carrying this
+    // app's traffic. It may well be carrying every other app's — Android
+    // excludes apps from a VPN one at a time — and that is the case where
+    // the old copy sent people to re-check a connection that was already
+    // up.
+    if (networkFailures.isNotEmpty &&
+        networkFailures.every((e) => e.isTailnetTarget)) {
+      return const _OfflineDiagnosis(
+        title: "Tailscale isn't carrying this app",
+        message:
+            'Your tailnet addresses timed out. If Tailscale is connected '
+            'and other apps reach your stack, check this app is not '
+            "excluded in Tailscale's App-based split tunneling.",
+        blamesTailscale: true,
+      );
+    }
+
     return const _OfflineDiagnosis(
       title: 'Tailscale looks disconnected',
       message:

@@ -15,3 +15,4 @@ export 'package:arrstack/core/network/network_providers.dart';
 export 'package:arrstack/core/network/redacting_log_interceptor.dart';
 export 'package:arrstack/core/network/result.dart';
 export 'package:arrstack/core/network/ssid_source.dart';
+export 'package:arrstack/core/network/tailnet.dart';

@@ -27,6 +27,7 @@ final class NetworkError extends AppError {
   const NetworkError({
     this.isTimeout = false,
     this.isDnsFailure = false,
+    this.isTailnetTarget = false,
     super.cause,
     super.userMessage =
         'Could not reach the server. Check the URL and your connection.',
@@ -41,6 +42,13 @@ final class NetworkError extends AppError {
   /// fails before a single packet is sent. That needs different advice
   /// from a timeout, which means the name resolved but nothing answered.
   final bool isDnsFailure;
+
+  /// True when the request targeted an address that only exists inside a
+  /// tailnet (see [isTailnetHost]). A failure there is about this device's
+  /// tunnel rather than the service, and specifically about whether *this
+  /// app* is inside it — Android routes per app, so a timeout here while
+  /// other apps work points at Tailscale's app-based split tunneling.
+  final bool isTailnetTarget;
 }
 
 /// The server rejected the request as unauthenticated/unauthorized

@@ -7,6 +7,7 @@ library;
 import 'dart:io';
 
 import 'package:arrstack/core/network/app_error.dart';
+import 'package:arrstack/core/network/tailnet.dart';
 import 'package:dio/dio.dart';
 
 /// Converts a [DioException] into the matching [AppError] variant.
@@ -15,11 +16,7 @@ AppError mapDioException(DioException exception) {
     DioExceptionType.connectionTimeout ||
     DioExceptionType.sendTimeout ||
     DioExceptionType.receiveTimeout ||
-    DioExceptionType.transformTimeout => NetworkError(
-      isTimeout: true,
-      cause: exception,
-      userMessage: _timeoutMessage(_hostLabel(exception)),
-    ),
+    DioExceptionType.transformTimeout => _mapTimeout(exception),
     DioExceptionType.connectionError => _mapConnectionFailure(exception),
     DioExceptionType.badCertificate => NetworkError(
       cause: exception,
@@ -63,9 +60,11 @@ AppError _mapUnknown(DioException exception) {
 /// the connection itself failed.
 NetworkError _mapConnectionFailure(DioException exception) {
   final host = _hostLabel(exception);
+  final isTailnet = host != null && isTailnetHost(host);
   if (_isHostLookupFailure(exception.error)) {
     return NetworkError(
       isDnsFailure: true,
+      isTailnetTarget: isTailnet,
       cause: exception,
       // Says what to do next in the case that actually happens. "Connect
       // Tailscale" is useless advice to someone whose Tailscale is already
@@ -81,6 +80,7 @@ NetworkError _mapConnectionFailure(DioException exception) {
     );
   }
   return NetworkError(
+    isTailnetTarget: isTailnet,
     cause: exception,
     userMessage: host == null
         ? 'Could not reach the server. Check the URL and your connection.'
@@ -98,10 +98,37 @@ bool _isHostLookupFailure(Object? error) {
       error.message.toLowerCase().contains('failed host lookup');
 }
 
-String _timeoutMessage(String? host) {
+NetworkError _mapTimeout(DioException exception) {
+  final host = _hostLabel(exception);
   final target = host ?? 'The server';
-  return '$target did not respond in time. Off your home network this '
-      'needs Tailscale connected.';
+
+  // A tailnet address that times out has already told us the tunnel is
+  // not carrying this app's traffic: the name or address is only routable
+  // inside the tailnet, so nothing else could have swallowed the packets.
+  // On a carrier network 100.64.0.0/10 usually has a route, so bypassed
+  // traffic times out instead of failing fast — which is why this reads
+  // like a dead service. Android excludes apps from a VPN individually,
+  // so "connect Tailscale" is the wrong advice when every other app on
+  // the device is fine.
+  if (host != null && isTailnetHost(host)) {
+    return NetworkError(
+      isTimeout: true,
+      isTailnetTarget: true,
+      cause: exception,
+      userMessage:
+          '$target did not respond. If Tailscale is connected and other '
+          "apps can reach it, check this app isn't excluded in "
+          "Tailscale's App-based split tunneling.",
+    );
+  }
+
+  return NetworkError(
+    isTimeout: true,
+    cause: exception,
+    userMessage:
+        '$target did not respond in time. Off your home network this '
+        'needs Tailscale connected.',
+  );
 }
 
 /// `host:port` for the request that failed, for use in a user-facing

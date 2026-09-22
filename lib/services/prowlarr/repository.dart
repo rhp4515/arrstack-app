@@ -1,3 +1,4 @@
+import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/services/prowlarr/client.dart';
 import 'package:arrstack/services/prowlarr/models/indexer.dart';
@@ -7,6 +8,8 @@ class ProwlarrRepository {
   final ProwlarrClient _client;
 
   ProwlarrRepository(this._client);
+
+  Future<Result<ServiceIdentity>> testConnection() => _client.testConnection();
 
   Future<Result<List<Indexer>>> getIndexers() => _client.getIndexers();
 

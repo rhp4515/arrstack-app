@@ -1,14 +1,32 @@
 import 'dart:developer' as developer;
 
+import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/services/contracts/contracts.dart';
 import 'package:arrstack/services/prowlarr/models/indexer.dart';
 import 'package:arrstack/services/prowlarr/models/indexer_stat.dart';
 import 'package:dio/dio.dart';
 
-class ProwlarrClient {
+class ProwlarrClient implements ConnectionTestClient {
   const ProwlarrClient(this._dio);
 
   final Dio _dio;
+
+  /// Prowlarr's API is v1 but `system/status` carries the same
+  /// `instanceName`/`version` shape as the v3 *arr services.
+  @override
+  Future<Result<ServiceIdentity>> testConnection() {
+    return dioCall(
+      () => _dio.get('api/v1/system/status'),
+      map: (data) {
+        final map = data as Map<String, dynamic>;
+        return ServiceIdentity(
+          instanceName: map['instanceName'] as String? ?? 'Prowlarr',
+          version: map['version'] as String?,
+        );
+      },
+    );
+  }
 
   Future<Result<List<Indexer>>> getIndexers() {
     return dioCall(

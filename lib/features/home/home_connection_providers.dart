@@ -48,15 +48,14 @@ HomeConnectionState homeConnectionState(Ref ref) {
 
   final summaries = summariesAsync.value ?? const [];
   final rightNow = rightNowAsync.value;
-  // Einthusan has no real connectivity check (home_providers.dart's
-  // _einthusanSummary always reports "Connected") — excluded here so an
-  // Einthusan-only configuration can't produce a false `ready` while every
-  // other, actually-checked service is unreachable.
-  final anyReachable =
-      summaries
-          .where((s) => s.serviceType != ServiceType.einthusan)
-          .any((s) => s.isReachable) ||
-      rightNow != null;
+  // Every summary counts, Einthusan included. It used to be excluded here
+  // because its summary was hardcoded to "Connected" and would have
+  // produced a false `ready` while every actually-checked service was
+  // unreachable; now that _einthusanSummary probes `api/v1/health` like
+  // the rest, excluding it would invert the bug — an Einthusan-only
+  // config whose service answers would render the offline layout and be
+  // told Tailscale looks disconnected.
+  final anyReachable = summaries.any((s) => s.isReachable) || rightNow != null;
   return anyReachable ? HomeConnectionState.ready : HomeConnectionState.offline;
 }
 

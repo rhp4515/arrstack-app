@@ -52,8 +52,13 @@ timeout.
 
 MagicDNS names (`nas.your-tailnet.ts.net`) only resolve while Tailscale is
 connected. When a name doesn't resolve the app says that specifically, rather
-than blaming a timeout — if you'd rather not depend on MagicDNS, a `100.x.y.z`
-Tailscale IP works as a Remote URL too. Requests to a remote URL also get a
+than blaming a timeout.
+
+A MagicDNS name can also fail here while resolving fine elsewhere on the same
+device, because `dart:io` delegates DNS to the platform without going through
+the full platform network stack. If Tailscale is connected and names still
+don't resolve, use each service's **`100.x.y.z` Tailscale IP** as its Remote
+URL — those need no DNS at all. Requests to a remote URL also get a
 longer connect budget than LAN ones, because a tunnel that has gone idle can
 take several seconds to come back up on cellular.
 

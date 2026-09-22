@@ -162,8 +162,9 @@ class HomeOfflineState extends ConsumerWidget {
         title: "Can't resolve your services",
         message:
             "Your services' host names didn't resolve, so nothing was "
-            'even dialled. Connect Tailscale (MagicDNS answers only '
-            'while it is up), then retry.',
+            'even dialled. Connect Tailscale — or, if it is already '
+            "connected, use your services' 100.x addresses, which need "
+            'no DNS.',
         blamesTailscale: true,
       );
     }

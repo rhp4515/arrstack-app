@@ -67,11 +67,17 @@ NetworkError _mapConnectionFailure(DioException exception) {
     return NetworkError(
       isDnsFailure: true,
       cause: exception,
+      // Says what to do next in the case that actually happens. "Connect
+      // Tailscale" is useless advice to someone whose Tailscale is already
+      // connected and whose browser resolves the same name — a MagicDNS
+      // name can fail here while working elsewhere on the device, and the
+      // 100.x address needs no DNS at all.
       userMessage: host == null
-          ? "Couldn't look up that server's address. If it's a Tailscale "
-                'name, Tailscale has to be connected.'
-          : "Couldn't look up $host. If that's a Tailscale name, Tailscale "
-                'has to be connected to resolve it.',
+          ? "Couldn't look up that server's address. If Tailscale is "
+                'already connected, use its 100.x address instead of the '
+                'name.'
+          : "Couldn't look up $host. If Tailscale is already connected, "
+                'use its 100.x address instead of the name.',
     );
   }
   return NetworkError(

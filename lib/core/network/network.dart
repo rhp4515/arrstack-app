@@ -11,6 +11,7 @@ export 'package:arrstack/core/network/dio_factory.dart';
 export 'package:arrstack/core/network/endpoint_resolver.dart';
 export 'package:arrstack/core/network/error_mapping_interceptor.dart';
 export 'package:arrstack/core/network/instance_dio_providers.dart';
+export 'package:arrstack/core/network/json_shape.dart';
 export 'package:arrstack/core/network/network_providers.dart';
 export 'package:arrstack/core/network/redacting_log_interceptor.dart';
 export 'package:arrstack/core/network/result.dart';

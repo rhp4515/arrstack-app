@@ -32,9 +32,7 @@ class ProwlarrClient implements ConnectionTestClient {
     return dioCall(
       () => _dio.get('api/v1/indexer'),
       map: (data) {
-        if (data is! List) return [];
-        return data
-            .cast<Map<String, dynamic>>()
+        return jsonList(data, what: 'indexers')
             .map((json) {
               try {
                 return Indexer.fromJson(json);

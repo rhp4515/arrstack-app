@@ -12,9 +12,19 @@ class SeerrClient implements ConnectionTestClient {
   final Dio _dio;
 
   @override
+  /// Uses `settings/about` rather than `status`, because a connection test
+  /// has to prove the API key works.
+  ///
+  /// Overseerr's own OpenAPI spec marks `/status` `security: []` and tags it
+  /// `public`: it answers without any key at all. Testing against it
+  /// reported "Success", with a version, for a wrong or empty API key — and
+  /// every real request then failed with a 401 the user had just been told
+  /// to expect none of. `settings/about` inherits the global `X-Api-Key`
+  /// requirement and carries the same version string.
+  @override
   Future<Result<ServiceIdentity>> testConnection() async {
     return dioCall(
-      () => _dio.get('api/v1/status'),
+      () => _dio.get('api/v1/settings/about'),
       map: (data) => ServiceIdentity(
         instanceName: 'Seerr',
         version: (data as Map<String, dynamic>)['version'] as String?,

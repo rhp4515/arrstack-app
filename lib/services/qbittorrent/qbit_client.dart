@@ -104,9 +104,7 @@ class QbitClient implements ConnectionTestClient {
     return dioCall(
       () => _dio.get('api/v2/torrents/info'),
       map: (data) {
-        if (data is! List) return [];
-        return data
-            .cast<Map<String, dynamic>>()
+        return jsonList(data, what: 'torrents')
             .map((json) {
               try {
                 return QbitTorrent.fromJson(json);

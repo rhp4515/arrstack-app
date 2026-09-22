@@ -10,9 +10,9 @@
 /// So Android opens the app the way a launcher does, by package, through
 /// [AppLauncher]; that needs the `<package android:name="com.tailscale.ipn"/>`
 /// entry in AndroidManifest.xml's `<queries>`, or `getLaunchIntentForPackage`
-/// returns null on Android 11+ even when the app is installed. Everywhere
-/// else, and when Tailscale isn't installed, the store page is the best
-/// available answer.
+/// returns null on Android 11+ even when the app is installed. When it
+/// isn't installed, and on every other platform, the best available answer
+/// is wherever that platform installs or starts it from.
 library;
 
 import 'package:flutter/foundation.dart';
@@ -25,6 +25,10 @@ const _playStoreUri = 'market://details?id=$tailscalePackage';
 const _playStoreWebUri =
     'https://play.google.com/store/apps/details?id=$tailscalePackage';
 const _appStoreUri = 'https://apps.apple.com/app/id1470499037';
+
+/// Covers macOS, Windows, Linux and the web build, where there is no
+/// single store listing to send someone to.
+const _downloadPageUri = 'https://tailscale.com/download';
 
 /// Launches another installed app by its package id, over a method channel
 /// implemented in `MainActivity.kt`. Android-only: every other platform
@@ -74,21 +78,32 @@ class TailscaleLauncher {
   static Future<bool> _defaultOpenUrl(Uri url, {LaunchMode? mode}) =>
       launchUrl(url, mode: mode ?? LaunchMode.platformDefault);
 
-  /// Brings Tailscale to the front, or failing that opens its store page.
-  /// Returns true when something was opened.
+  /// Brings Tailscale to the front, or failing that opens somewhere the
+  /// viewer can install or start it. Returns true when something opened.
+  ///
+  /// Every platform gets its own destination. Home's offline card is
+  /// shared by the desktop and web builds too, and sending those to an
+  /// iOS App Store listing is no more useful than the `tailscale://` this
+  /// replaced.
   Future<bool> open() async {
     final target = platform ?? defaultTargetPlatform;
 
-    if (target == TargetPlatform.android) {
-      if (await appLauncher.launchPackage(tailscalePackage)) return true;
-      // Not installed (or not visible): the store page is the useful
-      // answer, and `market://` hands straight to the Play Store app when
-      // it's there.
-      if (await _tryOpen(_playStoreUri)) return true;
-      return _tryOpen(_playStoreWebUri);
+    switch (target) {
+      case TargetPlatform.android:
+        if (await appLauncher.launchPackage(tailscalePackage)) return true;
+        // Not installed (or not visible): the store page is the useful
+        // answer, and `market://` hands straight to the Play Store app
+        // when it's there.
+        if (await _tryOpen(_playStoreUri)) return true;
+        return _tryOpen(_playStoreWebUri);
+      case TargetPlatform.iOS:
+        return _tryOpen(_appStoreUri);
+      case TargetPlatform.macOS:
+      case TargetPlatform.windows:
+      case TargetPlatform.linux:
+      case TargetPlatform.fuchsia:
+        return _tryOpen(_downloadPageUri);
     }
-
-    return _tryOpen(_appStoreUri);
   }
 
   Future<bool> _tryOpen(String url) async {

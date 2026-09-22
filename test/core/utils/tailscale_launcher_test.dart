@@ -99,6 +99,28 @@ void main() {
     expect(opened, ['https://apps.apple.com/app/id1470499037']);
   });
 
+  test('sends each desktop platform to the cross-platform download page, '
+      'not an iOS listing it cannot use', () async {
+    for (final target in [
+      TargetPlatform.macOS,
+      TargetPlatform.windows,
+      TargetPlatform.linux,
+    ]) {
+      opened = [];
+      final appLauncher = _RecordingAppLauncher(result: true);
+      final launcher = TailscaleLauncher(
+        appLauncher: appLauncher,
+        openUrl: opener(),
+        platform: target,
+      );
+
+      expect(await launcher.open(), isTrue, reason: '$target');
+      expect(opened, ['https://tailscale.com/download'], reason: '$target');
+      // The package channel only exists on Android.
+      expect(appLauncher.requested, isEmpty, reason: '$target');
+    }
+  });
+
   test('a thrown platform error moves to the next target instead of '
       'escaping to the caller', () async {
     final launcher = TailscaleLauncher(

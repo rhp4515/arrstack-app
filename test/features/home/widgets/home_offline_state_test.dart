@@ -160,8 +160,8 @@ void main() {
     },
   );
 
-  testWidgets('still shows Tailscale copy when every unreachable summary is a '
-      'NetworkError', (tester) async {
+  testWidgets('still shows Tailscale copy when every unreachable summary '
+      'timed out', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -175,7 +175,7 @@ void main() {
                 isReachable: false,
                 summaryLine: 'Unreachable',
                 statusLabel: 'Unreachable',
-                lastError: NetworkError(),
+                lastError: NetworkError(isTimeout: true),
               ),
             ],
           ),
@@ -273,6 +273,81 @@ void main() {
       expect(find.text('Tailscale looks disconnected'), findsOneWidget);
     },
   );
+
+  testWidgets(
+    'does not claim a timeout for a connection that failed without one: '
+    'a refused connection points at a stopped service, not the tunnel',
+    (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            cachedServiceSummariesProvider.overrideWith(
+              (ref) async => const [],
+            ),
+            homeServiceSummariesProvider.overrideWith(
+              (ref) async => const [
+                HomeServiceSummary(
+                  instanceId: 'radarr-1',
+                  instanceName: 'Home Radarr',
+                  serviceType: ServiceType.radarr,
+                  isReachable: false,
+                  summaryLine: 'Unreachable',
+                  statusLabel: 'Unreachable',
+                  // Neither a timeout nor a name-lookup failure: the
+                  // host answered and refused.
+                  lastError: NetworkError(),
+                ),
+              ],
+            ),
+          ],
+          child: const MaterialApp(home: HomeOfflineState()),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text("Couldn't connect to your services"), findsOneWidget);
+      expect(find.text('Tailscale looks disconnected'), findsNothing);
+      expect(find.textContaining('timed out'), findsNothing);
+      expect(find.text('Check settings'), findsOneWidget);
+    },
+  );
+
+  testWidgets('keeps the Tailscale copy when a refused connection is mixed '
+      'with a real timeout', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          cachedServiceSummariesProvider.overrideWith((ref) async => const []),
+          homeServiceSummariesProvider.overrideWith(
+            (ref) async => const [
+              HomeServiceSummary(
+                instanceId: 'radarr-1',
+                instanceName: 'Home Radarr',
+                serviceType: ServiceType.radarr,
+                isReachable: false,
+                summaryLine: 'Unreachable',
+                statusLabel: 'Unreachable',
+                lastError: NetworkError(),
+              ),
+              HomeServiceSummary(
+                instanceId: 'sonarr-1',
+                instanceName: 'Home Sonarr',
+                serviceType: ServiceType.sonarr,
+                isReachable: false,
+                summaryLine: 'Unreachable',
+                statusLabel: 'Unreachable',
+                lastError: NetworkError(isTimeout: true),
+              ),
+            ],
+          ),
+        ],
+        child: const MaterialApp(home: HomeOfflineState()),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('Tailscale looks disconnected'), findsOneWidget);
+  });
 
   testWidgets('adds the device top inset to its internal padding, so the gear '
       'button clears a status bar/notch', (tester) async {

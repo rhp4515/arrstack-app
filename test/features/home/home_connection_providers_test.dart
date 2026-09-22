@@ -134,8 +134,8 @@ void main() {
       );
     });
 
-    test('is offline (not ready) when only Einthusan is configured, even '
-        'though its synthetic summary is always isReachable: true', () async {
+    test('is ready when Einthusan is the only service and its health probe '
+        'succeeded — it is a real check now, not a synthetic one', () async {
       final einthusan = buildInstance(
         id: 'einthusan-1',
         serviceType: ServiceType.einthusan,
@@ -152,6 +152,43 @@ void main() {
                 serviceType: ServiceType.einthusan,
                 isReachable: true,
                 summaryLine: 'Connected',
+              ),
+            ],
+          ),
+          rightNowProvider.overrideWith((ref) async => null),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container.read(instancesProvider.future);
+      await container.read(homeServiceSummariesProvider.future);
+      await container.read(rightNowProvider.future);
+
+      expect(
+        container.read(homeConnectionStateProvider),
+        HomeConnectionState.ready,
+      );
+    });
+
+    test('is offline when Einthusan is the only service and its health '
+        'probe failed', () async {
+      final einthusan = buildInstance(
+        id: 'einthusan-1',
+        serviceType: ServiceType.einthusan,
+        isDefault: true,
+      );
+      final container = ProviderContainer(
+        overrides: [
+          instancesProvider.overrideWith((ref) async => Ok([einthusan])),
+          homeServiceSummariesProvider.overrideWith(
+            (ref) async => [
+              const HomeServiceSummary(
+                instanceId: 'einthusan-1',
+                instanceName: 'Home Einthusan',
+                serviceType: ServiceType.einthusan,
+                isReachable: false,
+                summaryLine: 'Unreachable',
+                statusLabel: 'Unreachable',
+                lastError: NetworkError(isTimeout: true),
               ),
             ],
           ),

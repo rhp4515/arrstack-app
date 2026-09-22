@@ -152,17 +152,39 @@ class HomeOfflineState extends ConsumerWidget {
         .map((s) => s.lastError)
         .whereType<NetworkError>()
         .toList();
-    final allDnsFailures =
-        networkFailures.isNotEmpty &&
-        networkFailures.every((e) => e.isDnsFailure);
-    if (allDnsFailures) {
+
+    // `every` is vacuously true for an empty list, which is the brief
+    // timing gap described above — that case wants the historical copy at
+    // the bottom, so both branches below check for emptiness.
+    if (networkFailures.isNotEmpty &&
+        networkFailures.every((e) => e.isDnsFailure)) {
       return const _OfflineDiagnosis(
         title: "Can't resolve your services",
         message:
-            "Your services' host names didn't resolve, so nothing was even "
-            'dialled. Connect Tailscale (MagicDNS answers only while it is '
-            'up), then retry.',
+            "Your services' host names didn't resolve, so nothing was "
+            'even dialled. Connect Tailscale (MagicDNS answers only '
+            'while it is up), then retry.',
         blamesTailscale: true,
+      );
+    }
+
+    // A connection that failed without timing out and without a name
+    // lookup failing is a different animal: something answered at the
+    // network level and refused, or the route died mid-flight. Claiming
+    // "all remote URLs timed out" there is simply false, and it points at
+    // the tunnel when the likelier culprit is a service that isn't
+    // running. Only say "timed out" when something actually did.
+    final blamesTunnel = networkFailures.any(
+      (e) => e.isTimeout || e.isDnsFailure,
+    );
+    if (networkFailures.isNotEmpty && !blamesTunnel) {
+      return const _OfflineDiagnosis(
+        title: "Couldn't connect to your services",
+        message:
+            'The connections failed without timing out — the services may '
+            'not be running. If you are away from home, check Tailscale '
+            'too.',
+        blamesTailscale: false,
       );
     }
 

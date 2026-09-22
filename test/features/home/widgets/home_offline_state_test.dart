@@ -160,8 +160,8 @@ void main() {
     },
   );
 
-  testWidgets('still shows Tailscale copy when every unreachable summary '
-      'timed out', (tester) async {
+  testWidgets('still shows the generic Tailscale copy when the timeouts '
+      'were not against tailnet addresses', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -273,6 +273,38 @@ void main() {
       expect(find.text('Tailscale looks disconnected'), findsOneWidget);
     },
   );
+
+  testWidgets('names split tunneling when every timeout was against a tailnet '
+      'address: the tunnel is up but not carrying this app', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          cachedServiceSummariesProvider.overrideWith((ref) async => const []),
+          homeServiceSummariesProvider.overrideWith(
+            (ref) async => const [
+              HomeServiceSummary(
+                instanceId: 'radarr-1',
+                instanceName: 'Home Radarr',
+                serviceType: ServiceType.radarr,
+                isReachable: false,
+                summaryLine: 'Unreachable',
+                statusLabel: 'Unreachable',
+                lastError: NetworkError(isTimeout: true, isTailnetTarget: true),
+              ),
+            ],
+          ),
+        ],
+        child: const MaterialApp(home: HomeOfflineState()),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text("Tailscale isn't carrying this app"), findsOneWidget);
+    expect(find.textContaining('split tunneling'), findsOneWidget);
+    expect(find.text('Tailscale looks disconnected'), findsNothing);
+    // Still a Tailscale problem, so the Tailscale action stays.
+    expect(find.text('Open Tailscale'), findsOneWidget);
+  });
 
   testWidgets(
     'does not claim a timeout for a connection that failed without one: '

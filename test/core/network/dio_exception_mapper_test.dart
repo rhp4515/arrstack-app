@@ -175,6 +175,57 @@ void main() {
       expect(error.userMessage, contains('nas.tailnet-xxxx.ts.net:7878'));
     });
 
+    test('a timeout against a tailnet address blames split tunneling, not '
+        'the connection: nothing else could have eaten the packets', () {
+      final exception = DioException(
+        requestOptions: RequestOptions(
+          path: 'api/v3/system/status',
+          baseUrl: 'http://100.101.5.7:7878/',
+        ),
+        type: DioExceptionType.connectionTimeout,
+      );
+
+      final error = mapDioException(exception) as NetworkError;
+
+      expect(error.isTimeout, isTrue);
+      expect(error.isTailnetTarget, isTrue);
+      expect(error.userMessage, contains('split tunneling'));
+      // The advice that is wrong here — Tailscale is connected, or the
+      // tailnet address could not have been routed at all.
+      expect(error.userMessage, isNot(contains('needs Tailscale connected')));
+    });
+
+    test('a timeout against a LAN address keeps the generic copy', () {
+      final exception = DioException(
+        requestOptions: RequestOptions(
+          path: 'api/v3/system/status',
+          baseUrl: 'http://192.168.1.10:7878/',
+        ),
+        type: DioExceptionType.connectionTimeout,
+      );
+
+      final error = mapDioException(exception) as NetworkError;
+
+      expect(error.isTailnetTarget, isFalse);
+      expect(error.userMessage, isNot(contains('split tunneling')));
+    });
+
+    test('a MagicDNS name that fails to resolve is flagged as a tailnet '
+        'target too', () {
+      final exception = DioException(
+        requestOptions: remoteOptions(),
+        type: DioExceptionType.connectionError,
+        error: const SocketException(
+          "Failed host lookup: 'nas.tailnet-xxxx.ts.net'",
+        ),
+      );
+
+      final error = mapDioException(exception) as NetworkError;
+
+      expect(error.isDnsFailure, isTrue);
+      expect(error.isTailnetTarget, isTrue);
+    });
+
     test('a timeout names the host that did not answer', () {
       final exception = DioException(
         requestOptions: remoteOptions(),

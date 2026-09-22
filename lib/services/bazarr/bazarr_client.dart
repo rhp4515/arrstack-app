@@ -30,9 +30,11 @@ class BazarrClient implements ConnectionTestClient {
     return dioCall(
       () => _dio.get('api/episodes/wanted'),
       map: (data) {
-        if (data is! List) return [];
-        return data
-            .cast<Map<String, dynamic>>()
+        // Bazarr's paged endpoints answer `{data: [...], total: N}`. This
+        // expected a bare list, so every wanted count was zero whatever
+        // Bazarr held — and the tile read "0 wanted subtitles" with a
+        // green dot beside it.
+        return jsonList(data, what: 'wanted episodes', envelopeKey: 'data')
             .map((json) {
               try {
                 return BazarrWantedSubtitle.fromJson({
@@ -59,9 +61,11 @@ class BazarrClient implements ConnectionTestClient {
     return dioCall(
       () => _dio.get('api/movies/wanted'),
       map: (data) {
-        if (data is! List) return [];
-        return data
-            .cast<Map<String, dynamic>>()
+        // Bazarr's paged endpoints answer `{data: [...], total: N}`. This
+        // expected a bare list, so every wanted count was zero whatever
+        // Bazarr held — and the tile read "0 wanted subtitles" with a
+        // green dot beside it.
+        return jsonList(data, what: 'wanted movies', envelopeKey: 'data')
             .map((json) {
               try {
                 return BazarrWantedSubtitle.fromJson({

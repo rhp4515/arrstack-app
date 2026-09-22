@@ -96,8 +96,10 @@ void main() {
 
   test('returns the live version for a reachable Seerr instance', () async {
     final dio = Dio(BaseOptions(baseUrl: 'http://x.test'));
-    DioAdapter(dio: dio)
-        .onGet('api/v1/status', (s) => s.reply(200, {'version': '1.33.2'}));
+    DioAdapter(dio: dio).onGet(
+      'api/v1/settings/about',
+      (s) => s.reply(200, {'version': '1.33.2'}),
+    );
     final container = _container([
       seerrRepositoryProvider('i4')
           .overrideWith((ref) async => SeerrRepository(SeerrClient(dio))),

@@ -52,8 +52,22 @@ timeout.
 
 MagicDNS names (`nas.your-tailnet.ts.net`) only resolve while Tailscale is
 connected. When a name doesn't resolve the app says that specifically, rather
-than blaming a timeout — if you'd rather not depend on MagicDNS, a `100.x.y.z`
-Tailscale IP works as a Remote URL too. Requests to a remote URL also get a
+than blaming a timeout.
+
+**If the app can't reach your stack while other apps can**, check Tailscale's
+**App-based split tunneling** (Tailscale → your avatar) and make sure this app
+is allowed through the tunnel. Android applies a VPN per app, so an app the
+list doesn't cover has both its traffic and its DNS queries bypass Tailscale:
+MagicDNS names stop resolving *and* `100.x` addresses time out, for that app
+alone. The timeout is the confusing part — `100.64.0.0/10` is CGNAT space that
+a mobile carrier usually has a route for, so the packets leave and vanish
+rather than failing fast, which looks like a dead service.
+
+A MagicDNS name can also fail while resolving fine elsewhere on the same
+device, because `dart:io` delegates DNS to the platform without going through
+the full platform network stack. If names still don't resolve, use each
+service's **`100.x.y.z` Tailscale IP** as its Remote URL — those need no DNS
+at all. Requests to a remote URL also get a
 longer connect budget than LAN ones, because a tunnel that has gone idle can
 take several seconds to come back up on cellular.
 

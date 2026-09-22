@@ -167,11 +167,14 @@ void main() {
     });
   });
 
-  test('testConnection parses the real version from api/v1/status', () async {
+  test('testConnection reads the version from an authenticated endpoint, '
+      'not the public status one', () async {
+    // `/api/v1/status` is marked `security: []` and tagged `public` in
+    // Overseerr's own spec — it answers with no key at all, so a test
+    // against it passed for a wrong or empty API key.
     adapter.onGet(
-      'api/v1/status',
-      (server) =>
-          server.reply(200, {'version': '1.33.2', 'updateAvailable': false}),
+      'api/v1/settings/about',
+      (server) => server.reply(200, {'version': '1.33.2'}),
     );
 
     final result = await client.testConnection();
@@ -180,9 +183,22 @@ void main() {
     expect(result.valueOrNull?.version, '1.33.2');
   });
 
+  test('testConnection fails on a rejected API key, rather than passing on '
+      'a public endpoint', () async {
+    adapter.onGet(
+      'api/v1/settings/about',
+      (server) => server.reply(403, {'message': 'Forbidden'}),
+    );
+
+    final result = await client.testConnection();
+
+    expect(result.isErr, isTrue);
+    expect(result.errorOrNull, isA<AuthError>());
+  });
+
   test('testConnection maps a 5xx to an Err', () async {
     adapter.onGet(
-      'api/v1/status',
+      'api/v1/settings/about',
       (server) => server.reply(500, {'message': 'boom'}),
     );
 

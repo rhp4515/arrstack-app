@@ -162,8 +162,9 @@ class HomeOfflineState extends ConsumerWidget {
         title: "Can't resolve your services",
         message:
             "Your services' host names didn't resolve, so nothing was "
-            'even dialled. Connect Tailscale (MagicDNS answers only '
-            'while it is up), then retry.',
+            'even dialled. Connect Tailscale — or, if it is already '
+            "connected, use your services' 100.x addresses, which need "
+            'no DNS.',
         blamesTailscale: true,
       );
     }
@@ -185,6 +186,25 @@ class HomeOfflineState extends ConsumerWidget {
             'not be running. If you are away from home, check Tailscale '
             'too.',
         blamesTailscale: false,
+      );
+    }
+
+    // Timeouts against addresses that only exist inside the tailnet say
+    // something more specific than "Tailscale looks disconnected": the
+    // packets had nowhere else to go, so the tunnel is not carrying this
+    // app's traffic. It may well be carrying every other app's — Android
+    // excludes apps from a VPN one at a time — and that is the case where
+    // the old copy sent people to re-check a connection that was already
+    // up.
+    if (networkFailures.isNotEmpty &&
+        networkFailures.every((e) => e.isTailnetTarget)) {
+      return const _OfflineDiagnosis(
+        title: "Tailscale isn't carrying this app",
+        message:
+            'Your tailnet addresses timed out. If Tailscale is connected '
+            'and other apps reach your stack, check this app is allowed '
+            "in Tailscale's App-based split tunneling.",
+        blamesTailscale: true,
       );
     }
 

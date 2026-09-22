@@ -34,9 +34,7 @@ class RadarrClient implements ConnectionTestClient {
     return dioCall(
       () => _dio.get('api/v3/movie'),
       map: (data) {
-        if (data is! List) return [];
-        return data
-            .cast<Map<String, dynamic>>()
+        return jsonList(data, what: 'movies')
             .map((json) {
               try {
                 return RadarrMovie.fromJson(json);

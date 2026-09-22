@@ -10,11 +10,13 @@ import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/services/bazarr/bazarr_client.dart';
 import 'package:arrstack/services/contracts/contracts.dart';
 import 'package:arrstack/services/einthusan/einthusan_client.dart';
+import 'package:arrstack/services/prowlarr/client.dart';
 import 'package:arrstack/services/qbittorrent/qbit_client.dart';
 import 'package:arrstack/services/radarr/radarr_client.dart';
 import 'package:arrstack/services/seerr/seerr_client.dart';
 import 'package:arrstack/services/sonarr/sonarr_client.dart';
 import 'package:arrstack/services/uptimekuma/kuma_client.dart';
+import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -273,80 +275,48 @@ class InstanceForm extends _$InstanceForm {
             password: state.password,
           );
 
-    final client = _getTestClient(baseUrl, credential, endpoint);
-    if (client == null) {
-      return const Err(
-        UnknownError(
-          userMessage: 'Test connection not yet implemented for this service.',
-        ),
-      );
-    }
-    return client.testConnection();
+    return _getTestClient(baseUrl, credential, endpoint).testConnection();
   }
 
-  ConnectionTestClient? _getTestClient(
+  /// Maps every [ServiceType] to a client that actually talks to the
+  /// service. Exhaustive on purpose.
+  ///
+  /// This was an if-chain ending in a stub that reported success without
+  /// contacting anything, and Prowlarr was the one type nobody had added a
+  /// branch for — so its connection test passed with a hardcoded
+  /// `v1.0.0-stub` whatever was at the other end, including nothing at
+  /// all. A switch over the enum makes the next unhandled service a
+  /// compile error instead of a silent false pass.
+  ConnectionTestClient _getTestClient(
     String baseUrl,
     ServiceCredential credential,
     ResolvedEndpoint endpoint,
   ) {
     final dioFactory = DioFactory.forEndpoint(endpoint);
-    if (state.type == ServiceType.radarr) {
-      final dio = dioFactory.create(
-        baseUrl: baseUrl,
-        apiKeyInterceptor: credential is ApiKeyCredential
-            ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
-            : null,
-      );
-      return RadarrClient(dio);
-    }
-    if (state.type == ServiceType.sonarr) {
-      final dio = dioFactory.create(
-        baseUrl: baseUrl,
-        apiKeyInterceptor: credential is ApiKeyCredential
-            ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
-            : null,
-      );
-      return SonarrClient(dio);
-    }
-    if (state.type == ServiceType.uptimeKuma) {
-      final cleanBaseUrl = baseUrl.replaceAll(RegExp(r'/socket\.io/?$'), '');
-      return KumaTestClient(
-        cleanBaseUrl,
+
+    Dio apiKeyDio() => dioFactory.create(
+      baseUrl: baseUrl,
+      apiKeyInterceptor: credential is ApiKeyCredential
+          ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
+          : null,
+    );
+
+    return switch (state.type) {
+      ServiceType.radarr => RadarrClient(apiKeyDio()),
+      ServiceType.sonarr => SonarrClient(apiKeyDio()),
+      ServiceType.prowlarr => ProwlarrClient(apiKeyDio()),
+      ServiceType.bazarr => BazarrClient(apiKeyDio()),
+      ServiceType.seerr => SeerrClient(apiKeyDio()),
+      ServiceType.einthusan => EinthusanClient(apiKeyDio()),
+      // These two manage their own session (cookie / socket) rather than
+      // an X-Api-Key header, so they wrap their own transport.
+      ServiceType.qbittorrent => QbitTestClient(baseUrl, credential, endpoint),
+      ServiceType.uptimeKuma => KumaTestClient(
+        baseUrl.replaceAll(RegExp(r'/socket\.io/?$'), ''),
         credential,
         connectTimeout: dioFactory.connectTimeout,
-      );
-    }
-    if (state.type == ServiceType.qbittorrent) {
-      return QbitTestClient(baseUrl, credential, endpoint);
-    }
-    if (state.type == ServiceType.bazarr) {
-      final dio = dioFactory.create(
-        baseUrl: baseUrl,
-        apiKeyInterceptor: credential is ApiKeyCredential
-            ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
-            : null,
-      );
-      return BazarrClient(dio);
-    }
-    if (state.type == ServiceType.seerr) {
-      final dio = dioFactory.create(
-        baseUrl: baseUrl,
-        apiKeyInterceptor: credential is ApiKeyCredential
-            ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
-            : null,
-      );
-      return SeerrClient(dio);
-    }
-    if (state.type == ServiceType.einthusan) {
-      final dio = dioFactory.create(
-        baseUrl: baseUrl,
-        apiKeyInterceptor: credential is ApiKeyCredential
-            ? ApiKeyInterceptor(lookupApiKey: () async => credential.apiKey)
-            : null,
-      );
-      return EinthusanClient(dio);
-    }
-    return StubConnectionTestClient(baseUrl: baseUrl, credential: credential);
+      ),
+    };
   }
 
   Future<bool> save() async {
@@ -488,26 +458,5 @@ class KumaTestClient implements ConnectionTestClient {
     } finally {
       client.dispose();
     }
-  }
-}
-
-/// A stub client for Phase 3 to verify the UI flow.
-class StubConnectionTestClient implements ConnectionTestClient {
-  const StubConnectionTestClient({
-    required this.baseUrl,
-    required this.credential,
-  });
-  final String baseUrl;
-  final ServiceCredential credential;
-
-  @override
-  Future<Result<ServiceIdentity>> testConnection() async {
-    await Future.delayed(const Duration(seconds: 1));
-    if (baseUrl.contains('error')) {
-      return const Err(NetworkError(userMessage: 'Stub: Connection failed.'));
-    }
-    return const Ok(
-      ServiceIdentity(instanceName: 'Stub Instance', version: '1.0.0-stub'),
-    );
   }
 }

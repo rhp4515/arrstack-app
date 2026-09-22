@@ -46,19 +46,12 @@ class SonarrClient implements ConnectionTestClient {
     return dioCall(
       () => _dio.get('api/v3/series'),
       map: (data) {
-        if (data is! List) {
-          developer.log(
-            'Sonarr getSeries: expected List but got ${data.runtimeType}',
-            name: 'arrstack.sonarr',
-          );
-          return [];
-        }
+        final series = jsonList(data, what: 'series');
         developer.log(
-          'Sonarr getSeries: received ${data.length} items',
+          'Sonarr getSeries: received ${series.length} items',
           name: 'arrstack.sonarr',
         );
-        return data
-            .cast<Map<String, dynamic>>()
+        return series
             .map((json) {
               try {
                 return SonarrSeries.fromJson(json);

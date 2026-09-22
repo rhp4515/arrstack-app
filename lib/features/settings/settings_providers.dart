@@ -8,6 +8,7 @@ import 'package:arrstack/core/network/result.dart';
 import 'package:arrstack/core/storage/storage.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
+import 'package:arrstack/services/prowlarr/providers.dart';
 import 'package:arrstack/services/qbittorrent/qbit_providers.dart';
 import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:arrstack/services/seerr/seerr_providers.dart';
@@ -21,8 +22,8 @@ part 'settings_providers.g.dart';
 /// `192.168.1.10:7878 · v5.14.0` subtitle). Only fetched for service types
 /// whose client implements [ConnectionTestClient] over a plain,
 /// already-authenticated request — Uptime Kuma's socket-session client and
-/// Prowlarr/Einthusan (no version-bearing status endpoint wired up) are
-/// deliberately excluded rather than faked. Best-effort: any failure
+/// Einthusan (whose health endpoint carries no version) are deliberately
+/// excluded rather than faked. Best-effort: any failure
 /// (unreachable instance, missing credential, parse error) resolves to
 /// null so a version-fetch hiccup never turns into a page-level error —
 /// the endpoint string alone is still a useful subtitle.
@@ -77,8 +78,15 @@ Future<String?> instanceVersion(
           Ok(:final value) => value.version,
           Err() => null,
         };
-      case ServiceType.uptimeKuma:
       case ServiceType.prowlarr:
+        final repo = await ref.watch(
+          prowlarrRepositoryProvider(instanceId).future,
+        );
+        return switch (await repo.testConnection()) {
+          Ok(:final value) => value.version,
+          Err() => null,
+        };
+      case ServiceType.uptimeKuma:
       case ServiceType.einthusan:
         return null;
     }

@@ -9,9 +9,21 @@ import 'package:arrstack/features/calendar/models/calendar_entry.dart';
 import 'package:arrstack/features/calendar/widgets/calendar_date_format.dart';
 import 'package:flutter/material.dart';
 
-/// "airs in 11h" / "airs in 3d" / "aired 6h ago" relative to [now]. Pure —
-/// unit-testable without a widget tree.
-String relativeAirLabel(DateTime date, DateTime now) {
+/// "airs in 11h" / "airs in 3d" / "aired 6h ago" relative to [now]. An
+/// [allDay] date counts whole days instead ("airs today" / "aired 2d ago"),
+/// since its midnight time is not a real air time. Pure — unit-testable
+/// without a widget tree.
+String relativeAirLabel(DateTime date, DateTime now, {bool allDay = false}) {
+  if (allDay) {
+    // Compare as UTC dates so a DST change can't make a day 23 or 25 hours.
+    final days = DateTime.utc(
+      date.year,
+      date.month,
+      date.day,
+    ).difference(DateTime.utc(now.year, now.month, now.day)).inDays;
+    if (days == 0) return 'airs today';
+    return days > 0 ? 'airs in ${days}d' : 'aired ${-days}d ago';
+  }
   final diff = date.difference(now);
   if (diff.isNegative) {
     final ago = -diff;
@@ -62,7 +74,7 @@ class CalendarTimelineRow extends StatelessWidget {
             SizedBox(
               width: 52,
               child: Text(
-                formatClockTime(entry.date),
+                entry.allDay ? 'All day' : formatClockTime(entry.date),
                 style: TextStyle(
                   fontFamily: AppTypography.fontFamily,
                   fontSize: 11,
@@ -142,7 +154,10 @@ class _StatusRow extends StatelessWidget {
       children: [
         _Chip(label: 'Monitored', color: colorScheme.primary),
         const SizedBox(width: AppSpacing.space2),
-        Text(relativeAirLabel(entry.date, now), style: AppTypography.meta),
+        Text(
+          relativeAirLabel(entry.date, now, allDay: entry.allDay),
+          style: AppTypography.meta,
+        ),
       ],
     );
   }

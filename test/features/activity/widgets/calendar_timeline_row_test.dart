@@ -11,6 +11,7 @@ CalendarEntry _entry({
   bool monitored = true,
   String? subtitle,
   String? network,
+  bool allDay = false,
 }) => CalendarEntry(
   kind: CalendarEntryKind.episode,
   service: ServiceType.sonarr,
@@ -21,6 +22,7 @@ CalendarEntry _entry({
   network: network,
   hasFile: hasFile,
   monitored: monitored,
+  allDay: allDay,
 );
 
 void main() {
@@ -38,6 +40,22 @@ void main() {
     test('past date under 24h shows hours ago', () {
       final now = DateTime(2026, 1, 1, 9);
       expect(relativeAirLabel(DateTime(2026, 1, 1, 3), now), 'aired 6h ago');
+    });
+
+    test('all-day dates count whole days rather than hours', () {
+      final now = DateTime(2026, 1, 1, 21);
+      expect(
+        relativeAirLabel(DateTime(2026, 1, 1), now, allDay: true),
+        'airs today',
+      );
+      expect(
+        relativeAirLabel(DateTime(2026, 1, 2), now, allDay: true),
+        'airs in 1d',
+      );
+      expect(
+        relativeAirLabel(DateTime(2025, 12, 30), now, allDay: true),
+        'aired 2d ago',
+      );
     });
   });
 
@@ -100,6 +118,25 @@ void main() {
       );
 
       expect(find.text('Unmonitored'), findsOneWidget);
+    });
+
+    testWidgets('shows "All day" instead of a clock time for all-day entries', (
+      tester,
+    ) async {
+      final now = DateTime(2026, 1, 1, 9);
+      final entry = _entry(date: DateTime(2026, 1, 3), allDay: true);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CalendarTimelineRow(entry: entry, now: now),
+          ),
+        ),
+      );
+
+      expect(find.text('All day'), findsOneWidget);
+      expect(find.text('12:00 AM'), findsNothing);
+      expect(find.text('airs in 2d'), findsOneWidget);
     });
   });
 }

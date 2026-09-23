@@ -85,6 +85,14 @@ Future<List<CalendarEntry>> _radarrEntries(
       start.subtract(const Duration(days: 1)),
       end.add(const Duration(days: 1)),
     );
+    // [end] is an instant, not a day: Sonarr receives it as a timestamp,
+    // so its episodes stop at midnight on [end]'s day. `fromRadarrMovie`
+    // filters by whole days *inclusively*, so handing it [end] directly
+    // kept every movie released on that last day — a day showing movies
+    // but none of its episodes. Stop at the day before instead. Built as a
+    // calendar date rather than `end - 24h`, which across a DST change
+    // lands on the wrong day.
+    final lastDay = DateTime(end.year, end.month, end.day - 1);
     if (result case Ok(:final value)) {
       return value
           .map(
@@ -92,7 +100,7 @@ Future<List<CalendarEntry>> _radarrEntries(
               m,
               instanceId: instanceId,
               windowStart: start,
-              windowEnd: end,
+              windowEnd: lastDay,
             ),
           )
           .whereType<CalendarEntry>()

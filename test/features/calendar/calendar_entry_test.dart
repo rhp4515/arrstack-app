@@ -89,7 +89,10 @@ void main() {
   });
 
   group('CalendarEntry.fromRadarrMovie', () {
-    test('uses the digital release date and a release label', () {
+    final windowStart = DateTime(2026, 9, 22);
+    final windowEnd = DateTime(2026, 11, 21);
+
+    test('uses the digital release as an all-day entry with its label', () {
       final entry = CalendarEntry.fromRadarrMovie(
         RadarrMovie(
           title: 'Toy Story 5',
@@ -101,9 +104,11 @@ void main() {
           images: const [],
           tmdbId: 1,
           studio: 'Pixar',
-          digitalRelease: DateTime.utc(2026, 8, 14, 0),
+          digitalRelease: DateTime.utc(2026, 10, 14),
         ),
         instanceId: 'radarr-1',
+        windowStart: windowStart,
+        windowEnd: windowEnd,
       );
 
       expect(entry, isNotNull);
@@ -112,6 +117,69 @@ void main() {
       expect(entry.subtitle, 'Digital Release');
       expect(entry.network, 'Pixar');
       expect(entry.service, ServiceType.radarr);
+      expect(entry.allDay, isTrue);
+      // The UTC-midnight date-only value is the local day, not the previous
+      // evening west of UTC.
+      expect(entry.date, DateTime(2026, 10, 14));
+    });
+
+    test(
+      'skips a past digital release for the release that is in the window',
+      () {
+        // Radarr returns this movie because its physical release is upcoming;
+        // the stale digital date must not decide where it lands.
+        final entry = CalendarEntry.fromRadarrMovie(
+          RadarrMovie(
+            title: 'Colony',
+            digitalRelease: DateTime.utc(2026, 7, 22),
+            physicalRelease: DateTime.utc(2026, 10, 6),
+            inCinemas: DateTime.utc(2026, 5, 1),
+          ),
+          instanceId: 'radarr-1',
+          windowStart: windowStart,
+          windowEnd: windowEnd,
+        );
+
+        expect(entry, isNotNull);
+        expect(entry!.date, DateTime(2026, 10, 6));
+        expect(entry.subtitle, 'Physical Release');
+      },
+    );
+
+    test('includes releases on the first and last day of the window', () {
+      RadarrMovie inCinemasOn(DateTime day) =>
+          RadarrMovie(title: 'Edge', inCinemas: day);
+
+      final first = CalendarEntry.fromRadarrMovie(
+        inCinemasOn(DateTime.utc(2026, 9, 22)),
+        instanceId: 'radarr-1',
+        windowStart: windowStart,
+        windowEnd: windowEnd,
+      );
+      final last = CalendarEntry.fromRadarrMovie(
+        inCinemasOn(DateTime.utc(2026, 11, 21)),
+        instanceId: 'radarr-1',
+        windowStart: windowStart,
+        windowEnd: windowEnd,
+      );
+
+      expect(first?.date, DateTime(2026, 9, 22));
+      expect(first?.subtitle, 'In Cinemas');
+      expect(last?.date, DateTime(2026, 11, 21));
+    });
+
+    test('returns null when no release date is inside the window', () {
+      final entry = CalendarEntry.fromRadarrMovie(
+        RadarrMovie(
+          title: 'Moana',
+          digitalRelease: DateTime.utc(2026, 9, 8),
+          inCinemas: DateTime.utc(2026, 11, 22),
+        ),
+        instanceId: 'radarr-1',
+        windowStart: windowStart,
+        windowEnd: windowEnd,
+      );
+      expect(entry, isNull);
     });
 
     test('returns null when the movie has no release date', () {
@@ -127,6 +195,8 @@ void main() {
           tmdbId: 2,
         ),
         instanceId: 'radarr-1',
+        windowStart: windowStart,
+        windowEnd: windowEnd,
       );
       expect(entry, isNull);
     });

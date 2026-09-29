@@ -55,7 +55,11 @@ class CalendarTimelineRow extends StatelessWidget {
       entry.date.month,
       entry.date.day,
     );
-    final hasAired = !entry.date.isAfter(reference);
+    // An all-day entry's midnight is not a real air time, so it has only
+    // aired once its day is over — matching the "airs today" status label.
+    final hasAired = entry.allDay
+        ? entryDay.isBefore(today)
+        : !entry.date.isAfter(reference);
     final timeColor = (entryDay == today && hasAired)
         ? colorScheme.primary
         : (isDark ? AppColors.n400 : colorScheme.onSurfaceVariant);

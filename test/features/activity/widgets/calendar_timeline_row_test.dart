@@ -138,5 +138,52 @@ void main() {
       expect(find.text('12:00 AM'), findsNothing);
       expect(find.text('airs in 2d'), findsOneWidget);
     });
+
+    group('time column aired highlight', () {
+      final theme = ThemeData.light();
+
+      Future<Color?> timeColor(
+        WidgetTester tester,
+        CalendarEntry entry,
+        DateTime now,
+        String timeText,
+      ) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: theme,
+            home: Scaffold(
+              body: CalendarTimelineRow(entry: entry, now: now),
+            ),
+          ),
+        );
+        return tester.widget<Text>(find.text(timeText)).style?.color;
+      }
+
+      testWidgets('highlights a timed entry today once it has aired', (
+        tester,
+      ) async {
+        final color = await timeColor(
+          tester,
+          _entry(date: DateTime(2026, 1, 1, 8)),
+          DateTime(2026, 1, 1, 9),
+          '8:00 AM',
+        );
+
+        expect(color, theme.colorScheme.primary);
+      });
+
+      testWidgets('does not treat an all-day entry today as aired, since its '
+          'midnight is not a real air time', (tester) async {
+        final color = await timeColor(
+          tester,
+          _entry(date: DateTime(2026, 1, 1), allDay: true),
+          DateTime(2026, 1, 1, 9),
+          'All day',
+        );
+
+        expect(color, isNot(theme.colorScheme.primary));
+        expect(find.text('airs today'), findsOneWidget);
+      });
+    });
   });
 }

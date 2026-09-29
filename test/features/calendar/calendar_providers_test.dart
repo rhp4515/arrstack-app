@@ -65,6 +65,27 @@ Future<List<String>> _scheduledTitles(List<RadarrMovie> movies) async {
 }
 
 void main() {
+  group('calendarWindow', () {
+    test('starts at local midnight today', () {
+      final window = calendarWindow(DateTime(2026, 10, 1, 15, 30));
+
+      expect(window.start, DateTime(2026, 10, 1));
+    });
+
+    // Oct 1 → Nov 30 spans the autumn DST change in both Europe (Oct 25)
+    // and North America (Nov 1). A fixed 60 × 24h end lands at 23:00 on
+    // Nov 29 in those zones, which dropped Radarr's last day; the end
+    // must stay local midnight 60 calendar days out. (In a zone without
+    // DST, e.g. UTC on CI, the two constructions agree.)
+    test('ends at local midnight 60 calendar days out, even across an '
+        'autumn DST change', () {
+      final window = calendarWindow(DateTime(2026, 10, 1, 15, 30));
+
+      expect(window.end, DateTime(2026, 11, 30));
+      expect(window.end.hour, 0);
+    });
+  });
+
   // Mirrors the provider's own arithmetic: `today` is local midnight, and
   // the window's `end` is today + 60 days.
   final now = DateTime.now();

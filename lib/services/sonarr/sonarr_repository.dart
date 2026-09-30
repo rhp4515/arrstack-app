@@ -6,6 +6,7 @@ library;
 
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/services/sonarr/models/sonarr_history.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:arrstack/services/sonarr/sonarr_client.dart';
 
@@ -55,6 +56,17 @@ class SonarrRepository {
       _client.getRootFolders();
 
   Future<Result<List<SonarrQueueItem>>> listQueue() => _client.getQueue();
+
+  /// One page (1-based [page]) of history, newest first, with the series
+  /// and episode embedded.
+  Future<Result<List<SonarrHistoryRecord>>> getHistory({
+    int page = 1,
+    int pageSize = 50,
+  }) => _client.getHistory(page: page, pageSize: pageSize);
+
+  /// Every history event after [since], with series and episode embedded.
+  Future<Result<List<SonarrHistoryRecord>>> getHistorySince(DateTime since) =>
+      _client.getHistorySince(since);
 
   /// Sane upper bound on [listMissingEpisodes]'s pagination loop so a
   /// misbehaving server can't turn it into an infinite loop.

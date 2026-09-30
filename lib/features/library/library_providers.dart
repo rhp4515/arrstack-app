@@ -1,10 +1,13 @@
 /// Providers for the Library feature UI state (spec §7).
 library;
 
+import 'dart:async';
+
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/features/library/continue_watching.dart';
+import 'package:arrstack/features/library/library_instance_store.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:arrstack/services/sonarr/sonarr_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -29,22 +32,56 @@ class ActiveLibraryTab extends _$ActiveLibraryTab {
   void select(LibraryTab tab) => state = tab;
 }
 
+/// The configured instances of [type], in storage order — the options the
+/// Library's instance switcher offers. Empty when the list can't be read.
+@riverpod
+Future<List<ServiceInstance>> libraryInstances(
+  Ref ref,
+  ServiceType type,
+) async {
+  final instancesResult = await ref.watch(instancesProvider.future);
+  if (instancesResult case Ok(:final value)) {
+    return value.where((i) => i.serviceType == type).toList();
+  }
+  return const [];
+}
+
 /// The currently selected instance ID for the Library view.
-/// Defaults to the first Radarr instance marked as default, or just the first.
+///
+/// Resolves to the instance last picked in the switcher (persisted via
+/// [libraryInstanceStoreProvider]) when it still exists, else the instance
+/// marked as default, else the first. Null when none of [type] exist.
 @riverpod
 class SelectedLibraryInstanceId extends _$SelectedLibraryInstanceId {
   @override
   Future<String?> build(ServiceType type) async {
-    final instancesResult = await ref.watch(instancesProvider.future);
-    if (instancesResult case Ok(:final value)) {
-      final typed = value.where((i) => i.serviceType == type).toList();
-      if (typed.isEmpty) return null;
-      return typed.firstWhere((i) => i.isDefault, orElse: () => typed.first).id;
+    final typed = await ref.watch(libraryInstancesProvider(type).future);
+    if (typed.isEmpty) return null;
+    if (typed.length > 1) {
+      final saved = await ref.read(libraryInstanceStoreProvider).read(type);
+      if (saved != null && typed.any((i) => i.id == saved)) return saved;
     }
-    return null;
+    return typed.firstWhere((i) => i.isDefault, orElse: () => typed.first).id;
   }
 
-  void selectInstance(String id) => state = AsyncData(id);
+  /// Switches the Library to [id] and remembers the choice.
+  void selectInstance(String id) {
+    state = AsyncData(id);
+    unawaited(ref.read(libraryInstanceStoreProvider).write(type, id));
+  }
+}
+
+/// The sub-tabs under the Library header, within each collection.
+enum LibrarySection { all, upcoming, missing, queue, history }
+
+/// Which [LibrarySection] the Library shows. Session-only, shared by the
+/// Shows and Movies collections.
+@riverpod
+class ActiveLibrarySection extends _$ActiveLibrarySection {
+  @override
+  LibrarySection build() => LibrarySection.all;
+
+  void select(LibrarySection section) => state = section;
 }
 
 /// Shows with partial download progress and an episode air date within
@@ -113,4 +150,33 @@ class ActiveLibrarySort extends _$ActiveLibrarySort {
   LibrarySort build() => LibrarySort.recentlyAdded;
 
   void select(LibrarySort sort) => state = sort;
+}
+
+/// A sorted copy of [items] for [sort]: newest-added first, A→Z by title,
+/// or newest year first. Items missing the sort key go last. Pure — shared
+/// by the Shows and Movies lists.
+List<T> sortLibraryItems<T>(
+  Iterable<T> items,
+  LibrarySort sort, {
+  required DateTime? Function(T) added,
+  required String Function(T) title,
+  required int? Function(T) year,
+}) {
+  final copy = [...items];
+  switch (sort) {
+    case LibrarySort.recentlyAdded:
+      copy.sort((a, b) {
+        final da = added(a);
+        final db = added(b);
+        if (da == null && db == null) return 0;
+        if (da == null) return 1;
+        if (db == null) return -1;
+        return db.compareTo(da);
+      });
+    case LibrarySort.title:
+      copy.sort((a, b) => title(a).compareTo(title(b)));
+    case LibrarySort.year:
+      copy.sort((a, b) => (year(b) ?? 0).compareTo(year(a) ?? 0));
+  }
+  return copy;
 }

@@ -8,6 +8,7 @@ import 'dart:developer' as developer;
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/services/contracts/contracts.dart';
+import 'package:arrstack/services/radarr/models/radarr_history.dart';
 import 'package:arrstack/services/radarr/models/radarr_models.dart';
 import 'package:dio/dio.dart';
 
@@ -253,5 +254,60 @@ class RadarrClient implements ConnectionTestClient {
       ),
       map: (_) {},
     );
+  }
+
+  /// One page of Radarr's history, newest first. `includeMovie` embeds the
+  /// movie so a row can show its title without a second round-trip.
+  Future<Result<List<RadarrHistoryRecord>>> getHistory({
+    int page = 1,
+    int pageSize = 50,
+  }) {
+    return dioCall(
+      () => _dio.get(
+        'api/v3/history',
+        queryParameters: {
+          'page': page,
+          'pageSize': pageSize,
+          'sortKey': 'date',
+          'sortDirection': 'descending',
+          'includeMovie': true,
+        },
+      ),
+      map: _parseHistory,
+    );
+  }
+
+  /// Every history event after [since] (unpaged, a plain list). Used by
+  /// background polling to find what's new since the last check.
+  Future<Result<List<RadarrHistoryRecord>>> getHistorySince(DateTime since) {
+    return dioCall(
+      () => _dio.get(
+        'api/v3/history/since',
+        queryParameters: {
+          'date': since.toUtc().toIso8601String(),
+          'includeMovie': true,
+        },
+      ),
+      map: _parseHistory,
+    );
+  }
+
+  /// A paged `records` envelope or a plain list; bad records are skipped.
+  List<RadarrHistoryRecord> _parseHistory(dynamic data) {
+    final parsed = <RadarrHistoryRecord>[];
+    final records = jsonList(data, what: 'history', envelopeKey: 'records');
+    for (final json in records) {
+      try {
+        parsed.add(RadarrHistoryRecord.fromJson(json));
+      } catch (e, st) {
+        developer.log(
+          'RadarrHistoryRecord parse error: $e',
+          name: 'arrstack.radarr',
+          error: e,
+          stackTrace: st,
+        );
+      }
+    }
+    return parsed;
   }
 }

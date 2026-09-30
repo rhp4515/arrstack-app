@@ -90,18 +90,122 @@ abstract class _$ActiveLibraryTab extends $Notifier<LibraryTab> {
   }
 }
 
+/// The configured instances of [type], in storage order — the options the
+/// Library's instance switcher offers. Empty when the list can't be read.
+
+@ProviderFor(libraryInstances)
+final libraryInstancesProvider = LibraryInstancesFamily._();
+
+/// The configured instances of [type], in storage order — the options the
+/// Library's instance switcher offers. Empty when the list can't be read.
+
+final class LibraryInstancesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ServiceInstance>>,
+          List<ServiceInstance>,
+          FutureOr<List<ServiceInstance>>
+        >
+    with
+        $FutureModifier<List<ServiceInstance>>,
+        $FutureProvider<List<ServiceInstance>> {
+  /// The configured instances of [type], in storage order — the options the
+  /// Library's instance switcher offers. Empty when the list can't be read.
+  LibraryInstancesProvider._({
+    required LibraryInstancesFamily super.from,
+    required ServiceType super.argument,
+  }) : super(
+         retry: null,
+         name: r'libraryInstancesProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$libraryInstancesHash();
+
+  @override
+  String toString() {
+    return r'libraryInstancesProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<ServiceInstance>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ServiceInstance>> create(Ref ref) {
+    final argument = this.argument as ServiceType;
+    return libraryInstances(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is LibraryInstancesProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$libraryInstancesHash() => r'e0960f9cc1f762a842729ec2f5cc5a13be3481f7';
+
+/// The configured instances of [type], in storage order — the options the
+/// Library's instance switcher offers. Empty when the list can't be read.
+
+final class LibraryInstancesFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<List<ServiceInstance>>,
+          ServiceType
+        > {
+  LibraryInstancesFamily._()
+    : super(
+        retry: null,
+        name: r'libraryInstancesProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// The configured instances of [type], in storage order — the options the
+  /// Library's instance switcher offers. Empty when the list can't be read.
+
+  LibraryInstancesProvider call(ServiceType type) =>
+      LibraryInstancesProvider._(argument: type, from: this);
+
+  @override
+  String toString() => r'libraryInstancesProvider';
+}
+
 /// The currently selected instance ID for the Library view.
-/// Defaults to the first Radarr instance marked as default, or just the first.
+///
+/// Resolves to the instance last picked in the switcher (persisted via
+/// [libraryInstanceStoreProvider]) when it still exists, else the instance
+/// marked as default, else the first. Null when none of [type] exist.
 
 @ProviderFor(SelectedLibraryInstanceId)
 final selectedLibraryInstanceIdProvider = SelectedLibraryInstanceIdFamily._();
 
 /// The currently selected instance ID for the Library view.
-/// Defaults to the first Radarr instance marked as default, or just the first.
+///
+/// Resolves to the instance last picked in the switcher (persisted via
+/// [libraryInstanceStoreProvider]) when it still exists, else the instance
+/// marked as default, else the first. Null when none of [type] exist.
 final class SelectedLibraryInstanceIdProvider
     extends $AsyncNotifierProvider<SelectedLibraryInstanceId, String?> {
   /// The currently selected instance ID for the Library view.
-  /// Defaults to the first Radarr instance marked as default, or just the first.
+  ///
+  /// Resolves to the instance last picked in the switcher (persisted via
+  /// [libraryInstanceStoreProvider]) when it still exists, else the instance
+  /// marked as default, else the first. Null when none of [type] exist.
   SelectedLibraryInstanceIdProvider._({
     required SelectedLibraryInstanceIdFamily super.from,
     required ServiceType super.argument,
@@ -140,10 +244,13 @@ final class SelectedLibraryInstanceIdProvider
 }
 
 String _$selectedLibraryInstanceIdHash() =>
-    r'9dd391d3c02cea9a1e329e1b3e1358020f634191';
+    r'61972ec692b5f005f359ee07ac1f4209b378438f';
 
 /// The currently selected instance ID for the Library view.
-/// Defaults to the first Radarr instance marked as default, or just the first.
+///
+/// Resolves to the instance last picked in the switcher (persisted via
+/// [libraryInstanceStoreProvider]) when it still exists, else the instance
+/// marked as default, else the first. Null when none of [type] exist.
 
 final class SelectedLibraryInstanceIdFamily extends $Family
     with
@@ -164,7 +271,10 @@ final class SelectedLibraryInstanceIdFamily extends $Family
       );
 
   /// The currently selected instance ID for the Library view.
-  /// Defaults to the first Radarr instance marked as default, or just the first.
+  ///
+  /// Resolves to the instance last picked in the switcher (persisted via
+  /// [libraryInstanceStoreProvider]) when it still exists, else the instance
+  /// marked as default, else the first. Null when none of [type] exist.
 
   SelectedLibraryInstanceIdProvider call(ServiceType type) =>
       SelectedLibraryInstanceIdProvider._(argument: type, from: this);
@@ -174,7 +284,10 @@ final class SelectedLibraryInstanceIdFamily extends $Family
 }
 
 /// The currently selected instance ID for the Library view.
-/// Defaults to the first Radarr instance marked as default, or just the first.
+///
+/// Resolves to the instance last picked in the switcher (persisted via
+/// [libraryInstanceStoreProvider]) when it still exists, else the instance
+/// marked as default, else the first. Null when none of [type] exist.
 
 abstract class _$SelectedLibraryInstanceId extends $AsyncNotifier<String?> {
   late final _$args = ref.$arg as ServiceType;
@@ -194,6 +307,69 @@ abstract class _$SelectedLibraryInstanceId extends $AsyncNotifier<String?> {
               Object?
             >;
     return element.handleCreate(ref, () => build(_$args));
+  }
+}
+
+/// Which [LibrarySection] the Library shows. Session-only, shared by the
+/// Shows and Movies collections.
+
+@ProviderFor(ActiveLibrarySection)
+final activeLibrarySectionProvider = ActiveLibrarySectionProvider._();
+
+/// Which [LibrarySection] the Library shows. Session-only, shared by the
+/// Shows and Movies collections.
+final class ActiveLibrarySectionProvider
+    extends $NotifierProvider<ActiveLibrarySection, LibrarySection> {
+  /// Which [LibrarySection] the Library shows. Session-only, shared by the
+  /// Shows and Movies collections.
+  ActiveLibrarySectionProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'activeLibrarySectionProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$activeLibrarySectionHash();
+
+  @$internal
+  @override
+  ActiveLibrarySection create() => ActiveLibrarySection();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(LibrarySection value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<LibrarySection>(value),
+    );
+  }
+}
+
+String _$activeLibrarySectionHash() =>
+    r'1c2211cff3f4bcd5a1d5c0f1bd12a4ef451d7220';
+
+/// Which [LibrarySection] the Library shows. Session-only, shared by the
+/// Shows and Movies collections.
+
+abstract class _$ActiveLibrarySection extends $Notifier<LibrarySection> {
+  LibrarySection build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<LibrarySection, LibrarySection>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<LibrarySection, LibrarySection>,
+              LibrarySection,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
   }
 }
 

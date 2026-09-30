@@ -71,11 +71,31 @@ extension RadarrMovieX on RadarrMovie {
   /// then theatrical. Used by the Calendar to place the movie on a day.
   DateTime? get calendarDate => digitalRelease ?? physicalRelease ?? inCinemas;
 
-  /// The kind of release [calendarDate] refers to, for a subtitle label.
-  String? get calendarReleaseLabel {
-    if (digitalRelease != null) return 'Digital Release';
-    if (physicalRelease != null) return 'Physical Release';
-    if (inCinemas != null) return 'In Cinemas';
+  /// The release to place on a calendar spanning the local days [start]
+  /// through [end] (inclusive): the first of digital, physical, then
+  /// theatrical whose day falls inside the window, with a label naming it.
+  ///
+  /// Radarr's calendar endpoint returns a movie when *any* of its release
+  /// dates is in range, so the fixed-priority [calendarDate] can land far
+  /// outside the requested window (a past digital release shown for a movie
+  /// that matched on an upcoming physical one). Null when none fall inside.
+  ({DateTime day, String label})? calendarReleaseWithin(
+    DateTime start,
+    DateTime end,
+  ) {
+    final first = DateTime(start.year, start.month, start.day);
+    final last = DateTime(end.year, end.month, end.day);
+    for (final (date, label) in [
+      (digitalRelease, 'Digital Release'),
+      (physicalRelease, 'Physical Release'),
+      (inCinemas, 'In Cinemas'),
+    ]) {
+      if (date == null) continue;
+      final day = radarrReleaseDay(date);
+      if (!day.isBefore(first) && !day.isAfter(last)) {
+        return (day: day, label: label);
+      }
+    }
     return null;
   }
 
@@ -96,6 +116,15 @@ extension RadarrMovieX on RadarrMovie {
     if (remote != null && remote.isNotEmpty) return remote;
     return (image.url != null && image.url!.isNotEmpty) ? image.url : null;
   }
+}
+
+/// The local calendar day of a Radarr release date. Radarr stores release
+/// dates as date-only values serialized as UTC midnight, so the day is read
+/// in UTC — converting to local time would move it to the previous evening
+/// anywhere west of UTC.
+DateTime radarrReleaseDay(DateTime date) {
+  final utc = date.toUtc();
+  return DateTime(utc.year, utc.month, utc.day);
 }
 
 /// Artwork for a movie.

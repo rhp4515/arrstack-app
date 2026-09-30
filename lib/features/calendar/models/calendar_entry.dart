@@ -27,6 +27,7 @@ class CalendarEntry {
     this.posterUrl,
     this.hasFile = false,
     this.monitored = true,
+    this.allDay = false,
   });
 
   /// Episode vs movie — drives the row icon and subtitle shape.
@@ -61,6 +62,10 @@ class CalendarEntry {
   /// Whether the item is monitored.
   final bool monitored;
 
+  /// Whether the item has a day but no meaningful time (movie releases).
+  /// [date] is then local midnight and the UI shows no clock time.
+  final bool allDay;
+
   /// Builds an entry from a Sonarr calendar episode. Returns null when the
   /// episode has no air date (nothing to place on the calendar).
   static CalendarEntry? fromSonarrEpisode(
@@ -85,25 +90,29 @@ class CalendarEntry {
     );
   }
 
-  /// Builds an entry from a Radarr movie's most relevant release date. Returns
-  /// null when the movie has no release date within the window.
+  /// Builds an all-day entry from the Radarr movie release that falls within
+  /// the local days [windowStart] through [windowEnd]. Returns null when no
+  /// release date is inside the window.
   static CalendarEntry? fromRadarrMovie(
     RadarrMovie movie, {
     required String instanceId,
+    required DateTime windowStart,
+    required DateTime windowEnd,
   }) {
-    final date = movie.calendarDate;
-    if (date == null) return null;
+    final release = movie.calendarReleaseWithin(windowStart, windowEnd);
+    if (release == null) return null;
     return CalendarEntry(
       kind: CalendarEntryKind.movie,
       service: ServiceType.radarr,
       instanceId: instanceId,
-      date: date.toLocal(),
+      date: release.day,
       title: movie.title,
-      subtitle: movie.calendarReleaseLabel,
+      subtitle: release.label,
       network: movie.studio,
       posterUrl: movie.posterUrl,
       hasFile: movie.hasFile,
       monitored: movie.monitored,
+      allDay: true,
     );
   }
 }

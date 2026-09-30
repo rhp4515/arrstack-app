@@ -12,9 +12,21 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'calendar_providers.g.dart';
 
-/// How far forward the schedule window reaches from today. The list starts
-/// at today — no lookback — so it always opens on the current day.
-const Duration _lookahead = Duration(days: 60);
+/// How many days forward the schedule window reaches from today. The list
+/// starts at today — no lookback — so it always opens on the current day.
+const int _lookaheadDays = 60;
+
+/// The schedule window for [now]: local midnight today, and local midnight
+/// [_lookaheadDays] calendar days later as the exclusive end.
+///
+/// The end is built as a calendar date rather than `today + 60 × 24h`: when
+/// the window spans an autumn DST change that sum lands at 23:00 the day
+/// before, and the day-based Radarr filter then loses its last day. Pure —
+/// unit-testable without a clock.
+({DateTime start, DateTime end}) calendarWindow(DateTime now) => (
+  start: DateTime(now.year, now.month, now.day),
+  end: DateTime(now.year, now.month, now.day + _lookaheadDays),
+);
 
 /// The merged, day-grouped schedule across all Sonarr + Radarr instances.
 ///
@@ -29,9 +41,7 @@ Future<Result<List<CalendarDay>>> calendarSchedule(Ref ref) async {
   }
   final instances = (instancesResult as Ok<List<ServiceInstance>>).value;
 
-  final now = DateTime.now();
-  final today = DateTime(now.year, now.month, now.day);
-  final end = today.add(_lookahead);
+  final (start: today, :end) = calendarWindow(DateTime.now());
 
   final futures = <Future<List<CalendarEntry>>>[
     for (final instance in instances)
@@ -77,10 +87,32 @@ Future<List<CalendarEntry>> _radarrEntries(
 ) async {
   try {
     final repo = await ref.watch(radarrRepositoryProvider(instanceId).future);
-    final result = await repo.listCalendar(start, end);
+    // Release dates are UTC-midnight values, but [start]/[end] are local
+    // midnights: pad the query a day each way so a release on the first or
+    // last day isn't cut off by the timezone offset. `fromRadarrMovie` then
+    // keeps only releases whose day is inside the window.
+    final result = await repo.listCalendar(
+      start.subtract(const Duration(days: 1)),
+      end.add(const Duration(days: 1)),
+    );
+    // [end] is an instant, not a day: Sonarr receives it as a timestamp,
+    // so its episodes stop at midnight on [end]'s day. `fromRadarrMovie`
+    // filters by whole days *inclusively*, so handing it [end] directly
+    // kept every movie released on that last day — a day showing movies
+    // but none of its episodes. Stop at the day before instead. Built as a
+    // calendar date rather than `end - 24h`, which across a DST change
+    // lands on the wrong day.
+    final lastDay = DateTime(end.year, end.month, end.day - 1);
     if (result case Ok(:final value)) {
       return value
-          .map((m) => CalendarEntry.fromRadarrMovie(m, instanceId: instanceId))
+          .map(
+            (m) => CalendarEntry.fromRadarrMovie(
+              m,
+              instanceId: instanceId,
+              windowStart: start,
+              windowEnd: lastDay,
+            ),
+          )
           .whereType<CalendarEntry>()
           .toList();
     }

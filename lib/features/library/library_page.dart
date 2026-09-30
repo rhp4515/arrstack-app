@@ -121,7 +121,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
           ),
           TextButton.icon(
             onPressed: () => _onAdd(tab),
-            icon: const Icon(PhosphorIconsRegular.plus, size: 11),
+            icon: const Icon(PhosphorIconsRegular.plus, size: 15),
             label: const Text('Add'),
           ),
         ],
@@ -142,26 +142,37 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
               ),
               const SizedBox(height: AppSpacing.space3),
             ],
-            Row(
-              children: [
-                CollectionChips(
-                  showsCount: showsCount,
-                  moviesCount: moviesCount,
-                ),
-                const SizedBox(width: AppSpacing.space3),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: LibraryInstanceSwitcher(
-                      type: isMovies ? ServiceType.radarr : ServiceType.sonarr,
-                    ),
+            // Same vertical rhythm as Activity's chip row (space3 above and
+            // below); the two tiers read as lens + sub-lens.
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.space3),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CollectionChips(
+                        showsCount: showsCount,
+                        moviesCount: moviesCount,
+                      ),
+                      const SizedBox(width: AppSpacing.space3),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: LibraryInstanceSwitcher(
+                            type: isMovies
+                                ? ServiceType.radarr
+                                : ServiceType.sonarr,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: AppSpacing.space2),
+                  const LibrarySectionChips(),
+                ],
+              ),
             ),
-            const SizedBox(height: AppSpacing.space3),
-            const LibrarySectionChips(),
-            const SizedBox(height: AppSpacing.space4),
             Expanded(
               child: _CollectionBody(
                 type: isMovies ? ServiceType.radarr : ServiceType.sonarr,

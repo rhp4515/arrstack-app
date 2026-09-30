@@ -28,6 +28,7 @@ class LibraryRow extends StatelessWidget {
     this.showChevron = false,
     this.detail,
     this.metaColor,
+    this.trailingNeutral = false,
     super.key,
   });
 
@@ -51,6 +52,10 @@ class LibraryRow extends StatelessWidget {
 
   /// Overrides the meta line's color (e.g. a failure tint).
   final Color? metaColor;
+
+  /// Renders [trailingText] in neutral grey instead of the success green
+  /// (e.g. a quality chip on a failed event).
+  final bool trailingNeutral;
 
   @override
   Widget build(BuildContext context) {
@@ -125,6 +130,7 @@ class LibraryRow extends StatelessWidget {
               percent: percent,
               progress: progress,
               trailingText: trailingText,
+              trailingNeutral: trailingNeutral,
             ),
             if (showChevron) ...[
               const SizedBox(width: AppSpacing.space2),
@@ -152,12 +158,14 @@ class _Trailing extends StatelessWidget {
     required this.percent,
     required this.progress,
     required this.trailingText,
+    required this.trailingNeutral,
   });
 
   final LibraryRowTrailing trailing;
   final int? percent;
   final double? progress;
   final String? trailingText;
+  final bool trailingNeutral;
 
   @override
   Widget build(BuildContext context) {
@@ -190,15 +198,16 @@ class _Trailing extends StatelessWidget {
         );
       case LibraryRowTrailing.none:
         if (trailingText == null) return const SizedBox.shrink();
+        final chipColor = trailingNeutral ? AppColors.n500 : AppColors.up;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: AppColors.up.withValues(alpha: 0.14),
+            color: chipColor.withValues(alpha: 0.14),
             borderRadius: BorderRadius.circular(AppRadius.sm),
           ),
           child: Text(
             trailingText!,
-            style: AppTypography.meta.copyWith(color: AppColors.up),
+            style: AppTypography.meta.copyWith(color: chipColor),
           ),
         );
     }

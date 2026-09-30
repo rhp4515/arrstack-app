@@ -6,10 +6,9 @@ library;
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/network/network.dart';
-import 'package:arrstack/features/activity/widgets/calendar_timeline_row.dart';
+import 'package:arrstack/features/activity/widgets/calendar_day_section.dart';
 import 'package:arrstack/features/calendar/calendar_providers.dart';
 import 'package:arrstack/features/calendar/models/calendar_entry.dart';
-import 'package:arrstack/features/calendar/widgets/calendar_date_format.dart';
 import 'package:arrstack/features/library/library_section_providers.dart';
 import 'package:arrstack/features/library/widgets/section_states.dart';
 import 'package:flutter/material.dart';
@@ -80,34 +79,8 @@ class LibraryUpcomingView extends ConsumerWidget {
       onRefresh: refresh,
       children: [
         const SizedBox(height: AppSpacing.space2),
-        for (final day in days) _DaySection(day: day),
+        for (final day in days) CalendarDaySection(day: day),
       ],
-    );
-  }
-}
-
-class _DaySection extends StatelessWidget {
-  const _DaySection({required this.day});
-
-  final CalendarDay day;
-
-  @override
-  Widget build(BuildContext context) {
-    final relative = relativeDayLabel(day.date, DateTime.now());
-    final header = relative == null
-        ? formatDayHeader(day.date)
-        : '$relative · ${formatDayHeader(day.date)}';
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.space4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(header.toUpperCase(), style: AppTypography.kicker),
-          const SizedBox(height: AppSpacing.space3),
-          for (final entry in day.entries) CalendarTimelineRow(entry: entry),
-        ],
-      ),
     );
   }
 }

@@ -8,6 +8,7 @@ library;
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
+import 'package:arrstack/core/widgets/lens_chip.dart';
 import 'package:arrstack/features/activity/activity_providers.dart';
 import 'package:arrstack/features/activity/models/activity_models.dart';
 import 'package:arrstack/features/activity/widgets/throughput_sparkline.dart';
@@ -164,7 +165,8 @@ class _SecondaryChips extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Row(
       children: [
-        _SecondaryChip(
+        LensChip(
+          secondary: true,
           label: 'All $allCount',
           isActive: filter == TorrentFilter.all,
           onTap: () => ref
@@ -172,7 +174,8 @@ class _SecondaryChips extends ConsumerWidget {
               .setFilter(TorrentFilter.all),
         ),
         const SizedBox(width: AppSpacing.space2),
-        _SecondaryChip(
+        LensChip(
+          secondary: true,
           label: 'Downloading $activeCount',
           isActive: filter == TorrentFilter.active,
           onTap: () => ref
@@ -180,7 +183,8 @@ class _SecondaryChips extends ConsumerWidget {
               .setFilter(TorrentFilter.active),
         ),
         const SizedBox(width: AppSpacing.space2),
-        _SecondaryChip(
+        LensChip(
+          secondary: true,
           label: 'Seeding $seedingCount',
           isActive: filter == TorrentFilter.seeding,
           onTap: () => ref
@@ -188,52 +192,6 @@ class _SecondaryChips extends ConsumerWidget {
               .setFilter(TorrentFilter.seeding),
         ),
       ],
-    );
-  }
-}
-
-class _SecondaryChip extends StatelessWidget {
-  const _SecondaryChip({
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = colorScheme.brightness == Brightness.dark;
-    final color = isActive
-        ? isDark
-              ? AppColors.accent
-              : colorScheme.primary
-        : isDark
-        ? AppColors.n400
-        : colorScheme.onSurfaceVariant;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadius.sm),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: isActive ? Border.all(color: color) : null,
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontFamily: AppTypography.fontFamily,
-            fontSize: 10.5,
-            fontWeight: FontWeight.w500,
-            color: color,
-          ),
-        ),
-      ),
     );
   }
 }

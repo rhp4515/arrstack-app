@@ -85,7 +85,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('MISSING · 1'), findsOneWidget);
+      expect(find.text('MISSING MOVIES · 1'), findsOneWidget);
       expect(find.text('Search all'), findsOneWidget);
       expect(find.text('Mickey 17'), findsOneWidget);
       expect(find.text('2025 · Warner Bros. · In cinemas'), findsOneWidget);

@@ -258,4 +258,24 @@ class SeerrClient implements ConnectionTestClient {
       map: (data) => SeerrRequest.fromJson(data as Map<String, dynamic>),
     );
   }
+
+  /// Newest issues first. `filter`: all | open | resolved.
+  Future<Result<SeerrIssuesResponse>> getIssues({
+    String filter = 'all',
+    int take = 20,
+    int skip = 0,
+  }) {
+    return dioCall(
+      () => _dio.get(
+        'api/v1/issue',
+        queryParameters: {
+          'filter': filter,
+          'sort': 'added',
+          'take': take,
+          'skip': skip,
+        },
+      ),
+      map: (data) => SeerrIssuesResponse.fromJson(data as Map<String, dynamic>),
+    );
+  }
 }

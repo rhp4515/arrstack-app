@@ -19,28 +19,33 @@ class LabeledToggleRow extends StatelessWidget {
   final String title;
   final String subtitle;
   final bool value;
-  final ValueChanged<bool> onChanged;
+
+  /// Null disables the row (the switch greys out and the text dims).
+  final ValueChanged<bool>? onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: AppTypography.cardTitle),
-              const SizedBox(height: AppSpacing.space2),
-              Text(
-                subtitle,
-                style: AppTypography.meta.copyWith(color: AppColors.n500),
-              ),
-            ],
+    return Opacity(
+      opacity: onChanged == null ? 0.5 : 1,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppTypography.cardTitle),
+                const SizedBox(height: AppSpacing.space2),
+                Text(
+                  subtitle,
+                  style: AppTypography.meta.copyWith(color: AppColors.n500),
+                ),
+              ],
+            ),
           ),
-        ),
-        Switch(value: value, onChanged: onChanged),
-      ],
+          Switch(value: value, onChanged: onChanged),
+        ],
+      ),
     );
   }
 }

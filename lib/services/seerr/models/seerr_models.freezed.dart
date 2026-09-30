@@ -3955,4 +3955,622 @@ as String?,
 
 }
 
+
+/// @nodoc
+mixin _$SeerrIssue {
+
+ int get id; int get issueType;/// 1 = open, 2 = resolved.
+ int get status; SeerrRequestMedia? get media; SeerrRequestUser? get createdBy; DateTime? get createdAt;
+/// Create a copy of SeerrIssue
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SeerrIssueCopyWith<SeerrIssue> get copyWith => _$SeerrIssueCopyWithImpl<SeerrIssue>(this as SeerrIssue, _$identity);
+
+  /// Serializes this SeerrIssue to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SeerrIssue&&(identical(other.id, id) || other.id == id)&&(identical(other.issueType, issueType) || other.issueType == issueType)&&(identical(other.status, status) || other.status == status)&&(identical(other.media, media) || other.media == media)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,issueType,status,media,createdBy,createdAt);
+
+@override
+String toString() {
+  return 'SeerrIssue(id: $id, issueType: $issueType, status: $status, media: $media, createdBy: $createdBy, createdAt: $createdAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SeerrIssueCopyWith<$Res>  {
+  factory $SeerrIssueCopyWith(SeerrIssue value, $Res Function(SeerrIssue) _then) = _$SeerrIssueCopyWithImpl;
+@useResult
+$Res call({
+ int id, int issueType, int status, SeerrRequestMedia? media, SeerrRequestUser? createdBy, DateTime? createdAt
+});
+
+
+$SeerrRequestMediaCopyWith<$Res>? get media;$SeerrRequestUserCopyWith<$Res>? get createdBy;
+
+}
+/// @nodoc
+class _$SeerrIssueCopyWithImpl<$Res>
+    implements $SeerrIssueCopyWith<$Res> {
+  _$SeerrIssueCopyWithImpl(this._self, this._then);
+
+  final SeerrIssue _self;
+  final $Res Function(SeerrIssue) _then;
+
+/// Create a copy of SeerrIssue
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? issueType = null,Object? status = null,Object? media = freezed,Object? createdBy = freezed,Object? createdAt = freezed,}) {
+  return _then(SeerrIssue(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,issueType: null == issueType ? _self.issueType : issueType // ignore: cast_nullable_to_non_nullable
+as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as int,media: freezed == media ? _self.media : media // ignore: cast_nullable_to_non_nullable
+as SeerrRequestMedia?,createdBy: freezed == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
+as SeerrRequestUser?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+/// Create a copy of SeerrIssue
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SeerrRequestMediaCopyWith<$Res>? get media {
+    if (_self.media == null) {
+    return null;
+  }
+
+  return $SeerrRequestMediaCopyWith<$Res>(_self.media!, (value) {
+    return _then(_self.copyWith(media: value));
+  });
+}/// Create a copy of SeerrIssue
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SeerrRequestUserCopyWith<$Res>? get createdBy {
+    if (_self.createdBy == null) {
+    return null;
+  }
+
+  return $SeerrRequestUserCopyWith<$Res>(_self.createdBy!, (value) {
+    return _then(_self.copyWith(createdBy: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [SeerrIssue].
+extension SeerrIssuePatterns on SeerrIssue {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _SeerrIssue value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _SeerrIssue() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _SeerrIssue value)  $default,){
+final _that = this;
+switch (_that) {
+case _SeerrIssue():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _SeerrIssue value)?  $default,){
+final _that = this;
+switch (_that) {
+case _SeerrIssue() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int issueType,  int status,  SeerrRequestMedia? media,  SeerrRequestUser? createdBy,  DateTime? createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _SeerrIssue() when $default != null:
+return $default(_that.id,_that.issueType,_that.status,_that.media,_that.createdBy,_that.createdAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int issueType,  int status,  SeerrRequestMedia? media,  SeerrRequestUser? createdBy,  DateTime? createdAt)  $default,) {final _that = this;
+switch (_that) {
+case _SeerrIssue():
+return $default(_that.id,_that.issueType,_that.status,_that.media,_that.createdBy,_that.createdAt);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int issueType,  int status,  SeerrRequestMedia? media,  SeerrRequestUser? createdBy,  DateTime? createdAt)?  $default,) {final _that = this;
+switch (_that) {
+case _SeerrIssue() when $default != null:
+return $default(_that.id,_that.issueType,_that.status,_that.media,_that.createdBy,_that.createdAt);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _SeerrIssue implements SeerrIssue {
+  const _SeerrIssue({required this.id, this.issueType = SeerrIssueType.other, this.status = 1, this.media, this.createdBy, this.createdAt});
+  factory _SeerrIssue.fromJson(Map<String, dynamic> json) => _$SeerrIssueFromJson(json);
+
+@override final  int id;
+@override@JsonKey() final  int issueType;
+/// 1 = open, 2 = resolved.
+@override@JsonKey() final  int status;
+@override final  SeerrRequestMedia? media;
+@override final  SeerrRequestUser? createdBy;
+@override final  DateTime? createdAt;
+
+/// Create a copy of SeerrIssue
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SeerrIssueCopyWith<_SeerrIssue> get copyWith => __$SeerrIssueCopyWithImpl<_SeerrIssue>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$SeerrIssueToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SeerrIssue&&(identical(other.id, id) || other.id == id)&&(identical(other.issueType, issueType) || other.issueType == issueType)&&(identical(other.status, status) || other.status == status)&&(identical(other.media, media) || other.media == media)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,issueType,status,media,createdBy,createdAt);
+
+@override
+String toString() {
+  return 'SeerrIssue(id: $id, issueType: $issueType, status: $status, media: $media, createdBy: $createdBy, createdAt: $createdAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SeerrIssueCopyWith<$Res> implements $SeerrIssueCopyWith<$Res> {
+  factory _$SeerrIssueCopyWith(_SeerrIssue value, $Res Function(_SeerrIssue) _then) = __$SeerrIssueCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, int issueType, int status, SeerrRequestMedia? media, SeerrRequestUser? createdBy, DateTime? createdAt
+});
+
+
+@override $SeerrRequestMediaCopyWith<$Res>? get media;@override $SeerrRequestUserCopyWith<$Res>? get createdBy;
+
+}
+/// @nodoc
+class __$SeerrIssueCopyWithImpl<$Res>
+    implements _$SeerrIssueCopyWith<$Res> {
+  __$SeerrIssueCopyWithImpl(this._self, this._then);
+
+  final _SeerrIssue _self;
+  final $Res Function(_SeerrIssue) _then;
+
+/// Create a copy of SeerrIssue
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? issueType = null,Object? status = null,Object? media = freezed,Object? createdBy = freezed,Object? createdAt = freezed,}) {
+  return _then(_SeerrIssue(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,issueType: null == issueType ? _self.issueType : issueType // ignore: cast_nullable_to_non_nullable
+as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as int,media: freezed == media ? _self.media : media // ignore: cast_nullable_to_non_nullable
+as SeerrRequestMedia?,createdBy: freezed == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
+as SeerrRequestUser?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+/// Create a copy of SeerrIssue
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SeerrRequestMediaCopyWith<$Res>? get media {
+    if (_self.media == null) {
+    return null;
+  }
+
+  return $SeerrRequestMediaCopyWith<$Res>(_self.media!, (value) {
+    return _then(_self.copyWith(media: value));
+  });
+}/// Create a copy of SeerrIssue
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SeerrRequestUserCopyWith<$Res>? get createdBy {
+    if (_self.createdBy == null) {
+    return null;
+  }
+
+  return $SeerrRequestUserCopyWith<$Res>(_self.createdBy!, (value) {
+    return _then(_self.copyWith(createdBy: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$SeerrIssuesResponse {
+
+ SeerrPageInfo get pageInfo; List<SeerrIssue> get results;
+/// Create a copy of SeerrIssuesResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SeerrIssuesResponseCopyWith<SeerrIssuesResponse> get copyWith => _$SeerrIssuesResponseCopyWithImpl<SeerrIssuesResponse>(this as SeerrIssuesResponse, _$identity);
+
+  /// Serializes this SeerrIssuesResponse to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SeerrIssuesResponse&&(identical(other.pageInfo, pageInfo) || other.pageInfo == pageInfo)&&const DeepCollectionEquality().equals(other.results, results));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,pageInfo,const DeepCollectionEquality().hash(results));
+
+@override
+String toString() {
+  return 'SeerrIssuesResponse(pageInfo: $pageInfo, results: $results)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SeerrIssuesResponseCopyWith<$Res>  {
+  factory $SeerrIssuesResponseCopyWith(SeerrIssuesResponse value, $Res Function(SeerrIssuesResponse) _then) = _$SeerrIssuesResponseCopyWithImpl;
+@useResult
+$Res call({
+ SeerrPageInfo pageInfo, List<SeerrIssue> results
+});
+
+
+$SeerrPageInfoCopyWith<$Res> get pageInfo;
+
+}
+/// @nodoc
+class _$SeerrIssuesResponseCopyWithImpl<$Res>
+    implements $SeerrIssuesResponseCopyWith<$Res> {
+  _$SeerrIssuesResponseCopyWithImpl(this._self, this._then);
+
+  final SeerrIssuesResponse _self;
+  final $Res Function(SeerrIssuesResponse) _then;
+
+/// Create a copy of SeerrIssuesResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? pageInfo = null,Object? results = null,}) {
+  return _then(SeerrIssuesResponse(
+pageInfo: null == pageInfo ? _self.pageInfo : pageInfo // ignore: cast_nullable_to_non_nullable
+as SeerrPageInfo,results: null == results ? _self.results : results // ignore: cast_nullable_to_non_nullable
+as List<SeerrIssue>,
+  ));
+}
+/// Create a copy of SeerrIssuesResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SeerrPageInfoCopyWith<$Res> get pageInfo {
+  
+  return $SeerrPageInfoCopyWith<$Res>(_self.pageInfo, (value) {
+    return _then(_self.copyWith(pageInfo: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [SeerrIssuesResponse].
+extension SeerrIssuesResponsePatterns on SeerrIssuesResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _SeerrIssuesResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _SeerrIssuesResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _SeerrIssuesResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _SeerrIssuesResponse():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _SeerrIssuesResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _SeerrIssuesResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( SeerrPageInfo pageInfo,  List<SeerrIssue> results)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _SeerrIssuesResponse() when $default != null:
+return $default(_that.pageInfo,_that.results);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( SeerrPageInfo pageInfo,  List<SeerrIssue> results)  $default,) {final _that = this;
+switch (_that) {
+case _SeerrIssuesResponse():
+return $default(_that.pageInfo,_that.results);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( SeerrPageInfo pageInfo,  List<SeerrIssue> results)?  $default,) {final _that = this;
+switch (_that) {
+case _SeerrIssuesResponse() when $default != null:
+return $default(_that.pageInfo,_that.results);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _SeerrIssuesResponse implements SeerrIssuesResponse {
+  const _SeerrIssuesResponse({required this.pageInfo,  List<SeerrIssue> results = const []}): _results = results;
+  factory _SeerrIssuesResponse.fromJson(Map<String, dynamic> json) => _$SeerrIssuesResponseFromJson(json);
+
+@override final  SeerrPageInfo pageInfo;
+ final  List<SeerrIssue> _results;
+@override@JsonKey() List<SeerrIssue> get results {
+  if (_results is EqualUnmodifiableListView) return _results;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_results);
+}
+
+
+/// Create a copy of SeerrIssuesResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SeerrIssuesResponseCopyWith<_SeerrIssuesResponse> get copyWith => __$SeerrIssuesResponseCopyWithImpl<_SeerrIssuesResponse>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$SeerrIssuesResponseToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SeerrIssuesResponse&&(identical(other.pageInfo, pageInfo) || other.pageInfo == pageInfo)&&const DeepCollectionEquality().equals(other._results, _results));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,pageInfo,const DeepCollectionEquality().hash(_results));
+
+@override
+String toString() {
+  return 'SeerrIssuesResponse(pageInfo: $pageInfo, results: $results)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SeerrIssuesResponseCopyWith<$Res> implements $SeerrIssuesResponseCopyWith<$Res> {
+  factory _$SeerrIssuesResponseCopyWith(_SeerrIssuesResponse value, $Res Function(_SeerrIssuesResponse) _then) = __$SeerrIssuesResponseCopyWithImpl;
+@override @useResult
+$Res call({
+ SeerrPageInfo pageInfo, List<SeerrIssue> results
+});
+
+
+@override $SeerrPageInfoCopyWith<$Res> get pageInfo;
+
+}
+/// @nodoc
+class __$SeerrIssuesResponseCopyWithImpl<$Res>
+    implements _$SeerrIssuesResponseCopyWith<$Res> {
+  __$SeerrIssuesResponseCopyWithImpl(this._self, this._then);
+
+  final _SeerrIssuesResponse _self;
+  final $Res Function(_SeerrIssuesResponse) _then;
+
+/// Create a copy of SeerrIssuesResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? pageInfo = null,Object? results = null,}) {
+  return _then(_SeerrIssuesResponse(
+pageInfo: null == pageInfo ? _self.pageInfo : pageInfo // ignore: cast_nullable_to_non_nullable
+as SeerrPageInfo,results: null == results ? _self._results : results // ignore: cast_nullable_to_non_nullable
+as List<SeerrIssue>,
+  ));
+}
+
+/// Create a copy of SeerrIssuesResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SeerrPageInfoCopyWith<$Res> get pageInfo {
+  
+  return $SeerrPageInfoCopyWith<$Res>(_self.pageInfo, (value) {
+    return _then(_self.copyWith(pageInfo: value));
+  });
+}
+}
+
 // dart format on

@@ -63,6 +63,12 @@ class SeerrRepository {
     int skip = 0,
   }) => _client.getRequests(filter: filter, sort: sort, take: take, skip: skip);
 
+  Future<Result<SeerrIssuesResponse>> getIssues({
+    String filter = 'all',
+    int take = 20,
+    int skip = 0,
+  }) => _client.getIssues(filter: filter, take: take, skip: skip);
+
   Future<Result<void>> deleteRequest(int requestId) =>
       _client.deleteRequest(requestId);
 

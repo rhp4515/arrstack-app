@@ -2,11 +2,13 @@ package dev.hraman.arrstack
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
-class MainActivity : FlutterActivity() {
+// A FragmentActivity because local_auth's BiometricPrompt (Settings →
+// Advanced → Lock app) must be hosted by one.
+class MainActivity : FlutterFragmentActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)

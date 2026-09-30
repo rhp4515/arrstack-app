@@ -4,6 +4,7 @@ library;
 import 'package:arrstack/app/router.dart';
 import 'package:arrstack/app/theme/app_theme.dart';
 import 'package:arrstack/app/theme/theme_mode_provider.dart';
+import 'package:arrstack/features/security/app_lock_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -23,6 +24,8 @@ class ArrStackApp extends ConsumerWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       routerConfig: routerConfig ?? appRouter,
+      builder: (context, child) =>
+          AppLockGate(child: child ?? const SizedBox.shrink()),
     );
   }
 }

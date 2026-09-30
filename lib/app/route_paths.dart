@@ -14,6 +14,11 @@ abstract final class RoutePaths {
   static const String homeSettings = '/home/settings';
   static const String homeAddInstance = '/home/settings/add';
   static String homeEditInstance(String id) => '/home/settings/$id/edit';
+  static const String homeSettingsNotifications =
+      '/home/settings/notifications';
+  static const String homeSettingsAdvanced = '/home/settings/advanced';
+  static const String homeSettingsBackup = '/home/settings/advanced/backup';
+  static const String homeSettingsLogs = '/home/settings/advanced/logs';
 
   static String homeEinthusanImport(String instanceId) =>
       '/home/einthusan/$instanceId';

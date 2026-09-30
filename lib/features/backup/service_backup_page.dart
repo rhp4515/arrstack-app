@@ -2,10 +2,13 @@
 /// (with its credentials) to a passphrase-encrypted file, or restore one.
 library;
 
+import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage.dart';
+import 'package:arrstack/core/widgets/confirm_dialog.dart';
+import 'package:arrstack/core/widgets/error_card.dart';
 import 'package:arrstack/core/widgets/sub_page_header.dart';
 import 'package:arrstack/features/backup/service_backup_providers.dart';
 import 'package:arrstack/features/backup/service_backup_service.dart';
@@ -13,6 +16,7 @@ import 'package:arrstack/features/backup/widgets/backup_dialogs.dart';
 import 'package:arrstack/features/settings/widgets/settings_rows.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 
 class ServiceBackupPage extends ConsumerWidget {
@@ -28,8 +32,19 @@ class ServiceBackupPage extends ConsumerWidget {
     };
     final status = state.status;
 
+    // A success is a passing confirmation; a failure stays on the page
+    // (below) until it's dismissed or the next action starts.
+    ref.listen(serviceBackupControllerProvider, (previous, next) {
+      final result = next.status;
+      if (result == null || result.isError || result == previous?.status) {
+        return;
+      }
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result.message)));
+    });
+
     return Scaffold(
-      appBar: const SubPageHeader(kicker: 'Advanced', title: 'Service Backup'),
+      appBar: const SubPageHeader(kicker: 'ADVANCED', title: 'Service Backup'),
       body: ListView(
         padding: AppInsets.pageMd,
         children: [
@@ -39,42 +54,31 @@ class ServiceBackupPage extends ConsumerWidget {
             Text(state.busyLabel!, style: AppTypography.meta),
             const SizedBox(height: AppSpacing.space4),
           ],
-          if (status != null) ...[
-            StatusBanner(
+          if (status != null && status.isError) ...[
+            ErrorCard(
+              title: 'Backup problem',
               message: status.message,
-              isError: status.isError,
-              onDismiss: controller.dismissStatus,
+              primaryActionLabel: 'Dismiss',
+              onPrimaryAction: controller.dismissStatus,
+              secondaryActionLabel: 'View logs',
+              onSecondaryAction: () => context.go(RoutePaths.homeSettingsLogs),
             ),
             const SizedBox(height: AppSpacing.space6),
           ],
           SettingsSection(
-            kicker: 'SAVED SERVICES · ${instances.length}',
+            kicker: 'INSTANCES',
+            count: instances.length,
             description:
                 'Backups include API keys and passwords, encrypted with a '
                 "passphrase you choose. Keep it safe — a backup can't be "
                 'restored without it.',
             children: [
-              for (final instance in instances)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppSpacing.space2,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          instance.name,
-                          style: AppTypography.cardTitle,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Text(
-                        instance.serviceType.displayName,
-                        style: AppTypography.meta,
-                      ),
-                    ],
-                  ),
+              if (instances.isEmpty)
+                const Text(
+                  'No services configured yet.',
+                  style: AppTypography.meta,
                 ),
+              for (final instance in instances) _BackupInstanceRow(instance),
             ],
           ),
           SettingsSection(
@@ -84,12 +88,15 @@ class ServiceBackupPage extends ConsumerWidget {
                 : 'Save ${_services(instances.length)} to an encrypted '
                       'backup file.',
             children: [
-              FilledButton.icon(
-                onPressed: state.isBusy || instances.isEmpty
-                    ? null
-                    : () => _export(context, controller),
-                icon: const Icon(PhosphorIconsRegular.export, size: 17),
-                label: const Text('Export services'),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: state.isBusy || instances.isEmpty
+                      ? null
+                      : () => _export(context, controller),
+                  icon: const Icon(PhosphorIconsRegular.export, size: 17),
+                  label: const Text('Export services'),
+                ),
               ),
             ],
           ),
@@ -101,12 +108,22 @@ class ServiceBackupPage extends ConsumerWidget {
                 'are added.',
             showRule: false,
             children: [
-              OutlinedButton.icon(
-                onPressed: state.isBusy
-                    ? null
-                    : () => _import(context, controller),
-                icon: const Icon(PhosphorIconsRegular.downloadSimple, size: 17),
-                label: const Text('Import services'),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: state.isBusy
+                      ? null
+                      : () => _import(context, controller),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.accent,
+                    side: const BorderSide(color: AppColors.accent),
+                  ),
+                  icon: const Icon(
+                    PhosphorIconsRegular.downloadSimple,
+                    size: 17,
+                  ),
+                  label: const Text('Import services'),
+                ),
               ),
             ],
           ),
@@ -144,47 +161,60 @@ class ServiceBackupPage extends ConsumerWidget {
     BuildContext context,
     BackupContents contents,
   ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Restore ${_services(contents.instances.length)}?'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final instance in contents.instances)
-                Text(
-                  '${instance.name} · ${instance.serviceType.displayName}',
-                  style: AppTypography.body,
-                ),
-              if (contents.skippedCount > 0) ...[
-                const SizedBox(height: AppSpacing.space3),
-                Text(
-                  '${_services(contents.skippedCount)} in this file '
-                  "can't be read by this version of the app and will be "
-                  'skipped.',
-                  style: AppTypography.meta,
-                ),
-              ],
-            ],
+    if (contents.instances.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Nothing in this file can be read by this version of the app.',
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+      );
+      return false;
+    }
+    final lines = [
+      for (final instance in contents.instances)
+        '${instance.name} · ${instance.serviceType.displayName}',
+      if (contents.skippedCount > 0)
+        '\n${_services(contents.skippedCount)} in this file '
+            "can't be read by this version of the app and will be skipped.",
+    ];
+    final confirmed = await showDestructiveConfirmDialog(
+      context,
+      title: 'Restore ${_services(contents.instances.length)}?',
+      message: lines.join('\n'),
+      confirmLabel: 'Restore',
+    );
+    return confirmed != null;
+  }
+}
+
+/// A saved service in the backup list: name over its type, flat like the
+/// rows in Settings' INSTANCES.
+class _BackupInstanceRow extends StatelessWidget {
+  const _BackupInstanceRow(this.instance);
+
+  final ServiceInstance instance;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.space3),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            instance.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.cardTitle,
           ),
-          FilledButton(
-            onPressed: contents.instances.isEmpty
-                ? null
-                : () => Navigator.of(context).pop(true),
-            child: const Text('Restore'),
+          Text(
+            instance.serviceType.displayName,
+            style: AppTypography.meta.copyWith(color: AppColors.n500),
           ),
         ],
       ),
     );
-    return confirmed ?? false;
   }
 }
 

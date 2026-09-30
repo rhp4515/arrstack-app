@@ -14,7 +14,6 @@ import 'package:arrstack/features/settings/widgets/settings_rows.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phosphor_icons/phosphor_icons.dart';
 
 class AdvancedSettingsPage extends ConsumerWidget {
   const AdvancedSettingsPage({super.key});
@@ -22,13 +21,13 @@ class AdvancedSettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: const SubPageHeader(kicker: 'Settings', title: 'Advanced'),
+      appBar: const SubPageHeader(kicker: 'SETTINGS', title: 'Advanced'),
       body: ListView(
         padding: AppInsets.pageMd,
         children: [
           const SettingsSection(
             kicker: 'APPEARANCE',
-            children: [ThemeModeSelector()],
+            children: [_ThemeModeSetting()],
           ),
           const SettingsSection(kicker: 'SECURITY', children: [_AppLockRow()]),
           SettingsSection(
@@ -36,14 +35,12 @@ class AdvancedSettingsPage extends ConsumerWidget {
             showRule: false,
             children: [
               SettingsNavRow(
-                icon: PhosphorIconsRegular.fileArrowUp,
                 title: 'Service backup',
                 subtitle: 'Export and restore saved services',
                 onTap: () => context.go(RoutePaths.homeSettingsBackup),
               ),
               const _ClearCacheRow(),
               SettingsNavRow(
-                icon: PhosphorIconsRegular.chatCircleText,
                 title: 'Diagnostic logs',
                 subtitle: 'View and share redacted logs',
                 onTap: () => context.go(RoutePaths.homeSettingsLogs),
@@ -56,30 +53,27 @@ class AdvancedSettingsPage extends ConsumerWidget {
   }
 }
 
-/// System / Light / Dark as one segmented control.
-class ThemeModeSelector extends ConsumerWidget {
-  const ThemeModeSelector({super.key});
+/// System / Light / Dark as a title-and-meta row with a trailing dropdown.
+class _ThemeModeSetting extends ConsumerWidget {
+  const _ThemeModeSetting();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mode = ref.watch(appThemeModeProvider);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Text('Theme', style: AppTypography.cardTitle),
-        const SizedBox(height: AppSpacing.space3),
-        SegmentedButton<ThemeMode>(
-          showSelectedIcon: false,
-          segments: const [
-            ButtonSegment(value: ThemeMode.system, label: Text('System')),
-            ButtonSegment(value: ThemeMode.light, label: Text('Light')),
-            ButtonSegment(value: ThemeMode.dark, label: Text('Dark')),
-          ],
-          selected: {mode},
-          onSelectionChanged: (selection) =>
-              ref.read(appThemeModeProvider.notifier).update(selection.first),
-        ),
-      ],
+    return SettingsChoiceRow<ThemeMode>(
+      title: 'Theme',
+      meta: switch (mode) {
+        ThemeMode.system => 'Follows your device',
+        ThemeMode.light => 'Always light',
+        ThemeMode.dark => 'Always dark',
+      },
+      value: mode,
+      options: const {
+        ThemeMode.system: 'System',
+        ThemeMode.light: 'Light',
+        ThemeMode.dark: 'Dark',
+      },
+      onChanged: (next) => ref.read(appThemeModeProvider.notifier).update(next),
     );
   }
 }
@@ -124,7 +118,6 @@ class _ClearCacheRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final clearing = ref.watch(cacheClearingProvider);
     return SettingsNavRow(
-      icon: PhosphorIconsRegular.broom,
       title: 'Clear cached data',
       subtitle: 'Remove saved offline summaries and downloaded artwork',
       trailing: clearing

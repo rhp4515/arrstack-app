@@ -113,6 +113,16 @@ void main() {
     expect(find.text('Check now'), findsOneWidget);
   });
 
+  testWidgets('groups the sources under one heading with the schedule '
+      'below', (tester) async {
+    await pump(tester);
+    expect(find.text('SETTINGS'), findsOneWidget);
+    expect(find.text('NOTIFY ME ABOUT'), findsOneWidget);
+    expect(find.text('SCHEDULE'), findsOneWidget);
+    expect(find.text('Check every'), findsOneWidget);
+    expect(find.byType(SegmentedButton<CheckFrequency>), findsNothing);
+  });
+
   testWidgets('a denied permission leaves notifications off', (tester) async {
     notifier.grant = false;
     await pump(tester);
@@ -126,7 +136,9 @@ void main() {
   testWidgets('changing frequency reschedules while enabled', (tester) async {
     await prefs.writeBool(NotificationPreferenceKeys.enabled, value: true);
     await pump(tester);
-    await tester.tap(find.text('2h'));
+    await tester.tap(find.text('30m'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('2h').last);
     await tester.pumpAndSettle();
     expect(scheduler.scheduled, [CheckFrequency.h2]);
     expect(

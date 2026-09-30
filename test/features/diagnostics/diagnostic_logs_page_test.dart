@@ -5,6 +5,7 @@ import 'package:arrstack/features/diagnostics/diagnostic_logs_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 void main() {
   late InMemoryDiagnosticLogStore store;
@@ -66,10 +67,12 @@ void main() {
   testWidgets('lists entries newest first with level and time', (tester) async {
     await seed();
     await pump(tester);
-    expect(find.text('ERROR'), findsOneWidget);
-    expect(find.text('WARN'), findsNWidgets(2));
-    expect(find.text('2026-08-17 23:30:20'), findsOneWidget);
-    expect(find.text('Add service'), findsOneWidget);
+    expect(find.text('ENTRIES · 3'), findsOneWidget);
+    expect(
+      find.text('Add service · ERROR · 2026-08-17 23:30:20'),
+      findsOneWidget,
+    );
+    expect(find.text('Bazarr · WARN · 2026-08-17 23:27:42'), findsNWidgets(2));
   });
 
   testWidgets('long-press selects one entry and shares only it', (
@@ -80,6 +83,7 @@ void main() {
     await tester.longPress(find.text('Radarr local connection test failed'));
     await tester.pumpAndSettle();
     expect(find.text('1 selected'), findsOneWidget);
+    expect(find.byIcon(PhosphorIconsFill.checkCircle), findsOneWidget);
 
     await tester.longPress(find.textContaining('NetworkError').first);
     await tester.pumpAndSettle();

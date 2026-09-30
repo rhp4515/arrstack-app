@@ -25,6 +25,9 @@ class LibraryRow extends StatelessWidget {
     this.trailingText,
     this.onTap,
     this.showRule = true,
+    this.showChevron = false,
+    this.detail,
+    this.metaColor,
     super.key,
   });
 
@@ -39,6 +42,15 @@ class LibraryRow extends StatelessWidget {
   final String? trailingText;
   final VoidCallback? onTap;
   final bool showRule;
+
+  /// Trailing caret signalling the row opens a detail page.
+  final bool showChevron;
+
+  /// Optional second meta line under [metaParts] (e.g. a date).
+  final String? detail;
+
+  /// Overrides the meta line's color (e.g. a failure tint).
+  final Color? metaColor;
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +99,19 @@ class LibraryRow extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTypography.meta.copyWith(
+                        color: metaColor,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ],
+                  if (detail != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      detail!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.meta.copyWith(
+                        color: AppColors.n600,
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                     ),
@@ -101,6 +126,14 @@ class LibraryRow extends StatelessWidget {
               progress: progress,
               trailingText: trailingText,
             ),
+            if (showChevron) ...[
+              const SizedBox(width: AppSpacing.space2),
+              const Icon(
+                PhosphorIconsRegular.caretRight,
+                size: 14,
+                color: AppColors.n600,
+              ),
+            ],
           ],
         ),
       ),

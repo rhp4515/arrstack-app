@@ -8,6 +8,7 @@ import 'dart:developer' as developer;
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/services/contracts/contracts.dart';
+import 'package:arrstack/services/sonarr/models/sonarr_history.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:dio/dio.dart';
 
@@ -340,5 +341,59 @@ class SonarrClient implements ConnectionTestClient {
         return (episodes: episodes, rawCount: records.length);
       },
     );
+  }
+
+  /// One page of history, newest first, with series and episode embedded.
+  Future<Result<List<SonarrHistoryRecord>>> getHistory({
+    int page = 1,
+    int pageSize = 50,
+  }) {
+    return dioCall(
+      () => _dio.get(
+        'api/v3/history',
+        queryParameters: {
+          'page': page,
+          'pageSize': pageSize,
+          'sortKey': 'date',
+          'sortDirection': 'descending',
+          'includeSeries': true,
+          'includeEpisode': true,
+        },
+      ),
+      map: _parseHistory,
+    );
+  }
+
+  /// Every history event after [since], unpaged (for background polling).
+  Future<Result<List<SonarrHistoryRecord>>> getHistorySince(DateTime since) {
+    return dioCall(
+      () => _dio.get(
+        'api/v3/history/since',
+        queryParameters: {
+          'date': since.toUtc().toIso8601String(),
+          'includeSeries': true,
+          'includeEpisode': true,
+        },
+      ),
+      map: _parseHistory,
+    );
+  }
+
+  List<SonarrHistoryRecord> _parseHistory(dynamic data) {
+    final parsed = <SonarrHistoryRecord>[];
+    final records = jsonList(data, what: 'history', envelopeKey: 'records');
+    for (final json in records) {
+      try {
+        parsed.add(SonarrHistoryRecord.fromJson(json));
+      } catch (e, st) {
+        developer.log(
+          'SonarrHistoryRecord parse error: $e',
+          name: 'arrstack.sonarr',
+          error: e,
+          stackTrace: st,
+        );
+      }
+    }
+    return parsed;
   }
 }

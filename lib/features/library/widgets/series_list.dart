@@ -68,25 +68,14 @@ class SeriesList extends ConsumerWidget {
     return series.where((s) => s.title.toLowerCase().contains(q)).toList();
   }
 
-  List<SonarrSeries> _sorted(List<SonarrSeries> series, LibrarySort sort) {
-    final copy = [...series];
-    switch (sort) {
-      case LibrarySort.recentlyAdded:
-        copy.sort((a, b) {
-          final da = a.added;
-          final db = b.added;
-          if (da == null && db == null) return 0;
-          if (da == null) return 1;
-          if (db == null) return -1;
-          return db.compareTo(da);
-        });
-      case LibrarySort.title:
-        copy.sort((a, b) => a.title.compareTo(b.title));
-      case LibrarySort.year:
-        copy.sort((a, b) => (b.year ?? 0).compareTo(a.year ?? 0));
-    }
-    return copy;
-  }
+  List<SonarrSeries> _sorted(List<SonarrSeries> series, LibrarySort sort) =>
+      sortLibraryItems(
+        series,
+        sort,
+        added: (s) => s.added,
+        title: (s) => s.title,
+        year: (s) => s.year,
+      );
 
   Widget _list(BuildContext context, WidgetRef ref, List<SonarrSeries> series) {
     if (series.isEmpty) {
@@ -137,6 +126,7 @@ class SeriesList extends ConsumerWidget {
           percent: percent,
           progress: progress,
           showRule: index < series.length - 1,
+          showChevron: show.id != null,
           onTap: show.id == null
               ? null
               : () => context.go(RoutePaths.seriesDetail(instanceId, show.id!)),

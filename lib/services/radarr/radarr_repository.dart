@@ -6,6 +6,7 @@ library;
 
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/services/radarr/models/radarr_history.dart';
 import 'package:arrstack/services/radarr/models/radarr_models.dart';
 import 'package:arrstack/services/radarr/radarr_client.dart';
 
@@ -55,4 +56,15 @@ class RadarrRepository {
       _client.getRootFolders();
 
   Future<Result<List<RadarrQueueItem>>> listQueue() => _client.getQueue();
+
+  /// One page (1-based [page]) of history, newest first, with the movie
+  /// embedded.
+  Future<Result<List<RadarrHistoryRecord>>> getHistory({
+    int page = 1,
+    int pageSize = 50,
+  }) => _client.getHistory(page: page, pageSize: pageSize);
+
+  /// Every history event after [since], with the movie embedded.
+  Future<Result<List<RadarrHistoryRecord>>> getHistorySince(DateTime since) =>
+      _client.getHistorySince(since);
 }

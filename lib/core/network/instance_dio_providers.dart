@@ -3,6 +3,8 @@
 /// §6a, §11).
 library;
 
+import 'package:arrstack/core/logging/diagnostic_logger.dart';
+import 'package:arrstack/core/logging/logging_providers.dart';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
@@ -110,8 +112,15 @@ Future<Result<Dio>> dioForInstance(Ref ref, String instanceId) async {
       : null;
 
   return Ok(
-    DioFactory.forEndpoint(
-      resolution.endpoint,
-    ).create(baseUrl: resolution.baseUrl, apiKeyInterceptor: apiKeyInterceptor),
+    DioFactory.forEndpoint(resolution.endpoint).create(
+      baseUrl: resolution.baseUrl,
+      apiKeyInterceptor: apiKeyInterceptor,
+      extraInterceptors: [
+        DiagnosticLogInterceptor(
+          tag: instance.serviceType.displayName,
+          logger: ref.watch(diagnosticLoggerProvider),
+        ),
+      ],
+    ),
   );
 }

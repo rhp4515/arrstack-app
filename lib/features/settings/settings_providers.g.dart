@@ -12,8 +12,8 @@ part of 'settings_providers.dart';
 /// `192.168.1.10:7878 · v5.14.0` subtitle). Only fetched for service types
 /// whose client implements [ConnectionTestClient] over a plain,
 /// already-authenticated request — Uptime Kuma's socket-session client and
-/// Prowlarr/Einthusan (no version-bearing status endpoint wired up) are
-/// deliberately excluded rather than faked. Best-effort: any failure
+/// Einthusan (whose health endpoint carries no version) are deliberately
+/// excluded rather than faked. Best-effort: any failure
 /// (unreachable instance, missing credential, parse error) resolves to
 /// null so a version-fetch hiccup never turns into a page-level error —
 /// the endpoint string alone is still a useful subtitle.
@@ -25,8 +25,8 @@ final instanceVersionProvider = InstanceVersionFamily._();
 /// `192.168.1.10:7878 · v5.14.0` subtitle). Only fetched for service types
 /// whose client implements [ConnectionTestClient] over a plain,
 /// already-authenticated request — Uptime Kuma's socket-session client and
-/// Prowlarr/Einthusan (no version-bearing status endpoint wired up) are
-/// deliberately excluded rather than faked. Best-effort: any failure
+/// Einthusan (whose health endpoint carries no version) are deliberately
+/// excluded rather than faked. Best-effort: any failure
 /// (unreachable instance, missing credential, parse error) resolves to
 /// null so a version-fetch hiccup never turns into a page-level error —
 /// the endpoint string alone is still a useful subtitle.
@@ -38,8 +38,8 @@ final class InstanceVersionProvider
   /// `192.168.1.10:7878 · v5.14.0` subtitle). Only fetched for service types
   /// whose client implements [ConnectionTestClient] over a plain,
   /// already-authenticated request — Uptime Kuma's socket-session client and
-  /// Prowlarr/Einthusan (no version-bearing status endpoint wired up) are
-  /// deliberately excluded rather than faked. Best-effort: any failure
+  /// Einthusan (whose health endpoint carries no version) are deliberately
+  /// excluded rather than faked. Best-effort: any failure
   /// (unreachable instance, missing credential, parse error) resolves to
   /// null so a version-fetch hiccup never turns into a page-level error —
   /// the endpoint string alone is still a useful subtitle.
@@ -86,14 +86,14 @@ final class InstanceVersionProvider
   }
 }
 
-String _$instanceVersionHash() => r'84acd2d55475bc689e15ab29f0081d8855d6e043';
+String _$instanceVersionHash() => r'4b2edd264a94bfd1b5655168d71ed6c2bd40d2a1';
 
 /// Live version string for a Settings instance row (README §2m: the
 /// `192.168.1.10:7878 · v5.14.0` subtitle). Only fetched for service types
 /// whose client implements [ConnectionTestClient] over a plain,
 /// already-authenticated request — Uptime Kuma's socket-session client and
-/// Prowlarr/Einthusan (no version-bearing status endpoint wired up) are
-/// deliberately excluded rather than faked. Best-effort: any failure
+/// Einthusan (whose health endpoint carries no version) are deliberately
+/// excluded rather than faked. Best-effort: any failure
 /// (unreachable instance, missing credential, parse error) resolves to
 /// null so a version-fetch hiccup never turns into a page-level error —
 /// the endpoint string alone is still a useful subtitle.
@@ -113,8 +113,8 @@ final class InstanceVersionFamily extends $Family
   /// `192.168.1.10:7878 · v5.14.0` subtitle). Only fetched for service types
   /// whose client implements [ConnectionTestClient] over a plain,
   /// already-authenticated request — Uptime Kuma's socket-session client and
-  /// Prowlarr/Einthusan (no version-bearing status endpoint wired up) are
-  /// deliberately excluded rather than faked. Best-effort: any failure
+  /// Einthusan (whose health endpoint carries no version) are deliberately
+  /// excluded rather than faked. Best-effort: any failure
   /// (unreachable instance, missing credential, parse error) resolves to
   /// null so a version-fetch hiccup never turns into a page-level error —
   /// the endpoint string alone is still a useful subtitle.

@@ -79,13 +79,11 @@ class SettingsPage extends ConsumerWidget {
             showRule: false,
             children: [
               SettingsNavRow(
-                icon: PhosphorIconsRegular.bellSimple,
                 title: 'Notifications',
                 subtitle: 'Imports, requests, and how often to check',
                 onTap: () => context.go(RoutePaths.homeSettingsNotifications),
               ),
               SettingsNavRow(
-                icon: PhosphorIconsRegular.gearSix,
                 title: 'Advanced',
                 subtitle: 'Theme, app lock, backup, and diagnostic logs',
                 onTap: () => context.go(RoutePaths.homeSettingsAdvanced),

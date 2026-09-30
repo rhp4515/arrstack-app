@@ -88,10 +88,18 @@ class _ConfirmDialogState extends State<_ConfirmDialog> {
               ),
             ),
             const SizedBox(height: AppSpacing.space3),
-            Text(
-              widget.message,
-              style: AppTypography.body.copyWith(
-                color: isDark ? AppColors.n400 : colorScheme.onSurfaceVariant,
+            // Flexible + scroll: a long message (e.g. a restore listing
+            // many services) must not overflow the dialog.
+            Flexible(
+              child: SingleChildScrollView(
+                child: Text(
+                  widget.message,
+                  style: AppTypography.body.copyWith(
+                    color: isDark
+                        ? AppColors.n400
+                        : colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ),
             ),
             if (widget.showDeleteFilesToggle) ...[

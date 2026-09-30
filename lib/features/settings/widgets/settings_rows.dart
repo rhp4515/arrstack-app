@@ -77,15 +77,11 @@ class SettingsNavRow extends StatelessWidget {
   const SettingsNavRow({
     required this.title,
     required this.onTap,
-    this.icon,
     this.subtitle,
     this.trailing,
     super.key,
   });
 
-  /// Accepted for source compatibility and deliberately not drawn: rows
-  /// are flat, and a leading glyph is reserved for status.
-  final IconData? icon;
   final String title;
   final String? subtitle;
   final Widget? trailing;

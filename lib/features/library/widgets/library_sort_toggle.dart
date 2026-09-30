@@ -1,4 +1,4 @@
-/// The "Recently added ⌄" cycling sort toggle beside a list's kicker, shared
+/// The "Recently added" + caret cycling sort toggle beside a list's kicker, shared
 /// by the Shows and Movies "All" lists.
 library;
 
@@ -6,6 +6,7 @@ import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/features/library/library_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 /// A kicker ([label]) on the left and the sort toggle on the right.
 class LibraryListHeader extends StatelessWidget {
@@ -37,11 +38,18 @@ class LibrarySortToggle extends ConsumerWidget {
             LibrarySort.title => LibrarySort.year,
             LibrarySort.year => LibrarySort.recentlyAdded,
           }),
-      child: Text(switch (sort) {
-        LibrarySort.recentlyAdded => 'Recently added ⌄',
-        LibrarySort.title => 'Title ⌄',
-        LibrarySort.year => 'Year ⌄',
-      }, style: AppTypography.meta.copyWith(fontWeight: FontWeight.w500)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(switch (sort) {
+            LibrarySort.recentlyAdded => 'Recently added',
+            LibrarySort.title => 'Title',
+            LibrarySort.year => 'Year',
+          }, style: AppTypography.meta.copyWith(fontWeight: FontWeight.w500)),
+          const SizedBox(width: 4),
+          const Icon(PhosphorIconsRegular.caretDown, size: 12),
+        ],
+      ),
     );
   }
 }

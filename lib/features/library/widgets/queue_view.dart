@@ -5,6 +5,7 @@ library;
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/features/activity/widgets/section_header.dart';
 import 'package:arrstack/features/library/library_section_providers.dart';
 import 'package:arrstack/features/library/widgets/library_row.dart';
 import 'package:arrstack/features/library/widgets/section_states.dart';
@@ -70,7 +71,10 @@ class LibraryQueueView extends ConsumerWidget {
       onRefresh: refresh,
       children: [
         const SizedBox(height: AppSpacing.space2),
-        Text('QUEUE · ${entries.length}', style: AppTypography.kicker),
+        SectionHeader(
+          kicker: 'QUEUE · ${entries.length}',
+          trailing: type == ServiceType.radarr ? 'Radarr' : 'Sonarr',
+        ),
         const SizedBox(height: AppSpacing.space2),
         for (var i = 0; i < entries.length; i++)
           LibraryRow(

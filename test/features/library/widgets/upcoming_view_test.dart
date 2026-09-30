@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/features/activity/widgets/section_header.dart';
 import 'package:arrstack/features/calendar/calendar_providers.dart';
 import 'package:arrstack/features/calendar/models/calendar_entry.dart';
 import 'package:arrstack/features/library/widgets/upcoming_view.dart';
@@ -76,5 +77,20 @@ void main() {
     expect(find.text('Dune: Part Three'), findsOneWidget);
     expect(find.text('Digital Release · Legendary'), findsOneWidget);
     expect(find.text('Elsewhere'), findsNothing);
+
+    // Same day section as Activity's Calendar lens: an accent (scheme
+    // primary in light mode) kicker plus the entry count on the right.
+    final headerTexts = tester
+        .widgetList<Text>(
+          find.descendant(
+            of: find.byType(SectionHeader),
+            matching: find.byType(Text),
+          ),
+        )
+        .toList();
+    expect(headerTexts, hasLength(2));
+    expect(headerTexts[0].style!.color, ThemeData().colorScheme.primary);
+    expect(headerTexts[0].data, headerTexts[0].data!.toUpperCase());
+    expect(headerTexts[1].data, '1');
   });
 }

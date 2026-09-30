@@ -10,6 +10,7 @@ import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/features/activity/activity_providers.dart';
 import 'package:arrstack/features/activity/widgets/missing_episode_row.dart';
+import 'package:arrstack/features/activity/widgets/section_header.dart';
 import 'package:arrstack/features/library/library_format.dart';
 import 'package:arrstack/features/library/library_section_providers.dart';
 import 'package:arrstack/features/library/widgets/library_row.dart';
@@ -103,19 +104,13 @@ class _RadarrMissing extends ConsumerWidget {
     return RefreshableSection(
       onRefresh: refresh,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                'MISSING · ${missing.length}',
-                style: AppTypography.kicker,
-              ),
-            ),
-            TextButton(
-              onPressed: () => _searchAll(context, ref, missing),
-              child: const Text('Search all'),
-            ),
-          ],
+        const SizedBox(height: AppSpacing.space2),
+        SectionHeader(
+          kicker: 'MISSING MOVIES · ${missing.length}',
+          trailingWidget: TextButton(
+            onPressed: () => _searchAll(context, ref, missing),
+            child: const Text('Search all'),
+          ),
         ),
         for (var i = 0; i < missing.length; i++)
           LibraryRow(
@@ -194,9 +189,9 @@ class _SonarrMissing extends ConsumerWidget {
           onRefresh: refresh,
           children: [
             const SizedBox(height: AppSpacing.space2),
-            Text(
-              'MISSING EPISODES · ${filtered.length}',
-              style: AppTypography.kicker,
+            SectionHeader(
+              kicker: 'MISSING EPISODES · ${filtered.length}',
+              trailing: 'Sonarr',
             ),
             const SizedBox(height: AppSpacing.space3),
             for (final missing in filtered)

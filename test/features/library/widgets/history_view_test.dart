@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/features/library/widgets/history_view.dart';
@@ -90,6 +91,24 @@ void main() {
     expect(find.text('September 20 at 8:45 AM'), findsNWidgets(2));
     expect(find.text('Bluray-1080p'), findsNWidgets(2));
     expect(find.text('Load more'), findsNothing);
+    expect(find.text('HISTORY · 2'), findsOneWidget);
+    expect(find.text('Radarr'), findsOneWidget);
+  });
+
+  testWidgets('quality chip is green normally but neutral on failures', (
+    tester,
+  ) async {
+    when(() => repo.getHistory(page: 1, pageSize: 50)).thenAnswer(
+      (_) async => Ok([_record(1), _record(2, eventType: 'downloadFailed')]),
+    );
+
+    await tester.pumpWidget(_host(repo));
+    await tester.pumpAndSettle();
+
+    final chips = tester.widgetList<Text>(find.text('Bluray-1080p')).toList();
+    expect(chips, hasLength(2));
+    expect(chips[0].style!.color, AppColors.up);
+    expect(chips[1].style!.color, AppColors.n500);
   });
 
   testWidgets('Load more appends the next page', (tester) async {

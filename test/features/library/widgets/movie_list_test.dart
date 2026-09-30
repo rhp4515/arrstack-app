@@ -108,7 +108,8 @@ void main() {
       tester.getTopLeft(find.text('Arrival')).dy,
       lessThan(tester.getTopLeft(find.text('Zodiac')).dy),
     );
-    expect(find.text('Title ⌄'), findsOneWidget);
+    expect(find.text('Title'), findsOneWidget);
+    expect(find.byIcon(PhosphorIconsRegular.caretDown), findsOneWidget);
   });
 
   testWidgets('shows an empty state', (tester) async {

@@ -263,3 +263,47 @@ Map<String, dynamic> _$SeerrServiceDetailsToJson(
   'activeProfileId': instance.activeProfileId,
   'activeDirectory': instance.activeDirectory,
 };
+
+_SeerrIssue _$SeerrIssueFromJson(Map<String, dynamic> json) => _SeerrIssue(
+  id: (json['id'] as num).toInt(),
+  issueType: (json['issueType'] as num?)?.toInt() ?? SeerrIssueType.other,
+  status: (json['status'] as num?)?.toInt() ?? 1,
+  media: json['media'] == null
+      ? null
+      : SeerrRequestMedia.fromJson(json['media'] as Map<String, dynamic>),
+  createdBy: json['createdBy'] == null
+      ? null
+      : SeerrRequestUser.fromJson(json['createdBy'] as Map<String, dynamic>),
+  createdAt: json['createdAt'] == null
+      ? null
+      : DateTime.parse(json['createdAt'] as String),
+);
+
+Map<String, dynamic> _$SeerrIssueToJson(_SeerrIssue instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'issueType': instance.issueType,
+      'status': instance.status,
+      'media': instance.media,
+      'createdBy': instance.createdBy,
+      'createdAt': instance.createdAt?.toIso8601String(),
+    };
+
+_SeerrIssuesResponse _$SeerrIssuesResponseFromJson(Map<String, dynamic> json) =>
+    _SeerrIssuesResponse(
+      pageInfo: SeerrPageInfo.fromJson(
+        json['pageInfo'] as Map<String, dynamic>,
+      ),
+      results:
+          (json['results'] as List<dynamic>?)
+              ?.map((e) => SeerrIssue.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+    );
+
+Map<String, dynamic> _$SeerrIssuesResponseToJson(
+  _SeerrIssuesResponse instance,
+) => <String, dynamic>{
+  'pageInfo': instance.pageInfo,
+  'results': instance.results,
+};

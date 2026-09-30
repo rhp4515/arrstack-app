@@ -206,4 +206,43 @@ void main() {
 
     expect(result.isErr, isTrue);
   });
+
+  test(
+    'getIssues parses issues, newest first, with media and reporter',
+    () async {
+      adapter.onGet(
+        'api/v1/issue',
+        (server) => server.reply(200, {
+          'pageInfo': {'pages': 1, 'pageSize': 20, 'results': 1, 'page': 1},
+          'results': [
+            {
+              'id': 7,
+              'issueType': 3,
+              'status': 1,
+              'createdAt': '2026-09-20T08:45:00.000Z',
+              'media': {'id': 4, 'tmdbId': 550, 'mediaType': 'movie'},
+              'createdBy': {'displayName': 'Asha'},
+              'comments': [
+                {'message': 'Subtitles out of sync'},
+              ],
+            },
+          ],
+        }),
+        queryParameters: {
+          'filter': 'all',
+          'sort': 'added',
+          'take': 20,
+          'skip': 0,
+        },
+      );
+
+      final result = await client.getIssues();
+
+      final issues = (result as Ok<SeerrIssuesResponse>).value.results;
+      expect(issues.single.id, 7);
+      expect(SeerrIssueType.label(issues.single.issueType), 'Subtitles');
+      expect(issues.single.media?.tmdbId, 550);
+      expect(issues.single.createdBy?.displayName, 'Asha');
+    },
+  );
 }

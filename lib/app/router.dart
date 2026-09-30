@@ -24,6 +24,7 @@ import 'package:arrstack/features/library/episode_detail_page.dart';
 import 'package:arrstack/features/library/library_page.dart';
 import 'package:arrstack/features/library/movie_detail_page.dart';
 import 'package:arrstack/features/library/series_detail_page.dart';
+import 'package:arrstack/features/notifications/notification_settings_page.dart';
 import 'package:arrstack/features/onboarding/add_instance_page.dart';
 import 'package:arrstack/features/release_search/release_search_page.dart';
 import 'package:arrstack/features/requests/requests_page.dart';
@@ -96,6 +97,11 @@ final GoRouter appRouter = GoRouter(
                     GoRoute(
                       path: 'add',
                       builder: (context, state) => const AddInstancePage(),
+                    ),
+                    GoRoute(
+                      path: 'notifications',
+                      builder: (context, state) =>
+                          const NotificationSettingsPage(),
                     ),
                     GoRoute(
                       path: 'advanced',

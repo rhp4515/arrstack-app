@@ -73,7 +73,8 @@ ServiceBackupService serviceBackupService(Ref ref) => ServiceBackupService(
   configStore: ref.watch(configStoreProvider),
 );
 
-/// The banner under the header after an export or import.
+/// The outcome of the last export or import: the page shows a success as
+/// a snackbar and an error as an inline error card.
 class BackupStatus {
   const BackupStatus(this.message, {this.isError = false});
 

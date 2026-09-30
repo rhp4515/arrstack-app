@@ -4,7 +4,7 @@
 /// stays mounted, so unlocking returns to exactly where the user was.
 library;
 
-import 'package:arrstack/app/theme/design_tokens.dart';
+import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/features/security/app_lock_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -125,43 +125,17 @@ class _LockScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Material(
-      color: colorScheme.surface,
+      color: Theme.of(context).colorScheme.surface,
       child: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: AppInsets.pageLg,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  PhosphorIconsRegular.lockSimple,
-                  size: AppSizes.emptyStateIcon,
-                  color: colorScheme.primary,
-                ),
-                const SizedBox(height: AppSpacing.space6),
-                const Text(
-                  'ArrStack is locked',
-                  style: AppTypography.sectionTitle,
-                ),
-                const SizedBox(height: AppSpacing.space2),
-                const Text(
-                  'Unlock with your fingerprint, face, or device PIN.',
-                  style: AppTypography.meta,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.space8),
-                FilledButton.icon(
-                  onPressed: onUnlock,
-                  icon: const Icon(
-                    PhosphorIconsRegular.lockSimpleOpen,
-                    size: 17,
-                  ),
-                  label: const Text('Unlock'),
-                ),
-              ],
-            ),
+        child: EmptyState(
+          icon: PhosphorIconsRegular.lockSimple,
+          title: 'ArrStack is locked',
+          message: 'Unlock with your fingerprint, face, or device PIN.',
+          action: FilledButton.icon(
+            onPressed: onUnlock,
+            icon: const Icon(PhosphorIconsRegular.lockSimpleOpen, size: 17),
+            label: const Text('Unlock'),
           ),
         ),
       ),

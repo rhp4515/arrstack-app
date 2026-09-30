@@ -38,6 +38,7 @@ void main() {
 
   testWidgets('groups appearance, security, and tools', (tester) async {
     await pump(tester);
+    expect(find.text('SETTINGS'), findsOneWidget);
     expect(find.text('APPEARANCE'), findsOneWidget);
     expect(find.text('SECURITY'), findsOneWidget);
     expect(find.text('TOOLS'), findsOneWidget);
@@ -46,14 +47,18 @@ void main() {
     expect(find.text('Diagnostic logs'), findsOneWidget);
   });
 
-  testWidgets('the theme segments update the theme mode', (tester) async {
+  testWidgets('the theme dropdown updates the theme mode', (tester) async {
     await pump(tester);
-    await tester.tap(find.text('Dark'));
+    expect(find.text('Follows your device'), findsOneWidget);
+    await tester.tap(find.text('System'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Dark').last);
     await tester.pumpAndSettle();
     final element = tester.element(find.byType(AdvancedSettingsPage));
     final container = ProviderScope.containerOf(element);
     expect(container.read(appThemeModeProvider), ThemeMode.dark);
     expect(await config.readThemeMode(), 'dark');
+    expect(find.text('Always dark'), findsOneWidget);
   });
 
   testWidgets('turning on the lock authenticates first', (tester) async {

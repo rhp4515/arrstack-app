@@ -5,6 +5,7 @@ library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/core/widgets/form_dialog.dart';
 import 'package:arrstack/features/backup/service_backup_codec.dart';
 import 'package:arrstack/features/backup/service_backup_service.dart';
 import 'package:flutter/material.dart';
@@ -50,8 +51,10 @@ class _ExportPassphraseDialogState extends State<_ExportPassphraseDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Encrypt backup'),
+    return FormDialog(
+      title: 'Encrypt backup',
+      confirmLabel: 'Export',
+      onConfirm: _submit,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,13 +85,6 @@ class _ExportPassphraseDialogState extends State<_ExportPassphraseDialog> {
           ),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(onPressed: _submit, child: const Text('Export')),
-      ],
     );
   }
 }
@@ -153,8 +149,11 @@ class _ImportPassphraseDialogState extends State<_ImportPassphraseDialog> {
   @override
   Widget build(BuildContext context) {
     final count = widget.serviceCount;
-    return AlertDialog(
-      title: const Text('Unlock backup'),
+    return FormDialog(
+      title: 'Unlock backup',
+      confirmLabel: 'Unlock',
+      busy: _working,
+      onConfirm: _submit,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,16 +182,6 @@ class _ImportPassphraseDialogState extends State<_ImportPassphraseDialog> {
           ],
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: _working ? null : () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: _working ? null : _submit,
-          child: const Text('Unlock'),
-        ),
-      ],
     );
   }
 }

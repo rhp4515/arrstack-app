@@ -6,6 +6,7 @@ import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
+import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/core/widgets/labeled_toggle_row.dart';
 import 'package:arrstack/core/widgets/sub_page_header.dart';
 import 'package:arrstack/features/discover/utils/relative_time.dart';
@@ -14,6 +15,7 @@ import 'package:arrstack/features/notifications/notification_settings.dart';
 import 'package:arrstack/features/settings/widgets/settings_rows.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_icons/phosphor_icons.dart';
 
 class NotificationSettingsPage extends ConsumerWidget {
   const NotificationSettingsPage({super.key});
@@ -22,11 +24,19 @@ class NotificationSettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settingsAsync = ref.watch(notificationSettingsControllerProvider);
     return Scaffold(
-      appBar: const SubPageHeader(kicker: 'Settings', title: 'Notifications'),
+      appBar: const SubPageHeader(kicker: 'SETTINGS', title: 'Notifications'),
       body: settingsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) =>
-            Center(child: Text('Could not load notification settings: $error')),
+        error: (error, _) => EmptyState(
+          icon: PhosphorIconsRegular.warning,
+          title: 'Could not load notification settings',
+          message: '$error',
+          action: FilledButton(
+            onPressed: () =>
+                ref.invalidate(notificationSettingsControllerProvider),
+            child: const Text('Retry'),
+          ),
+        ),
         data: (settings) => _Body(settings: settings),
       ),
     );
@@ -87,7 +97,7 @@ class _Body extends ConsumerWidget {
           ],
         ),
         SettingsSection(
-          kicker: 'MEDIA READY',
+          kicker: 'NOTIFY ME ABOUT',
           children: [
             sourceRow(
               type: ServiceType.sonarr,
@@ -104,37 +114,28 @@ class _Body extends ConsumerWidget {
               value: settings.radarrImports,
               onChanged: controller.setRadarrImports,
             ),
-          ],
-        ),
-        SettingsSection(
-          kicker: 'SEERR ACTIVITY',
-          children: [
+            const SizedBox(height: AppSpacing.space4),
             sourceRow(
               type: ServiceType.seerr,
               title: 'Requests and issues',
-              subtitle: 'New media requests and reported problems',
+              subtitle: 'New media requests and reported problems from Seerr',
               value: settings.seerrActivity,
               onChanged: controller.setSeerrActivity,
             ),
           ],
         ),
         SettingsSection(
-          kicker: 'CHECK FREQUENCY',
-          description:
-              'The system schedules background work approximately: battery '
-              'optimization may delay a check, and iOS decides on its own '
-              'how often the app may refresh.',
+          kicker: 'SCHEDULE',
           showRule: false,
           children: [
-            SegmentedButton<CheckFrequency>(
-              showSelectedIcon: false,
-              segments: [
-                for (final f in CheckFrequency.values)
-                  ButtonSegment(value: f, label: Text(f.label)),
-              ],
-              selected: {settings.frequency},
-              onSelectionChanged: (selection) =>
-                  controller.setFrequency(selection.first),
+            SettingsChoiceRow<CheckFrequency>(
+              title: 'Check every',
+              meta:
+                  'Approximate: battery optimization may delay a check, and '
+                  'iOS decides on its own how often the app may refresh.',
+              value: settings.frequency,
+              options: {for (final f in CheckFrequency.values) f: f.label},
+              onChanged: controller.setFrequency,
             ),
             if (on) ...[
               const SizedBox(height: AppSpacing.space4),

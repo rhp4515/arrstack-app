@@ -8,7 +8,6 @@ import 'package:arrstack/core/logging/log_entry.dart';
 import 'package:arrstack/core/logging/logging_providers.dart';
 import 'package:arrstack/core/widgets/confirm_dialog.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
-import 'package:arrstack/core/widgets/fading_rule.dart';
 import 'package:arrstack/core/widgets/sub_page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -74,38 +73,46 @@ class _DiagnosticLogsPageState extends ConsumerState<DiagnosticLogsPage> {
 
     return Scaffold(
       appBar: SubPageHeader(
-        kicker: _selecting ? null : 'Advanced',
+        kicker: _selecting ? null : 'ADVANCED',
         title: _selecting ? '${_selected.length} selected' : 'Diagnostic logs',
         actions: _selecting
             ? [
                 IconButton(
                   tooltip: 'Share selected',
-                  icon: const Icon(PhosphorIconsRegular.shareNetwork, size: 19),
+                  icon: const Icon(PhosphorIconsRegular.shareNetwork, size: 17),
                   onPressed: () =>
                       _share(entries.where(_selected.contains).toList()),
                 ),
                 IconButton(
                   tooltip: 'Cancel selection',
-                  icon: const Icon(PhosphorIconsRegular.x, size: 19),
+                  icon: const Icon(PhosphorIconsRegular.x, size: 17),
                   onPressed: () => setState(_selected.clear),
                 ),
               ]
             : [
                 IconButton(
                   tooltip: 'Share all',
-                  icon: const Icon(PhosphorIconsRegular.shareNetwork, size: 19),
+                  icon: const Icon(PhosphorIconsRegular.shareNetwork, size: 17),
                   onPressed: entries.isEmpty ? null : () => _share(entries),
                 ),
                 IconButton(
                   tooltip: 'Clear logs',
-                  icon: const Icon(PhosphorIconsRegular.trash, size: 19),
+                  icon: const Icon(PhosphorIconsRegular.trash, size: 17),
                   onPressed: entries.isEmpty ? null : _clear,
                 ),
               ],
       ),
       body: entriesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('Could not read logs: $error')),
+        error: (error, _) => EmptyState(
+          icon: PhosphorIconsRegular.warning,
+          title: 'Could not read logs',
+          message: '$error',
+          action: FilledButton(
+            onPressed: () => ref.invalidate(diagnosticLogEntriesProvider),
+            child: const Text('Retry'),
+          ),
+        ),
         data: (entries) => entries.isEmpty
             ? const EmptyState(
                 icon: PhosphorIconsRegular.chatCircleText,
@@ -119,13 +126,23 @@ class _DiagnosticLogsPageState extends ConsumerState<DiagnosticLogsPage> {
                 itemCount: entries.length + 1,
                 itemBuilder: (context, index) {
                   if (index == 0) {
-                    return const Padding(
-                      padding: EdgeInsets.only(bottom: AppSpacing.space4),
-                      child: Text(
-                        'Long-press entries to choose which to share. '
-                        'Server addresses and API keys are removed before '
-                        'anything is saved.',
-                        style: AppTypography.meta,
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.space4),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'ENTRIES · ${entries.length}',
+                            style: AppTypography.kicker,
+                          ),
+                          const SizedBox(height: AppSpacing.space2),
+                          const Text(
+                            'Long-press entries to choose which to share. '
+                            'Server addresses and API keys are removed '
+                            'before anything is saved.',
+                            style: AppTypography.meta,
+                          ),
+                        ],
                       ),
                     );
                   }
@@ -133,7 +150,6 @@ class _DiagnosticLogsPageState extends ConsumerState<DiagnosticLogsPage> {
                   return _LogRow(
                     entry: entry,
                     selected: _selected.contains(entry),
-                    showRule: index < entries.length,
                     onTap: _selecting ? () => _toggle(entry) : null,
                     onLongPress: () => _toggle(entry),
                   );
@@ -148,76 +164,66 @@ class _LogRow extends StatelessWidget {
   const _LogRow({
     required this.entry,
     required this.selected,
-    required this.showRule,
     required this.onTap,
     required this.onLongPress,
   });
 
   final LogEntry entry;
   final bool selected;
-  final bool showRule;
   final VoidCallback? onTap;
   final VoidCallback onLongPress;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final levelColor = switch (entry.level) {
       LogLevel.error => AppColors.down,
       LogLevel.warn => AppColors.warning,
-      LogLevel.info => AppColors.n500,
+      LogLevel.info => AppColors.n600,
     };
-    return Column(
-      children: [
-        InkWell(
-          onTap: onTap,
-          onLongPress: onLongPress,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              vertical: AppSpacing.space3,
-              horizontal: AppSpacing.space2,
-            ),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              color: selected
-                  ? colorScheme.primary.withValues(alpha: 0.12)
-                  : null,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    if (selected) ...[
-                      Icon(
+    return InkWell(
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.space3),
+        child: Row(
+          children: [
+            // The level dot; a selected entry swaps it for a check.
+            SizedBox(
+              width: 16,
+              child: Center(
+                child: selected
+                    ? const Icon(
                         PhosphorIconsFill.checkCircle,
-                        size: 15,
-                        color: colorScheme.primary,
+                        size: 16,
+                        color: AppColors.accent,
+                      )
+                    : Container(
+                        width: 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: levelColor,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                      const SizedBox(width: AppSpacing.space2),
-                    ],
-                    Expanded(
-                      child: Text(entry.tag, style: AppTypography.cardTitle),
-                    ),
-                    Text(
-                      entry.level.label,
-                      style: AppTypography.chipLabel.copyWith(
-                        color: levelColor,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.space2),
-                Text(entry.message, style: AppTypography.body),
-                const SizedBox(height: AppSpacing.space2),
-                Text(formatLogTime(entry.time), style: AppTypography.meta),
-              ],
+              ),
             ),
-          ),
+            const SizedBox(width: AppSpacing.space3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(entry.message, style: AppTypography.cardTitle),
+                  Text(
+                    '${entry.tag} · ${entry.level.label} · '
+                    '${formatLogTime(entry.time)}',
+                    style: AppTypography.meta.copyWith(color: AppColors.n500),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        if (showRule) const FadingRule(),
-      ],
+      ),
     );
   }
 }

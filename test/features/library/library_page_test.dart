@@ -1,3 +1,4 @@
+import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/features/calendar/calendar_providers.dart';
@@ -74,8 +75,10 @@ void main() {
     tester,
   ) async {
     final repo = _MockRadarrRepository();
-    when(() => repo.getHistory(page: 1, pageSize: 50))
-        .thenAnswer((_) async => const Ok(<RadarrHistoryRecord>[]));
+    when(() => repo.getHistoryPage(page: 1, pageSize: 50)).thenAnswer(
+      (_) async =>
+          const Ok(HistoryPage(records: <RadarrHistoryRecord>[], received: 0)),
+    );
     await tester.pumpWidget(
       ProviderScope(
         overrides: [

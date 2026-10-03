@@ -104,29 +104,65 @@ final class LibraryUpcomingFamily extends $Family
 }
 
 /// Sonarr's missing (aired, no file) episodes for [instanceId], most
-/// recently aired first — the Activity Wanted lens's aggregation narrowed
-/// to one instance.
+/// recently aired first.
+///
+/// Fetched from this one instance, with its errors left in. It used to
+/// filter the Activity Wanted lens's all-instance aggregation, which drops
+/// an unreachable instance on purpose — right for a list spanning several
+/// instances, where one dead Sonarr shouldn't blank the rest. But this tab
+/// shows exactly one instance, so a dropped instance became an empty list,
+/// and an offline Sonarr read "Nothing missing — every aired, monitored
+/// episode has a file": a false all-clear in place of the error and Retry
+/// the view already has. It also fetched every Sonarr instance to show one.
+///
+/// Returns the failure as an [Err] rather than throwing, like the rest of
+/// the app's providers: a thrown error also trips Riverpod's automatic
+/// retry, which holds the provider in loading instead of showing it.
 
 @ProviderFor(libraryMissingEpisodes)
 final libraryMissingEpisodesProvider = LibraryMissingEpisodesFamily._();
 
 /// Sonarr's missing (aired, no file) episodes for [instanceId], most
-/// recently aired first — the Activity Wanted lens's aggregation narrowed
-/// to one instance.
+/// recently aired first.
+///
+/// Fetched from this one instance, with its errors left in. It used to
+/// filter the Activity Wanted lens's all-instance aggregation, which drops
+/// an unreachable instance on purpose — right for a list spanning several
+/// instances, where one dead Sonarr shouldn't blank the rest. But this tab
+/// shows exactly one instance, so a dropped instance became an empty list,
+/// and an offline Sonarr read "Nothing missing — every aired, monitored
+/// episode has a file": a false all-clear in place of the error and Retry
+/// the view already has. It also fetched every Sonarr instance to show one.
+///
+/// Returns the failure as an [Err] rather than throwing, like the rest of
+/// the app's providers: a thrown error also trips Riverpod's automatic
+/// retry, which holds the provider in loading instead of showing it.
 
 final class LibraryMissingEpisodesProvider
     extends
         $FunctionalProvider<
-          AsyncValue<List<SonarrMissingEpisode>>,
-          List<SonarrMissingEpisode>,
-          FutureOr<List<SonarrMissingEpisode>>
+          AsyncValue<Result<List<SonarrMissingEpisode>>>,
+          Result<List<SonarrMissingEpisode>>,
+          FutureOr<Result<List<SonarrMissingEpisode>>>
         >
     with
-        $FutureModifier<List<SonarrMissingEpisode>>,
-        $FutureProvider<List<SonarrMissingEpisode>> {
+        $FutureModifier<Result<List<SonarrMissingEpisode>>>,
+        $FutureProvider<Result<List<SonarrMissingEpisode>>> {
   /// Sonarr's missing (aired, no file) episodes for [instanceId], most
-  /// recently aired first — the Activity Wanted lens's aggregation narrowed
-  /// to one instance.
+  /// recently aired first.
+  ///
+  /// Fetched from this one instance, with its errors left in. It used to
+  /// filter the Activity Wanted lens's all-instance aggregation, which drops
+  /// an unreachable instance on purpose — right for a list spanning several
+  /// instances, where one dead Sonarr shouldn't blank the rest. But this tab
+  /// shows exactly one instance, so a dropped instance became an empty list,
+  /// and an offline Sonarr read "Nothing missing — every aired, monitored
+  /// episode has a file": a false all-clear in place of the error and Retry
+  /// the view already has. It also fetched every Sonarr instance to show one.
+  ///
+  /// Returns the failure as an [Err] rather than throwing, like the rest of
+  /// the app's providers: a thrown error also trips Riverpod's automatic
+  /// retry, which holds the provider in loading instead of showing it.
   LibraryMissingEpisodesProvider._({
     required LibraryMissingEpisodesFamily super.from,
     required String super.argument,
@@ -150,12 +186,12 @@ final class LibraryMissingEpisodesProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<SonarrMissingEpisode>> $createElement(
+  $FutureProviderElement<Result<List<SonarrMissingEpisode>>> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<List<SonarrMissingEpisode>> create(Ref ref) {
+  FutureOr<Result<List<SonarrMissingEpisode>>> create(Ref ref) {
     final argument = this.argument as String;
     return libraryMissingEpisodes(ref, argument);
   }
@@ -173,16 +209,28 @@ final class LibraryMissingEpisodesProvider
 }
 
 String _$libraryMissingEpisodesHash() =>
-    r'd8a247d056b8315589ba4621e0b7b6a5b99e9765';
+    r'dd02ff7a497b5b72028cb74f7f0745f41fab2e91';
 
 /// Sonarr's missing (aired, no file) episodes for [instanceId], most
-/// recently aired first — the Activity Wanted lens's aggregation narrowed
-/// to one instance.
+/// recently aired first.
+///
+/// Fetched from this one instance, with its errors left in. It used to
+/// filter the Activity Wanted lens's all-instance aggregation, which drops
+/// an unreachable instance on purpose — right for a list spanning several
+/// instances, where one dead Sonarr shouldn't blank the rest. But this tab
+/// shows exactly one instance, so a dropped instance became an empty list,
+/// and an offline Sonarr read "Nothing missing — every aired, monitored
+/// episode has a file": a false all-clear in place of the error and Retry
+/// the view already has. It also fetched every Sonarr instance to show one.
+///
+/// Returns the failure as an [Err] rather than throwing, like the rest of
+/// the app's providers: a thrown error also trips Riverpod's automatic
+/// retry, which holds the provider in loading instead of showing it.
 
 final class LibraryMissingEpisodesFamily extends $Family
     with
         $FunctionalFamilyOverride<
-          FutureOr<List<SonarrMissingEpisode>>,
+          FutureOr<Result<List<SonarrMissingEpisode>>>,
           String
         > {
   LibraryMissingEpisodesFamily._()
@@ -195,8 +243,20 @@ final class LibraryMissingEpisodesFamily extends $Family
       );
 
   /// Sonarr's missing (aired, no file) episodes for [instanceId], most
-  /// recently aired first — the Activity Wanted lens's aggregation narrowed
-  /// to one instance.
+  /// recently aired first.
+  ///
+  /// Fetched from this one instance, with its errors left in. It used to
+  /// filter the Activity Wanted lens's all-instance aggregation, which drops
+  /// an unreachable instance on purpose — right for a list spanning several
+  /// instances, where one dead Sonarr shouldn't blank the rest. But this tab
+  /// shows exactly one instance, so a dropped instance became an empty list,
+  /// and an offline Sonarr read "Nothing missing — every aired, monitored
+  /// episode has a file": a false all-clear in place of the error and Retry
+  /// the view already has. It also fetched every Sonarr instance to show one.
+  ///
+  /// Returns the failure as an [Err] rather than throwing, like the rest of
+  /// the app's providers: a thrown error also trips Riverpod's automatic
+  /// retry, which holds the provider in loading instead of showing it.
 
   LibraryMissingEpisodesProvider call(String instanceId) =>
       LibraryMissingEpisodesProvider._(argument: instanceId, from: this);
@@ -302,16 +362,31 @@ final class LibraryQueueFamily extends $Family
 
 /// Paged history for one instance: [build] loads page 1, [loadMore]
 /// appends the next.
+///
+/// Pages are offsets into a newest-first list that keeps growing, so a
+/// download finishing between two loads shifts every row down one and the
+/// next page starts with the row that already ended the last. [loadMore]
+/// drops rows it already has rather than listing them twice.
 
 @ProviderFor(LibraryHistory)
 final libraryHistoryProvider = LibraryHistoryFamily._();
 
 /// Paged history for one instance: [build] loads page 1, [loadMore]
 /// appends the next.
+///
+/// Pages are offsets into a newest-first list that keeps growing, so a
+/// download finishing between two loads shifts every row down one and the
+/// next page starts with the row that already ended the last. [loadMore]
+/// drops rows it already has rather than listing them twice.
 final class LibraryHistoryProvider
     extends $AsyncNotifierProvider<LibraryHistory, Result<LibraryHistoryFeed>> {
   /// Paged history for one instance: [build] loads page 1, [loadMore]
   /// appends the next.
+  ///
+  /// Pages are offsets into a newest-first list that keeps growing, so a
+  /// download finishing between two loads shifts every row down one and the
+  /// next page starts with the row that already ended the last. [loadMore]
+  /// drops rows it already has rather than listing them twice.
   LibraryHistoryProvider._({
     required LibraryHistoryFamily super.from,
     required (ServiceType, String) super.argument,
@@ -348,10 +423,15 @@ final class LibraryHistoryProvider
   }
 }
 
-String _$libraryHistoryHash() => r'dae96bc6cbf07a20822ca1d1cec58aa36808fefb';
+String _$libraryHistoryHash() => r'dea6c73111639f31375c579feb9d4eb77aaa6ebe';
 
 /// Paged history for one instance: [build] loads page 1, [loadMore]
 /// appends the next.
+///
+/// Pages are offsets into a newest-first list that keeps growing, so a
+/// download finishing between two loads shifts every row down one and the
+/// next page starts with the row that already ended the last. [loadMore]
+/// drops rows it already has rather than listing them twice.
 
 final class LibraryHistoryFamily extends $Family
     with
@@ -373,6 +453,11 @@ final class LibraryHistoryFamily extends $Family
 
   /// Paged history for one instance: [build] loads page 1, [loadMore]
   /// appends the next.
+  ///
+  /// Pages are offsets into a newest-first list that keeps growing, so a
+  /// download finishing between two loads shifts every row down one and the
+  /// next page starts with the row that already ended the last. [loadMore]
+  /// drops rows it already has rather than listing them twice.
 
   LibraryHistoryProvider call(ServiceType type, String instanceId) =>
       LibraryHistoryProvider._(argument: (type, instanceId), from: this);
@@ -383,6 +468,11 @@ final class LibraryHistoryFamily extends $Family
 
 /// Paged history for one instance: [build] loads page 1, [loadMore]
 /// appends the next.
+///
+/// Pages are offsets into a newest-first list that keeps growing, so a
+/// download finishing between two loads shifts every row down one and the
+/// next page starts with the row that already ended the last. [loadMore]
+/// drops rows it already has rather than listing them twice.
 
 abstract class _$LibraryHistory
     extends $AsyncNotifier<Result<LibraryHistoryFeed>> {

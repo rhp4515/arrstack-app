@@ -2,6 +2,10 @@
 /// [LogEntry]s kept in a JSON file in the app's support directory, so it
 /// survives restarts and can be read by the background notification worker
 /// as well as the UI isolate.
+///
+/// Those two isolates each hold their own [FileDiagnosticLogStore] over the
+/// same file, so the file is the only state they share — see
+/// [FileDiagnosticLogStore] for what that rules out.
 library;
 
 import 'dart:async';
@@ -33,6 +37,25 @@ const int defaultDiagnosticLogCap = 300;
 /// [DiagnosticLogStore] over a single JSON file. Writes are serialized
 /// through one queue so concurrent appends can't interleave, and a corrupt
 /// file reads as empty rather than breaking the log page.
+///
+/// The background notification worker runs in its own isolate with its own
+/// instance of this class, writing the same file. So nothing is cached:
+/// every read and every read-modify-write goes back to disk. An in-memory
+/// copy used to be kept, and since it was never refreshed the UI isolate
+/// served a stale list forever — background entries never appeared on an
+/// open log page, and the UI's next append wrote that stale list back over
+/// the file, erasing them.
+///
+/// Writes land through a temp file and a rename, which is atomic, so a
+/// reader in the other isolate sees the old file or the new one, never a
+/// half-written one. That matters more than it looks: a truncated read
+/// parses as corrupt, reads as empty, and the reader's next append would
+/// then save a one-entry log over everything.
+///
+/// What remains is two isolates appending within the same few milliseconds:
+/// both read, both write, and one entry is lost. A cross-isolate lock would
+/// close it, but `RandomAccessFile.lock` is per process, not per isolate, so
+/// it can't. For a diagnostic log that is an acceptable residue.
 class FileDiagnosticLogStore implements DiagnosticLogStore {
   FileDiagnosticLogStore(
     this._file, {
@@ -42,7 +65,6 @@ class FileDiagnosticLogStore implements DiagnosticLogStore {
   final Future<File> Function() _file;
   final int maxEntries;
 
-  List<LogEntry>? _cache;
   Future<void> _queue = Future.value();
   final StreamController<void> _changes = StreamController.broadcast();
 
@@ -52,16 +74,13 @@ class FileDiagnosticLogStore implements DiagnosticLogStore {
   @override
   Future<List<LogEntry>> readAll() async {
     await _queue;
-    return List.unmodifiable(await _load());
+    return List.unmodifiable(await _readFile());
   }
 
   @override
   Future<void> append(LogEntry entry) => _enqueue(() async {
-    final current = await _load();
-    final next = [
-      entry.copyWith(message: redactDiagnosticMessage(entry.message)),
-      ...current,
-    ].take(maxEntries).toList();
+    final current = await _readFile();
+    final next = [_redacted(entry), ...current].take(maxEntries).toList();
     await _save(next);
   });
 
@@ -75,14 +94,6 @@ class FileDiagnosticLogStore implements DiagnosticLogStore {
     // A failed write must not wedge every later one behind it.
     _queue = next.catchError((Object _) {});
     return next;
-  }
-
-  Future<List<LogEntry>> _load() async {
-    final cached = _cache;
-    if (cached != null) return cached;
-    final loaded = await _readFile();
-    _cache = loaded;
-    return loaded;
   }
 
   Future<List<LogEntry>> _readFile() async {
@@ -114,15 +125,34 @@ class FileDiagnosticLogStore implements DiagnosticLogStore {
   }
 
   Future<void> _save(List<LogEntry> entries) async {
-    _cache = List.unmodifiable(entries);
     final file = await _file();
     await file.parent.create(recursive: true);
-    await file.writeAsString(
-      jsonEncode(entries.map((e) => e.toJson()).toList()),
-      flush: true,
+    // Unique per writer: both isolates share a pid, so the pid alone could
+    // collide.
+    final temp = File(
+      '${file.path}.$pid.${DateTime.now().microsecondsSinceEpoch}.tmp',
     );
+    try {
+      await temp.writeAsString(
+        jsonEncode(entries.map((e) => e.toJson()).toList()),
+        flush: true,
+      );
+      await temp.rename(file.path);
+    } on Object {
+      if (temp.existsSync()) await temp.delete();
+      rethrow;
+    }
   }
 }
+
+/// [entry] as it may be stored. The tag is redacted along with the message:
+/// callers pass a user-chosen instance name as the tag, and a user who names
+/// an instance after its address ("192.168.1.20 Radarr") would otherwise put
+/// that address straight into a log that exists to be shared.
+LogEntry _redacted(LogEntry entry) => entry.copyWith(
+  tag: redactDiagnosticMessage(entry.tag),
+  message: redactDiagnosticMessage(entry.message),
+);
 
 /// In-memory [DiagnosticLogStore] for tests and for platforms without a
 /// writable support directory.
@@ -142,10 +172,7 @@ class InMemoryDiagnosticLogStore implements DiagnosticLogStore {
   @override
   Future<void> append(LogEntry entry) async {
     _entries = List.unmodifiable(
-      [
-        entry.copyWith(message: redactDiagnosticMessage(entry.message)),
-        ..._entries,
-      ].take(maxEntries),
+      [_redacted(entry), ..._entries].take(maxEntries),
     );
     _changes.add(null);
   }

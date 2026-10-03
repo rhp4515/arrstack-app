@@ -64,6 +64,11 @@ class SonarrRepository {
     int pageSize = 50,
   }) => _client.getHistory(page: page, pageSize: pageSize);
 
+  Future<Result<HistoryPage<SonarrHistoryRecord>>> getHistoryPage({
+    int page = 1,
+    int pageSize = 50,
+  }) => _client.getHistoryPage(page: page, pageSize: pageSize);
+
   /// Every history event after [since], with series and episode embedded.
   Future<Result<List<SonarrHistoryRecord>>> getHistorySince(DateTime since) =>
       _client.getHistorySince(since);

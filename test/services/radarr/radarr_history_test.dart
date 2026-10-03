@@ -195,6 +195,57 @@ void main() {
     });
   });
 
+  group('getHistoryPage', () {
+    test('counts a record that failed to parse as received, so a full '
+        'page still reads as full', () async {
+      adapter.onGet(
+        'api/v3/history',
+        (server) => server.reply(200, {
+          'totalRecords': 140,
+          'records': [
+            _record(id: 1),
+            {'id': 2, 'eventType': 'grabbed'},
+            _record(id: 3),
+          ],
+        }),
+        queryParameters: {
+          'page': 1,
+          'pageSize': 50,
+          'sortKey': 'date',
+          'sortDirection': 'descending',
+          'includeMovie': true,
+        },
+      );
+
+      final page = (await repo.getHistoryPage()).valueOrNull!;
+
+      expect(page.records.map((r) => r.id), [1, 3]);
+      expect(page.received, 3);
+      expect(page.totalRecords, 140);
+    });
+
+    test('leaves the total unknown when the server omits it', () async {
+      adapter.onGet(
+        'api/v3/history',
+        (server) => server.reply(200, {
+          'records': [_record()],
+        }),
+        queryParameters: {
+          'page': 1,
+          'pageSize': 50,
+          'sortKey': 'date',
+          'sortDirection': 'descending',
+          'includeMovie': true,
+        },
+      );
+
+      final page = (await repo.getHistoryPage()).valueOrNull!;
+
+      expect(page.totalRecords, isNull);
+      expect(page.received, 1);
+    });
+  });
+
   group('getHistorySince', () {
     test('sends the date as ISO-8601 UTC and parses a plain list', () async {
       final since = DateTime.utc(2026, 9, 19, 12);

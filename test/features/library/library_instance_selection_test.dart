@@ -5,12 +5,12 @@
 
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/core/storage/app_preferences.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/features/library/library_instance_store.dart';
 import 'package:arrstack/features/library/library_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import '../../support/fixtures.dart';
@@ -112,11 +112,9 @@ void main() {
     expect(store.saved[ServiceType.radarr], 'r1');
   });
 
-  group('SharedPreferencesLibraryInstanceStore', () {
+  group('PreferencesLibraryInstanceStore', () {
     test('round-trips a choice per service type', () async {
-      SharedPreferencesAsyncPlatform.instance =
-          InMemorySharedPreferencesAsync.empty();
-      final store = SharedPreferencesLibraryInstanceStore();
+      final store = PreferencesLibraryInstanceStore(InMemoryAppPreferences());
 
       await store.write(ServiceType.radarr, 'r1');
 
@@ -124,13 +122,38 @@ void main() {
       expect(await store.read(ServiceType.sonarr), isNull);
     });
 
+    test('finds a choice saved under the key earlier versions used', () async {
+      final store = PreferencesLibraryInstanceStore(
+        InMemoryAppPreferences({'library.selectedInstance.sonarr': 's2'}),
+      );
+
+      expect(await store.read(ServiceType.sonarr), 's2');
+    });
+
     test('swallows a missing platform implementation', () async {
       SharedPreferencesAsyncPlatform.instance = null;
-      final store = SharedPreferencesLibraryInstanceStore();
+      final store = PreferencesLibraryInstanceStore(
+        SharedPreferencesAppPreferences(),
+      );
 
       await store.write(ServiceType.radarr, 'r1');
 
       expect(await store.read(ServiceType.radarr), isNull);
+    });
+
+    test("the provider stores through the app's preferences, so an "
+        'override covers it', () async {
+      final prefs = InMemoryAppPreferences();
+      final container = ProviderContainer(
+        overrides: [appPreferencesProvider.overrideWithValue(prefs)],
+      );
+      addTearDown(container.dispose);
+
+      await container
+          .read(libraryInstanceStoreProvider)
+          .write(ServiceType.radarr, 'r1');
+
+      expect(await prefs.readString('library.selectedInstance.radarr'), 'r1');
     });
   });
 

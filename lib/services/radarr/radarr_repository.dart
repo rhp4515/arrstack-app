@@ -64,6 +64,11 @@ class RadarrRepository {
     int pageSize = 50,
   }) => _client.getHistory(page: page, pageSize: pageSize);
 
+  Future<Result<HistoryPage<RadarrHistoryRecord>>> getHistoryPage({
+    int page = 1,
+    int pageSize = 50,
+  }) => _client.getHistoryPage(page: page, pageSize: pageSize);
+
   /// Every history event after [since], with the movie embedded.
   Future<Result<List<RadarrHistoryRecord>>> getHistorySince(DateTime since) =>
       _client.getHistorySince(since);

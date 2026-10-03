@@ -45,19 +45,32 @@ Future<Result<List<CalendarDay>>> libraryUpcoming(
 }
 
 /// Sonarr's missing (aired, no file) episodes for [instanceId], most
-/// recently aired first — the Activity Wanted lens's aggregation narrowed
-/// to one instance.
+/// recently aired first.
+///
+/// Fetched from this one instance, with its errors left in. It used to
+/// filter the Activity Wanted lens's all-instance aggregation, which drops
+/// an unreachable instance on purpose — right for a list spanning several
+/// instances, where one dead Sonarr shouldn't blank the rest. But this tab
+/// shows exactly one instance, so a dropped instance became an empty list,
+/// and an offline Sonarr read "Nothing missing — every aired, monitored
+/// episode has a file": a false all-clear in place of the error and Retry
+/// the view already has. It also fetched every Sonarr instance to show one.
+///
+/// Returns the failure as an [Err] rather than throwing, like the rest of
+/// the app's providers: a thrown error also trips Riverpod's automatic
+/// retry, which holds the provider in loading instead of showing it.
 @riverpod
-Future<List<SonarrMissingEpisode>> libraryMissingEpisodes(
+Future<Result<List<SonarrMissingEpisode>>> libraryMissingEpisodes(
   Ref ref,
   String instanceId,
 ) async {
-  final all = await ref.watch(sonarrMissingEpisodesProvider.future);
-  return all
-      .where((m) => m.instanceId == instanceId)
-      .toList()
-      .reversed
-      .toList();
+  final repo = await ref.watch(sonarrRepositoryProvider(instanceId).future);
+  return (await repo.listMissingEpisodes()).map(
+    (episodes) => sortMissingEpisodesByAirDate([
+      for (final episode in episodes)
+        SonarrMissingEpisode(instanceId: instanceId, episode: episode),
+    ]).reversed.toList(),
+  );
 }
 
 /// One download in the Queue sub-tab, normalized across services.
@@ -219,12 +232,18 @@ class LibraryHistoryFeed {
   /// The last page loaded (1-based).
   final int page;
 
-  /// Whether the last page was full, so another may exist.
+  /// Whether another page may exist: by the server's total when it gives
+  /// one, else whether the last page came back full.
   final bool hasMore;
 }
 
 /// Paged history for one instance: [build] loads page 1, [loadMore]
 /// appends the next.
+///
+/// Pages are offsets into a newest-first list that keeps growing, so a
+/// download finishing between two loads shifts every row down one and the
+/// next page starts with the row that already ended the last. [loadMore]
+/// drops rows it already has rather than listing them twice.
 @riverpod
 class LibraryHistory extends _$LibraryHistory {
   static const pageSize = 50;
@@ -244,10 +263,10 @@ class LibraryHistory extends _$LibraryHistory {
     }
     final result = await _fetch(1);
     return result.map(
-      (entries) => LibraryHistoryFeed(
-        entries: entries,
+      (history) => LibraryHistoryFeed(
+        entries: history.records,
         page: 1,
-        hasMore: entries.length >= pageSize,
+        hasMore: history.hasMoreAfter(page: 1, pageSize: pageSize),
       ),
     );
   }
@@ -264,12 +283,16 @@ class LibraryHistory extends _$LibraryHistory {
       if (!ref.mounted) return null;
       switch (result) {
         case Ok(:final value):
+          final seen = {for (final entry in current.entries) entry.id};
           state = AsyncData(
             Ok(
               LibraryHistoryFeed(
-                entries: [...current.entries, ...value],
+                entries: [
+                  ...current.entries,
+                  ...value.records.where((entry) => seen.add(entry.id)),
+                ],
                 page: next,
-                hasMore: value.length >= pageSize,
+                hasMore: value.hasMoreAfter(page: next, pageSize: pageSize),
               ),
             ),
           );
@@ -282,14 +305,14 @@ class LibraryHistory extends _$LibraryHistory {
     }
   }
 
-  Future<Result<List<LibraryHistoryEntry>>> _fetch(int page) async {
+  Future<Result<HistoryPage<LibraryHistoryEntry>>> _fetch(int page) async {
     if (type == ServiceType.radarr) {
       final repo = await ref.read(radarrRepositoryProvider(instanceId).future);
-      final result = await repo.getHistory(page: page, pageSize: pageSize);
-      return result.map((r) => r.map(LibraryHistoryEntry.fromRadarr).toList());
+      final result = await repo.getHistoryPage(page: page, pageSize: pageSize);
+      return result.map((h) => h.map(LibraryHistoryEntry.fromRadarr));
     }
     final repo = await ref.read(sonarrRepositoryProvider(instanceId).future);
-    final result = await repo.getHistory(page: page, pageSize: pageSize);
-    return result.map((r) => r.map(LibraryHistoryEntry.fromSonarr).toList());
+    final result = await repo.getHistoryPage(page: page, pageSize: pageSize);
+    return result.map((h) => h.map(LibraryHistoryEntry.fromSonarr));
   }
 }

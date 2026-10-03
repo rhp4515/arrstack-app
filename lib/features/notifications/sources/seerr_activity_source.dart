@@ -4,6 +4,8 @@
 /// grow, so "id greater than the checkpoint" means "created since".
 library;
 
+import 'dart:async';
+
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/features/notifications/local_notifier.dart';
 import 'package:arrstack/features/notifications/notification_checker.dart';
@@ -15,7 +17,13 @@ class SeerrActivitySource implements NotificationSource {
     required String instanceId,
     required this.instanceName,
     required this._repository,
+    this.titleLookupTimeout = const Duration(seconds: 5),
   }) : id = 'seerr.$instanceId';
+
+  /// How long one title lookup may take before its fallback is used. A
+  /// single slow TMDB proxy must not be able to spend the whole source's
+  /// time budget (see [NotificationChecker]'s `sourceTimeout`).
+  final Duration titleLookupTimeout;
 
   @override
   final String id;
@@ -65,38 +73,84 @@ class SeerrActivitySource implements NotificationSource {
 
     final newRequests = requests.where((r) => r.id > previous.requestId);
     final newIssues = issues.where((i) => i.id > previous.issueId);
-    final items = <SourceItem>[
+    // Built with fallback titles first: which titles are worth a lookup
+    // depends on how many items there are.
+    final pending = <({SourceItem item, SeerrRequestMedia? media})>[
       for (final request in newRequests)
-        SourceItem(
-          key: 'request.${request.id}',
-          title: await _title(request.media, 'Request #${request.id}'),
-          detail: _by('Requested', request.requestedBy),
+        (
+          item: SourceItem(
+            key: 'request.${request.id}',
+            title: 'Request #${request.id}',
+            detail: _by('Requested', request.requestedBy),
+          ),
+          media: request.media,
         ),
       for (final issue in newIssues)
-        SourceItem(
-          key: 'issue.${issue.id}',
-          title: await _title(issue.media, 'Issue #${issue.id}'),
-          detail: _by(
-            '${SeerrIssueType.label(issue.issueType)} issue reported',
-            issue.createdBy,
+        (
+          item: SourceItem(
+            key: 'issue.${issue.id}',
+            title: 'Issue #${issue.id}',
+            detail: _by(
+              '${SeerrIssueType.label(issue.issueType)} issue reported',
+              issue.createdBy,
+            ),
           ),
+          media: issue.media,
         ),
     ];
-    return Ok(SourceCheck(items: items, checkpoint: next.toString()));
+    return Ok(
+      SourceCheck(items: await _named(pending), checkpoint: next.toString()),
+    );
+  }
+
+  /// Looks up titles for only the items that will be displayed, all at
+  /// once.
+  ///
+  /// Each title costs a TMDB lookup, and up to forty used to run one after
+  /// another inside the checker's per-source timeout. On a slow proxy that
+  /// ran out, and a timed-out check never advances its checkpoint — so the
+  /// next run met the same forty items and timed out again, and Seerr
+  /// notifications stopped for good. But no more than
+  /// [maxIndividualNotifications] titles are ever shown: that many as
+  /// separate notifications, or that many named in one summary once there
+  /// are more. The rest of the lookups bought nothing.
+  Future<List<SourceItem>> _named(
+    List<({SourceItem item, SeerrRequestMedia? media})> pending,
+  ) async {
+    final shown = pending.take(maxIndividualNotifications).toList();
+    final titles = await Future.wait([
+      for (final entry in shown) _title(entry.media, entry.item.title),
+    ]);
+    return [
+      for (var i = 0; i < pending.length; i++)
+        i < titles.length
+            ? SourceItem(
+                key: pending[i].item.key,
+                title: titles[i],
+                detail: pending[i].item.detail,
+              )
+            : pending[i].item,
+    ];
   }
 
   /// Requests and issues only carry a TMDB id; the title needs a lookup.
-  /// Best-effort — a failed lookup falls back to "Request #12".
+  /// Best-effort — a failed or slow lookup falls back to "Request #12".
   Future<String> _title(SeerrRequestMedia? media, String fallback) async {
     final tmdbId = media?.tmdbId;
     if (media == null || tmdbId == null) return fallback;
-    final detail = media.mediaType == 'tv'
-        ? await _repository.getTvDetail(tmdbId)
-        : await _repository.getMovieDetail(tmdbId);
-    return switch (detail) {
-      Ok(:final value) => _withYear(value) ?? fallback,
-      Err() => fallback,
-    };
+    try {
+      final detail =
+          await (media.mediaType == 'tv'
+                  ? _repository.getTvDetail(tmdbId)
+                  : _repository.getMovieDetail(tmdbId))
+              .timeout(titleLookupTimeout);
+      return switch (detail) {
+        Ok(:final value) => _withYear(value) ?? fallback,
+        Err() => fallback,
+      };
+    } on TimeoutException {
+      return fallback;
+    }
   }
 
   static String? _withYear(SeerrResult result) {

@@ -165,19 +165,23 @@ class ServiceBackupController extends _$ServiceBackupController {
     final result = await ref
         .read(serviceBackupServiceProvider)
         .restore(contents);
+    // On every outcome, failure included: a restore that fails partway has
+    // already written the instances before the failure, and one that fails
+    // only at home networks has written all of them. Skipping this on Err
+    // left those changes on disk but invisible until a restart. Restored
+    // instances may also reuse ids this device already had, so every
+    // per-instance cache (config, credential, endpoint) must be re-read,
+    // not just the list.
+    ref
+      ..invalidate(instancesProvider)
+      ..invalidate(serviceInstanceProvider)
+      ..invalidate(serviceCredentialProvider)
+      ..invalidate(resolvedEndpointProvider)
+      ..invalidate(homeSsidsProvider);
     switch (result) {
       case Err(:final error):
         _done(error.userMessage, isError: true);
       case Ok(:final value):
-        // Restored instances may reuse ids this device already had, so
-        // every per-instance cache (config, credential, endpoint) must be
-        // re-read, not just the list.
-        ref
-          ..invalidate(instancesProvider)
-          ..invalidate(serviceInstanceProvider)
-          ..invalidate(serviceCredentialProvider)
-          ..invalidate(resolvedEndpointProvider)
-          ..invalidate(homeSsidsProvider);
         final skipped = contents.skippedCount == 0
             ? ''
             : ' ${_services(contents.skippedCount)} in the file could not be '

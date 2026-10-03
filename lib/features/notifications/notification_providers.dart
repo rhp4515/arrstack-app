@@ -155,6 +155,12 @@ class NotificationSettingsController extends _$NotificationSettingsController {
         logger.warn('Notifications', 'Could not cancel checks | $error');
       }
     }
+    if (enabled && !current.enabled) {
+      // Every source stopped being checked while this was off, so every
+      // checkpoint is stale. Cleared on the way on rather than the way off
+      // so a switch turned off before this rule existed is covered too.
+      await clearNotificationCheckpoints(ref.read(appPreferencesProvider));
+    }
     await _save(current.copyWith(enabled: enabled));
     if (enabled) {
       // Establish starting points now; errors are logged by the checker.
@@ -164,14 +170,52 @@ class NotificationSettingsController extends _$NotificationSettingsController {
     return NotificationEnableResult.changed;
   }
 
-  Future<void> setSonarrImports({required bool value}) async =>
-      _save((await future).copyWith(sonarrImports: value));
+  Future<void> setSonarrImports({required bool value}) async {
+    final current = await future;
+    await _resetIfTurningOn(
+      NotificationSourceKind.sonarr,
+      wasOn: current.sonarrImports,
+      turningOn: value,
+    );
+    await _save(current.copyWith(sonarrImports: value));
+  }
 
-  Future<void> setRadarrImports({required bool value}) async =>
-      _save((await future).copyWith(radarrImports: value));
+  Future<void> setRadarrImports({required bool value}) async {
+    final current = await future;
+    await _resetIfTurningOn(
+      NotificationSourceKind.radarr,
+      wasOn: current.radarrImports,
+      turningOn: value,
+    );
+    await _save(current.copyWith(radarrImports: value));
+  }
 
-  Future<void> setSeerrActivity({required bool value}) async =>
-      _save((await future).copyWith(seerrActivity: value));
+  Future<void> setSeerrActivity({required bool value}) async {
+    final current = await future;
+    await _resetIfTurningOn(
+      NotificationSourceKind.seerr,
+      wasOn: current.seerrActivity,
+      turningOn: value,
+    );
+    await _save(current.copyWith(seerrActivity: value));
+  }
+
+  /// Clears a source family's checkpoints on an off→on change only. On an
+  /// on→on call it must not: that source has been checked all along, and
+  /// clearing would make the next check quietly re-establish instead of
+  /// posting whatever arrived since the last one.
+  Future<void> _resetIfTurningOn(
+    NotificationSourceKind kind, {
+    required bool wasOn,
+    required bool turningOn,
+  }) async {
+    if (turningOn && !wasOn) {
+      await clearNotificationCheckpoints(
+        ref.read(appPreferencesProvider),
+        kind: kind,
+      );
+    }
+  }
 
   Future<void> setFrequency(CheckFrequency frequency) async {
     final current = await future;

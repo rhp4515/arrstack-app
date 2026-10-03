@@ -169,11 +169,24 @@ class _SonarrMissing extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final missingAsync = ref.watch(libraryMissingEpisodesProvider(instanceId));
+    // This instance's provider, not the Activity aggregation: the tab no
+    // longer reads that, so invalidating it here refreshed nothing.
     Future<void> refresh() async =>
-        ref.invalidate(sonarrMissingEpisodesProvider);
+        ref.invalidate(libraryMissingEpisodesProvider(instanceId));
 
     return missingAsync.when(
-      data: (episodes) {
+      data: (result) {
+        final List<SonarrMissingEpisode> episodes;
+        switch (result) {
+          case Ok(:final value):
+            episodes = value;
+          case Err(:final error):
+            return RefreshableError(
+              onRefresh: refresh,
+              title: 'Failed to load episodes',
+              message: error.userMessage,
+            );
+        }
         final filtered = episodes
             .where((m) => matchesQuery(query, m.episode.series?.title ?? ''))
             .toList();

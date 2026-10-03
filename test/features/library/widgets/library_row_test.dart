@@ -1,3 +1,4 @@
+import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/widgets/fading_rule.dart';
 import 'package:arrstack/features/library/widgets/library_row.dart';
@@ -85,5 +86,31 @@ void main() {
 
     expect(find.byType(FadingRule), findsOneWidget);
     expect(find.text('2160p'), findsOneWidget);
+  });
+
+  testWidgets('trailingNeutral renders the chip grey instead of green', (
+    tester,
+  ) async {
+    Future<Color?> chipColor({required bool neutral}) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: LibraryRow(
+              service: ServiceType.radarr,
+              instanceId: 'inst-1',
+              title: 'Dune',
+              metaParts: const ['x'],
+              trailing: LibraryRowTrailing.none,
+              trailingText: '2160p',
+              trailingNeutral: neutral,
+            ),
+          ),
+        ),
+      );
+      return tester.widget<Text>(find.text('2160p')).style!.color;
+    }
+
+    expect(await chipColor(neutral: false), AppColors.up);
+    expect(await chipColor(neutral: true), AppColors.n500);
   });
 }

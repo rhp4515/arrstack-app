@@ -240,3 +240,47 @@ extension SeerrRequestMediaX on SeerrRequestMedia {
     return 'https://www.themoviedb.org/$path/$tmdbId';
   }
 }
+
+/// Seerr's issue types (`IssueType` in Overseerr/Jellyseerr).
+abstract final class SeerrIssueType {
+  static const int video = 1;
+  static const int audio = 2;
+  static const int subtitles = 3;
+  static const int other = 4;
+
+  static String label(int type) => switch (type) {
+    video => 'Video',
+    audio => 'Audio',
+    subtitles => 'Subtitles',
+    _ => 'Other',
+  };
+}
+
+/// A reported problem with a piece of media (GET api/v1/issue).
+@freezed
+abstract class SeerrIssue with _$SeerrIssue {
+  const factory SeerrIssue({
+    required int id,
+    @Default(SeerrIssueType.other) int issueType,
+
+    /// 1 = open, 2 = resolved.
+    @Default(1) int status,
+    SeerrRequestMedia? media,
+    SeerrRequestUser? createdBy,
+    DateTime? createdAt,
+  }) = _SeerrIssue;
+
+  factory SeerrIssue.fromJson(Map<String, dynamic> json) =>
+      _$SeerrIssueFromJson(json);
+}
+
+@freezed
+abstract class SeerrIssuesResponse with _$SeerrIssuesResponse {
+  const factory SeerrIssuesResponse({
+    required SeerrPageInfo pageInfo,
+    @Default([]) List<SeerrIssue> results,
+  }) = _SeerrIssuesResponse;
+
+  factory SeerrIssuesResponse.fromJson(Map<String, dynamic> json) =>
+      _$SeerrIssuesResponseFromJson(json);
+}

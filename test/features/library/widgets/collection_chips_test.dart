@@ -18,6 +18,8 @@ void main() {
 
     expect(find.text('Shows 68'), findsOneWidget);
     expect(find.text('Movies 412'), findsOneWidget);
+    // Primary tier (11px), one step above the section chips.
+    expect(tester.widget<Text>(find.text('Shows 68')).style!.fontSize, 11);
   });
 
   testWidgets('tapping Movies switches the active tab', (tester) async {

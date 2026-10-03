@@ -4,6 +4,8 @@ library;
 
 import 'dart:async';
 
+import 'package:arrstack/core/logging/diagnostic_logger.dart';
+import 'package:arrstack/core/logging/logging_providers.dart';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
@@ -275,7 +277,21 @@ class InstanceForm extends _$InstanceForm {
             password: state.password,
           );
 
-    return _getTestClient(baseUrl, credential, endpoint).testConnection();
+    final result = await _getTestClient(
+      baseUrl,
+      credential,
+      endpoint,
+    ).testConnection();
+    if (result case Err(:final error)) {
+      ref
+          .read(diagnosticLoggerProvider)
+          .error(
+            'Add service',
+            '${state.type.displayName} ${endpoint.name} connection test failed '
+                '| ${describeError(error)}',
+          );
+    }
+    return result;
   }
 
   /// Maps every [ServiceType] to a client that actually talks to the

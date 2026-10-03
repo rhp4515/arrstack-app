@@ -45,6 +45,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // Required by flutter_local_notifications (background notifications).
+        isCoreLibraryDesugaringEnabled = true
     }
 
     defaultConfig {
@@ -96,4 +98,10 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    // LaunchTheme inherits Theme.AppCompat (see res/values/styles.xml).
+    implementation("androidx.appcompat:appcompat:1.7.1")
 }

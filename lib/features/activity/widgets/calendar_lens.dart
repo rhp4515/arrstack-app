@@ -6,11 +6,10 @@ library;
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
-import 'package:arrstack/features/activity/widgets/calendar_timeline_row.dart';
+import 'package:arrstack/features/activity/widgets/calendar_day_section.dart';
 import 'package:arrstack/features/activity/widgets/week_strip.dart';
 import 'package:arrstack/features/calendar/calendar_providers.dart';
 import 'package:arrstack/features/calendar/models/calendar_entry.dart';
-import 'package:arrstack/features/calendar/widgets/calendar_date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
@@ -145,51 +144,8 @@ class _CalendarBody extends StatelessWidget {
       children: [
         WeekStrip(days: allDays),
         const SizedBox(height: AppSpacing.space4),
-        for (final day in filteredDays) _DaySection(day: day),
+        for (final day in filteredDays) CalendarDaySection(day: day),
       ],
-    );
-  }
-}
-
-class _DaySection extends StatelessWidget {
-  const _DaySection({required this.day});
-
-  final CalendarDay day;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = colorScheme.brightness == Brightness.dark;
-    final accentColor = isDark ? AppColors.accent : colorScheme.primary;
-    final mutedColor = isDark ? AppColors.n400 : colorScheme.onSurfaceVariant;
-    final now = DateTime.now();
-    final relative = relativeDayLabel(day.date, now);
-    final header = relative == null
-        ? formatDayHeader(day.date)
-        : '$relative · ${formatDayHeader(day.date)}';
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.space4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                header.toUpperCase(),
-                style: AppTypography.kicker.copyWith(color: accentColor),
-              ),
-              Text(
-                '${day.entries.length}',
-                style: AppTypography.meta.copyWith(color: mutedColor),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.space3),
-          for (final entry in day.entries) CalendarTimelineRow(entry: entry),
-        ],
-      ),
     );
   }
 }

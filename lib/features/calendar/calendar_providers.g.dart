@@ -64,4 +64,4 @@ final class CalendarScheduleProvider
   }
 }
 
-String _$calendarScheduleHash() => r'6a9e426c981de974b905023892133c8f24b4a11c';
+String _$calendarScheduleHash() => r'edaaea06ec01aa5941f2af60deab6bfd1dc5622f';

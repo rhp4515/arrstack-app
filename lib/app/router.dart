@@ -10,6 +10,8 @@ import 'package:arrstack/app/app_shell.dart';
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/features/activity/activity_page.dart';
+import 'package:arrstack/features/backup/service_backup_page.dart';
+import 'package:arrstack/features/diagnostics/diagnostic_logs_page.dart';
 import 'package:arrstack/features/discover/discover_detail_page.dart';
 import 'package:arrstack/features/discover/discover_page.dart';
 import 'package:arrstack/features/discover/genre_results_page.dart';
@@ -22,9 +24,11 @@ import 'package:arrstack/features/library/episode_detail_page.dart';
 import 'package:arrstack/features/library/library_page.dart';
 import 'package:arrstack/features/library/movie_detail_page.dart';
 import 'package:arrstack/features/library/series_detail_page.dart';
+import 'package:arrstack/features/notifications/notification_settings_page.dart';
 import 'package:arrstack/features/onboarding/add_instance_page.dart';
 import 'package:arrstack/features/release_search/release_search_page.dart';
 import 'package:arrstack/features/requests/requests_page.dart';
+import 'package:arrstack/features/settings/advanced_settings_page.dart';
 import 'package:arrstack/features/settings/settings_page.dart';
 import 'package:arrstack/features/uptime/uptime_page.dart';
 import 'package:go_router/go_router.dart';
@@ -93,6 +97,27 @@ final GoRouter appRouter = GoRouter(
                     GoRoute(
                       path: 'add',
                       builder: (context, state) => const AddInstancePage(),
+                    ),
+                    GoRoute(
+                      path: 'notifications',
+                      builder: (context, state) =>
+                          const NotificationSettingsPage(),
+                    ),
+                    GoRoute(
+                      path: 'advanced',
+                      builder: (context, state) => const AdvancedSettingsPage(),
+                      routes: [
+                        GoRoute(
+                          path: 'backup',
+                          builder: (context, state) =>
+                              const ServiceBackupPage(),
+                        ),
+                        GoRoute(
+                          path: 'logs',
+                          builder: (context, state) =>
+                              const DiagnosticLogsPage(),
+                        ),
+                      ],
                     ),
                     GoRoute(
                       path: ':id/edit',

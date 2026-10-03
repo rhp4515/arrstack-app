@@ -138,7 +138,7 @@ final class KumaRepositoryProvider
   }
 }
 
-String _$kumaRepositoryHash() => r'afba8b636fee19a7851785c5da90ab6e72d0ffd4';
+String _$kumaRepositoryHash() => r'a0c7fe662696ce7fc738bdb5825f1196ba074655';
 
 final class KumaRepositoryFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<KumaRepository>, String> {

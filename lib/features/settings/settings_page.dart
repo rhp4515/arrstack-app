@@ -1,10 +1,9 @@
-/// Settings tab: instance management, networking, and appearance
-/// (README §2m).
+/// Settings tab: instance management and networking, with Notifications
+/// and Advanced (appearance, app lock, tools) one level down (README §2m).
 library;
 
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
-import 'package:arrstack/app/theme/theme_mode_provider.dart';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
@@ -15,6 +14,7 @@ import 'package:arrstack/core/widgets/sub_page_header.dart';
 import 'package:arrstack/features/home/home_providers.dart';
 import 'package:arrstack/features/settings/settings_providers.dart';
 import 'package:arrstack/features/settings/widgets/home_ssid_setting.dart';
+import 'package:arrstack/features/settings/widgets/settings_rows.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -71,8 +71,25 @@ class SettingsPage extends ConsumerWidget {
           const FadingRule(),
           const SizedBox(height: AppSpacing.space6),
           const _DefaultEndpointModeSetting(),
-          const SizedBox(height: AppSpacing.space4),
-          const _ThemeSetting(),
+          const SizedBox(height: AppSpacing.space6),
+          const FadingRule(),
+          const SizedBox(height: AppSpacing.space6),
+          SettingsSection(
+            kicker: 'MORE',
+            showRule: false,
+            children: [
+              SettingsNavRow(
+                title: 'Notifications',
+                subtitle: 'Imports, requests, and how often to check',
+                onTap: () => context.go(RoutePaths.homeSettingsNotifications),
+              ),
+              SettingsNavRow(
+                title: 'Advanced',
+                subtitle: 'Theme, app lock, backup, and diagnostic logs',
+                onTap: () => context.go(RoutePaths.homeSettingsAdvanced),
+              ),
+            ],
+          ),
           const SizedBox(height: AppSpacing.space6),
         ],
       ),
@@ -427,33 +444,6 @@ class _DefaultEndpointModeSetting extends ConsumerWidget {
       ),
       loading: () => const LinearProgressIndicator(),
       error: (err, stack) => Text('Error: $err'),
-    );
-  }
-}
-
-class _ThemeSetting extends ConsumerWidget {
-  const _ThemeSetting();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(appThemeModeProvider);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text('Theme', style: AppTypography.cardTitle),
-        DropdownButton<ThemeMode>(
-          value: themeMode,
-          underline: const SizedBox.shrink(),
-          items: const [
-            DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
-            DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
-            DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
-          ],
-          onChanged: (mode) => mode != null
-              ? ref.read(appThemeModeProvider.notifier).update(mode)
-              : null,
-        ),
-      ],
     );
   }
 }

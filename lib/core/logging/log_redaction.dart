@@ -27,8 +27,41 @@ final RegExp _secretParam = RegExp(
 /// message without a `key=` label in front of them.
 final RegExp _hexKey = RegExp(r'\b[0-9a-fA-F]{32}\b');
 
+/// An `Authorization` header's credential, whatever the scheme. The labelled
+/// pattern above can't catch it: it needs `auth` directly before the colon,
+/// and "Authorization" has "orization" in between — so a qBittorrent
+/// `Authorization: Bearer <api key>` went through untouched. The scheme word
+/// is kept, since "Bearer" vs "Basic" is useful when diagnosing; only the
+/// credential after it is masked. Basic credentials are base64 of
+/// `user:password`, so they need masking as much as a token does.
+final RegExp _authHeader = RegExp(
+  r'(\b(?:proxy-)?authorization\s*[:=]\s*(?:[a-z]+\s+)?)([^\s,;]+)',
+  caseSensitive: false,
+);
+
+/// A bearer token mentioned outside a header. The 8-character floor keeps
+/// ordinary prose ("bearer of …") out of it.
+final RegExp _bearer = RegExp(
+  r'(\bbearer\s+)([A-Za-z0-9._~+/=-]{8,})',
+  caseSensitive: false,
+);
+
+/// Every `name=value` pair in a `Cookie` or `Set-Cookie` header. A session
+/// cookie is a login — qBittorrent's `SID` is as good as its password — and
+/// cookie names vary by service, so all values go rather than a list of
+/// known names.
+final RegExp _cookieHeader = RegExp(
+  r'(\b(?:set-)?cookie\s*[:=]\s*)((?:[^=;\s]+=[^;\s]*(?:;\s*)?)+)',
+  caseSensitive: false,
+);
+
 String redactDiagnosticMessage(String message) {
   return message
+      // Headers first, so they claim their whole credential before the
+      // narrower patterns below see a piece of it.
+      .replaceAllMapped(_authHeader, (m) => '${m[1]}$_redacted')
+      .replaceAllMapped(_cookieHeader, (m) => '${m[1]}$_redacted')
+      .replaceAllMapped(_bearer, (m) => '${m[1]}$_redacted')
       .replaceAllMapped(_secretParam, (m) => '${m[1]}$_redacted')
       .replaceAllMapped(_url, (m) => '${m[1]}://<host>')
       .replaceAll(_tailnetHost, '<host>')

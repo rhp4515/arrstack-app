@@ -7,8 +7,8 @@
 library;
 
 import 'package:arrstack/core/models/models.dart';
+import 'package:arrstack/core/storage/app_preferences.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'library_instance_store.g.dart';
 
@@ -20,16 +20,13 @@ abstract interface class LibraryInstanceStore {
   Future<void> write(ServiceType type, String instanceId);
 }
 
-/// [LibraryInstanceStore] backed by `shared_preferences`' async API. The
-/// preferences handle is created lazily because its constructor throws when
-/// no platform implementation is registered (widget tests).
-class SharedPreferencesLibraryInstanceStore implements LibraryInstanceStore {
-  SharedPreferencesLibraryInstanceStore([this._preferences]);
+/// [LibraryInstanceStore] over the app's [AppPreferences], under the key
+/// the store has always used, so a choice saved by an earlier version is
+/// still found.
+class PreferencesLibraryInstanceStore implements LibraryInstanceStore {
+  const PreferencesLibraryInstanceStore(this._preferences);
 
-  SharedPreferencesAsync? _preferences;
-
-  SharedPreferencesAsync get _prefs =>
-      _preferences ??= SharedPreferencesAsync();
+  final AppPreferences _preferences;
 
   static String _key(ServiceType type) =>
       'library.selectedInstance.${type.name}';
@@ -37,7 +34,7 @@ class SharedPreferencesLibraryInstanceStore implements LibraryInstanceStore {
   @override
   Future<String?> read(ServiceType type) async {
     try {
-      return await _prefs.getString(_key(type));
+      return await _preferences.readString(_key(type));
     } on Object {
       return null;
     }
@@ -46,7 +43,7 @@ class SharedPreferencesLibraryInstanceStore implements LibraryInstanceStore {
   @override
   Future<void> write(ServiceType type, String instanceId) async {
     try {
-      await _prefs.setString(_key(type), instanceId);
+      await _preferences.writeString(_key(type), instanceId);
     } on Object {
       // Best effort: the in-memory selection still applies this session.
     }
@@ -55,4 +52,4 @@ class SharedPreferencesLibraryInstanceStore implements LibraryInstanceStore {
 
 @Riverpod(keepAlive: true)
 LibraryInstanceStore libraryInstanceStore(Ref ref) =>
-    SharedPreferencesLibraryInstanceStore();
+    PreferencesLibraryInstanceStore(ref.watch(appPreferencesProvider));

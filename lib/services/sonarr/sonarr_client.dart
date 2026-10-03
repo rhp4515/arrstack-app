@@ -347,6 +347,17 @@ class SonarrClient implements ConnectionTestClient {
   Future<Result<List<SonarrHistoryRecord>>> getHistory({
     int page = 1,
     int pageSize = 50,
+  }) async => (await getHistoryPage(
+    page: page,
+    pageSize: pageSize,
+  )).map((history) => history.records);
+
+  /// [getHistory] with the page's paging facts. Page with this: a page's
+  /// parsed records can be fewer than it held, so their count can't say
+  /// whether another page exists.
+  Future<Result<HistoryPage<SonarrHistoryRecord>>> getHistoryPage({
+    int page = 1,
+    int pageSize = 50,
   }) {
     return dioCall(
       () => _dio.get(
@@ -360,7 +371,7 @@ class SonarrClient implements ConnectionTestClient {
           'includeEpisode': true,
         },
       ),
-      map: _parseHistory,
+      map: _parseHistoryPage,
     );
   }
 
@@ -379,9 +390,22 @@ class SonarrClient implements ConnectionTestClient {
     );
   }
 
-  List<SonarrHistoryRecord> _parseHistory(dynamic data) {
-    final parsed = <SonarrHistoryRecord>[];
+  HistoryPage<SonarrHistoryRecord> _parseHistoryPage(dynamic data) {
     final records = jsonList(data, what: 'history', envelopeKey: 'records');
+    final total = data is Map ? data['totalRecords'] : null;
+    return HistoryPage(
+      records: _parseRecords(records),
+      received: records.length,
+      totalRecords: total is int ? total : null,
+    );
+  }
+
+  List<SonarrHistoryRecord> _parseHistory(dynamic data) =>
+      _parseRecords(jsonList(data, what: 'history', envelopeKey: 'records'));
+
+  /// Drops a record that doesn't parse rather than failing its page.
+  List<SonarrHistoryRecord> _parseRecords(List<Map<String, dynamic>> records) {
+    final parsed = <SonarrHistoryRecord>[];
     for (final json in records) {
       try {
         parsed.add(SonarrHistoryRecord.fromJson(json));

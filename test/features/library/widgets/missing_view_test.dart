@@ -2,14 +2,16 @@ import 'dart:async';
 
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
-import 'package:arrstack/features/activity/activity_providers.dart';
 import 'package:arrstack/features/library/widgets/missing_view.dart';
 import 'package:arrstack/services/radarr/models/radarr_models.dart';
 import 'package:arrstack/services/radarr/radarr_providers.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
+import 'package:arrstack/services/sonarr/sonarr_providers.dart';
+import 'package:arrstack/services/sonarr/sonarr_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 Widget _radarr(Future<Result<List<RadarrMovie>>> Function() movies) =>
     ProviderScope(
@@ -21,16 +23,23 @@ Widget _radarr(Future<Result<List<RadarrMovie>>> Function() movies) =>
       ),
     );
 
-Widget _sonarr(List<SonarrMissingEpisode> episodes) => ProviderScope(
-  overrides: [
-    sonarrMissingEpisodesProvider.overrideWith((ref) async => episodes),
-  ],
-  child: const MaterialApp(
-    home: Scaffold(
-      body: LibraryMissingView(type: ServiceType.sonarr, instanceId: 's1'),
+class _MockSonarrRepository extends Mock implements SonarrRepository {}
+
+/// The real Missing provider and view, over instance `s1`'s repository.
+Widget _sonarr(Result<List<SonarrCalendarEpisode>> missing) {
+  final repo = _MockSonarrRepository();
+  when(repo.listMissingEpisodes).thenAnswer((_) async => missing);
+  return ProviderScope(
+    overrides: [
+      sonarrRepositoryProvider('s1').overrideWith((ref) async => repo),
+    ],
+    child: const MaterialApp(
+      home: Scaffold(
+        body: LibraryMissingView(type: ServiceType.sonarr, instanceId: 's1'),
+      ),
     ),
-  ),
-);
+  );
+}
 
 void main() {
   group('Radarr', () {
@@ -95,7 +104,8 @@ void main() {
 
   group('Sonarr', () {
     testWidgets('shows an empty state when nothing is missing', (tester) async {
-      await tester.pumpWidget(_sonarr(const []));
+      await tester.pumpWidget(_sonarr(const Ok([])));
+      await tester.pump();
       await tester.pump();
 
       expect(find.text('Nothing missing'), findsOneWidget);
@@ -103,10 +113,9 @@ void main() {
 
     testWidgets('lists this instance\'s missing episodes', (tester) async {
       await tester.pumpWidget(
-        _sonarr([
-          SonarrMissingEpisode(
-            instanceId: 's1',
-            episode: SonarrCalendarEpisode(
+        _sonarr(
+          Ok([
+            SonarrCalendarEpisode(
               id: 501,
               seriesId: 9,
               seasonNumber: 2,
@@ -115,15 +124,8 @@ void main() {
               airDateUtc: DateTime.utc(2025, 2, 14),
               series: const SonarrSeries(id: 9, title: 'Severance'),
             ),
-          ),
-          const SonarrMissingEpisode(
-            instanceId: 's2',
-            episode: SonarrCalendarEpisode(
-              id: 1,
-              series: SonarrSeries(title: 'Other Instance Show'),
-            ),
-          ),
-        ]),
+          ]),
+        ),
       );
       await tester.pump();
       await tester.pump();
@@ -131,7 +133,21 @@ void main() {
       expect(find.text('MISSING EPISODES · 1'), findsOneWidget);
       expect(find.text('S02E05'), findsOneWidget);
       expect(find.text('Severance · Trojan Horse'), findsOneWidget);
-      expect(find.textContaining('Other Instance Show'), findsNothing);
+    });
+
+    testWidgets('an unreachable instance shows the error with Retry, not a '
+        'false "Nothing missing"', (tester) async {
+      await tester.pumpWidget(
+        _sonarr(
+          const Err(NetworkError(userMessage: 'Could not reach nas:8989.')),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('Nothing missing'), findsNothing);
+      expect(find.textContaining('Could not reach'), findsOneWidget);
+      expect(find.text('Retry'), findsOneWidget);
     });
   });
 }

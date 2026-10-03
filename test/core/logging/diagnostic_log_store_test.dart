@@ -74,6 +74,66 @@ void main() {
     await sub.cancel();
   });
 
+  group('shared with the background isolate', () {
+    // The background notification worker runs in its own isolate with its
+    // own store over the same file. Two instances over one file stand in
+    // for the two isolates.
+
+    test(
+      'one store sees entries the other wrote after it first read',
+      () async {
+        final ui = FileDiagnosticLogStore(() async => file);
+        final background = FileDiagnosticLogStore(() async => file);
+
+        await ui.append(entry(1)); // the UI has now read the file
+        await background.append(entry(2));
+
+        expect((await ui.readAll()).map((e) => e.message), ['m 2', 'm 1']);
+      },
+    );
+
+    test("one store's append keeps entries the other wrote, rather than "
+        'writing back a stale copy over them', () async {
+      final ui = FileDiagnosticLogStore(() async => file);
+      final background = FileDiagnosticLogStore(() async => file);
+
+      await ui.append(entry(1));
+      await background.append(entry(2)); // the worker logs a failure
+      await ui.append(entry(3)); // the UI's next append
+
+      expect((await background.readAll()).map((e) => e.message), [
+        'm 3',
+        'm 2',
+        'm 1',
+      ]);
+    });
+
+    test('leaves no temp files behind', () async {
+      final store = FileDiagnosticLogStore(() async => file);
+      for (var i = 0; i < 5; i++) {
+        await store.append(entry(i));
+      }
+
+      expect(dir.listSync().map((f) => f.uri.pathSegments.last), ['log.json']);
+    });
+  });
+
+  test('redacts the tag as well as the message', () async {
+    final store = FileDiagnosticLogStore(() async => file);
+    await store.append(
+      LogEntry(
+        time: DateTime.utc(2026, 9, 30),
+        level: LogLevel.warn,
+        // Instance names are user-chosen, and may be an address.
+        tag: '192.168.1.20 Radarr',
+        message: 'Notification check failed',
+      ),
+    );
+
+    expect(file.readAsStringSync(), isNot(contains('192.168.1.20')));
+    expect((await store.readAll()).single.tag, '<host> Radarr');
+  });
+
   test('concurrent appends are all kept', () async {
     final store = FileDiagnosticLogStore(() async => file);
     await Future.wait([for (var i = 0; i < 20; i++) store.append(entry(i))]);

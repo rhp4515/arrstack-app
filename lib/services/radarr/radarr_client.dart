@@ -261,6 +261,17 @@ class RadarrClient implements ConnectionTestClient {
   Future<Result<List<RadarrHistoryRecord>>> getHistory({
     int page = 1,
     int pageSize = 50,
+  }) async => (await getHistoryPage(
+    page: page,
+    pageSize: pageSize,
+  )).map((history) => history.records);
+
+  /// [getHistory] with the page's paging facts. Page with this: a page's
+  /// parsed records can be fewer than it held, so their count can't say
+  /// whether another page exists.
+  Future<Result<HistoryPage<RadarrHistoryRecord>>> getHistoryPage({
+    int page = 1,
+    int pageSize = 50,
   }) {
     return dioCall(
       () => _dio.get(
@@ -273,7 +284,7 @@ class RadarrClient implements ConnectionTestClient {
           'includeMovie': true,
         },
       ),
-      map: _parseHistory,
+      map: _parseHistoryPage,
     );
   }
 
@@ -293,9 +304,22 @@ class RadarrClient implements ConnectionTestClient {
   }
 
   /// A paged `records` envelope or a plain list; bad records are skipped.
-  List<RadarrHistoryRecord> _parseHistory(dynamic data) {
-    final parsed = <RadarrHistoryRecord>[];
+  HistoryPage<RadarrHistoryRecord> _parseHistoryPage(dynamic data) {
     final records = jsonList(data, what: 'history', envelopeKey: 'records');
+    final total = data is Map ? data['totalRecords'] : null;
+    return HistoryPage(
+      records: _parseRecords(records),
+      received: records.length,
+      totalRecords: total is int ? total : null,
+    );
+  }
+
+  List<RadarrHistoryRecord> _parseHistory(dynamic data) =>
+      _parseRecords(jsonList(data, what: 'history', envelopeKey: 'records'));
+
+  /// Drops a record that doesn't parse rather than failing its page.
+  List<RadarrHistoryRecord> _parseRecords(List<Map<String, dynamic>> records) {
+    final parsed = <RadarrHistoryRecord>[];
     for (final json in records) {
       try {
         parsed.add(RadarrHistoryRecord.fromJson(json));

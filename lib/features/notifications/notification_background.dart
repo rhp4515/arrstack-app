@@ -8,8 +8,11 @@ import 'dart:ui' show DartPluginRegistrant;
 import 'package:arrstack/core/logging/diagnostic_log_store.dart';
 import 'package:arrstack/core/logging/diagnostic_logger.dart';
 import 'package:arrstack/core/logging/logging_providers.dart';
+import 'package:arrstack/core/storage/app_preferences.dart';
 import 'package:arrstack/features/notifications/notification_providers.dart';
 import 'package:arrstack/features/notifications/notification_scheduler.dart';
+import 'package:arrstack/features/notifications/notification_settings.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/widgets.dart' show WidgetsFlutterBinding;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:workmanager/workmanager.dart';
@@ -46,12 +49,36 @@ Future<bool> runBackgroundNotificationCheck() async {
       'Notifications',
       'Background check failed | ${describeError(error)}',
     );
+  }
+  try {
+    await resubmitBackgroundCheck(container);
+  } on Object catch (error) {
+    logger.error(
+      'Notifications',
+      'Rescheduling the next check failed | ${describeError(error)}',
+    );
   } finally {
     // Give queued log writes a moment to land before the isolate ends.
     await logStore.readAll();
     container.dispose();
   }
   return true;
+}
+
+/// On iOS, re-submits the next run with the current 'Check every' setting,
+/// replacing the request the plugin just submitted with the delay fixed at
+/// app launch (see [WorkmanagerNotificationScheduler]). Nothing to do
+/// elsewhere: Android's periodic work already follows the setting.
+@visibleForTesting
+Future<void> resubmitBackgroundCheck(ProviderContainer container) async {
+  if (!schedulesWithBackgroundTasks) return;
+  final settings = await readNotificationSettings(
+    container.read(appPreferencesProvider),
+  );
+  if (!settings.enabled) return;
+  await container
+      .read(notificationSchedulerProvider)
+      .schedule(settings.frequency);
 }
 
 /// Called once from `main` so the OS knows which function to run.

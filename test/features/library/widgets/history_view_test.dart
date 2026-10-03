@@ -35,14 +35,17 @@ RadarrHistoryRecord _record(int id, {String eventType = 'grabbed'}) =>
       ),
     );
 
+HistoryPage<RadarrHistoryRecord> _page(List<RadarrHistoryRecord> records) =>
+    HistoryPage(records: records, received: records.length);
+
 void main() {
   late _MockRadarrRepository repo;
 
   setUp(() => repo = _MockRadarrRepository());
 
   testWidgets('shows a spinner while loading', (tester) async {
-    final pending = Completer<Result<List<RadarrHistoryRecord>>>();
-    when(() => repo.getHistory(page: 1, pageSize: 50))
+    final pending = Completer<Result<HistoryPage<RadarrHistoryRecord>>>();
+    when(() => repo.getHistoryPage(page: 1, pageSize: 50))
         .thenAnswer((_) => pending.future);
 
     await tester.pumpWidget(_host(repo));
@@ -52,8 +55,8 @@ void main() {
   });
 
   testWidgets('shows an empty state when there is no history', (tester) async {
-    when(() => repo.getHistory(page: 1, pageSize: 50))
-        .thenAnswer((_) async => const Ok([]));
+    when(() => repo.getHistoryPage(page: 1, pageSize: 50))
+        .thenAnswer((_) async => Ok(_page(const [])));
 
     await tester.pumpWidget(_host(repo));
     await tester.pumpAndSettle();
@@ -63,7 +66,7 @@ void main() {
 
   testWidgets('shows the error with Retry', (tester) async {
     when(
-      () => repo.getHistory(page: 1, pageSize: 50),
+      () => repo.getHistoryPage(page: 1, pageSize: 50),
     ).thenAnswer((_) async => const Err(AuthError(userMessage: 'Bad API key')));
 
     await tester.pumpWidget(_host(repo));
@@ -77,9 +80,10 @@ void main() {
   testWidgets('shows title, event label, date and quality chip', (
     tester,
   ) async {
-    when(() => repo.getHistory(page: 1, pageSize: 50)).thenAnswer(
-      (_) async =>
-          Ok([_record(1), _record(2, eventType: 'downloadFolderImported')]),
+    when(() => repo.getHistoryPage(page: 1, pageSize: 50)).thenAnswer(
+      (_) async => Ok(
+        _page([_record(1), _record(2, eventType: 'downloadFolderImported')]),
+      ),
     );
 
     await tester.pumpWidget(_host(repo));
@@ -98,8 +102,9 @@ void main() {
   testWidgets('quality chip is green normally but neutral on failures', (
     tester,
   ) async {
-    when(() => repo.getHistory(page: 1, pageSize: 50)).thenAnswer(
-      (_) async => Ok([_record(1), _record(2, eventType: 'downloadFailed')]),
+    when(() => repo.getHistoryPage(page: 1, pageSize: 50)).thenAnswer(
+      (_) async =>
+          Ok(_page([_record(1), _record(2, eventType: 'downloadFailed')])),
     );
 
     await tester.pumpWidget(_host(repo));
@@ -112,11 +117,11 @@ void main() {
   });
 
   testWidgets('Load more appends the next page', (tester) async {
-    when(
-      () => repo.getHistory(page: 1, pageSize: 50),
-    ).thenAnswer((_) async => Ok([for (var i = 1; i <= 50; i++) _record(i)]));
-    when(() => repo.getHistory(page: 2, pageSize: 50))
-        .thenAnswer((_) async => Ok([_record(51)]));
+    when(() => repo.getHistoryPage(page: 1, pageSize: 50)).thenAnswer(
+      (_) async => Ok(_page([for (var i = 1; i <= 50; i++) _record(i)])),
+    );
+    when(() => repo.getHistoryPage(page: 2, pageSize: 50))
+        .thenAnswer((_) async => Ok(_page([_record(51)])));
 
     await tester.pumpWidget(_host(repo));
     await tester.pumpAndSettle();

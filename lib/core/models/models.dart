@@ -5,6 +5,7 @@ library;
 export 'package:arrstack/core/models/auth_type.dart';
 export 'package:arrstack/core/models/cached_service_summary.dart';
 export 'package:arrstack/core/models/endpoint_mode.dart';
+export 'package:arrstack/core/models/history_page.dart';
 export 'package:arrstack/core/models/home_service_summary.dart';
 export 'package:arrstack/core/models/home_summary.dart';
 export 'package:arrstack/core/models/right_now_summary.dart';

@@ -21,13 +21,24 @@ abstract interface class AppPreferences {
   Future<String?> readString(String key);
 
   Future<void> writeString(String key, String value);
+
+  Future<void> remove(String key);
+
+  /// Every stored key, for clearing a family of keys by prefix.
+  Future<Set<String>> keys();
 }
 
+/// The preferences handle is created on first use, not on construction:
+/// its constructor throws when no platform implementation is registered
+/// (widget tests), and a provider that merely depends on this one
+/// shouldn't fail to build because of that.
 class SharedPreferencesAppPreferences implements AppPreferences {
-  SharedPreferencesAppPreferences([SharedPreferencesAsync? preferences])
-    : _preferences = preferences ?? SharedPreferencesAsync();
+  SharedPreferencesAppPreferences([this._handle]);
 
-  final SharedPreferencesAsync _preferences;
+  SharedPreferencesAsync? _handle;
+
+  SharedPreferencesAsync get _preferences =>
+      _handle ??= SharedPreferencesAsync();
 
   @override
   Future<bool?> readBool(String key) => _preferences.getBool(key);
@@ -49,6 +60,12 @@ class SharedPreferencesAppPreferences implements AppPreferences {
   @override
   Future<void> writeString(String key, String value) =>
       _preferences.setString(key, value);
+
+  @override
+  Future<void> remove(String key) => _preferences.remove(key);
+
+  @override
+  Future<Set<String>> keys() => _preferences.getKeys();
 }
 
 /// [AppPreferences] held in memory, for tests.
@@ -77,6 +94,12 @@ class InMemoryAppPreferences implements AppPreferences {
   @override
   Future<void> writeString(String key, String value) async =>
       _values[key] = value;
+
+  @override
+  Future<void> remove(String key) async => _values.remove(key);
+
+  @override
+  Future<Set<String>> keys() async => {..._values.keys};
 }
 
 @Riverpod(keepAlive: true)

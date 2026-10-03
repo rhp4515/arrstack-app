@@ -179,7 +179,33 @@ class ServiceBackupService {
   /// Writes [contents] into this device's configuration: an instance whose
   /// id already exists here (restoring onto the same device) is replaced,
   /// anything else is added. Home SSIDs are merged, never removed.
+  /// Writes [contents] onto this device.
+  ///
+  /// Not transactional: instances are written one at a time, so a failure
+  /// partway leaves the earlier ones applied. What can be checked up front
+  /// is, so nothing is written for a file that can't fully apply; and when
+  /// a write does fail partway, the error says how many were applied
+  /// rather than reading as if nothing happened. Callers must treat any
+  /// result — Err included — as possibly having changed instances.
   Future<Result<RestoreSummary>> restore(BackupContents contents) async {
+    // Two entries with one id would add the first and then fail adding the
+    // second as "already exists" — after the first was written. Refuse
+    // before writing anything.
+    final seen = <String>{};
+    final duplicated = {
+      for (final instance in contents.instances)
+        if (!seen.add(instance.id)) instance.name,
+    };
+    if (duplicated.isNotEmpty) {
+      return Err(
+        ValidationError(
+          userMessage:
+              'This backup lists the same service more than once '
+              '(${duplicated.join(', ')}), so nothing was restored.',
+        ),
+      );
+    }
+
     final listResult = await _instances.list();
     final Set<String> existingIds;
     switch (listResult) {
@@ -197,7 +223,19 @@ class ServiceBackupService {
       final result = exists
           ? await _instances.update(instance, credential: credential)
           : await _instances.add(instance, credential: credential);
-      if (result case Err(:final error)) return Err(error);
+      if (result case Err(:final error)) {
+        final applied = added + updated;
+        if (applied == 0) return Err(error);
+        return Err(
+          StorageError(
+            cause: error,
+            userMessage:
+                'Restored $applied of ${contents.instances.length} services '
+                'before "${instance.name}" failed: ${error.userMessage} '
+                'The rest were not changed.',
+          ),
+        );
+      }
       exists ? updated++ : added++;
     }
 

@@ -41,6 +41,63 @@ void main() {
     expect(out, contains('apikey=<redacted>'));
   });
 
+  group('bare hostnames, which carry no scheme for the URL pattern', () {
+    // The interceptor records the transport's own error text and this
+    // app's error copy. Both name the server without a scheme, and a
+    // custom hostname has no IP or .ts.net suffix to give it away.
+
+    test("masks the host in Dart's failed-lookup message", () {
+      final out = redactDiagnosticMessage(
+        "SocketException: Failed host lookup: 'radarr.myhome.example.com' "
+        '(OS Error: No address associated with hostname, errno = 7)',
+      );
+      expect(out, isNot(contains('myhome')));
+      expect(out, contains("Failed host lookup: '<host>'"));
+      // The diagnosis itself survives.
+      expect(out, contains('No address associated with hostname'));
+    });
+
+    test('masks a dotless host in an address field', () {
+      expect(
+        redactDiagnosticMessage(
+          'SocketException: Connection refused, address = nas, port = 7878',
+        ),
+        'SocketException: Connection refused, address = <host>, port = 7878',
+      );
+    });
+
+    test("masks host:port in this app's own error copy", () {
+      for (final message in [
+        "Couldn't look up radarr.myhome.example:7878. If Tailscale is "
+            'already connected, use its 100.x address instead of the name.',
+        'Could not reach nas:8989. Check the URL and your connection.',
+        'nas.lan:7878 did not respond in time.',
+      ]) {
+        final out = redactDiagnosticMessage(message);
+        expect(out, isNot(contains('myhome')), reason: message);
+        expect(out, isNot(contains('nas')), reason: message);
+        expect(out, contains('<host>'), reason: message);
+      }
+    });
+
+    test('masks a Host header', () {
+      expect(
+        redactDiagnosticMessage('Host: radarr.myhome.example'),
+        'Host: <host>',
+      );
+    });
+
+    test('leaves timestamps and generic copy alone', () {
+      for (final message in [
+        'history since 2026-09-30T12:00:05Z returned 3 records',
+        'Could not reach the server. Check the URL and your connection.',
+        'Notification check failed after 20s',
+      ]) {
+        expect(redactDiagnosticMessage(message), message);
+      }
+    });
+  });
+
   group('credentials carried in HTTP headers', () {
     // qBittorrent authenticates with exactly these two shapes — a bearer API
     // key, or an SID session cookie — and neither carries a `key=` label

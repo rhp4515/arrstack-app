@@ -4,7 +4,6 @@
 
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
-import 'package:arrstack/features/activity/activity_providers.dart';
 import 'package:arrstack/features/calendar/calendar_providers.dart';
 import 'package:arrstack/features/calendar/models/calendar_entry.dart';
 import 'package:arrstack/features/library/library_section_providers.dart';
@@ -50,6 +49,13 @@ RadarrHistoryRecord _radarrRecord(int id) => RadarrHistoryRecord(
     quality: RadarrQuality(name: 'Bluray-1080p'),
   ),
 );
+
+HistoryPage<T> _page<T>(List<T> records, {int? received, int? total}) =>
+    HistoryPage(
+      records: records,
+      received: received ?? records.length,
+      totalRecords: total,
+    );
 
 void main() {
   test('libraryUpcoming keeps monitored entries of one instance', () async {
@@ -103,37 +109,44 @@ void main() {
     expect(result.errorOrNull?.userMessage, 'nope');
   });
 
-  test(
-    'libraryMissingEpisodes narrows to one instance, newest first',
-    () async {
-      SonarrMissingEpisode missing(String instanceId, int id) =>
-          SonarrMissingEpisode(
-            instanceId: instanceId,
-            episode: SonarrCalendarEpisode(
-              id: id,
-              airDateUtc: DateTime.utc(2026, 1, id),
-            ),
-          );
+  group('libraryMissingEpisodes', () {
+    SonarrCalendarEpisode aired(int day) =>
+        SonarrCalendarEpisode(id: day, airDateUtc: DateTime.utc(2026, 1, day));
+
+    ProviderContainer over(Result<List<SonarrCalendarEpisode>> missing) {
+      final repo = _MockSonarrRepository();
+      when(repo.listMissingEpisodes).thenAnswer((_) async => missing);
       final container = ProviderContainer(
         overrides: [
-          sonarrMissingEpisodesProvider.overrideWith(
-            (ref) async => [
-              missing('s1', 1),
-              missing('s2', 2),
-              missing('s1', 3),
-            ],
-          ),
+          sonarrRepositoryProvider('s1').overrideWith((ref) async => repo),
         ],
       );
       addTearDown(container.dispose);
+      return container;
+    }
+
+    test('lists the instance\'s episodes newest first', () async {
+      final container = over(Ok([aired(1), aired(3), aired(2)]));
+
+      final result = (await container.read(
+        libraryMissingEpisodesProvider('s1').future,
+      )).valueOrNull!;
+
+      expect(result.map((m) => m.episode.id), [3, 2, 1]);
+      expect(result.map((m) => m.instanceId).toSet(), {'s1'});
+    });
+
+    test('reports an unreachable instance as an error, rather than as '
+        'nothing missing', () async {
+      final container = over(const Err(NetworkError()));
 
       final result = await container.read(
         libraryMissingEpisodesProvider('s1').future,
       );
 
-      expect(result.map((m) => m.episode.id), [3, 1]);
-    },
-  );
+      expect(result.errorOrNull, isA<NetworkError>());
+    });
+  });
 
   test('libraryQueue uses the movie title and computes progress', () async {
     final container = ProviderContainer(
@@ -201,11 +214,12 @@ void main() {
   group('libraryHistory', () {
     test('loads page 1 and appends page 2 on loadMore', () async {
       final repo = _MockRadarrRepository();
-      when(() => repo.getHistory(page: 1, pageSize: 50)).thenAnswer(
-        (_) async => Ok([for (var i = 1; i <= 50; i++) _radarrRecord(i)]),
+      when(() => repo.getHistoryPage(page: 1, pageSize: 50)).thenAnswer(
+        (_) async =>
+            Ok(_page([for (var i = 1; i <= 50; i++) _radarrRecord(i)])),
       );
-      when(() => repo.getHistory(page: 2, pageSize: 50))
-          .thenAnswer((_) async => Ok([_radarrRecord(51)]));
+      when(() => repo.getHistoryPage(page: 2, pageSize: 50))
+          .thenAnswer((_) async => Ok(_page([_radarrRecord(51)])));
       final container = ProviderContainer(
         overrides: [
           radarrRepositoryProvider('r1').overrideWith((ref) async => repo),
@@ -233,10 +247,11 @@ void main() {
 
     test('loadMore returns the error and keeps loaded entries', () async {
       final repo = _MockRadarrRepository();
-      when(() => repo.getHistory(page: 1, pageSize: 50)).thenAnswer(
-        (_) async => Ok([for (var i = 1; i <= 50; i++) _radarrRecord(i)]),
+      when(() => repo.getHistoryPage(page: 1, pageSize: 50)).thenAnswer(
+        (_) async =>
+            Ok(_page([for (var i = 1; i <= 50; i++) _radarrRecord(i)])),
       );
-      when(() => repo.getHistory(page: 2, pageSize: 50))
+      when(() => repo.getHistoryPage(page: 2, pageSize: 50))
           .thenAnswer((_) async => const Err(ServerError(userMessage: 'down')));
       final container = ProviderContainer(
         overrides: [
@@ -260,19 +275,21 @@ void main() {
 
     test('maps Sonarr records with the episode code', () async {
       final repo = _MockSonarrRepository();
-      when(() => repo.getHistory(page: 1, pageSize: 50)).thenAnswer(
-        (_) async => Ok([
-          SonarrHistoryRecord(
-            id: 1,
-            eventType: 'downloadFolderImported',
-            date: DateTime.utc(2026, 9, 20),
-            series: const SonarrHistorySeries(title: 'Severance'),
-            episode: const SonarrHistoryEpisode(
-              seasonNumber: 2,
-              episodeNumber: 5,
+      when(() => repo.getHistoryPage(page: 1, pageSize: 50)).thenAnswer(
+        (_) async => Ok(
+          _page([
+            SonarrHistoryRecord(
+              id: 1,
+              eventType: 'downloadFolderImported',
+              date: DateTime.utc(2026, 9, 20),
+              series: const SonarrHistorySeries(title: 'Severance'),
+              episode: const SonarrHistoryEpisode(
+                seasonNumber: 2,
+                episodeNumber: 5,
+              ),
             ),
-          ),
-        ]),
+          ]),
+        ),
       );
       final container = ProviderContainer(
         overrides: [
@@ -288,6 +305,74 @@ void main() {
 
       expect(feed.entries.single.title, 'Severance S02E05');
       expect(feed.hasMore, isFalse);
+    });
+
+    Future<LibraryHistory> historyOver(_MockRadarrRepository repo) async {
+      final container = ProviderContainer(
+        overrides: [
+          radarrRepositoryProvider('r1').overrideWith((ref) async => repo),
+        ],
+      );
+      addTearDown(container.dispose);
+      final provider = libraryHistoryProvider(ServiceType.radarr, 'r1');
+      final sub = container.listen(provider, (_, _) {});
+      addTearDown(sub.close);
+      await container.read(provider.future);
+      return container.read(provider.notifier);
+    }
+
+    LibraryHistoryFeed feedOf(LibraryHistory history) =>
+        history.state.value!.valueOrNull!;
+
+    test('loadMore drops rows already listed when new history shifted '
+        'the pages', () async {
+      final repo = _MockRadarrRepository();
+      // Page 1 held 100..51; two new events then pushed 52 and 51 onto
+      // page 2, which now starts with rows already shown.
+      when(() => repo.getHistoryPage(page: 1, pageSize: 50)).thenAnswer(
+        (_) async =>
+            Ok(_page([for (var i = 100; i > 50; i--) _radarrRecord(i)])),
+      );
+      when(() => repo.getHistoryPage(page: 2, pageSize: 50)).thenAnswer(
+        (_) async => Ok(_page([for (var i = 52; i > 2; i--) _radarrRecord(i)])),
+      );
+      final history = await historyOver(repo);
+
+      await history.loadMore();
+
+      final ids = feedOf(history).entries.map((e) => e.id).toList();
+      expect(ids, [for (var i = 100; i > 2; i--) i]);
+      expect(ids.toSet(), hasLength(ids.length), reason: 'no row twice');
+    });
+
+    test('a full page with a record that failed to parse still offers '
+        'Load more', () async {
+      final repo = _MockRadarrRepository();
+      when(() => repo.getHistoryPage(page: 1, pageSize: 50)).thenAnswer(
+        (_) async => Ok(
+          _page([for (var i = 1; i <= 49; i++) _radarrRecord(i)], received: 50),
+        ),
+      );
+      final history = await historyOver(repo);
+
+      expect(feedOf(history).entries, hasLength(49));
+      expect(feedOf(history).hasMore, isTrue);
+    });
+
+    test("goes by the server's total when it reports one", () async {
+      final repo = _MockRadarrRepository();
+      when(() => repo.getHistoryPage(page: 1, pageSize: 50)).thenAnswer(
+        (_) async => Ok(
+          _page([for (var i = 1; i <= 50; i++) _radarrRecord(i)], total: 50),
+        ),
+      );
+      final history = await historyOver(repo);
+
+      expect(
+        feedOf(history).hasMore,
+        isFalse,
+        reason: 'a full page, but the last one — no empty page 2 to load',
+      );
     });
   });
 }

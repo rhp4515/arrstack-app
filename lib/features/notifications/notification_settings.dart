@@ -92,6 +92,32 @@ abstract final class NotificationPreferenceKeys {
   /// Radarr instance has already been checked for.
   static String checkpoint(String sourceId) =>
       'notifications.checkpoint.$sourceId';
+
+  static const String _checkpointPrefix = 'notifications.checkpoint.';
+}
+
+/// The source families, as they appear at the front of a source id
+/// (`radarr.<instanceId>`) and so of its checkpoint key.
+enum NotificationSourceKind { radarr, sonarr, seerr }
+
+/// Forgets every stored checkpoint for [kind], or for every source.
+///
+/// A checkpoint only means "seen up to here" while its source is being
+/// checked. Once a source is off its checkpoint stops moving, so turning it
+/// back on weeks later would resume from that old point and replay
+/// everything since as one burst — the opposite of the promise that the
+/// first check after turning notifications on only records where things
+/// stand. Clearing it makes that first check start fresh again.
+Future<void> clearNotificationCheckpoints(
+  AppPreferences prefs, {
+  NotificationSourceKind? kind,
+}) async {
+  final prefix =
+      NotificationPreferenceKeys._checkpointPrefix +
+      (kind == null ? '' : '${kind.name}.');
+  for (final key in await prefs.keys()) {
+    if (key.startsWith(prefix)) await prefs.remove(key);
+  }
 }
 
 Future<NotificationSettings> readNotificationSettings(

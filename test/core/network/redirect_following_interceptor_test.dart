@@ -95,9 +95,30 @@ void main() {
     expect(adapter.seen.last.uri.path, '/sonarr/api/v3/series');
   });
 
-  test('never follows a redirect to another host', () async {
+  test('follows a redirect to another address on the home network, '
+      'including from https to http', () async {
     final adapter = _ScriptedAdapter(
-      (_) => _redirect(307, 'https://elsewhere.test/api/v3/series'),
+      (o) => o.uri.host == '192.168.1.50'
+          ? _ok()
+          : _redirect(307, 'http://192.168.1.50:8989/api/v3/series'),
+    );
+    final dio = build(adapter, base: 'https://nas.test');
+
+    final result = await dioCall(
+      () => dio.post('api/v3/series', data: {}),
+      map: (data) => data,
+    );
+
+    expect(result.isOk, isTrue);
+    expect(
+      adapter.seen.last.uri.toString(),
+      'http://192.168.1.50:8989/api/v3/series',
+    );
+  });
+
+  test('never follows a redirect to a public host', () async {
+    final adapter = _ScriptedAdapter(
+      (_) => _redirect(307, 'https://elsewhere.example.com/api/v3/series?x=1'),
     );
     final dio = build(adapter);
 
@@ -109,14 +130,17 @@ void main() {
     expect(adapter.seen, hasLength(1));
     expect(result.errorOrNull, isA<UnknownError>());
     expect(result.errorOrNull!.statusCode, 307);
-    expect(result.errorOrNull!.userMessage, contains('redirected'));
+    final message = result.errorOrNull!.userMessage;
+    expect(message, contains('redirected'));
+    expect(message, contains('https://elsewhere.example.com'));
+    expect(message, isNot(contains('x=1'))); // query can carry a key
   });
 
-  test('refuses to downgrade https to http', () async {
+  test('refuses to downgrade https to http on a public host', () async {
     final adapter = _ScriptedAdapter(
-      (_) => _redirect(307, 'http://nas.test/api/v3/series'),
+      (_) => _redirect(307, 'http://nas.example.com/api/v3/series'),
     );
-    final dio = build(adapter, base: 'https://nas.test');
+    final dio = build(adapter, base: 'https://nas.example.com');
 
     final result = await dioCall(
       () => dio.post('api/v3/series', data: {}),

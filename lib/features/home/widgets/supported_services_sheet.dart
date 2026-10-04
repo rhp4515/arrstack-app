@@ -34,6 +34,7 @@ class SupportedServicesSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -62,7 +63,9 @@ class SupportedServicesSheet extends StatelessWidget {
                       vertical: AppSpacing.space2,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.n900,
+                      color: isDark
+                          ? AppColors.n900
+                          : colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(AppRadius.sm),
                     ),
                     child: Text(

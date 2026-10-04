@@ -119,9 +119,15 @@ class _BandBody extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Text('${summary.healthy}', style: AppTypography.heroNumeral),
+            Text(
+              '${summary.healthy}',
+              style: AppTypography.heroNumeral.copyWith(color: AppColors.text),
+            ),
             const SizedBox(width: AppSpacing.space2),
-            Text('/ ${summary.total} healthy', style: AppTypography.body),
+            Text(
+              '/ ${summary.total} healthy',
+              style: AppTypography.body.copyWith(color: AppColors.text),
+            ),
           ],
         ),
         const SizedBox(height: AppSpacing.space3),

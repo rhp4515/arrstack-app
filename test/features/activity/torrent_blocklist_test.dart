@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
@@ -112,10 +114,10 @@ void main() {
           ],
           child: MaterialApp(
             home: Consumer(
-              builder: (context, ref, _) => TextButton(
+              builder: (context, _, _) => TextButton(
                 onPressed: () async =>
                     outcome = await removeAndBlocklistTorrent(
-                      ref,
+                      ProviderScope.containerOf(context),
                       instanceId: 'qbit-1',
                       torrent: _torrent(),
                     ),
@@ -156,13 +158,15 @@ void main() {
       );
     });
 
-    testWidgets('finds the torrent in Sonarr, blocklisting every episode of a '
-        'pack and removing from the client last', (tester) async {
-      when(() => radarr.listQueue()).thenAnswer((_) async => const Ok([]));
-      when(() => sonarr.listQueue()).thenAnswer(
-        (_) async => Ok([
-          SonarrQueueItem(id: 10, downloadId: _hash.toUpperCase()),
-          SonarrQueueItem(id: 11, downloadId: _hash.toUpperCase()),
+    testWidgets('finds the torrent in Sonarr and sends one delete for a '
+        'season pack (its other items stop existing once the first goes)', (
+      tester,
+    ) async {
+      when(radarr.listQueue).thenAnswer((_) async => const Ok([]));
+      when(sonarr.listQueue).thenAnswer(
+        (_) async => const Ok([
+          SonarrQueueItem(id: 10, downloadId: _hash),
+          SonarrQueueItem(id: 11, downloadId: _hash),
         ]),
       );
 
@@ -172,15 +176,53 @@ void main() {
       ]);
 
       expect(outcome, isA<Blocklisted>());
-      verifyInOrder([
-        () => sonarr.deleteQueueItem(
-          10,
-          removeFromClient: false,
-          blocklist: true,
-        ),
+      verify(
         () =>
-            sonarr.deleteQueueItem(11, removeFromClient: true, blocklist: true),
-      ]);
+            sonarr.deleteQueueItem(10, removeFromClient: true, blocklist: true),
+      ).called(1);
+      verifyNever(
+        () => sonarr.deleteQueueItem(
+          11,
+          removeFromClient: any(named: 'removeFromClient'),
+          blocklist: any(named: 'blocklist'),
+        ),
+      );
+    });
+
+    testWidgets('removes nothing when the service list cannot be read', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            instancesProvider.overrideWith(
+              (ref) async => const Err(StorageError(userMessage: 'disk')),
+            ),
+            qbitRepositoryProvider('qbit-1').overrideWith((_) async => qbit),
+          ],
+          child: MaterialApp(
+            home: Consumer(
+              builder: (context, _, _) => TextButton(
+                onPressed: () async =>
+                    outcome = await removeAndBlocklistTorrent(
+                      ProviderScope.containerOf(context),
+                      instanceId: 'qbit-1',
+                      torrent: _torrent(),
+                    ),
+                child: const Text('go'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('go'));
+      await tester.pumpAndSettle();
+
+      expect(outcome, isA<BlocklistFailed>());
+      verifyNever(
+        () =>
+            qbit.deleteTorrents(any(), deleteFiles: any(named: 'deleteFiles')),
+      );
     });
 
     testWidgets('falls back to removing from qBittorrent when no queue has '
@@ -290,5 +332,77 @@ void main() {
     ).called(1);
     expect(find.text('Removed and blocklisted in radarr-1.'), findsOneWidget);
     expect(find.text('Contains executable files (.exe)'), findsNothing);
+  });
+
+  testWidgets('dismissing the sheet mid-removal still finishes and reports', (
+    tester,
+  ) async {
+    final radarr = _MockRadarr();
+    final qbit = _MockQbit();
+    final queue = Completer<Result<List<RadarrQueueItem>>>();
+    when(() => qbit.listTorrentFiles(any())).thenAnswer(
+      (_) async => const Ok([
+        QbitTorrentFile(name: 'Fake.Movie.2024.1080p.mkv.exe', size: 5),
+      ]),
+    );
+    when(radarr.listQueue).thenAnswer((_) => queue.future);
+    when(
+      () => radarr.deleteQueueItem(
+        any(),
+        removeFromClient: any(named: 'removeFromClient'),
+        blocklist: any(named: 'blocklist'),
+      ),
+    ).thenAnswer((_) async => const Ok(null));
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          instancesProvider.overrideWith(
+            (ref) async => Ok([_instance('radarr-1', ServiceType.radarr)]),
+          ),
+          radarrRepositoryProvider('radarr-1')
+              .overrideWith((_) async => radarr),
+          qbitRepositoryProvider('qbit-1').overrideWith((_) async => qbit),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: TorrentBlock(instanceId: 'qbit-1', torrent: _torrent()),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Files'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Remove & blocklist'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.widgetWithText(OutlinedButton, 'Remove & blocklist').last,
+    );
+    await tester.pump();
+
+    // The button is disabled while running.
+    expect(
+      tester
+          .widget<OutlinedButton>(
+            find.widgetWithText(OutlinedButton, 'Removing…'),
+          )
+          .onPressed,
+      isNull,
+    );
+
+    // Dismiss the sheet while the queue lookup is still in flight.
+    Navigator.of(tester.element(find.text('Removing…'))).pop();
+    await tester.pumpAndSettle();
+    expect(find.text('Removing…'), findsNothing);
+
+    queue.complete(const Ok([RadarrQueueItem(id: 7, downloadId: _hash)]));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    verify(
+      () => radarr.deleteQueueItem(7, removeFromClient: true, blocklist: true),
+    ).called(1);
+    expect(find.text('Removed and blocklisted in radarr-1.'), findsOneWidget);
   });
 }

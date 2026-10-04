@@ -7,12 +7,17 @@
 /// request, same method and body, at the new address", which is safe to do
 /// here.
 ///
-/// Only a redirect to the *same host* is followed. The request carries an
-/// API key or session cookie, and handing that to a different host because
-/// a response said so would leak it. A redirect that downgrades https to
-/// http is refused for the same reason.
+/// The request carries an API key or session cookie, so where it may be
+/// resent is limited to the same host or another address on the user's own
+/// network (private ranges, local names, the tailnet) — a proxy on the LAN
+/// routinely redirects to a sibling address or another port, and the user
+/// may have no https there. A redirect to a *public* host is never
+/// followed, nor is one that downgrades https to http on a public host,
+/// because a response must not be able to send the credentials out of the
+/// network.
 library;
 
+import 'package:arrstack/core/network/private_host.dart';
 import 'package:dio/dio.dart';
 
 class RedirectFollowingInterceptor extends Interceptor {
@@ -70,9 +75,11 @@ class RedirectFollowingInterceptor extends Interceptor {
     } on FormatException {
       return null;
     }
-    if (!to.hasAuthority || to.host.toLowerCase() != from.host.toLowerCase()) {
+    if (!to.hasAuthority || (to.scheme != 'http' && to.scheme != 'https')) {
       return null;
     }
+    if (isPrivateNetworkHost(to.host)) return to;
+    if (to.host.toLowerCase() != from.host.toLowerCase()) return null;
     if (from.scheme == 'https' && to.scheme != 'https') return null;
     return to;
   }

@@ -44,10 +44,7 @@ AppError _mapStatusCode(DioException exception) {
     301 || 302 || 303 || 307 || 308 => UnknownError(
       statusCode: statusCode,
       cause: exception,
-      userMessage:
-          'The server redirected this request (HTTP $statusCode) somewhere '
-          "the app won't follow. Check the saved URL — try the https:// "
-          'address, or the exact address your proxy serves.',
+      userMessage: _redirectMessage(exception, statusCode!),
     ),
     final code? when code >= 500 && code < 600 => ServerError(
       statusCode: code,
@@ -55,6 +52,21 @@ AppError _mapStatusCode(DioException exception) {
     ),
     _ => UnknownError(statusCode: statusCode, cause: exception),
   };
+}
+
+/// Says where an unfollowed redirect pointed: scheme, host and port only —
+/// the path and query can carry an API key.
+String _redirectMessage(DioException exception, int statusCode) {
+  final location = exception.response?.headers.value('location');
+  final uri = location == null
+      ? null
+      : exception.requestOptions.uri.resolve(location);
+  final where = uri == null || !uri.hasAuthority
+      ? ''
+      : ' to ${uri.scheme}://${uri.host}${uri.hasPort ? ':${uri.port}' : ''}';
+  return 'The server redirected this request (HTTP $statusCode)$where, '
+      "which the app won't follow. Check the saved URL points straight at "
+      'the service.';
 }
 
 AppError _mapUnknown(DioException exception) {

@@ -24,6 +24,7 @@ Future<ConfirmDialogResult?> showDestructiveConfirmDialog(
   bool showDeleteFilesToggle = false,
   String deleteFilesTitle = 'Also delete files on disk',
   String? deleteFilesSubtitle,
+  bool initialDeleteFiles = false,
 }) {
   return showDialog<ConfirmDialogResult>(
     context: context,
@@ -35,6 +36,7 @@ Future<ConfirmDialogResult?> showDestructiveConfirmDialog(
       showDeleteFilesToggle: showDeleteFilesToggle,
       deleteFilesTitle: deleteFilesTitle,
       deleteFilesSubtitle: deleteFilesSubtitle,
+      initialDeleteFiles: initialDeleteFiles,
     ),
   );
 }
@@ -48,6 +50,7 @@ class _ConfirmDialog extends StatefulWidget {
     required this.showDeleteFilesToggle,
     required this.deleteFilesTitle,
     required this.deleteFilesSubtitle,
+    required this.initialDeleteFiles,
   });
 
   final String title;
@@ -57,13 +60,14 @@ class _ConfirmDialog extends StatefulWidget {
   final bool showDeleteFilesToggle;
   final String deleteFilesTitle;
   final String? deleteFilesSubtitle;
+  final bool initialDeleteFiles;
 
   @override
   State<_ConfirmDialog> createState() => _ConfirmDialogState();
 }
 
 class _ConfirmDialogState extends State<_ConfirmDialog> {
-  bool _deleteFiles = false;
+  late bool _deleteFiles = widget.initialDeleteFiles;
 
   @override
   Widget build(BuildContext context) {

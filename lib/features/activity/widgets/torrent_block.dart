@@ -7,6 +7,8 @@ library;
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/utils/format_utils.dart';
 import 'package:arrstack/core/widgets/confirm_dialog.dart';
+import 'package:arrstack/features/activity/models/torrent_file_risk.dart';
+import 'package:arrstack/features/activity/widgets/torrent_files_sheet.dart';
 import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';
 import 'package:arrstack/services/qbittorrent/qbit_providers.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +30,39 @@ bool torrentIsComplete(QbitTorrent t) =>
 /// Whether a still-downloading torrent has no peers (2h's "Stalled" block).
 bool torrentIsStalled(QbitTorrent t) => t.state == 'stalledDL';
 
+/// Asks before removing [torrent] from qBittorrent, then removes it.
+/// Returns whether it was removed. [deleteFilesByDefault] pre-ticks "Also
+/// delete files on disk", for a torrent that shouldn't be kept at all.
+Future<bool> confirmRemoveTorrent(
+  BuildContext context,
+  WidgetRef ref, {
+  required String instanceId,
+  required QbitTorrent torrent,
+  bool deleteFilesByDefault = false,
+}) async {
+  final result = await showDestructiveConfirmDialog(
+    context,
+    title: 'Remove this torrent?',
+    message:
+        '"${torrent.name}" will be removed from qBittorrent. If Sonarr '
+        'or Radarr is still monitoring it, they may grab it again.',
+    showDeleteFilesToggle: true,
+    deleteFilesSubtitle:
+        '${FormatUtils.formatBytes((torrent.size * torrent.progress).round())} '
+        'downloaded so far',
+    initialDeleteFiles: deleteFilesByDefault,
+  );
+
+  if (!context.mounted || result == null) return false;
+  final repository = await ref.read(qbitRepositoryProvider(instanceId).future);
+  final deleted = await repository.deleteTorrents([
+    torrent.hash,
+  ], deleteFiles: result.deleteFiles);
+  if (!context.mounted) return deleted.isOk;
+  ref.invalidate(qbitTorrentsProvider(instanceId));
+  return deleted.isOk;
+}
+
 class TorrentBlock extends ConsumerWidget {
   const TorrentBlock({
     required this.instanceId,
@@ -40,7 +75,9 @@ class TorrentBlock extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (torrentIsComplete(torrent)) return _SeedingRow(torrent: torrent);
+    if (torrentIsComplete(torrent)) {
+      return _SeedingRow(instanceId: instanceId, torrent: torrent);
+    }
     if (torrentIsStalled(torrent)) {
       return _StalledBlock(instanceId: instanceId, torrent: torrent);
     }
@@ -66,19 +103,16 @@ class _DownloadingBlock extends ConsumerWidget {
     final percent = (torrent.progress * 100).round();
     final peers = torrent.numSeeds + torrent.numLeechs;
 
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.space4),
-      margin: const EdgeInsets.only(bottom: AppSpacing.space3),
-      decoration: BoxDecoration(
-        border: AppShadows.ringSm,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
+    return _BlockFrame(
+      instanceId: instanceId,
+      torrent: torrent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               _Tag(label: 'Downloading', color: accentColor),
+              _FileRiskTag(instanceId: instanceId, hash: torrent.hash),
               const Spacer(),
               Text(
                 '${FormatUtils.formatEta(torrent.eta)} left',
@@ -132,9 +166,23 @@ class _DownloadingBlock extends ConsumerWidget {
                 onPressed: () => _pause(context, ref),
               ),
               _IconAction(
+                icon: PhosphorIconsRegular.files,
+                tooltip: 'Files',
+                onPressed: () => showTorrentFilesSheet(
+                  context,
+                  instanceId: instanceId,
+                  torrent: torrent,
+                ),
+              ),
+              _IconAction(
                 icon: PhosphorIconsRegular.trash,
                 tooltip: 'Delete',
-                onPressed: () => _confirmDelete(context, ref),
+                onPressed: () => confirmRemoveTorrent(
+                  context,
+                  ref,
+                  instanceId: instanceId,
+                  torrent: torrent,
+                ),
               ),
             ],
           ),
@@ -148,30 +196,6 @@ class _DownloadingBlock extends ConsumerWidget {
       qbitRepositoryProvider(instanceId).future,
     );
     await repository.stopTorrents([torrent.hash]);
-    if (!context.mounted) return;
-    ref.invalidate(qbitTorrentsProvider(instanceId));
-  }
-
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final result = await showDestructiveConfirmDialog(
-      context,
-      title: 'Remove this torrent?',
-      message:
-          '"${torrent.name}" will be removed from qBittorrent. If Sonarr '
-          'or Radarr is still monitoring it, they may grab it again.',
-      showDeleteFilesToggle: true,
-      deleteFilesSubtitle:
-          '${FormatUtils.formatBytes((torrent.size * torrent.progress).round())} '
-          'downloaded so far',
-    );
-
-    if (!context.mounted || result == null) return;
-    final repository = await ref.read(
-      qbitRepositoryProvider(instanceId).future,
-    );
-    await repository.deleteTorrents([
-      torrent.hash,
-    ], deleteFiles: result.deleteFiles);
     if (!context.mounted) return;
     ref.invalidate(qbitTorrentsProvider(instanceId));
   }
@@ -193,19 +217,16 @@ class _StalledBlock extends ConsumerWidget {
         : theme.colorScheme.onSurfaceVariant;
     final percent = (torrent.progress * 100).round();
 
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.space4),
-      margin: const EdgeInsets.only(bottom: AppSpacing.space3),
-      decoration: BoxDecoration(
-        border: AppShadows.ringSm,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
+    return _BlockFrame(
+      instanceId: instanceId,
+      torrent: torrent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               _Tag(label: 'Stalled', color: onSurfaceMuted),
+              _FileRiskTag(instanceId: instanceId, hash: torrent.hash),
               const Spacer(),
               Text(
                 'no peers · ${FormatUtils.formatEta(torrent.eta)}',
@@ -249,9 +270,23 @@ class _StalledBlock extends ConsumerWidget {
                 ),
               ),
               _IconAction(
+                icon: PhosphorIconsRegular.files,
+                tooltip: 'Files',
+                onPressed: () => showTorrentFilesSheet(
+                  context,
+                  instanceId: instanceId,
+                  torrent: torrent,
+                ),
+              ),
+              _IconAction(
                 icon: PhosphorIconsRegular.trash,
                 tooltip: 'Delete',
-                onPressed: () => _confirmDelete(context, ref),
+                onPressed: () => confirmRemoveTorrent(
+                  context,
+                  ref,
+                  instanceId: instanceId,
+                  torrent: torrent,
+                ),
               ),
             ],
           ),
@@ -269,35 +304,12 @@ class _StalledBlock extends ConsumerWidget {
       ),
     );
   }
-
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final result = await showDestructiveConfirmDialog(
-      context,
-      title: 'Remove this torrent?',
-      message:
-          '"${torrent.name}" will be removed from qBittorrent. If Sonarr '
-          'or Radarr is still monitoring it, they may grab it again.',
-      showDeleteFilesToggle: true,
-      deleteFilesSubtitle:
-          '${FormatUtils.formatBytes((torrent.size * torrent.progress).round())} '
-          'downloaded so far',
-    );
-
-    if (!context.mounted || result == null) return;
-    final repository = await ref.read(
-      qbitRepositoryProvider(instanceId).future,
-    );
-    await repository.deleteTorrents([
-      torrent.hash,
-    ], deleteFiles: result.deleteFiles);
-    if (!context.mounted) return;
-    ref.invalidate(qbitTorrentsProvider(instanceId));
-  }
 }
 
 class _SeedingRow extends StatelessWidget {
-  const _SeedingRow({required this.torrent});
+  const _SeedingRow({required this.instanceId, required this.torrent});
 
+  final String instanceId;
   final QbitTorrent torrent;
 
   @override
@@ -309,28 +321,111 @@ class _SeedingRow extends StatelessWidget {
         : theme.colorScheme.onSurfaceVariant;
     final arrowColor = torrent.ratio >= 1.0 ? AppColors.up : AppColors.warning;
 
+    return InkWell(
+      onTap: () => showTorrentFilesSheet(
+        context,
+        instanceId: instanceId,
+        torrent: torrent,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.space2),
+        child: Row(
+          children: [
+            Icon(PhosphorIconsRegular.arrowUp, size: 16, color: arrowColor),
+            const SizedBox(width: AppSpacing.space3),
+            Expanded(
+              child: Text(
+                '${torrent.name}  ${FormatUtils.formatBytes(torrent.size)} · '
+                '↑ ${FormatUtils.formatSpeed(torrent.upspeed)}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.meta.copyWith(color: onSurfaceMuted),
+              ),
+            ),
+            Text(
+              torrent.ratio.toStringAsFixed(2),
+              style: AppTypography.meta.copyWith(
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The bordered card around a downloading or stalled block; tapping it
+/// opens the torrent's file list.
+class _BlockFrame extends StatelessWidget {
+  const _BlockFrame({
+    required this.instanceId,
+    required this.torrent,
+    required this.child,
+  });
+
+  final String instanceId;
+  final QbitTorrent torrent;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(AppRadius.md);
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.space2),
-      child: Row(
-        children: [
-          Icon(PhosphorIconsRegular.arrowUp, size: 16, color: arrowColor),
-          const SizedBox(width: AppSpacing.space3),
-          Expanded(
-            child: Text(
-              '${torrent.name}  ${FormatUtils.formatBytes(torrent.size)} · '
-              '↑ ${FormatUtils.formatSpeed(torrent.upspeed)}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.meta.copyWith(color: onSurfaceMuted),
-            ),
+      padding: const EdgeInsets.only(bottom: AppSpacing.space3),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          borderRadius: radius,
+          onTap: () => showTorrentFilesSheet(
+            context,
+            instanceId: instanceId,
+            torrent: torrent,
           ),
-          Text(
-            torrent.ratio.toStringAsFixed(2),
-            style: AppTypography.meta.copyWith(
-              color: theme.colorScheme.onSurface,
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.space4),
+            decoration: BoxDecoration(
+              border: AppShadows.ringSm,
+              borderRadius: radius,
             ),
+            child: child,
           ),
-        ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A warning tag naming the executable or disc-image extensions inside the
+/// torrent (e.g. "⚠ .exe"); nothing while the file list loads, fails or
+/// comes back clean.
+class _FileRiskTag extends ConsumerWidget {
+  const _FileRiskTag({required this.instanceId, required this.hash});
+
+  final String instanceId;
+  final String hash;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final files = ref
+        .watch(qbitTorrentFilesProvider(instanceId, hash))
+        .value
+        ?.valueOrNull;
+    if (files == null) return const SizedBox.shrink();
+    final extensions = flaggedExtensions(files.map((f) => f.name));
+    if (extensions.isEmpty) return const SizedBox.shrink();
+
+    final hasExecutable = files.any(
+      (f) => torrentFileRisk(f.name) == TorrentFileRisk.executable,
+    );
+    final shown = extensions.length > 2
+        ? '${extensions.take(2).join(' ')} +${extensions.length - 2}'
+        : extensions.join(' ');
+    return Padding(
+      padding: const EdgeInsets.only(left: AppSpacing.space2),
+      child: _Tag(
+        label: '⚠ $shown',
+        color: hasExecutable ? AppColors.down : AppColors.warning,
       ),
     );
   }

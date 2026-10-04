@@ -55,6 +55,22 @@ Map<String, dynamic> _$QbitTorrentToJson(_QbitTorrent instance) =>
       'last_activity': instance.lastActivity,
     };
 
+_QbitTorrentFile _$QbitTorrentFileFromJson(Map<String, dynamic> json) =>
+    _QbitTorrentFile(
+      name: json['name'] as String,
+      size: (json['size'] as num).toInt(),
+      progress: (json['progress'] as num?)?.toDouble() ?? 0.0,
+      priority: (json['priority'] as num?)?.toInt() ?? 1,
+    );
+
+Map<String, dynamic> _$QbitTorrentFileToJson(_QbitTorrentFile instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'size': instance.size,
+      'progress': instance.progress,
+      'priority': instance.priority,
+    };
+
 _QbitMainData _$QbitMainDataFromJson(Map<String, dynamic> json) =>
     _QbitMainData(
       serverState: QbitServerState.fromJson(

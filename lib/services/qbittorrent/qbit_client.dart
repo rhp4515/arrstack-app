@@ -164,6 +164,32 @@ class QbitClient implements ConnectionTestClient {
     );
   }
 
+  /// Lists the files inside one torrent. Empty for a magnet link whose
+  /// metadata hasn't arrived yet.
+  Future<Result<List<QbitTorrentFile>>> getTorrentFiles(String hash) {
+    return dioCall(
+      () => _dio.get('api/v2/torrents/files', queryParameters: {'hash': hash}),
+      map: (data) {
+        return jsonList(data, what: 'torrent files')
+            .map((json) {
+              try {
+                return QbitTorrentFile.fromJson(json);
+              } catch (e, st) {
+                developer.log(
+                  'QbitTorrentFile parse error: $e',
+                  name: 'arrstack.qbit',
+                  error: e,
+                  stackTrace: st,
+                );
+                return null;
+              }
+            })
+            .whereType<QbitTorrentFile>()
+            .toList();
+      },
+    );
+  }
+
   /// Stops (pauses) torrents. qBittorrent 5.0 hard-renamed this endpoint from
   /// `torrents/pause` to `torrents/stop` — the old path 404s on 5.0+.
   Future<Result<void>> stopTorrents(List<String> hashes) {

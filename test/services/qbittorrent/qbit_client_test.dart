@@ -152,4 +152,38 @@ void main() {
     expect(captured!.queryParameters, isEmpty);
     expect(captured!.data, {'hashes': 'hash1', 'deleteFiles': true});
   });
+
+  test(
+    'getTorrentFiles queries torrents/files by hash and parses files',
+    () async {
+      adapter.onGet(
+        'api/v2/torrents/files',
+        (server) => server.reply(200, [
+          {
+            'index': 0,
+            'name': 'Movie.2024/Movie.2024.1080p.mkv.exe',
+            'size': 2048,
+            'progress': 0.5,
+            'priority': 1,
+            'is_seed': false,
+            'piece_range': [0, 1],
+            'availability': 1.0,
+          },
+          {'name': 'Movie.2024/sample.mkv', 'size': 10, 'priority': 0},
+        ]),
+        queryParameters: {'hash': 'abc'},
+      );
+
+      final result = await client.getTorrentFiles('abc');
+
+      expect(result.isOk, isTrue);
+      final files = result.valueOrNull!;
+      expect(files, hasLength(2));
+      expect(files.first.name, 'Movie.2024/Movie.2024.1080p.mkv.exe');
+      expect(files.first.size, 2048);
+      expect(files.first.progress, 0.5);
+      expect(files.last.progress, 0.0);
+      expect(files.last.priority, 0);
+    },
+  );
 }

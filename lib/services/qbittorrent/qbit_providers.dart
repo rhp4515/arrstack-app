@@ -61,3 +61,13 @@ Future<Result<QbitMainData>> qbitMainData(Ref ref, String instanceId) async {
   final repository = await ref.watch(qbitRepositoryProvider(instanceId).future);
   return repository.getMainData();
 }
+
+@riverpod
+Future<Result<List<QbitTorrentFile>>> qbitTorrentFiles(
+  Ref ref,
+  String instanceId,
+  String hash,
+) async {
+  final repository = await ref.watch(qbitRepositoryProvider(instanceId).future);
+  return repository.listTorrentFiles(hash);
+}

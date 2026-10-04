@@ -74,7 +74,12 @@ class _TransfersBody extends ConsumerWidget {
     final filter = ref.watch(downloadFilterProvider);
 
     return RefreshIndicator(
-      onRefresh: () => ref.refresh(qbitTorrentsProvider(instanceId).future),
+      onRefresh: () {
+        // File lists too: a magnet's list is empty until its metadata
+        // arrives.
+        ref.invalidate(qbitTorrentFilesProvider);
+        return ref.refresh(qbitTorrentsProvider(instanceId).future);
+      },
       child: torrentsAsync.when(
         data: (result) => switch (result) {
           Ok(:final value) => _TorrentListView(

@@ -74,6 +74,12 @@ class FakeQbitRepository implements QbitRepository {
   @override
   Future<Result<void>> addTorrent(String url) async => const Ok(null);
 
+  List<QbitTorrentFile> files = const [];
+
+  @override
+  Future<Result<List<QbitTorrentFile>>> listTorrentFiles(String hash) async =>
+      Ok(files);
+
   @override
   Future<Result<ServiceIdentity>> testConnection() async =>
       throw UnimplementedError();
@@ -242,5 +248,108 @@ void main() {
 
     expect(fakeRepo.deletedHashes, contains('h1'));
     expect(fakeRepo.deleteFilesMap['h1'], isFalse);
+  });
+
+  group('file list', () {
+    const exeFile = QbitTorrentFile(
+      name: 'Some.Release-GRP/Some.Release-GRP.mkv.exe',
+      size: 2048,
+      progress: 0.4,
+    );
+    const videoFile = QbitTorrentFile(
+      name: 'Some.Release-GRP/Some.Release-GRP.mkv',
+      size: 1000000,
+      progress: 1,
+    );
+
+    testWidgets('a torrent containing an executable gets a warning tag', (
+      tester,
+    ) async {
+      final fakeRepo = FakeQbitRepository()..files = [videoFile, exeFile];
+      await _pump(
+        tester,
+        _torrent(state: 'downloading'),
+        fakeRepository: fakeRepo,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('⚠ .exe'), findsOneWidget);
+    });
+
+    testWidgets('a clean torrent gets no warning tag', (tester) async {
+      final fakeRepo = FakeQbitRepository()..files = [videoFile];
+      await _pump(
+        tester,
+        _torrent(state: 'downloading'),
+        fakeRepository: fakeRepo,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('⚠'), findsNothing);
+    });
+
+    testWidgets('Files opens a sheet listing every file, flagged first', (
+      tester,
+    ) async {
+      final fakeRepo = FakeQbitRepository()..files = [videoFile, exeFile];
+      await _pump(
+        tester,
+        _torrent(state: 'downloading'),
+        fakeRepository: fakeRepo,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Files'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Contains executable files (.exe)'), findsOneWidget);
+      final exeRow = find.text('Some.Release-GRP.mkv.exe');
+      final videoRow = find.text('Some.Release-GRP.mkv');
+      expect(exeRow, findsOneWidget);
+      expect(videoRow, findsOneWidget);
+      expect(
+        tester.getTopLeft(exeRow).dy,
+        lessThan(tester.getTopLeft(videoRow).dy),
+      );
+      expect(find.text('2 files · 953.7 MB · 50% downloaded'), findsOneWidget);
+    });
+
+    testWidgets('tapping a seeding row opens the file sheet', (tester) async {
+      final fakeRepo = FakeQbitRepository()..files = [videoFile];
+      await _pump(
+        tester,
+        _torrent(state: 'uploading', progress: 1, ratio: 1.0),
+        fakeRepository: fakeRepo,
+      );
+
+      await tester.tap(find.text('1.00'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Some.Release-GRP.mkv'), findsOneWidget);
+      expect(find.textContaining('Contains'), findsNothing);
+    });
+
+    testWidgets('Remove torrent in the sheet deletes with files pre-ticked', (
+      tester,
+    ) async {
+      final fakeRepo = FakeQbitRepository()..files = [exeFile];
+      await _pump(
+        tester,
+        _torrent(state: 'downloading'),
+        fakeRepository: fakeRepo,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Files'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Remove torrent'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Remove'));
+      await tester.pumpAndSettle();
+
+      expect(fakeRepo.deletedHashes, ['h1']);
+      expect(fakeRepo.deleteFilesMap['h1'], isTrue);
+      expect(find.text('Remove torrent'), findsNothing);
+    });
   });
 }

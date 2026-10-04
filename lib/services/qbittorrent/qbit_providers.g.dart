@@ -312,3 +312,84 @@ final class QbitMainDataFamily extends $Family
   @override
   String toString() => r'qbitMainDataProvider';
 }
+
+@ProviderFor(qbitTorrentFiles)
+final qbitTorrentFilesProvider = QbitTorrentFilesFamily._();
+
+final class QbitTorrentFilesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Result<List<QbitTorrentFile>>>,
+          Result<List<QbitTorrentFile>>,
+          FutureOr<Result<List<QbitTorrentFile>>>
+        >
+    with
+        $FutureModifier<Result<List<QbitTorrentFile>>>,
+        $FutureProvider<Result<List<QbitTorrentFile>>> {
+  QbitTorrentFilesProvider._({
+    required QbitTorrentFilesFamily super.from,
+    required (String, String) super.argument,
+  }) : super(
+         retry: null,
+         name: r'qbitTorrentFilesProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$qbitTorrentFilesHash();
+
+  @override
+  String toString() {
+    return r'qbitTorrentFilesProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Result<List<QbitTorrentFile>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Result<List<QbitTorrentFile>>> create(Ref ref) {
+    final argument = this.argument as (String, String);
+    return qbitTorrentFiles(ref, argument.$1, argument.$2);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is QbitTorrentFilesProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$qbitTorrentFilesHash() => r'7909d4fdae20fca4a36176aace17740a57436d54';
+
+final class QbitTorrentFilesFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<Result<List<QbitTorrentFile>>>,
+          (String, String)
+        > {
+  QbitTorrentFilesFamily._()
+    : super(
+        retry: null,
+        name: r'qbitTorrentFilesProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  QbitTorrentFilesProvider call(String instanceId, String hash) =>
+      QbitTorrentFilesProvider._(argument: (instanceId, hash), from: this);
+
+  @override
+  String toString() => r'qbitTorrentFilesProvider';
+}

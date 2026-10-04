@@ -24,6 +24,9 @@ class QbitRepository {
   Future<Result<QbitMainData>> getMainData() =>
       _authenticatedCall(_client.getMainData);
 
+  Future<Result<List<QbitTorrentFile>>> listTorrentFiles(String hash) =>
+      _authenticatedCall(() => _client.getTorrentFiles(hash));
+
   Future<Result<void>> stopTorrents(List<String> hashes) async {
     return _authenticatedCall(() => _client.stopTorrents(hashes));
   }

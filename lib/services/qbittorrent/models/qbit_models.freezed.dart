@@ -337,6 +337,278 @@ as int,
 
 
 /// @nodoc
+mixin _$QbitTorrentFile {
+
+ String get name; int get size; double get progress; int get priority;
+/// Create a copy of QbitTorrentFile
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$QbitTorrentFileCopyWith<QbitTorrentFile> get copyWith => _$QbitTorrentFileCopyWithImpl<QbitTorrentFile>(this as QbitTorrentFile, _$identity);
+
+  /// Serializes this QbitTorrentFile to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QbitTorrentFile&&(identical(other.name, name) || other.name == name)&&(identical(other.size, size) || other.size == size)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.priority, priority) || other.priority == priority));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,name,size,progress,priority);
+
+@override
+String toString() {
+  return 'QbitTorrentFile(name: $name, size: $size, progress: $progress, priority: $priority)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $QbitTorrentFileCopyWith<$Res>  {
+  factory $QbitTorrentFileCopyWith(QbitTorrentFile value, $Res Function(QbitTorrentFile) _then) = _$QbitTorrentFileCopyWithImpl;
+@useResult
+$Res call({
+ String name, int size, double progress, int priority
+});
+
+
+
+
+}
+/// @nodoc
+class _$QbitTorrentFileCopyWithImpl<$Res>
+    implements $QbitTorrentFileCopyWith<$Res> {
+  _$QbitTorrentFileCopyWithImpl(this._self, this._then);
+
+  final QbitTorrentFile _self;
+  final $Res Function(QbitTorrentFile) _then;
+
+/// Create a copy of QbitTorrentFile
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? size = null,Object? progress = null,Object? priority = null,}) {
+  return _then(QbitTorrentFile(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as int,progress: null == progress ? _self.progress : progress // ignore: cast_nullable_to_non_nullable
+as double,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [QbitTorrentFile].
+extension QbitTorrentFilePatterns on QbitTorrentFile {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _QbitTorrentFile value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _QbitTorrentFile() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _QbitTorrentFile value)  $default,){
+final _that = this;
+switch (_that) {
+case _QbitTorrentFile():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _QbitTorrentFile value)?  $default,){
+final _that = this;
+switch (_that) {
+case _QbitTorrentFile() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  int size,  double progress,  int priority)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _QbitTorrentFile() when $default != null:
+return $default(_that.name,_that.size,_that.progress,_that.priority);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  int size,  double progress,  int priority)  $default,) {final _that = this;
+switch (_that) {
+case _QbitTorrentFile():
+return $default(_that.name,_that.size,_that.progress,_that.priority);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  int size,  double progress,  int priority)?  $default,) {final _that = this;
+switch (_that) {
+case _QbitTorrentFile() when $default != null:
+return $default(_that.name,_that.size,_that.progress,_that.priority);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _QbitTorrentFile implements QbitTorrentFile {
+  const _QbitTorrentFile({required this.name, required this.size, this.progress = 0.0, this.priority = 1});
+  factory _QbitTorrentFile.fromJson(Map<String, dynamic> json) => _$QbitTorrentFileFromJson(json);
+
+@override final  String name;
+@override final  int size;
+@override@JsonKey() final  double progress;
+@override@JsonKey() final  int priority;
+
+/// Create a copy of QbitTorrentFile
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$QbitTorrentFileCopyWith<_QbitTorrentFile> get copyWith => __$QbitTorrentFileCopyWithImpl<_QbitTorrentFile>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$QbitTorrentFileToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QbitTorrentFile&&(identical(other.name, name) || other.name == name)&&(identical(other.size, size) || other.size == size)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.priority, priority) || other.priority == priority));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,name,size,progress,priority);
+
+@override
+String toString() {
+  return 'QbitTorrentFile(name: $name, size: $size, progress: $progress, priority: $priority)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$QbitTorrentFileCopyWith<$Res> implements $QbitTorrentFileCopyWith<$Res> {
+  factory _$QbitTorrentFileCopyWith(_QbitTorrentFile value, $Res Function(_QbitTorrentFile) _then) = __$QbitTorrentFileCopyWithImpl;
+@override @useResult
+$Res call({
+ String name, int size, double progress, int priority
+});
+
+
+
+
+}
+/// @nodoc
+class __$QbitTorrentFileCopyWithImpl<$Res>
+    implements _$QbitTorrentFileCopyWith<$Res> {
+  __$QbitTorrentFileCopyWithImpl(this._self, this._then);
+
+  final _QbitTorrentFile _self;
+  final $Res Function(_QbitTorrentFile) _then;
+
+/// Create a copy of QbitTorrentFile
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? size = null,Object? progress = null,Object? priority = null,}) {
+  return _then(_QbitTorrentFile(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as int,progress: null == progress ? _self.progress : progress // ignore: cast_nullable_to_non_nullable
+as double,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$QbitMainData {
 
 @JsonKey(name: 'server_state') QbitServerState get serverState; Map<String, QbitTorrent> get torrents; List<String> get categories;

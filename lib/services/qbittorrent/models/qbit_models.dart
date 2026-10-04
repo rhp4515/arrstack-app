@@ -40,6 +40,21 @@ abstract class QbitTorrent with _$QbitTorrent {
       _$QbitTorrentFromJson(json);
 }
 
+/// One file inside a torrent, from `torrents/files`. [name] is the path
+/// relative to the torrent's root (e.g. `Release/Sample/sample.mkv`).
+@freezed
+abstract class QbitTorrentFile with _$QbitTorrentFile {
+  const factory QbitTorrentFile({
+    required String name,
+    required int size,
+    @Default(0.0) double progress,
+    @Default(1) int priority,
+  }) = _QbitTorrentFile;
+
+  factory QbitTorrentFile.fromJson(Map<String, dynamic> json) =>
+      _$QbitTorrentFileFromJson(json);
+}
+
 /// Global server state and aggregate transfer statistics.
 @freezed
 abstract class QbitMainData with _$QbitMainData {

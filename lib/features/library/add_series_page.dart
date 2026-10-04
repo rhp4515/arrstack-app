@@ -106,7 +106,9 @@ class _ActiveSearchField extends StatelessWidget {
     return Container(
       height: 38,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppColors.surface
+            : Theme.of(context).colorScheme.surface,
         border: Border.all(color: AppColors.accent),
         borderRadius: BorderRadius.circular(AppRadius.md),
       ),
@@ -123,7 +125,7 @@ class _ActiveSearchField extends StatelessWidget {
             child: TextField(
               controller: controller,
               onSubmitted: onSubmitted,
-              style: AppTypography.body.copyWith(color: AppColors.text),
+              style: AppTypography.body,
               decoration: const InputDecoration(
                 hintText: 'Search series to add',
                 border: InputBorder.none,

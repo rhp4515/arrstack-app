@@ -308,7 +308,7 @@ class InstanceForm extends _$InstanceForm {
     ServiceCredential credential,
     ResolvedEndpoint endpoint,
   ) {
-    final dioFactory = DioFactory.forEndpoint(endpoint);
+    final dioFactory = DioFactory.forService(endpoint, state.type);
 
     Dio apiKeyDio() => dioFactory.create(
       baseUrl: baseUrl,

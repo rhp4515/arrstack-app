@@ -1,6 +1,7 @@
 // DioFactory: builds a Dio with explicit timeouts, the resolved baseUrl,
 // and the standard interceptor stack (error mapping + redacted logging).
 
+import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -48,6 +49,21 @@ void main() {
       remote.create(baseUrl: 'http://example.test').options.connectTimeout,
       remote.connectTimeout,
     );
+  });
+
+  test('gives Bazarr a longer wait for a response, on either endpoint', () {
+    for (final endpoint in ResolvedEndpoint.values) {
+      final generic = DioFactory.forEndpoint(endpoint);
+      final bazarr = DioFactory.forService(endpoint, ServiceType.bazarr);
+
+      expect(bazarr.receiveTimeout, const Duration(seconds: 90));
+      expect(bazarr.receiveTimeout, greaterThan(generic.receiveTimeout));
+      expect(bazarr.connectTimeout, generic.connectTimeout);
+      expect(bazarr.sendTimeout, generic.sendTimeout);
+
+      final sonarr = DioFactory.forService(endpoint, ServiceType.sonarr);
+      expect(sonarr.receiveTimeout, generic.receiveTimeout);
+    }
   });
 
   test('always includes the error-mapping and redacting-log interceptors', () {

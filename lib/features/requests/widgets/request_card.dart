@@ -66,7 +66,9 @@ class _RequestCardState extends ConsumerState<RequestCard> {
     return Container(
       padding: AppInsets.pageMd,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppColors.surface
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(AppRadius.md),
       ),
       child: Column(

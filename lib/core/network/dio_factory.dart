@@ -3,6 +3,7 @@
 /// resolve it via [EndpointResolver] first (spec §6a, §11).
 library;
 
+import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/network/api_key_interceptor.dart';
 import 'package:arrstack/core/network/endpoint_resolver.dart';
 import 'package:arrstack/core/network/error_mapping_interceptor.dart';
@@ -37,6 +38,21 @@ class DioFactory {
   /// Picks the profile matching the endpoint a [Dio] will talk to.
   static DioFactory forEndpoint(ResolvedEndpoint endpoint) =>
       endpoint == ResolvedEndpoint.remote ? remote : local;
+
+  /// Picks the profile for [service] on [endpoint]. Bazarr's API is slow —
+  /// its status and wanted-subtitle calls query its database and the
+  /// providers' state, and regularly outrun the 20s/30s budget the other
+  /// services need — so it gets a longer wait for a response. Connecting
+  /// stays as tight as everyone else's: a slow answer is not a down host.
+  static DioFactory forService(ResolvedEndpoint endpoint, ServiceType service) {
+    final base = forEndpoint(endpoint);
+    if (service != ServiceType.bazarr) return base;
+    return DioFactory(
+      connectTimeout: base.connectTimeout,
+      receiveTimeout: const Duration(seconds: 90),
+      sendTimeout: base.sendTimeout,
+    );
+  }
 
   final Duration connectTimeout;
   final Duration receiveTimeout;

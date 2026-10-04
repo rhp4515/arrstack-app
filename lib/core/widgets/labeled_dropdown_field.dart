@@ -27,6 +27,10 @@ class LabeledDropdownField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final surface = colorScheme.brightness == Brightness.dark
+        ? AppColors.surface
+        : colorScheme.surface;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -34,7 +38,7 @@ class LabeledDropdownField<T> extends StatelessWidget {
         const SizedBox(height: AppSpacing.space2),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: surface,
             border: Border.all(color: AppColors.divider),
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
@@ -50,8 +54,8 @@ class LabeledDropdownField<T> extends StatelessWidget {
                 size: 14,
                 color: AppColors.n400,
               ),
-              dropdownColor: AppColors.surface,
-              style: AppTypography.body.copyWith(color: AppColors.text),
+              dropdownColor: surface,
+              style: AppTypography.body.copyWith(color: colorScheme.onSurface),
             ),
           ),
         ),

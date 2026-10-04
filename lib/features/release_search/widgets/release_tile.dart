@@ -54,7 +54,9 @@ class ReleaseTile extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.body.copyWith(
-              color: isBlocked ? AppColors.n500 : AppColors.text,
+              color: isBlocked
+                  ? AppColors.n500
+                  : Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: AppSpacing.space2),

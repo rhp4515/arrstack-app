@@ -129,6 +129,10 @@ abstract final class AppShadows {
 
 /// Inter throughout, headings and body. Never bolder than 500 — hierarchy
 /// is size and space — except the 600-weight kicker.
+///
+/// The primary-text styles carry no color so they inherit the theme's
+/// `onSurface` (near-white in dark, near-black in light); a hardcoded
+/// near-white made them vanish on the light theme.
 abstract final class AppTypography {
   static const String fontFamily = 'Inter';
 
@@ -140,7 +144,6 @@ abstract final class AppTypography {
     fontWeight: FontWeight.w500,
     fontVariations: [FontVariation('wght', 500)],
     letterSpacing: -0.52, // -0.02em @ 26px
-    color: AppColors.text,
   );
 
   /// Detail-screen titles, sub-page titles.
@@ -151,7 +154,6 @@ abstract final class AppTypography {
     fontWeight: FontWeight.w500,
     fontVariations: [FontVariation('wght', 500)],
     letterSpacing: -0.42, // -0.02em @ 21px
-    color: AppColors.text,
   );
 
   /// Home's "10" — tabular, e.g. hero counts.
@@ -163,7 +165,6 @@ abstract final class AppTypography {
     fontVariations: [FontVariation('wght', 500)],
     letterSpacing: -1.2, // -0.03em @ 40px
     fontFeatures: [FontFeature.tabularFigures()],
-    color: AppColors.text,
   );
 
   /// Uptime and Indexers header stats.
@@ -174,7 +175,6 @@ abstract final class AppTypography {
     fontWeight: FontWeight.w500,
     fontVariations: [FontVariation('wght', 500)],
     fontFeatures: [FontFeature.tabularFigures()],
-    color: AppColors.text,
   );
 
   static const TextStyle cardTitle = TextStyle(
@@ -183,7 +183,6 @@ abstract final class AppTypography {
     height: 1.3,
     fontWeight: FontWeight.w500,
     fontVariations: [FontVariation('wght', 500)],
-    color: AppColors.text,
   );
 
   /// Overviews, descriptions.
@@ -193,7 +192,6 @@ abstract final class AppTypography {
     height: 1.6,
     fontWeight: FontWeight.w400,
     fontVariations: [FontVariation('wght', 400)],
-    color: AppColors.text,
   );
 
   /// Under row titles.

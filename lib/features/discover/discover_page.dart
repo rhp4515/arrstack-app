@@ -135,7 +135,9 @@ class _SearchField extends StatelessWidget {
     return Container(
       height: 38,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppColors.surface
+            : Theme.of(context).colorScheme.surface,
         border: Border.all(color: AppColors.divider),
         borderRadius: BorderRadius.circular(AppRadius.md),
       ),
@@ -152,7 +154,7 @@ class _SearchField extends StatelessWidget {
             child: TextField(
               controller: controller,
               onChanged: onChanged,
-              style: AppTypography.body.copyWith(color: AppColors.text),
+              style: AppTypography.body,
               decoration: const InputDecoration(
                 hintText: 'Search movies and TV',
                 hintStyle: TextStyle(color: AppColors.n500),

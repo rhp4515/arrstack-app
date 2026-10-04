@@ -112,7 +112,7 @@ Future<Result<Dio>> dioForInstance(Ref ref, String instanceId) async {
       : null;
 
   return Ok(
-    DioFactory.forEndpoint(resolution.endpoint).create(
+    DioFactory.forService(resolution.endpoint, instance.serviceType).create(
       baseUrl: resolution.baseUrl,
       apiKeyInterceptor: apiKeyInterceptor,
       extraInterceptors: [

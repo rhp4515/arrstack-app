@@ -217,5 +217,9 @@ final GoRouter appRouter = GoRouter(
         ),
       ],
     ),
+    GoRoute(
+      path: RoutePaths.logs,
+      builder: (context, state) => const DiagnosticLogsPage(),
+    ),
   ],
 );

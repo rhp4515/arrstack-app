@@ -40,6 +40,15 @@ AppError _mapStatusCode(DioException exception) {
       retryAfter: _parseRetryAfter(exception),
       cause: exception,
     ),
+    // A redirect nothing followed (another host, a downgrade, or too many).
+    301 || 302 || 303 || 307 || 308 => UnknownError(
+      statusCode: statusCode,
+      cause: exception,
+      userMessage:
+          'The server redirected this request (HTTP $statusCode) somewhere '
+          "the app won't follow. Check the saved URL — try the https:// "
+          'address, or the exact address your proxy serves.',
+    ),
     final code? when code >= 500 && code < 600 => ServerError(
       statusCode: code,
       cause: exception,

@@ -19,8 +19,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'activity_providers.g.dart';
 
-/// The three switchable lenses on the Activity page (spec screens 2h/2i/2j).
-enum ActivityLens { transfers, calendar, wanted }
+/// The switchable lenses on the Activity page (spec screens 2h/2i/2j), plus
+/// a Logs shortcut.
+enum ActivityLens { transfers, calendar, wanted, logs }
 
 /// Which [ActivityLens] the Activity page shows. `go_router`'s
 /// `StatefulShellRoute` (or, after this phase, a single non-shell route)

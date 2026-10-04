@@ -1,5 +1,5 @@
 /// The Activity tab (spec screens 2h/2i/2j): a lens-chip header switching
-/// between Transfers, Calendar, and Wanted, replacing the old separate
+/// between Transfers, Calendar, Wanted and Logs, replacing the old separate
 /// Downloads/Calendar/Subtitles pages.
 library;
 
@@ -10,6 +10,7 @@ import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/features/activity/activity_providers.dart';
 import 'package:arrstack/features/activity/widgets/calendar_lens.dart';
 import 'package:arrstack/features/activity/widgets/lens_chips.dart';
+import 'package:arrstack/features/activity/widgets/logs_lens.dart';
 import 'package:arrstack/features/activity/widgets/transfers_lens.dart';
 import 'package:arrstack/features/activity/widgets/wanted_lens.dart';
 import 'package:arrstack/features/downloads/downloads_providers.dart';
@@ -23,6 +24,7 @@ ActivityLens? _lensFromQueryValue(String? value) => switch (value) {
   'transfers' => ActivityLens.transfers,
   'calendar' => ActivityLens.calendar,
   'wanted' => ActivityLens.wanted,
+  'logs' => ActivityLens.logs,
   _ => null,
 };
 
@@ -91,6 +93,7 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
               ActivityLens.transfers => const TransfersLens(),
               ActivityLens.calendar => const CalendarLens(),
               ActivityLens.wanted => const WantedLens(),
+              ActivityLens.logs => const LogsLens(),
             },
           ),
         ],
@@ -112,7 +115,7 @@ class _TrailingAction extends ConsumerWidget {
         tooltip: 'Add torrent',
         onPressed: () => _addTorrent(context, ref),
       ),
-      ActivityLens.calendar => const SizedBox.shrink(),
+      ActivityLens.calendar || ActivityLens.logs => const SizedBox.shrink(),
       ActivityLens.wanted => TextButton(
         onPressed: () => _searchAllSubtitles(context, ref),
         child: const Text('Search all'),

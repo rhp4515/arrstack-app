@@ -8,6 +8,11 @@ abstract final class RoutePaths {
   static const String library = '/library';
   static const String activity = '/activity';
 
+  /// Diagnostic logs as a full-screen page above the tabs, so a shortcut
+  /// (e.g. from Activity) goes back to where it came from. Settings →
+  /// Advanced keeps its own [homeSettingsLogs] route.
+  static const String logs = '/logs';
+
   static const String homeUptime = '/home/uptime';
   static String homeIndexers(String instanceId) => '/home/indexers/$instanceId';
 

@@ -8,6 +8,7 @@ import 'package:arrstack/core/network/api_key_interceptor.dart';
 import 'package:arrstack/core/network/endpoint_resolver.dart';
 import 'package:arrstack/core/network/error_mapping_interceptor.dart';
 import 'package:arrstack/core/network/redacting_log_interceptor.dart';
+import 'package:arrstack/core/network/redirect_following_interceptor.dart';
 import 'package:dio/dio.dart';
 
 /// Creates [Dio] instances with sane, explicit (never default) timeouts
@@ -82,6 +83,9 @@ class DioFactory {
     );
     dio.interceptors.addAll([
       ?apiKeyInterceptor,
+      // Before error mapping, so a followed redirect never reaches it as an
+      // error.
+      RedirectFollowingInterceptor(dio),
       const ErrorMappingInterceptor(),
       RedactingLogInterceptor(logger: logger),
       ...extraInterceptors,

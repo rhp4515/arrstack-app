@@ -1,4 +1,4 @@
-/// The Transfers/Calendar/Wanted switcher (README "Shared shell" → "Lens
+/// The Transfers/Calendar/Wanted/Logs switcher (README "Shared shell" → "Lens
 /// chips"): 5px/10px padding, radius-sm, 11px/500 text. Inactive is muted;
 /// active is accent text plus a 1px inset accent ring — no fill.
 library;
@@ -42,6 +42,14 @@ class LensChips extends ConsumerWidget {
           onTap: () => ref
               .read(activeActivityLensProvider.notifier)
               .select(ActivityLens.wanted),
+        ),
+        const SizedBox(width: AppSpacing.space2),
+        LensChip(
+          label: 'Logs',
+          isActive: active == ActivityLens.logs,
+          onTap: () => ref
+              .read(activeActivityLensProvider.notifier)
+              .select(ActivityLens.logs),
         ),
       ],
     );

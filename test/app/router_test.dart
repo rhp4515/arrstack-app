@@ -2,9 +2,9 @@ import 'package:arrstack/app/router.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('router has exactly 3 top-level shell branches', () {
+  test('router has the 3-branch shell plus the standalone logs page', () {
     final shellRoute = appRouter.configuration.routes.first;
-    expect(appRouter.configuration.routes.length, 1);
+    expect(appRouter.configuration.routes.length, 2);
     expect(shellRoute.runtimeType.toString(), 'StatefulShellRoute');
   });
 

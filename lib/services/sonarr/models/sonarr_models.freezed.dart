@@ -4508,7 +4508,9 @@ as int?,
 /// @nodoc
 mixin _$SonarrQueueItem {
 
- int get id; int? get seriesId; int? get episodeId; String? get status; int get size; int get sizeleft; String? get title; String? get timeleft; DateTime? get estimatedCompletionTime;
+ int get id; int? get seriesId; int? get episodeId; String? get status; int get size; int get sizeleft; String? get title; String? get timeleft; DateTime? get estimatedCompletionTime;/// The download client's id for the item — the torrent hash, for
+/// qBittorrent. Links a queue entry to a transfer.
+ String? get downloadId;
 /// Create a copy of SonarrQueueItem
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4521,16 +4523,16 @@ $SonarrQueueItemCopyWith<SonarrQueueItem> get copyWith => _$SonarrQueueItemCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SonarrQueueItem&&(identical(other.id, id) || other.id == id)&&(identical(other.seriesId, seriesId) || other.seriesId == seriesId)&&(identical(other.episodeId, episodeId) || other.episodeId == episodeId)&&(identical(other.status, status) || other.status == status)&&(identical(other.size, size) || other.size == size)&&(identical(other.sizeleft, sizeleft) || other.sizeleft == sizeleft)&&(identical(other.title, title) || other.title == title)&&(identical(other.timeleft, timeleft) || other.timeleft == timeleft)&&(identical(other.estimatedCompletionTime, estimatedCompletionTime) || other.estimatedCompletionTime == estimatedCompletionTime));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SonarrQueueItem&&(identical(other.id, id) || other.id == id)&&(identical(other.seriesId, seriesId) || other.seriesId == seriesId)&&(identical(other.episodeId, episodeId) || other.episodeId == episodeId)&&(identical(other.status, status) || other.status == status)&&(identical(other.size, size) || other.size == size)&&(identical(other.sizeleft, sizeleft) || other.sizeleft == sizeleft)&&(identical(other.title, title) || other.title == title)&&(identical(other.timeleft, timeleft) || other.timeleft == timeleft)&&(identical(other.estimatedCompletionTime, estimatedCompletionTime) || other.estimatedCompletionTime == estimatedCompletionTime)&&(identical(other.downloadId, downloadId) || other.downloadId == downloadId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,seriesId,episodeId,status,size,sizeleft,title,timeleft,estimatedCompletionTime);
+int get hashCode => Object.hash(runtimeType,id,seriesId,episodeId,status,size,sizeleft,title,timeleft,estimatedCompletionTime,downloadId);
 
 @override
 String toString() {
-  return 'SonarrQueueItem(id: $id, seriesId: $seriesId, episodeId: $episodeId, status: $status, size: $size, sizeleft: $sizeleft, title: $title, timeleft: $timeleft, estimatedCompletionTime: $estimatedCompletionTime)';
+  return 'SonarrQueueItem(id: $id, seriesId: $seriesId, episodeId: $episodeId, status: $status, size: $size, sizeleft: $sizeleft, title: $title, timeleft: $timeleft, estimatedCompletionTime: $estimatedCompletionTime, downloadId: $downloadId)';
 }
 
 
@@ -4541,7 +4543,7 @@ abstract mixin class $SonarrQueueItemCopyWith<$Res>  {
   factory $SonarrQueueItemCopyWith(SonarrQueueItem value, $Res Function(SonarrQueueItem) _then) = _$SonarrQueueItemCopyWithImpl;
 @useResult
 $Res call({
- int id, int? seriesId, int? episodeId, String? status, int size, int sizeleft, String? title, String? timeleft, DateTime? estimatedCompletionTime
+ int id, int? seriesId, int? episodeId, String? status, int size, int sizeleft, String? title, String? timeleft, DateTime? estimatedCompletionTime, String? downloadId
 });
 
 
@@ -4558,7 +4560,7 @@ class _$SonarrQueueItemCopyWithImpl<$Res>
 
 /// Create a copy of SonarrQueueItem
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? seriesId = freezed,Object? episodeId = freezed,Object? status = freezed,Object? size = null,Object? sizeleft = null,Object? title = freezed,Object? timeleft = freezed,Object? estimatedCompletionTime = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? seriesId = freezed,Object? episodeId = freezed,Object? status = freezed,Object? size = null,Object? sizeleft = null,Object? title = freezed,Object? timeleft = freezed,Object? estimatedCompletionTime = freezed,Object? downloadId = freezed,}) {
   return _then(SonarrQueueItem(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,seriesId: freezed == seriesId ? _self.seriesId : seriesId // ignore: cast_nullable_to_non_nullable
@@ -4569,7 +4571,8 @@ as int,sizeleft: null == sizeleft ? _self.sizeleft : sizeleft // ignore: cast_nu
 as int,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,timeleft: freezed == timeleft ? _self.timeleft : timeleft // ignore: cast_nullable_to_non_nullable
 as String?,estimatedCompletionTime: freezed == estimatedCompletionTime ? _self.estimatedCompletionTime : estimatedCompletionTime // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,downloadId: freezed == downloadId ? _self.downloadId : downloadId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -4654,10 +4657,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int? seriesId,  int? episodeId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int? seriesId,  int? episodeId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime,  String? downloadId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SonarrQueueItem() when $default != null:
-return $default(_that.id,_that.seriesId,_that.episodeId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime);case _:
+return $default(_that.id,_that.seriesId,_that.episodeId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime,_that.downloadId);case _:
   return orElse();
 
 }
@@ -4675,10 +4678,10 @@ return $default(_that.id,_that.seriesId,_that.episodeId,_that.status,_that.size,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int? seriesId,  int? episodeId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int? seriesId,  int? episodeId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime,  String? downloadId)  $default,) {final _that = this;
 switch (_that) {
 case _SonarrQueueItem():
-return $default(_that.id,_that.seriesId,_that.episodeId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime);case _:
+return $default(_that.id,_that.seriesId,_that.episodeId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime,_that.downloadId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4695,10 +4698,10 @@ return $default(_that.id,_that.seriesId,_that.episodeId,_that.status,_that.size,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int? seriesId,  int? episodeId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int? seriesId,  int? episodeId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime,  String? downloadId)?  $default,) {final _that = this;
 switch (_that) {
 case _SonarrQueueItem() when $default != null:
-return $default(_that.id,_that.seriesId,_that.episodeId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime);case _:
+return $default(_that.id,_that.seriesId,_that.episodeId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime,_that.downloadId);case _:
   return null;
 
 }
@@ -4710,7 +4713,7 @@ return $default(_that.id,_that.seriesId,_that.episodeId,_that.status,_that.size,
 @JsonSerializable()
 
 class _SonarrQueueItem implements SonarrQueueItem {
-  const _SonarrQueueItem({required this.id, this.seriesId, this.episodeId, this.status, this.size = 0, this.sizeleft = 0, this.title, this.timeleft, this.estimatedCompletionTime});
+  const _SonarrQueueItem({required this.id, this.seriesId, this.episodeId, this.status, this.size = 0, this.sizeleft = 0, this.title, this.timeleft, this.estimatedCompletionTime, this.downloadId});
   factory _SonarrQueueItem.fromJson(Map<String, dynamic> json) => _$SonarrQueueItemFromJson(json);
 
 @override final  int id;
@@ -4722,6 +4725,9 @@ class _SonarrQueueItem implements SonarrQueueItem {
 @override final  String? title;
 @override final  String? timeleft;
 @override final  DateTime? estimatedCompletionTime;
+/// The download client's id for the item — the torrent hash, for
+/// qBittorrent. Links a queue entry to a transfer.
+@override final  String? downloadId;
 
 /// Create a copy of SonarrQueueItem
 /// with the given fields replaced by the non-null parameter values.
@@ -4736,16 +4742,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SonarrQueueItem&&(identical(other.id, id) || other.id == id)&&(identical(other.seriesId, seriesId) || other.seriesId == seriesId)&&(identical(other.episodeId, episodeId) || other.episodeId == episodeId)&&(identical(other.status, status) || other.status == status)&&(identical(other.size, size) || other.size == size)&&(identical(other.sizeleft, sizeleft) || other.sizeleft == sizeleft)&&(identical(other.title, title) || other.title == title)&&(identical(other.timeleft, timeleft) || other.timeleft == timeleft)&&(identical(other.estimatedCompletionTime, estimatedCompletionTime) || other.estimatedCompletionTime == estimatedCompletionTime));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SonarrQueueItem&&(identical(other.id, id) || other.id == id)&&(identical(other.seriesId, seriesId) || other.seriesId == seriesId)&&(identical(other.episodeId, episodeId) || other.episodeId == episodeId)&&(identical(other.status, status) || other.status == status)&&(identical(other.size, size) || other.size == size)&&(identical(other.sizeleft, sizeleft) || other.sizeleft == sizeleft)&&(identical(other.title, title) || other.title == title)&&(identical(other.timeleft, timeleft) || other.timeleft == timeleft)&&(identical(other.estimatedCompletionTime, estimatedCompletionTime) || other.estimatedCompletionTime == estimatedCompletionTime)&&(identical(other.downloadId, downloadId) || other.downloadId == downloadId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,seriesId,episodeId,status,size,sizeleft,title,timeleft,estimatedCompletionTime);
+int get hashCode => Object.hash(runtimeType,id,seriesId,episodeId,status,size,sizeleft,title,timeleft,estimatedCompletionTime,downloadId);
 
 @override
 String toString() {
-  return 'SonarrQueueItem(id: $id, seriesId: $seriesId, episodeId: $episodeId, status: $status, size: $size, sizeleft: $sizeleft, title: $title, timeleft: $timeleft, estimatedCompletionTime: $estimatedCompletionTime)';
+  return 'SonarrQueueItem(id: $id, seriesId: $seriesId, episodeId: $episodeId, status: $status, size: $size, sizeleft: $sizeleft, title: $title, timeleft: $timeleft, estimatedCompletionTime: $estimatedCompletionTime, downloadId: $downloadId)';
 }
 
 
@@ -4756,7 +4762,7 @@ abstract mixin class _$SonarrQueueItemCopyWith<$Res> implements $SonarrQueueItem
   factory _$SonarrQueueItemCopyWith(_SonarrQueueItem value, $Res Function(_SonarrQueueItem) _then) = __$SonarrQueueItemCopyWithImpl;
 @override @useResult
 $Res call({
- int id, int? seriesId, int? episodeId, String? status, int size, int sizeleft, String? title, String? timeleft, DateTime? estimatedCompletionTime
+ int id, int? seriesId, int? episodeId, String? status, int size, int sizeleft, String? title, String? timeleft, DateTime? estimatedCompletionTime, String? downloadId
 });
 
 
@@ -4773,7 +4779,7 @@ class __$SonarrQueueItemCopyWithImpl<$Res>
 
 /// Create a copy of SonarrQueueItem
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? seriesId = freezed,Object? episodeId = freezed,Object? status = freezed,Object? size = null,Object? sizeleft = null,Object? title = freezed,Object? timeleft = freezed,Object? estimatedCompletionTime = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? seriesId = freezed,Object? episodeId = freezed,Object? status = freezed,Object? size = null,Object? sizeleft = null,Object? title = freezed,Object? timeleft = freezed,Object? estimatedCompletionTime = freezed,Object? downloadId = freezed,}) {
   return _then(_SonarrQueueItem(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,seriesId: freezed == seriesId ? _self.seriesId : seriesId // ignore: cast_nullable_to_non_nullable
@@ -4784,7 +4790,8 @@ as int,sizeleft: null == sizeleft ? _self.sizeleft : sizeleft // ignore: cast_nu
 as int,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,timeleft: freezed == timeleft ? _self.timeleft : timeleft // ignore: cast_nullable_to_non_nullable
 as String?,estimatedCompletionTime: freezed == estimatedCompletionTime ? _self.estimatedCompletionTime : estimatedCompletionTime // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,downloadId: freezed == downloadId ? _self.downloadId : downloadId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

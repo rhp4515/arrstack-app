@@ -332,6 +332,10 @@ abstract class SonarrQueueItem with _$SonarrQueueItem {
     String? title,
     String? timeleft,
     DateTime? estimatedCompletionTime,
+
+    /// The download client's id for the item — the torrent hash, for
+    /// qBittorrent. Links a queue entry to a transfer.
+    String? downloadId,
   }) = _SonarrQueueItem;
 
   factory SonarrQueueItem.fromJson(Map<String, dynamic> json) =>

@@ -295,6 +295,10 @@ abstract class RadarrQueueItem with _$RadarrQueueItem {
     String? title,
     String? timeleft,
     DateTime? estimatedCompletionTime,
+
+    /// The download client's id for the item — the torrent hash, for
+    /// qBittorrent. Links a queue entry to a transfer.
+    String? downloadId,
   }) = _RadarrQueueItem;
 
   factory RadarrQueueItem.fromJson(Map<String, dynamic> json) =>

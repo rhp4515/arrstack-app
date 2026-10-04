@@ -6,8 +6,9 @@ library;
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/utils/format_utils.dart';
+import 'package:arrstack/core/widgets/confirm_dialog.dart';
 import 'package:arrstack/features/activity/models/torrent_file_risk.dart';
-import 'package:arrstack/features/activity/widgets/torrent_block.dart';
+import 'package:arrstack/features/activity/torrent_blocklist.dart';
 import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';
 import 'package:arrstack/services/qbittorrent/qbit_providers.dart';
 import 'package:flutter/material.dart';
@@ -114,7 +115,13 @@ class _FileList extends StatelessWidget {
       padding: AppInsets.pageMd,
       children: [
         _Header(torrent: torrent, fileCount: files.length),
-        if (flagged.isNotEmpty) ...[
+        if (flagged.isEmpty) ...[
+          const SizedBox(height: AppSpacing.space3),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _BlocklistButton(instanceId: instanceId, torrent: torrent),
+          ),
+        ] else ...[
           const SizedBox(height: AppSpacing.space4),
           _RiskBanner(
             instanceId: instanceId,
@@ -163,7 +170,7 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _RiskBanner extends ConsumerWidget {
+class _RiskBanner extends StatelessWidget {
   const _RiskBanner({
     required this.instanceId,
     required this.torrent,
@@ -177,7 +184,7 @@ class _RiskBanner extends ConsumerWidget {
   final bool hasExecutable;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final color = hasExecutable ? AppColors.down : AppColors.warning;
     final list = extensions.join(', ');
 
@@ -216,29 +223,75 @@ class _RiskBanner extends ConsumerWidget {
             style: AppTypography.meta,
           ),
           const SizedBox(height: AppSpacing.space3),
-          OutlinedButton.icon(
-            onPressed: () => _remove(context, ref),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: color,
-              side: BorderSide(color: color),
-            ),
-            icon: const Icon(PhosphorIconsRegular.trash, size: 16),
-            label: const Text('Remove torrent'),
+          _BlocklistButton(
+            instanceId: instanceId,
+            torrent: torrent,
+            color: color,
           ),
         ],
       ),
     );
   }
+}
 
-  Future<void> _remove(BuildContext context, WidgetRef ref) async {
-    final removed = await confirmRemoveTorrent(
+/// "Remove & blocklist": confirms, then removes the torrent and has the
+/// Radarr/Sonarr that grabbed it blocklist the release.
+class _BlocklistButton extends ConsumerWidget {
+  const _BlocklistButton({
+    required this.instanceId,
+    required this.torrent,
+    this.color,
+  });
+
+  final String instanceId;
+  final QbitTorrent torrent;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return OutlinedButton.icon(
+      onPressed: () => _run(context, ref),
+      style: color == null
+          ? null
+          : OutlinedButton.styleFrom(
+              foregroundColor: color,
+              side: BorderSide(color: color!),
+            ),
+      icon: const Icon(PhosphorIconsRegular.prohibit, size: 16),
+      label: const Text('Remove & blocklist'),
+    );
+  }
+
+  Future<void> _run(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDestructiveConfirmDialog(
       context,
+      title: 'Remove and blocklist?',
+      message:
+          '"${torrent.name}" and its downloaded files will be removed from '
+          'qBittorrent, and Radarr or Sonarr will blocklist this release so '
+          "it isn't grabbed again. They'll look for a replacement.",
+      confirmLabel: 'Remove & blocklist',
+    );
+    if (!context.mounted || confirmed == null) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final outcome = await removeAndBlocklistTorrent(
       ref,
       instanceId: instanceId,
       torrent: torrent,
-      deleteFilesByDefault: true,
     );
-    if (removed && context.mounted) Navigator.of(context).pop();
+
+    final message = switch (outcome) {
+      Blocklisted(:final serviceName) =>
+        'Removed and blocklisted in $serviceName.',
+      RemovedWithoutBlocklist() =>
+        'Removed. Radarr and Sonarr do not have this download in their '
+            'queues, so there was nothing to blocklist.',
+      BlocklistFailed(:final message) => message,
+    };
+    messenger.showSnackBar(SnackBar(content: Text(message)));
+    if (outcome is! BlocklistFailed && navigator.mounted) navigator.pop();
   }
 }
 

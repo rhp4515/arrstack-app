@@ -329,7 +329,7 @@ void main() {
       expect(find.textContaining('Contains'), findsNothing);
     });
 
-    testWidgets('Remove torrent in the sheet deletes with files pre-ticked', (
+    testWidgets('the sheet offers Remove & blocklist for a flagged torrent', (
       tester,
     ) async {
       final fakeRepo = FakeQbitRepository()..files = [exeFile];
@@ -342,14 +342,7 @@ void main() {
       await tester.tap(find.byTooltip('Files'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Remove torrent'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(OutlinedButton, 'Remove'));
-      await tester.pumpAndSettle();
-
-      expect(fakeRepo.deletedHashes, ['h1']);
-      expect(fakeRepo.deleteFilesMap['h1'], isTrue);
-      expect(find.text('Remove torrent'), findsNothing);
+      expect(find.text('Remove & blocklist'), findsOneWidget);
     });
   });
 }

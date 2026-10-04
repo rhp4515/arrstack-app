@@ -1,6 +1,9 @@
 import 'package:arrstack/app/app.dart';
+import 'package:arrstack/app/route_paths.dart';
+import 'package:arrstack/app/router.dart';
 import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -51,5 +54,81 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Library'), findsWidgets); // tab label + app bar title
+  });
+
+  group('system back', () {
+    final exitCalls = <MethodCall>[];
+
+    setUp(() {
+      exitCalls.clear();
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+            if (call.method == 'SystemNavigator.pop') exitCalls.add(call);
+            return null;
+          });
+      appRouter.go(RoutePaths.home);
+    });
+
+    tearDown(() {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, null);
+    });
+
+    testWidgets('on Home asks before exiting, and No stays in the app', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Exit ArrStack?'), findsOneWidget);
+      await tester.tap(find.text('No'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Exit ArrStack?'), findsNothing);
+      expect(exitCalls, isEmpty);
+    });
+
+    testWidgets('Yes exits the app', (tester) async {
+      await pumpApp(tester);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Yes'));
+      await tester.pumpAndSettle();
+
+      expect(exitCalls, hasLength(1));
+    });
+
+    testWidgets('from another tab goes back to Home without asking', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await tester.tap(find.text('Activity'));
+      await tester.pumpAndSettle();
+      expect(appRouter.state.uri.path, RoutePaths.activity);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+
+      expect(appRouter.state.uri.path, RoutePaths.home);
+      expect(find.text('Exit ArrStack?'), findsNothing);
+      expect(exitCalls, isEmpty);
+    });
+
+    testWidgets('from a sub-page pops that page, not the app', (tester) async {
+      await pumpApp(tester);
+      appRouter.push(RoutePaths.homeSettings);
+      await tester.pumpAndSettle();
+      expect(appRouter.state.uri.path, RoutePaths.homeSettings);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+
+      expect(appRouter.state.uri.path, RoutePaths.home);
+      expect(find.text('Exit ArrStack?'), findsNothing);
+      expect(exitCalls, isEmpty);
+    });
   });
 }

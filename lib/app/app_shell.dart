@@ -7,7 +7,9 @@
 library;
 
 import 'package:arrstack/app/theme/design_tokens.dart';
+import 'package:arrstack/core/widgets/confirm_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_icons/phosphor_icons.dart';
 
@@ -36,6 +38,35 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Back never reaches here while a sub-page is open: go_router pops the
+    // current tab's own stack first. It lands here only at a tab's root.
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _onBack(context);
+      },
+      child: _scaffold(),
+    );
+  }
+
+  /// Back at a tab's root: other tabs return to Home; Home asks before the
+  /// app exits.
+  Future<void> _onBack(BuildContext context) async {
+    if (navigationShell.currentIndex != 0) {
+      navigationShell.goBranch(0);
+      return;
+    }
+    final confirmed = await showDestructiveConfirmDialog(
+      context,
+      title: 'Exit ArrStack?',
+      message: 'Are you sure you want to exit the app?',
+      cancelLabel: 'No',
+      confirmLabel: 'Yes',
+    );
+    if (confirmed != null) await SystemNavigator.pop();
+  }
+
+  Widget _scaffold() {
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: DecoratedBox(

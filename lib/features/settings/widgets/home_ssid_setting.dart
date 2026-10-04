@@ -107,7 +107,12 @@ class _HomeSsidSettingState extends ConsumerState<HomeSsidSetting> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(ssid, style: AppTypography.cardTitle),
+                          Text(
+                            ssid,
+                            style: AppTypography.cardTitle.copyWith(
+                              color: AppColors.text,
+                            ),
+                          ),
                           const SizedBox(width: AppSpacing.space2),
                           Semantics(
                             label: 'Remove $ssid',

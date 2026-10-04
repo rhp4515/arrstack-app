@@ -1,3 +1,4 @@
+import 'package:arrstack/app/theme/app_theme.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/models.dart';
 import 'package:arrstack/core/network/network.dart';
@@ -72,6 +73,45 @@ void main() {
 
     expect(find.text('1'), findsOneWidget);
     expect(find.text('/ 1 healthy'), findsOneWidget);
+  });
+
+  testWidgets('keeps the healthy count light on its always-dark band even '
+      'in the light theme', (tester) async {
+    final radarr = buildInstance(
+      id: 'radarr-1',
+      serviceType: ServiceType.radarr,
+      isDefault: true,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          instancesProvider.overrideWith((ref) async => Ok([radarr])),
+          homeSummaryProvider.overrideWith(
+            (ref) async =>
+                const HomeSummary(healthy: 1, total: 1, statusLines: []),
+          ),
+        ],
+        child: MaterialApp.router(
+          theme: AppTheme.light(),
+          routerConfig: GoRouter(
+            routes: [
+              GoRoute(path: '/', builder: (_, _) => const HomeBand()),
+              GoRoute(
+                path: '/home/settings',
+                builder: (_, _) => const SizedBox(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    for (final text in ['1', '/ 1 healthy']) {
+      final style = tester.widget<Text>(find.text(text)).style!;
+      expect(style.color, AppColors.text, reason: text);
+    }
   });
 
   testWidgets(

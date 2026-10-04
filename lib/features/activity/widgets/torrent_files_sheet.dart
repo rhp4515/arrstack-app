@@ -236,7 +236,7 @@ class _RiskBanner extends StatelessWidget {
 
 /// "Remove & blocklist": confirms, then removes the torrent and has the
 /// Radarr/Sonarr that grabbed it blocklist the release.
-class _BlocklistButton extends ConsumerWidget {
+class _BlocklistButton extends StatefulWidget {
   const _BlocklistButton({
     required this.instanceId,
     required this.torrent,
@@ -248,21 +248,14 @@ class _BlocklistButton extends ConsumerWidget {
   final Color? color;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return OutlinedButton.icon(
-      onPressed: () => _run(context, ref),
-      style: color == null
-          ? null
-          : OutlinedButton.styleFrom(
-              foregroundColor: color,
-              side: BorderSide(color: color!),
-            ),
-      icon: const Icon(PhosphorIconsRegular.prohibit, size: 16),
-      label: const Text('Remove & blocklist'),
-    );
-  }
+  State<_BlocklistButton> createState() => _BlocklistButtonState();
+}
 
-  Future<void> _run(BuildContext context, WidgetRef ref) async {
+class _BlocklistButtonState extends State<_BlocklistButton> {
+  bool _busy = false;
+
+  Future<void> _run() async {
+    final torrent = widget.torrent;
     final confirmed = await showDestructiveConfirmDialog(
       context,
       title: 'Remove and blocklist?',
@@ -272,15 +265,30 @@ class _BlocklistButton extends ConsumerWidget {
           "it isn't grabbed again. They'll look for a replacement.",
       confirmLabel: 'Remove & blocklist',
     );
-    if (!context.mounted || confirmed == null) return;
+    if (!mounted || confirmed == null) return;
 
+    // Everything the operation needs is captured before the first await:
+    // the sheet may be dismissed while it runs, and a disposed widget's
+    // `ref` or context can't be used afterwards.
+    final container = ProviderScope.containerOf(context);
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
-    final outcome = await removeAndBlocklistTorrent(
-      ref,
-      instanceId: instanceId,
-      torrent: torrent,
-    );
+    setState(() => _busy = true);
+
+    final BlocklistOutcome outcome;
+    try {
+      outcome = await removeAndBlocklistTorrent(
+        container,
+        instanceId: widget.instanceId,
+        torrent: torrent,
+      );
+    } on Object catch (e) {
+      if (mounted) setState(() => _busy = false);
+      messenger.showSnackBar(
+        SnackBar(content: Text('Something went wrong: $e')),
+      );
+      return;
+    }
 
     final message = switch (outcome) {
       Blocklisted(:final serviceName) =>
@@ -291,7 +299,27 @@ class _BlocklistButton extends ConsumerWidget {
       BlocklistFailed(:final message) => message,
     };
     messenger.showSnackBar(SnackBar(content: Text(message)));
-    if (outcome is! BlocklistFailed && navigator.mounted) navigator.pop();
+    if (outcome is BlocklistFailed) {
+      if (mounted) setState(() => _busy = false);
+    } else if (mounted) {
+      navigator.pop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = widget.color;
+    return OutlinedButton.icon(
+      onPressed: _busy ? null : _run,
+      style: color == null
+          ? null
+          : OutlinedButton.styleFrom(
+              foregroundColor: color,
+              side: BorderSide(color: color),
+            ),
+      icon: const Icon(PhosphorIconsRegular.prohibit, size: 16),
+      label: Text(_busy ? 'Removing…' : 'Remove & blocklist'),
+    );
   }
 }
 

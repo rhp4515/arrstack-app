@@ -3622,7 +3622,9 @@ as int?,
 /// @nodoc
 mixin _$RadarrQueueItem {
 
- int get id; int? get movieId; String? get status; int get size; int get sizeleft; String? get title; String? get timeleft; DateTime? get estimatedCompletionTime;
+ int get id; int? get movieId; String? get status; int get size; int get sizeleft; String? get title; String? get timeleft; DateTime? get estimatedCompletionTime;/// The download client's id for the item — the torrent hash, for
+/// qBittorrent. Links a queue entry to a transfer.
+ String? get downloadId;
 /// Create a copy of RadarrQueueItem
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3635,16 +3637,16 @@ $RadarrQueueItemCopyWith<RadarrQueueItem> get copyWith => _$RadarrQueueItemCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RadarrQueueItem&&(identical(other.id, id) || other.id == id)&&(identical(other.movieId, movieId) || other.movieId == movieId)&&(identical(other.status, status) || other.status == status)&&(identical(other.size, size) || other.size == size)&&(identical(other.sizeleft, sizeleft) || other.sizeleft == sizeleft)&&(identical(other.title, title) || other.title == title)&&(identical(other.timeleft, timeleft) || other.timeleft == timeleft)&&(identical(other.estimatedCompletionTime, estimatedCompletionTime) || other.estimatedCompletionTime == estimatedCompletionTime));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RadarrQueueItem&&(identical(other.id, id) || other.id == id)&&(identical(other.movieId, movieId) || other.movieId == movieId)&&(identical(other.status, status) || other.status == status)&&(identical(other.size, size) || other.size == size)&&(identical(other.sizeleft, sizeleft) || other.sizeleft == sizeleft)&&(identical(other.title, title) || other.title == title)&&(identical(other.timeleft, timeleft) || other.timeleft == timeleft)&&(identical(other.estimatedCompletionTime, estimatedCompletionTime) || other.estimatedCompletionTime == estimatedCompletionTime)&&(identical(other.downloadId, downloadId) || other.downloadId == downloadId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,movieId,status,size,sizeleft,title,timeleft,estimatedCompletionTime);
+int get hashCode => Object.hash(runtimeType,id,movieId,status,size,sizeleft,title,timeleft,estimatedCompletionTime,downloadId);
 
 @override
 String toString() {
-  return 'RadarrQueueItem(id: $id, movieId: $movieId, status: $status, size: $size, sizeleft: $sizeleft, title: $title, timeleft: $timeleft, estimatedCompletionTime: $estimatedCompletionTime)';
+  return 'RadarrQueueItem(id: $id, movieId: $movieId, status: $status, size: $size, sizeleft: $sizeleft, title: $title, timeleft: $timeleft, estimatedCompletionTime: $estimatedCompletionTime, downloadId: $downloadId)';
 }
 
 
@@ -3655,7 +3657,7 @@ abstract mixin class $RadarrQueueItemCopyWith<$Res>  {
   factory $RadarrQueueItemCopyWith(RadarrQueueItem value, $Res Function(RadarrQueueItem) _then) = _$RadarrQueueItemCopyWithImpl;
 @useResult
 $Res call({
- int id, int? movieId, String? status, int size, int sizeleft, String? title, String? timeleft, DateTime? estimatedCompletionTime
+ int id, int? movieId, String? status, int size, int sizeleft, String? title, String? timeleft, DateTime? estimatedCompletionTime, String? downloadId
 });
 
 
@@ -3672,7 +3674,7 @@ class _$RadarrQueueItemCopyWithImpl<$Res>
 
 /// Create a copy of RadarrQueueItem
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? movieId = freezed,Object? status = freezed,Object? size = null,Object? sizeleft = null,Object? title = freezed,Object? timeleft = freezed,Object? estimatedCompletionTime = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? movieId = freezed,Object? status = freezed,Object? size = null,Object? sizeleft = null,Object? title = freezed,Object? timeleft = freezed,Object? estimatedCompletionTime = freezed,Object? downloadId = freezed,}) {
   return _then(RadarrQueueItem(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,movieId: freezed == movieId ? _self.movieId : movieId // ignore: cast_nullable_to_non_nullable
@@ -3682,7 +3684,8 @@ as int,sizeleft: null == sizeleft ? _self.sizeleft : sizeleft // ignore: cast_nu
 as int,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,timeleft: freezed == timeleft ? _self.timeleft : timeleft // ignore: cast_nullable_to_non_nullable
 as String?,estimatedCompletionTime: freezed == estimatedCompletionTime ? _self.estimatedCompletionTime : estimatedCompletionTime // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,downloadId: freezed == downloadId ? _self.downloadId : downloadId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -3767,10 +3770,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int? movieId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int? movieId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime,  String? downloadId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RadarrQueueItem() when $default != null:
-return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime);case _:
+return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime,_that.downloadId);case _:
   return orElse();
 
 }
@@ -3788,10 +3791,10 @@ return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int? movieId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int? movieId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime,  String? downloadId)  $default,) {final _that = this;
 switch (_that) {
 case _RadarrQueueItem():
-return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime);case _:
+return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime,_that.downloadId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -3808,10 +3811,10 @@ return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int? movieId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int? movieId,  String? status,  int size,  int sizeleft,  String? title,  String? timeleft,  DateTime? estimatedCompletionTime,  String? downloadId)?  $default,) {final _that = this;
 switch (_that) {
 case _RadarrQueueItem() when $default != null:
-return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime);case _:
+return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_that.title,_that.timeleft,_that.estimatedCompletionTime,_that.downloadId);case _:
   return null;
 
 }
@@ -3823,7 +3826,7 @@ return $default(_that.id,_that.movieId,_that.status,_that.size,_that.sizeleft,_t
 @JsonSerializable()
 
 class _RadarrQueueItem implements RadarrQueueItem {
-  const _RadarrQueueItem({required this.id, this.movieId, this.status, this.size = 0, this.sizeleft = 0, this.title, this.timeleft, this.estimatedCompletionTime});
+  const _RadarrQueueItem({required this.id, this.movieId, this.status, this.size = 0, this.sizeleft = 0, this.title, this.timeleft, this.estimatedCompletionTime, this.downloadId});
   factory _RadarrQueueItem.fromJson(Map<String, dynamic> json) => _$RadarrQueueItemFromJson(json);
 
 @override final  int id;
@@ -3834,6 +3837,9 @@ class _RadarrQueueItem implements RadarrQueueItem {
 @override final  String? title;
 @override final  String? timeleft;
 @override final  DateTime? estimatedCompletionTime;
+/// The download client's id for the item — the torrent hash, for
+/// qBittorrent. Links a queue entry to a transfer.
+@override final  String? downloadId;
 
 /// Create a copy of RadarrQueueItem
 /// with the given fields replaced by the non-null parameter values.
@@ -3848,16 +3854,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RadarrQueueItem&&(identical(other.id, id) || other.id == id)&&(identical(other.movieId, movieId) || other.movieId == movieId)&&(identical(other.status, status) || other.status == status)&&(identical(other.size, size) || other.size == size)&&(identical(other.sizeleft, sizeleft) || other.sizeleft == sizeleft)&&(identical(other.title, title) || other.title == title)&&(identical(other.timeleft, timeleft) || other.timeleft == timeleft)&&(identical(other.estimatedCompletionTime, estimatedCompletionTime) || other.estimatedCompletionTime == estimatedCompletionTime));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RadarrQueueItem&&(identical(other.id, id) || other.id == id)&&(identical(other.movieId, movieId) || other.movieId == movieId)&&(identical(other.status, status) || other.status == status)&&(identical(other.size, size) || other.size == size)&&(identical(other.sizeleft, sizeleft) || other.sizeleft == sizeleft)&&(identical(other.title, title) || other.title == title)&&(identical(other.timeleft, timeleft) || other.timeleft == timeleft)&&(identical(other.estimatedCompletionTime, estimatedCompletionTime) || other.estimatedCompletionTime == estimatedCompletionTime)&&(identical(other.downloadId, downloadId) || other.downloadId == downloadId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,movieId,status,size,sizeleft,title,timeleft,estimatedCompletionTime);
+int get hashCode => Object.hash(runtimeType,id,movieId,status,size,sizeleft,title,timeleft,estimatedCompletionTime,downloadId);
 
 @override
 String toString() {
-  return 'RadarrQueueItem(id: $id, movieId: $movieId, status: $status, size: $size, sizeleft: $sizeleft, title: $title, timeleft: $timeleft, estimatedCompletionTime: $estimatedCompletionTime)';
+  return 'RadarrQueueItem(id: $id, movieId: $movieId, status: $status, size: $size, sizeleft: $sizeleft, title: $title, timeleft: $timeleft, estimatedCompletionTime: $estimatedCompletionTime, downloadId: $downloadId)';
 }
 
 
@@ -3868,7 +3874,7 @@ abstract mixin class _$RadarrQueueItemCopyWith<$Res> implements $RadarrQueueItem
   factory _$RadarrQueueItemCopyWith(_RadarrQueueItem value, $Res Function(_RadarrQueueItem) _then) = __$RadarrQueueItemCopyWithImpl;
 @override @useResult
 $Res call({
- int id, int? movieId, String? status, int size, int sizeleft, String? title, String? timeleft, DateTime? estimatedCompletionTime
+ int id, int? movieId, String? status, int size, int sizeleft, String? title, String? timeleft, DateTime? estimatedCompletionTime, String? downloadId
 });
 
 
@@ -3885,7 +3891,7 @@ class __$RadarrQueueItemCopyWithImpl<$Res>
 
 /// Create a copy of RadarrQueueItem
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? movieId = freezed,Object? status = freezed,Object? size = null,Object? sizeleft = null,Object? title = freezed,Object? timeleft = freezed,Object? estimatedCompletionTime = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? movieId = freezed,Object? status = freezed,Object? size = null,Object? sizeleft = null,Object? title = freezed,Object? timeleft = freezed,Object? estimatedCompletionTime = freezed,Object? downloadId = freezed,}) {
   return _then(_RadarrQueueItem(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,movieId: freezed == movieId ? _self.movieId : movieId // ignore: cast_nullable_to_non_nullable
@@ -3895,7 +3901,8 @@ as int,sizeleft: null == sizeleft ? _self.sizeleft : sizeleft // ignore: cast_nu
 as int,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,timeleft: freezed == timeleft ? _self.timeleft : timeleft // ignore: cast_nullable_to_non_nullable
 as String?,estimatedCompletionTime: freezed == estimatedCompletionTime ? _self.estimatedCompletionTime : estimatedCompletionTime // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,downloadId: freezed == downloadId ? _self.downloadId : downloadId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

@@ -364,7 +364,7 @@ final class DioForInstanceProvider
   }
 }
 
-String _$dioForInstanceHash() => r'78c92ec816d991b5dd55bd38d70597beff48b458';
+String _$dioForInstanceHash() => r'c9db410a6bbdf24ebcf568087b98ce2b97c86bd5';
 
 /// Provides a [Dio] instance for [instanceId], configured with the correct
 /// [EndpointResolution.baseUrl] and auth interceptors (spec §11).

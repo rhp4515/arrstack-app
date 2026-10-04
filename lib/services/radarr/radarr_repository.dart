@@ -57,6 +57,16 @@ class RadarrRepository {
 
   Future<Result<List<RadarrQueueItem>>> listQueue() => _client.getQueue();
 
+  Future<Result<void>> deleteQueueItem(
+    int id, {
+    bool removeFromClient = false,
+    bool blocklist = false,
+  }) => _client.deleteQueueItem(
+    id,
+    removeFromClient: removeFromClient,
+    blocklist: blocklist,
+  );
+
   /// One page (1-based [page]) of history, newest first, with the movie
   /// embedded.
   Future<Result<List<RadarrHistoryRecord>>> getHistory({

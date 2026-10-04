@@ -285,6 +285,7 @@ _RadarrQueueItem _$RadarrQueueItemFromJson(Map<String, dynamic> json) =>
       estimatedCompletionTime: json['estimatedCompletionTime'] == null
           ? null
           : DateTime.parse(json['estimatedCompletionTime'] as String),
+      downloadId: json['downloadId'] as String?,
     );
 
 Map<String, dynamic> _$RadarrQueueItemToJson(_RadarrQueueItem instance) =>
@@ -298,4 +299,5 @@ Map<String, dynamic> _$RadarrQueueItemToJson(_RadarrQueueItem instance) =>
       'timeleft': instance.timeleft,
       'estimatedCompletionTime': instance.estimatedCompletionTime
           ?.toIso8601String(),
+      'downloadId': instance.downloadId,
     };

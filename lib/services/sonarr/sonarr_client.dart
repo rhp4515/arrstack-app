@@ -268,7 +268,9 @@ class SonarrClient implements ConnectionTestClient {
 
   Future<Result<List<SonarrQueueItem>>> getQueue() {
     return dioCall(
-      () => _dio.get('api/v3/queue'),
+      // The endpoint pages at 10 by default; a queue past that would hide
+      // items from both the Library queue and torrent matching.
+      () => _dio.get('api/v3/queue', queryParameters: {'pageSize': 1000}),
       map: (data) {
         if (data is! Map) return [];
         final records = data['records'];
@@ -291,6 +293,27 @@ class SonarrClient implements ConnectionTestClient {
             .whereType<SonarrQueueItem>()
             .toList();
       },
+    );
+  }
+
+  /// Removes one queue item. [blocklist] adds its release to the blocklist
+  /// so Sonarr never grabs it again; [removeFromClient] also removes the
+  /// download (and its files) from the download client. Sonarr searches for a
+  /// replacement unless `skipRedownload` is set, which it isn't here.
+  Future<Result<void>> deleteQueueItem(
+    int id, {
+    bool removeFromClient = false,
+    bool blocklist = false,
+  }) {
+    return dioCall(
+      () => _dio.delete(
+        'api/v3/queue/$id',
+        queryParameters: {
+          'removeFromClient': removeFromClient,
+          'blocklist': blocklist,
+        },
+      ),
+      map: (_) {},
     );
   }
 

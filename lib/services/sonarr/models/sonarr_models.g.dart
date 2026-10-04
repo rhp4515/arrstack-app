@@ -380,6 +380,7 @@ _SonarrQueueItem _$SonarrQueueItemFromJson(Map<String, dynamic> json) =>
       estimatedCompletionTime: json['estimatedCompletionTime'] == null
           ? null
           : DateTime.parse(json['estimatedCompletionTime'] as String),
+      downloadId: json['downloadId'] as String?,
     );
 
 Map<String, dynamic> _$SonarrQueueItemToJson(_SonarrQueueItem instance) =>
@@ -394,4 +395,5 @@ Map<String, dynamic> _$SonarrQueueItemToJson(_SonarrQueueItem instance) =>
       'timeleft': instance.timeleft,
       'estimatedCompletionTime': instance.estimatedCompletionTime
           ?.toIso8601String(),
+      'downloadId': instance.downloadId,
     };

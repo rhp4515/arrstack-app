@@ -14,6 +14,7 @@ import 'package:arrstack/core/widgets/sub_page_header.dart';
 import 'package:arrstack/features/home/home_providers.dart';
 import 'package:arrstack/features/settings/settings_providers.dart';
 import 'package:arrstack/features/settings/widgets/home_ssid_setting.dart';
+import 'package:arrstack/features/settings/widgets/jellyfin_url_setting.dart';
 import 'package:arrstack/features/settings/widgets/settings_rows.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -71,6 +72,12 @@ class SettingsPage extends ConsumerWidget {
           const FadingRule(),
           const SizedBox(height: AppSpacing.space6),
           const _DefaultEndpointModeSetting(),
+          const SizedBox(height: AppSpacing.space6),
+          const FadingRule(),
+          const SizedBox(height: AppSpacing.space6),
+          const Text('JELLYFIN', style: AppTypography.kicker),
+          const SizedBox(height: AppSpacing.space2),
+          const JellyfinUrlSetting(),
           const SizedBox(height: AppSpacing.space6),
           const FadingRule(),
           const SizedBox(height: AppSpacing.space6),

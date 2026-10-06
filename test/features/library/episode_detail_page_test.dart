@@ -203,4 +203,36 @@ void main() {
       expect(find.text('SUBTITLES'), findsNothing);
     },
   );
+
+  for (final hasFile in [true, false]) {
+    testWidgets(
+      'Play in Jellyfin is ${hasFile ? 'shown' : 'hidden'} when the episode '
+      '${hasFile ? 'has' : 'has no'} a file',
+      (tester) async {
+        await tester.pumpWidget(
+          _wrap([
+            _episodeOverride(
+              SonarrEpisode(
+                id: 5,
+                seriesId: 1,
+                seasonNumber: 2,
+                episodeNumber: 5,
+                title: 'The You You Are',
+                hasFile: hasFile,
+                monitored: true,
+              ),
+            ),
+            _seriesOverride(),
+            primaryBazarrInstanceProvider.overrideWith((ref) async => null),
+          ]),
+        );
+        await tester.pump();
+
+        expect(
+          find.text('Play in Jellyfin'),
+          hasFile ? findsOneWidget : findsNothing,
+        );
+      },
+    );
+  }
 }

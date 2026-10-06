@@ -11,6 +11,7 @@ import 'package:arrstack/core/utils/format_utils.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/core/widgets/fading_rule.dart';
 import 'package:arrstack/core/widgets/resolved_poster.dart';
+import 'package:arrstack/features/jellyfin/jellyfin_play_button.dart';
 import 'package:arrstack/features/library/widgets/media_detail_header.dart';
 import 'package:arrstack/features/library/widgets/spec_block.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
@@ -145,6 +146,10 @@ class _MovieDetailContentState extends ConsumerState<_MovieDetailContent> {
               ),
             ],
           ),
+          if (movie.hasFile) ...[
+            const SizedBox(height: AppSpacing.space4),
+            JellyfinPlayButton(title: movie.title),
+          ],
           const SizedBox(height: AppSpacing.space6),
           if (movie.overview != null && movie.overview!.isNotEmpty)
             Text(movie.overview!, style: AppTypography.body),

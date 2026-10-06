@@ -77,5 +77,8 @@
           routes within the app; iOS has no scheme at all).
         -->
         <package android:name="com.tailscale.ipn"/>
+        <!-- Same for MainActivity.launchPackage: the Play button on the movie
+             and episode pages opens the Jellyfin app by package. -->
+        <package android:name="org.jellyfin.mobile"/>
     </queries>
 </manifest>

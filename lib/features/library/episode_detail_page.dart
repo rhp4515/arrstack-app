@@ -8,6 +8,7 @@ import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/utils/format_utils.dart';
 import 'package:arrstack/core/widgets/empty_state.dart';
 import 'package:arrstack/core/widgets/fading_rule.dart';
+import 'package:arrstack/features/jellyfin/jellyfin_play_button.dart';
 import 'package:arrstack/features/library/widgets/spec_block.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
 import 'package:arrstack/services/bazarr/models/bazarr_models.dart';
@@ -148,6 +149,14 @@ class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
           const SizedBox(height: AppSpacing.space4),
           _ChipRow(episode: episode),
           const SizedBox(height: AppSpacing.space4),
+          if (episode.hasFile) ...[
+            JellyfinPlayButton(
+              title: seriesTitle.isNotEmpty
+                  ? seriesTitle
+                  : (episode.title ?? ''),
+            ),
+            const SizedBox(height: AppSpacing.space4),
+          ],
           if (episode.overview != null && episode.overview!.isNotEmpty)
             Text(episode.overview!, style: AppTypography.body),
           const SizedBox(height: AppSpacing.space6),

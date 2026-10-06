@@ -138,4 +138,30 @@ void main() {
     expect(find.text('TMDB'), findsOneWidget);
     expect(find.text('Subtitles'), findsOneWidget);
   });
+
+  for (final hasFile in [true, false]) {
+    testWidgets(
+      'Play in Jellyfin is ${hasFile ? 'shown' : 'hidden'} when the movie '
+      '${hasFile ? 'has' : 'has no'} a file',
+      (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            RadarrMovie(
+              id: 1,
+              title: 'Dune: Part Two',
+              year: 2024,
+              monitored: true,
+              hasFile: hasFile,
+            ),
+          ),
+        );
+        await tester.pump();
+
+        expect(
+          find.text('Play in Jellyfin'),
+          hasFile ? findsOneWidget : findsNothing,
+        );
+      },
+    );
+  }
 }

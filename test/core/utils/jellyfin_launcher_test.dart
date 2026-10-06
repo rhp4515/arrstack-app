@@ -1,13 +1,16 @@
+import 'package:arrstack/core/utils/app_launcher.dart';
 import 'package:arrstack/core/utils/jellyfin_launcher.dart';
-import 'package:arrstack/core/utils/tailscale_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class _FakeAppLauncher implements AppLauncher {
-  _FakeAppLauncher({required this.result});
+  _FakeAppLauncher({required this.result, this.onlyPackage});
 
   final bool result;
+
+  /// When set, only this package launches.
+  final String? onlyPackage;
   final List<String> requested = [];
 
   @override
@@ -16,7 +19,7 @@ class _FakeAppLauncher implements AppLauncher {
   @override
   Future<bool> launchPackage(String packageName) async {
     requested.add(packageName);
-    return result;
+    return onlyPackage == null ? result : packageName == onlyPackage;
   }
 }
 
@@ -51,10 +54,28 @@ void main() {
       appLauncher: app,
     ).open();
 
-    expect(result, JellyfinLaunch.app);
+    expect(result, AppLaunch.app);
     expect(app.requested, [jellyfinPackage]);
     expect(opened, isEmpty);
   });
+
+  test(
+    'Android with only the TV app installed opens that, not the store',
+    () async {
+      final app = _FakeAppLauncher(
+        result: false,
+        onlyPackage: jellyfinTvPackage,
+      );
+      final result = await launcher(
+        TargetPlatform.android,
+        appLauncher: app,
+      ).open();
+
+      expect(result, AppLaunch.app);
+      expect(app.requested, [jellyfinPackage, jellyfinTvPackage]);
+      expect(opened, isEmpty);
+    },
+  );
 
   test('Android without the app opens its Play Store page', () async {
     final result = await launcher(
@@ -62,7 +83,7 @@ void main() {
       appInstalled: false,
     ).open();
 
-    expect(result, JellyfinLaunch.store);
+    expect(result, AppLaunch.store);
     expect(opened, ['market://details?id=org.jellyfin.mobile']);
   });
 
@@ -75,7 +96,7 @@ void main() {
         openUrl: opener(failing: {'market://details?id=org.jellyfin.mobile'}),
       ).open();
 
-      expect(result, JellyfinLaunch.store);
+      expect(result, AppLaunch.store);
       expect(opened.last, startsWith('https://play.google.com/store/apps/'));
     },
   );
@@ -87,11 +108,11 @@ void main() {
       openUrl: opener(throws: true),
     ).open();
 
-    expect(result, JellyfinLaunch.unavailable);
+    expect(result, AppLaunch.unavailable);
   });
 
   test('iOS tries the jellyfin scheme, then the App Store', () async {
-    expect(await launcher(TargetPlatform.iOS).open(), JellyfinLaunch.app);
+    expect(await launcher(TargetPlatform.iOS).open(), AppLaunch.app);
     expect(opened, ['jellyfin://']);
 
     opened.clear();
@@ -99,15 +120,12 @@ void main() {
       TargetPlatform.iOS,
       openUrl: opener(failing: {'jellyfin://'}),
     ).open();
-    expect(viaStore, JellyfinLaunch.store);
+    expect(viaStore, AppLaunch.store);
     expect(opened, ['jellyfin://', 'https://apps.apple.com/app/id1480192618']);
   });
 
   test('desktop has nothing to open', () async {
-    expect(
-      await launcher(TargetPlatform.linux).open(),
-      JellyfinLaunch.unavailable,
-    );
+    expect(await launcher(TargetPlatform.linux).open(), AppLaunch.unavailable);
     expect(opened, isEmpty);
   });
 }

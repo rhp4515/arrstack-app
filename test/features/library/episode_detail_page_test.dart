@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:arrstack/core/models/auth_type.dart';
 import 'package:arrstack/core/models/service_instance.dart';
 import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/network/network.dart';
+import 'package:arrstack/features/jellyfin/jellyfin_play_button.dart';
 import 'package:arrstack/features/library/episode_detail_page.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
 import 'package:arrstack/services/bazarr/models/bazarr_models.dart';
@@ -235,4 +238,36 @@ void main() {
       },
     );
   }
+
+  testWidgets('Play in Jellyfin is still offered while the series is loading, '
+      'but has no title to copy', (tester) async {
+    await tester.pumpWidget(
+      _wrap([
+        _episodeOverride(
+          const SonarrEpisode(
+            id: 5,
+            seriesId: 1,
+            seasonNumber: 2,
+            episodeNumber: 5,
+            title: 'Pilot',
+            hasFile: true,
+            monitored: true,
+          ),
+        ),
+        sonarrSingleSeriesProvider(
+          instanceId: 'inst-1',
+          seriesId: 1,
+        ).overrideWith((ref) => Completer<Result<SonarrSeries>>().future),
+        primaryBazarrInstanceProvider.overrideWith((ref) async => null),
+      ]),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text('Play in Jellyfin'), findsOneWidget);
+    final button = tester.widget<JellyfinPlayButton>(
+      find.byType(JellyfinPlayButton),
+    );
+    expect(button.title, isNull);
+  });
 }

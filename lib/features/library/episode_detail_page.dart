@@ -150,10 +150,10 @@ class _EpisodeDetailContentState extends ConsumerState<_EpisodeDetailContent> {
           _ChipRow(episode: episode),
           const SizedBox(height: AppSpacing.space4),
           if (episode.hasFile) ...[
+            // Search for the series: an episode's own title finds nothing,
+            // and until the series loads there is nothing to copy.
             JellyfinPlayButton(
-              title: seriesTitle.isNotEmpty
-                  ? seriesTitle
-                  : (episode.title ?? ''),
+              title: seriesTitle.isNotEmpty ? seriesTitle : null,
             ),
             const SizedBox(height: AppSpacing.space4),
           ],

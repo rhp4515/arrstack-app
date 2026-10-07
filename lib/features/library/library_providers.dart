@@ -127,6 +127,7 @@ Future<List<ContinueWatchingEntry>> continueWatching(
         series: series,
         caption: '$code${continueWatchingCaption(date, now)}',
         referenceDate: date,
+        episodeId: nearest.id,
       ),
     );
   }

@@ -35,6 +35,24 @@ void main() {
     expect(result.valueOrNull!.id, 'job-1');
   });
 
+  test('listJobs delegates to the client', () async {
+    adapter.onGet(
+      'api/v1/jobs',
+      (server) => server.reply(200, [
+        {
+          'id': 'job-1',
+          'state': 'downloading',
+          'einthusan_url': 'https://einthusan.tv/movie/watch/abc',
+        },
+      ]),
+    );
+
+    final result = await repo.listJobs();
+
+    expect(result.isOk, isTrue);
+    expect(result.valueOrNull!.single.id, 'job-1');
+  });
+
   test('getJob delegates to the client', () async {
     adapter.onGet(
       'api/v1/jobs/job-1',

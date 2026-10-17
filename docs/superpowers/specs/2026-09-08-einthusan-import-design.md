@@ -18,19 +18,21 @@ existing `ApiKeyInterceptor` convention exactly).
 |---|---|---|
 | GET | `/health` | connection test |
 | POST | `/movies` | body `{url}` → creates a job (202), state `resolving` |
-| GET | `/jobs/{id}` | poll job state |
+| GET | `/jobs` | every job the service holds, oldest first (array of the job shape below) |
+| GET | `/jobs/{id}` | one job's state |
 | PATCH | `/jobs/{id}` | body `{tmdb_id}` → change selected TMDB candidate |
 | POST | `/jobs/{id}/download` | confirm match → starts download+import |
-| DELETE | `/jobs/{id}` | cancel/cleanup |
+| DELETE | `/jobs/{id}` | cancel a running job / remove a finished one (404 if unknown) |
 
 Job state machine: `resolving` → `resolve_failed` | `awaiting_verification`
 → `downloading` → `importing` → `done` | `error`. `progress` is populated
 only while `downloading`/`importing`. `result` (on `done`) carries `file`,
 `radarr_movie_id`, `tmdb_id`.
 
-Jobs are in-memory/ephemeral on the server (no persistence across API
-restarts) — the UI does not attempt to persist job state across app
-restarts either.
+Jobs are in-memory on the server: they stay until `DELETE /jobs/{id}` or an
+API restart, which loses all of them (`GET /jobs/{id}` then answers 404
+`job_not_found`). A job carries no timestamps. The app therefore keeps its
+own history of the jobs it has seen — see "Job list and history" below.
 
 ## Approach
 
@@ -53,8 +55,8 @@ rather than inventing new config/storage:
      (`resolving`, `resolveFailed`, `awaitingVerification`, `downloading`,
      `importing`, `done`, `error`) with `@JsonValue` snake_case mapping.
    - `einthusan_client.dart` — implements `ConnectionTestClient`
-     (`testConnection` → `GET /health`) plus `createJob`, `getJob`,
-     `patchJob`, `startDownload`, `deleteJob`.
+     (`testConnection` → `GET /health`) plus `createJob`, `listJobs`,
+     `getJob`, `patchJob`, `startDownload`, `deleteJob`.
    - `einthusan_repository.dart` — thin pass-through, matching
      `RadarrRepository`'s shape.
    - `einthusan_providers.dart` — `einthusanRepositoryProvider(instanceId)`
@@ -69,24 +71,29 @@ rather than inventing new config/storage:
      tile in `DashboardPage._InstanceListTile`. No new bottom-nav tab —
      this is a one-shot tool, not a browsable surface, matching the
      existing pattern for single-purpose service screens.
-   - `einthusan_import_providers.dart` — a plain `@riverpod` notifier
-     class `EinthusanImportController` (family on `instanceId`), holding a
-     freezed `EinthusanImportState` (`job`, `isSubmitting`,
-     `lastError`), mirroring the shape of `InstanceFormProvider`
+   - `einthusan_import_providers.dart` — a plain
+     `@Riverpod(keepAlive: true)` notifier class `EinthusanImportController`
+     (family on `instanceId`), holding a freezed `EinthusanImportState`
+     (`jobs`, `activeJobId`, `selectedTmdbId`, `isSubmitting`, `lastError`,
+     `serverUnreachable`), mirroring the shape of `InstanceFormProvider`
      (manual state fields, not `AsyncNotifier`, since actions need
      independent in-flight flags rather than one Future-driven state).
      Responsibilities:
-     - `submitUrl(url)` → `POST /movies`, store job, start polling.
+     - `submitUrl(url)` → `POST /movies`, track the job and make it active,
+       start polling.
      - `selectCandidate(tmdbId)` → local selection only (no API call
        until confirm, to match the reference client's "only PATCH if the
        choice changed" behavior).
      - `confirmDownload()` → PATCH (if selection changed) then
        `POST /download`, resume polling.
-     - `cancel()` → `DELETE /jobs/{id}`, stop polling, reset to input step.
-     - `reset()` → clear state for "import another movie".
-     - Internal `Timer.periodic` (~2s) calls `GET /jobs/{id}` while
-       `job.state` is non-terminal; cancelled in `ref.onDispose` and on
-       reaching a terminal state (`done`, `error`, `resolveFailed`).
+     - `cancel()` → `DELETE /jobs/{id}` for the active job, drop it from
+       the list, return to the input step.
+     - `reset()` → leave the active job's step for the input step and list
+       ("Import another movie" / "Start over"); the job stays listed.
+     - `openJob(id)` / `dismiss(id)` → see "Job list and history".
+     - Internal `Timer.periodic` (~2s) calls `GET /jobs` while any tracked
+       job is in progress; cancelled in `ref.onDispose` and once nothing is
+       in progress (every job `done`, `error`, `resolveFailed` or lost).
    - `einthusan_import_page.dart` — `ConsumerWidget`, switches on
      controller state to render one step widget:
      - **Input** — URL text field + "Fetch details" button.
@@ -102,6 +109,10 @@ rather than inventing new config/storage:
        **"View in Radarr library"** button.
      - **Error** (`error`/`resolve_failed`, or a client-side failure in
        `lastError`) — message + "Start over".
+     - **Status unknown** (a lost job) — see "Job list and history".
+
+   With no active job the page shows the input step and, below it, the
+   **Recent imports** list.
 
 4. **Radarr deep link**: the job result has `radarr_movie_id` but not which
    configured Radarr *instance* that belongs to (the downloader's own
@@ -119,9 +130,55 @@ rather than inventing new config/storage:
 - Network/auth/server errors from any call surface through the existing
   `Result<T>`/`AppError` types (`guardDioCall`/`dioCall`), rendered via
   `error.userMessage` — no new error taxonomy needed.
-- A poll that returns `Err` stops the timer and surfaces the error as a
-  terminal state (same visual treatment as a job-reported `error` state),
-  rather than silently retrying forever.
+- A listing that returns `Err` (at startup or while polling) keeps the jobs
+  last known and sets `serverUnreachable`, shown as "Can't reach the
+  downloader — showing last known status". Polling carries on at the same
+  interval while a job is in progress, so the page recovers by itself and
+  the notice clears on the next successful listing. Errors from the user's
+  own actions (submit, confirm) still surface through `lastError`.
+
+## Job list and history
+
+The controller is kept alive, so leaving the page neither stops polling nor
+forgets the jobs, and "Import another movie" / "Start over" only return to
+the input step: every job started stays in the list until dismissed.
+
+**History store.** `einthusan_job_history_store.dart` saves an
+`EinthusanJobRecord` per job (id, URL, TMDB title/year once known, state,
+Radarr movie id and file for a finished job, error message, created and
+updated times) as a JSON list under `einthusan.jobs.<instanceId>` in
+`AppPreferences`, newest first, capped at 25. It follows
+`LibraryInstanceStore`: every read and write swallows failures, and
+malformed data reads as an empty history. Records are written on submit, on
+confirming a candidate (which records the chosen title/year) and whenever a
+job's state or outcome changes — not on every progress tick.
+
+**Startup and merge.** On first use the controller loads the history, then
+calls `GET /jobs` once and merges:
+
+- the downloader is authoritative for every job it lists; jobs it lists that
+  the history lacks are added (titled from their selected candidate, else
+  shown by URL);
+- a recorded job that was still in progress but is no longer listed is
+  marked **lost** — the downloader restarted and its outcome is unknown;
+- a recorded job that had finished and is no longer listed keeps its
+  recorded outcome;
+- if the listing fails, the recorded jobs are shown as they were.
+
+After a cold start the page shows the input step and the list; an opened
+job is only remembered within the session. A job that disappears from a
+poll while in progress is marked lost the same way.
+
+**List.** Rows, newest first, show the title (and year) or the URL, a state
+label (Resolving / Needs confirmation / Downloading 42% / Importing /
+Imported / Failed / Status unknown), a progress bar while downloading, the
+error message for a failure, and for a lost job "The downloader restarted,
+so this job's status is unknown. Check Radarr." Tapping a row (`openJob`)
+shows the usual step for that job; the app bar back arrow and system back
+return to the list. Finished rows offer "View in Radarr library". Finished,
+failed and lost rows have a dismiss button (`dismiss`), which asks the
+downloader to delete the job (any failure, such as a 404, is ignored) and
+removes it from the list and history.
 
 ## Testing
 
@@ -130,16 +187,17 @@ rather than inventing new config/storage:
   `radarr_client_test.dart`-style coverage.
 - Unit tests for `EinthusanImportController` covering each state
   transition (submit → resolving → preview → confirm → running → done;
-  cancel from preview; error surfaces at each step) using `fake_async` for
-  the polling timer.
+  cancel from preview; error surfaces at each step) and the job list
+  (restore, history/listing merge, lost detection, dismiss, unreachable
+  downloader) using `fake_async` for the polling timer.
+- Unit tests for the history store (round trip, cap, malformed data).
 - Widget tests for each step view rendering the right content for a given
-  state.
+  state, and for the Recent imports list.
 
 ## Out of scope (YAGNI)
 
-- No job list/history UI (`GET /jobs` is unused) — only the single active
-  job the user just started.
-- No persistence of job id across app restarts (matches the ephemeral
-  server-side job store).
+- No history beyond the 25 most recent jobs per instance, and no
+  timestamps in the list (the downloader provides none).
+- No remembering which job was open across an app restart.
 - No option to link to a non-default Radarr instance — single/default
   instance covers the expected usage; can be revisited if requested.

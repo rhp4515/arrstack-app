@@ -1,5 +1,5 @@
 // EinthusanClient endpoint calls: testConnection hits the health endpoint,
-// createJob/getJob/patchJob/startDownload/deleteJob map requests and
+// createJob/listJobs/getJob/patchJob/startDownload/deleteJob map requests and
 // responses per docs/superpowers/specs/2026-09-08-einthusan-import-design.md.
 
 import 'package:arrstack/services/einthusan/einthusan_client.dart';
@@ -75,6 +75,70 @@ void main() {
     );
 
     final result = await client.createJob('not-a-url');
+
+    expect(result.isErr, isTrue);
+  });
+
+  test('listJobs parses the array of jobs in server order', () async {
+    adapter.onGet(
+      'api/v1/jobs',
+      (server) => server.reply(200, [
+        {
+          'id': 'job-1',
+          'state': 'done',
+          'einthusan_url': 'https://einthusan.tv/movie/watch/abc',
+          'result': {
+            'file': 'Movie.2020.mkv',
+            'radarr_movie_id': 12,
+            'tmdb_id': 99,
+          },
+        },
+        {
+          'id': 'job-2',
+          'state': 'downloading',
+          'einthusan_url': 'https://einthusan.tv/movie/watch/def',
+          'progress': {
+            'downloaded_bytes': 10,
+            'total_bytes': 100,
+            'percent': 10.0,
+            'speed_bps': 5.0,
+          },
+        },
+      ]),
+    );
+
+    final result = await client.listJobs();
+
+    expect(result.isOk, isTrue);
+    final jobs = result.valueOrNull!;
+    expect(jobs.map((job) => job.id), ['job-1', 'job-2']);
+    expect(jobs.first.result?.radarrMovieId, 12);
+    expect(jobs.last.progress?.percent, 10.0);
+  });
+
+  test('listJobs returns an empty list for an empty array', () async {
+    adapter.onGet('api/v1/jobs', (server) => server.reply(200, <dynamic>[]));
+
+    final result = await client.listJobs();
+
+    expect(result.valueOrNull, isEmpty);
+  });
+
+  test('listJobs maps a 5xx to an Err', () async {
+    adapter.onGet(
+      'api/v1/jobs',
+      (server) => server.reply(500, {'message': 'boom'}),
+    );
+
+    final result = await client.listJobs();
+
+    expect(result.isErr, isTrue);
+  });
+
+  test('listJobs maps a non-array body to an Err', () async {
+    adapter.onGet('api/v1/jobs', (server) => server.reply(200, {'jobs': []}));
+
+    final result = await client.listJobs();
 
     expect(result.isErr, isTrue);
   });

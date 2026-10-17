@@ -20,11 +20,16 @@ class ContinueWatchingEntry {
     required this.series,
     required this.caption,
     required this.referenceDate,
+    this.episodeId,
   });
 
   final SonarrSeries series;
   final String caption;
   final DateTime referenceDate;
+
+  /// The Sonarr episode the caption describes; tapping the card opens it.
+  /// Null falls back to the series page.
+  final int? episodeId;
 }
 
 /// True for a series with some but not all episodes downloaded — the

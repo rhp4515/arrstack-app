@@ -3,12 +3,14 @@
 /// title. Renders nothing when there's nothing to show.
 library;
 
+import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/service_type.dart';
 import 'package:arrstack/core/widgets/resolved_poster.dart';
 import 'package:arrstack/features/library/continue_watching.dart';
 import 'package:arrstack/services/sonarr/models/sonarr_models.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ContinueWatchingRow extends StatelessWidget {
   const ContinueWatchingRow({
@@ -53,35 +55,50 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seriesId = entry.series.id;
     return SizedBox(
       width: 88,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ResolvedPoster(
-            service: ServiceType.sonarr,
-            instanceId: instanceId,
-            relativeUrl: entry.series.posterUrl,
-            width: 88,
-            height: 132,
-            radius: AppRadius.md,
-          ),
-          const SizedBox(height: AppSpacing.space2),
-          Text(
-            entry.series.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.cardTitle.copyWith(fontSize: 11.5),
-          ),
-          Text(
-            entry.caption,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.meta.copyWith(
-              fontFeatures: const [FontFeature.tabularFigures()],
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        onTap: seriesId == null
+            ? null
+            : () => context.go(
+                entry.episodeId == null
+                    ? RoutePaths.seriesDetail(instanceId, seriesId)
+                    : RoutePaths.episodeDetail(
+                        instanceId,
+                        seriesId,
+                        entry.episodeId!,
+                      ),
+              ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ResolvedPoster(
+              service: ServiceType.sonarr,
+              instanceId: instanceId,
+              relativeUrl: entry.series.posterUrl,
+              width: 88,
+              height: 132,
+              radius: AppRadius.md,
             ),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.space2),
+            Text(
+              entry.series.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.cardTitle.copyWith(fontSize: 11.5),
+            ),
+            Text(
+              entry.caption,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.meta.copyWith(
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -9,24 +9,30 @@ part of 'einthusan_import_providers.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// Drives the Einthusan import flow for one instance: submit URL, confirm
-/// TMDB match, poll download/import progress.
+/// TMDB match, poll download/import progress. Kept alive so leaving the
+/// page neither stops the polling nor forgets the jobs; they are also saved
+/// to [EinthusanJobHistoryStore] to outlive the app.
 
 @ProviderFor(EinthusanImportController)
 final einthusanImportControllerProvider = EinthusanImportControllerFamily._();
 
 /// Drives the Einthusan import flow for one instance: submit URL, confirm
-/// TMDB match, poll download/import progress.
+/// TMDB match, poll download/import progress. Kept alive so leaving the
+/// page neither stops the polling nor forgets the jobs; they are also saved
+/// to [EinthusanJobHistoryStore] to outlive the app.
 final class EinthusanImportControllerProvider
     extends $NotifierProvider<EinthusanImportController, EinthusanImportState> {
   /// Drives the Einthusan import flow for one instance: submit URL, confirm
-  /// TMDB match, poll download/import progress.
+  /// TMDB match, poll download/import progress. Kept alive so leaving the
+  /// page neither stops the polling nor forgets the jobs; they are also saved
+  /// to [EinthusanJobHistoryStore] to outlive the app.
   EinthusanImportControllerProvider._({
     required EinthusanImportControllerFamily super.from,
     required String super.argument,
   }) : super(
          retry: null,
          name: r'einthusanImportControllerProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -66,10 +72,12 @@ final class EinthusanImportControllerProvider
 }
 
 String _$einthusanImportControllerHash() =>
-    r'0fef4a5fdc569000835c11efaf51aea350167174';
+    r'1f6b24f5b75fffb032a99661db0be4477af64a2d';
 
 /// Drives the Einthusan import flow for one instance: submit URL, confirm
-/// TMDB match, poll download/import progress.
+/// TMDB match, poll download/import progress. Kept alive so leaving the
+/// page neither stops the polling nor forgets the jobs; they are also saved
+/// to [EinthusanJobHistoryStore] to outlive the app.
 
 final class EinthusanImportControllerFamily extends $Family
     with
@@ -86,11 +94,13 @@ final class EinthusanImportControllerFamily extends $Family
         name: r'einthusanImportControllerProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   /// Drives the Einthusan import flow for one instance: submit URL, confirm
-  /// TMDB match, poll download/import progress.
+  /// TMDB match, poll download/import progress. Kept alive so leaving the
+  /// page neither stops the polling nor forgets the jobs; they are also saved
+  /// to [EinthusanJobHistoryStore] to outlive the app.
 
   EinthusanImportControllerProvider call(String instanceId) =>
       EinthusanImportControllerProvider._(argument: instanceId, from: this);
@@ -100,7 +110,9 @@ final class EinthusanImportControllerFamily extends $Family
 }
 
 /// Drives the Einthusan import flow for one instance: submit URL, confirm
-/// TMDB match, poll download/import progress.
+/// TMDB match, poll download/import progress. Kept alive so leaving the
+/// page neither stops the polling nor forgets the jobs; they are also saved
+/// to [EinthusanJobHistoryStore] to outlive the app.
 
 abstract class _$EinthusanImportController
     extends $Notifier<EinthusanImportState> {

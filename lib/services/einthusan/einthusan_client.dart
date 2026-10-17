@@ -32,6 +32,17 @@ class EinthusanClient implements ConnectionTestClient {
     );
   }
 
+  /// Every job the service currently holds, oldest first. One request
+  /// covers all jobs, so it is what the import page polls.
+  Future<Result<List<EinthusanJob>>> listJobs() {
+    return dioCall(
+      () => _dio.get('api/v1/jobs'),
+      map: (data) => (data as List<dynamic>)
+          .map((json) => EinthusanJob.fromJson(json as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
   Future<Result<EinthusanJob>> getJob(String jobId) {
     return dioCall(
       () => _dio.get('api/v1/jobs/$jobId'),

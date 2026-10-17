@@ -21,6 +21,8 @@ class EinthusanRepository {
   Future<Result<EinthusanJob>> createJob(String einthusanUrl) =>
       _client.createJob(einthusanUrl);
 
+  Future<Result<List<EinthusanJob>>> listJobs() => _client.listJobs();
+
   Future<Result<EinthusanJob>> getJob(String jobId) => _client.getJob(jobId);
 
   Future<Result<EinthusanJob>> patchJob({

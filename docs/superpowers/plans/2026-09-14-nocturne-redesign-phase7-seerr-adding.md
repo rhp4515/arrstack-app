@@ -1360,8 +1360,8 @@ git commit -m "feat(seerr): add approve/decline, service-details, and extended r
 
 This task establishes the new `lib/features/requests/` top-level feature
 directory — matching this app's existing precedent of one top-level
-directory per Home-reachable sub-screen (`uptime/`, `indexers/`, `settings/`,
-`einthusan_import/`), rather than nesting under `discover/`.
+directory per Home-reachable sub-screen (`uptime/`, `indexers/`, `settings/`),
+rather than nesting under `discover/`.
 
 **Interfaces:**
 - Consumes: `SeerrRequest`, `SeerrRequestStatus`, `SeerrMediaStatus` from `seerr_models.dart`.

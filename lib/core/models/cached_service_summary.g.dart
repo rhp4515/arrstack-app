@@ -34,5 +34,4 @@ const _$ServiceTypeEnumMap = {
   ServiceType.qbittorrent: 'qbittorrent',
   ServiceType.uptimeKuma: 'uptimeKuma',
   ServiceType.seerr: 'seerr',
-  ServiceType.einthusan: 'einthusan',
 };

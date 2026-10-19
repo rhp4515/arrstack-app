@@ -8,8 +8,7 @@ import 'package:flutter/material.dart';
 
 /// Derived from [ServiceType.values] rather than a hand-written list, so
 /// this sheet can't drift out of sync with what the instance form actually
-/// lets a user configure (as a hardcoded list once did — it silently
-/// omitted Einthusan Downloader).
+/// lets a user configure.
 final List<String> _supportedServices = ServiceType.values
     .map((type) => type.displayName)
     .toList(growable: false);

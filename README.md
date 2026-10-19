@@ -88,5 +88,24 @@ flutter run
 - `release-apk.yml` builds and publishes the Android APK described under [Install](#install).
 - `release-ios.yml` builds and publishes the unsigned iOS `.ipa` described under [Install](#install).
 
+## Contributing & security
+
+Bug reports and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+To report a vulnerability privately, see [SECURITY.md](SECURITY.md).
+
+## License & attributions
+
+ArrStack Companion is released under the [MIT License](LICENSE).
+
+- The bundled [Inter](https://github.com/rsms/inter) font is licensed under the
+  [SIL Open Font License 1.1](assets/fonts/OFL.txt). Licenses for every Dart
+  package the app uses are listed in the app under **Settings → About &
+  licenses**.
+- This product uses the TMDB API but is not endorsed or certified by TMDB.
+  Movie and show artwork comes from TMDB.
+- ArrStack Companion is not affiliated with Sonarr, Radarr, Prowlarr, Bazarr,
+  Seerr, Jellyfin, qBittorrent or Uptime Kuma. Their names are used only to say
+  which services the app works with.
+
 ---
 Built with ❤️ for the self-hosting community.

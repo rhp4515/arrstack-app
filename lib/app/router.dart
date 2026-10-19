@@ -15,7 +15,6 @@ import 'package:arrstack/features/diagnostics/diagnostic_logs_page.dart';
 import 'package:arrstack/features/discover/discover_detail_page.dart';
 import 'package:arrstack/features/discover/discover_page.dart';
 import 'package:arrstack/features/discover/genre_results_page.dart';
-import 'package:arrstack/features/einthusan_import/einthusan_import_page.dart';
 import 'package:arrstack/features/home/home_page.dart';
 import 'package:arrstack/features/indexers/indexers_page.dart';
 import 'package:arrstack/features/library/add_movie_page.dart';
@@ -54,12 +53,6 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: 'indexers/:instanceId',
                   builder: (context, state) => IndexersPage(
-                    instanceId: state.pathParameters['instanceId']!,
-                  ),
-                ),
-                GoRoute(
-                  path: 'einthusan/:instanceId',
-                  builder: (context, state) => EinthusanImportPage(
                     instanceId: state.pathParameters['instanceId']!,
                   ),
                 ),

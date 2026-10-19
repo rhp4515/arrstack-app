@@ -2,6 +2,7 @@
 /// and Advanced (appearance, app lock, tools) one level down (README §2m).
 library;
 
+import 'package:arrstack/app/licenses.dart';
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/models.dart';
@@ -87,6 +88,15 @@ class SettingsPage extends ConsumerWidget {
                 title: 'Advanced',
                 subtitle: 'Theme, app lock, backup, and diagnostic logs',
                 onTap: () => context.go(RoutePaths.homeSettingsAdvanced),
+              ),
+              SettingsNavRow(
+                title: 'About & licenses',
+                subtitle: 'Open-source licenses and attributions',
+                onTap: () => showLicensePage(
+                  context: context,
+                  applicationName: appDisplayName,
+                  applicationLegalese: appLegalese,
+                ),
               ),
             ],
           ),
@@ -384,7 +394,7 @@ class _InstanceRow extends ConsumerWidget {
   /// whose client can't cheaply report a version (Uptime Kuma runs over a
   /// persistent socket session, not a plain per-request call — see
   /// [instanceVersionProvider]'s doc comment). Other types without a
-  /// live version (Prowlarr, Einthusan) get no secondary text rather than
+  /// live version (Prowlarr) get no secondary text rather than
   /// a fabricated one.
   String? _secondaryInfo(ServiceType type, String? liveVersion) {
     if (liveVersion != null) {

@@ -16,7 +16,6 @@ const Map<ServiceType, IconData> _serviceIcons = {
   ServiceType.prowlarr: PhosphorIconsRegular.broadcast,
   ServiceType.uptimeKuma: PhosphorIconsRegular.heartbeat,
   ServiceType.seerr: PhosphorIconsRegular.compass,
-  ServiceType.einthusan: PhosphorIconsRegular.popcorn,
 };
 
 const Map<ServiceType, Color> _serviceAccentColors = {

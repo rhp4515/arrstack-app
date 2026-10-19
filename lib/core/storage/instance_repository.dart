@@ -49,14 +49,24 @@ class ConfigStoreInstanceRepository implements InstanceRepository {
 
   @override
   Future<Result<List<ServiceInstance>>> list() async {
-    // A corrupted/legacy stored instance must degrade to an Err, never throw
+    // A corrupted stored instance must degrade to an Err, never throw
     // across this boundary (spec §5). Decode failures surface as different
-    // types: FormatException, TypeError (wrong shape), ArgumentError (unknown
-    // enum value, e.g. a post-v1 ServiceType), or CheckedFromJsonException —
-    // catch the whole family.
+    // types: FormatException, TypeError (wrong shape), ArgumentError, or
+    // CheckedFromJsonException — catch the whole family.
+    //
+    // The exception is an entry whose `serviceType` this build doesn't know
+    // (a service type that was since removed, or one saved by a newer
+    // version): it is dropped, like the backup restore does, so one stale
+    // entry can't take the whole instance list down with it.
     try {
       final raw = await _configStore.readInstances();
-      final instances = raw.map(ServiceInstance.fromJson).toList();
+      final knownTypes = {for (final type in ServiceType.values) type.name};
+      final instances = [
+        for (final json in raw)
+          if (json['serviceType'] is! String ||
+              knownTypes.contains(json['serviceType']))
+            ServiceInstance.fromJson(json),
+      ];
       return Ok(List.unmodifiable(instances));
     } on FormatException catch (error) {
       return _corrupted(error);

@@ -21,9 +21,8 @@ part 'settings_providers.g.dart';
 /// Live version string for a Settings instance row (README §2m: the
 /// `192.168.1.10:7878 · v5.14.0` subtitle). Only fetched for service types
 /// whose client implements [ConnectionTestClient] over a plain,
-/// already-authenticated request — Uptime Kuma's socket-session client and
-/// Einthusan (whose health endpoint carries no version) are deliberately
-/// excluded rather than faked. Best-effort: any failure
+/// already-authenticated request — Uptime Kuma's socket-session client is
+/// deliberately excluded rather than faked. Best-effort: any failure
 /// (unreachable instance, missing credential, parse error) resolves to
 /// null so a version-fetch hiccup never turns into a page-level error —
 /// the endpoint string alone is still a useful subtitle.
@@ -87,7 +86,6 @@ Future<String?> instanceVersion(
           Err() => null,
         };
       case ServiceType.uptimeKuma:
-      case ServiceType.einthusan:
         return null;
     }
   } on Object {

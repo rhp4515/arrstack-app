@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:arrstack/app/app.dart';
+import 'package:arrstack/app/licenses.dart';
 import 'package:arrstack/core/logging/diagnostic_log_store.dart';
 import 'package:arrstack/core/logging/diagnostic_logger.dart';
 import 'package:arrstack/core/logging/logging_providers.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  registerFontLicenses();
 
   // Created before the ProviderScope so errors thrown before (or outside)
   // the widget tree still reach Settings → Advanced → Diagnostic logs.

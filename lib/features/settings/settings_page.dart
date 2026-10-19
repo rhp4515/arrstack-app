@@ -2,6 +2,7 @@
 /// and Advanced (appearance, app lock, tools) one level down (README §2m).
 library;
 
+import 'package:arrstack/app/licenses.dart';
 import 'package:arrstack/app/route_paths.dart';
 import 'package:arrstack/app/theme/design_tokens.dart';
 import 'package:arrstack/core/models/models.dart';
@@ -87,6 +88,15 @@ class SettingsPage extends ConsumerWidget {
                 title: 'Advanced',
                 subtitle: 'Theme, app lock, backup, and diagnostic logs',
                 onTap: () => context.go(RoutePaths.homeSettingsAdvanced),
+              ),
+              SettingsNavRow(
+                title: 'About & licenses',
+                subtitle: 'Open-source licenses and attributions',
+                onTap: () => showLicensePage(
+                  context: context,
+                  applicationName: appDisplayName,
+                  applicationLegalese: appLegalese,
+                ),
               ),
             ],
           ),

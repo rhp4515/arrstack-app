@@ -14,8 +14,7 @@ enum ServiceType {
   prowlarr,
   qbittorrent,
   uptimeKuma,
-  seerr,
-  einthusan;
+  seerr;
 
   /// Human-readable name shown in onboarding/settings UI.
   String get displayName => switch (this) {
@@ -26,7 +25,6 @@ enum ServiceType {
     ServiceType.qbittorrent => 'qBittorrent',
     ServiceType.uptimeKuma => 'Uptime Kuma',
     ServiceType.seerr => 'Seerr',
-    ServiceType.einthusan => 'Einthusan Downloader',
   };
 
   /// Default HTTP port for this service.
@@ -38,7 +36,6 @@ enum ServiceType {
     ServiceType.qbittorrent => 8090,
     ServiceType.uptimeKuma => 3001,
     ServiceType.seerr => 5055,
-    ServiceType.einthusan => 8503,
   };
 
   /// The auth style this service uses out of the box (spec §6). Onboarding
@@ -53,7 +50,6 @@ enum ServiceType {
     ServiceType.radarr ||
     ServiceType.bazarr ||
     ServiceType.prowlarr ||
-    ServiceType.seerr ||
-    ServiceType.einthusan => AuthType.apiKey,
+    ServiceType.seerr => AuthType.apiKey,
   };
 }

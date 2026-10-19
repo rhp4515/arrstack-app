@@ -11,7 +11,6 @@ import 'package:arrstack/core/network/network.dart';
 import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/services/bazarr/bazarr_client.dart';
 import 'package:arrstack/services/contracts/contracts.dart';
-import 'package:arrstack/services/einthusan/einthusan_client.dart';
 import 'package:arrstack/services/prowlarr/client.dart';
 import 'package:arrstack/services/qbittorrent/qbit_client.dart';
 import 'package:arrstack/services/radarr/radarr_client.dart';
@@ -323,7 +322,6 @@ class InstanceForm extends _$InstanceForm {
       ServiceType.prowlarr => ProwlarrClient(apiKeyDio()),
       ServiceType.bazarr => BazarrClient(apiKeyDio()),
       ServiceType.seerr => SeerrClient(apiKeyDio()),
-      ServiceType.einthusan => EinthusanClient(apiKeyDio()),
       // These two manage their own session (cookie / socket) rather than
       // an X-Api-Key header, so they wrap their own transport.
       ServiceType.qbittorrent => QbitTestClient(baseUrl, credential, endpoint),

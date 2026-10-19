@@ -2,7 +2,7 @@
 // to each repository's real version source: testConnection() for the
 // simple apiKey/session-authenticated services, and Bazarr's getStatus()
 // specifically (its ConnectionTestClient implementation hits a health-check
-// endpoint with no version field). Uptime Kuma/Prowlarr/Einthusan have no
+// endpoint with no version field). Uptime Kuma/Prowlarr have no
 // live version source wired up and must resolve to null rather than a
 // fabricated value. Any failure (unreachable instance, parse error) must
 // also resolve to null rather than propagating as a provider error.
@@ -133,15 +133,11 @@ void main() {
     },
   );
 
-  test('resolves to null for Uptime Kuma, Prowlarr, and Einthusan '
+  test('resolves to null for Uptime Kuma and Prowlarr '
       'rather than fabricating a version', () async {
     final container = _container([]);
 
-    for (final type in [
-      ServiceType.uptimeKuma,
-      ServiceType.prowlarr,
-      ServiceType.einthusan,
-    ]) {
+    for (final type in [ServiceType.uptimeKuma, ServiceType.prowlarr]) {
       final version = await container.read(
         instanceVersionProvider('i6', type).future,
       );

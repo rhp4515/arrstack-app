@@ -27,12 +27,30 @@ void main() {
       expect(result.valueOrNull, isEmpty);
     });
 
-    test('degrades to a ValidationError (never throws) on an unknown '
-        'serviceType — e.g. a post-v1 type or a hand-edited pref', () async {
-      final corrupted = {
-        ...buildInstance().toJson(),
-        'serviceType': 'not-a-real-type',
-      };
+    test('drops an instance with an unknown serviceType (e.g. a removed '
+        'service or a newer version) without throwing or failing the '
+        'rest of the list', () async {
+      final radarr = buildInstance(id: 'radarr-1');
+      await configStore.writeInstances([
+        {
+          ...buildInstance(id: 'old-1').toJson(),
+          'serviceType': 'retired-service',
+        },
+        radarr.toJson(),
+        {
+          ...buildInstance(id: 'old-2').toJson(),
+          'serviceType': 'not-a-real-type',
+        },
+      ]);
+
+      final result = await repository.list();
+
+      expect(result.valueOrNull, [radarr]);
+    });
+
+    test('still degrades to a ValidationError when the only problem is a '
+        'missing serviceType', () async {
+      final corrupted = buildInstance().toJson()..remove('serviceType');
       await configStore.writeInstances([corrupted]);
 
       final result = await repository.list();

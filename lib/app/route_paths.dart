@@ -25,9 +25,6 @@ abstract final class RoutePaths {
   static const String homeSettingsBackup = '/home/settings/advanced/backup';
   static const String homeSettingsLogs = '/home/settings/advanced/logs';
 
-  static String homeEinthusanImport(String instanceId) =>
-      '/home/einthusan/$instanceId';
-
   static const String homeDiscover = '/home/discover';
   static String homeDiscoverDetail(int id, String type) =>
       '/home/discover/detail/$id/$type';

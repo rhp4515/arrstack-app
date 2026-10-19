@@ -86,8 +86,6 @@ class ServiceTileGrid extends ConsumerWidget {
             .read(selectedSeerrInstanceIdProvider.notifier)
             .selectInstance(summary.instanceId);
         context.go(RoutePaths.homeDiscover);
-      case ServiceType.einthusan:
-        context.go(RoutePaths.homeEinthusanImport(summary.instanceId));
       case ServiceType.qbittorrent:
         break;
     }

@@ -4726,9 +4726,6 @@ abstract final class RoutePaths {
   static const String homeAddInstance = '/home/settings/add';
   static String homeEditInstance(String id) => '/home/settings/$id/edit';
 
-  static String homeEinthusanImport(String instanceId) =>
-      '/home/einthusan/$instanceId';
-
   static const String homeDiscover = '/home/discover';
   static String homeDiscoverDetail(int id, String type) =>
       '/home/discover/detail/$id/$type';

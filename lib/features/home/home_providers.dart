@@ -10,7 +10,6 @@ import 'package:arrstack/core/storage/storage_providers.dart';
 import 'package:arrstack/features/activity/widgets/torrent_block.dart';
 import 'package:arrstack/features/uptime/monitor_status.dart';
 import 'package:arrstack/services/bazarr/bazarr_providers.dart';
-import 'package:arrstack/services/einthusan/einthusan_providers.dart';
 import 'package:arrstack/services/prowlarr/prowlarr.dart';
 import 'package:arrstack/services/qbittorrent/models/qbit_models.dart';
 import 'package:arrstack/services/qbittorrent/qbit_providers.dart';
@@ -123,7 +122,6 @@ Future<HomeServiceSummary> _summaryFor(Ref ref, ServiceInstance instance) {
     ServiceType.uptimeKuma => _kumaSummary(ref, instance),
     ServiceType.prowlarr => _prowlarrSummary(ref, instance),
     ServiceType.seerr => _seerrSummary(ref, instance),
-    ServiceType.einthusan => _einthusanSummary(ref, instance),
     ServiceType.qbittorrent => throw UnsupportedError(
       'qBittorrent is summarized by rightNowProvider, not homeServiceSummariesProvider',
     ),
@@ -284,36 +282,6 @@ Future<HomeServiceSummary> _seerrSummary(
   }
 }
 
-/// Einthusan used to report a hardcoded "Connected" because the repository
-/// exposed no health check. That made its tile and Settings dot green
-/// whatever the network was doing — and, worse, wrote a bogus "reachable"
-/// row into the last-known cache and told Home's offline card that at least
-/// one service was fine while every other request was timing out. It now
-/// probes the same `api/v1/health` endpoint the Add/Edit connection test
-/// already used.
-Future<HomeServiceSummary> _einthusanSummary(
-  Ref ref,
-  ServiceInstance instance,
-) async {
-  try {
-    final repo = await ref.watch(
-      einthusanRepositoryProvider(instance.id).future,
-    );
-    return switch (await repo.testConnection()) {
-      Ok() => HomeServiceSummary(
-        instanceId: instance.id,
-        instanceName: instance.name,
-        serviceType: instance.serviceType,
-        isReachable: true,
-        summaryLine: 'Connected',
-      ),
-      Err(:final error) => _unreachableSummary(instance, error: error),
-    };
-  } on Object catch (error) {
-    return _unreachableSummary(instance, error: _asAppError(error));
-  }
-}
-
 /// The repository providers rethrow their [AppError] when the instance
 /// can't even be composed (no credential, unresolvable endpoint). Keeping
 /// it means the row can say *why* instead of a bare "Unreachable", and
@@ -456,8 +424,6 @@ Future<void> refreshHome(WidgetRef ref) async {
             sort: 'added',
           ),
         );
-      case ServiceType.einthusan:
-        break;
       case ServiceType.qbittorrent:
         ref.invalidate(qbitMainDataProvider(instance.id));
     }

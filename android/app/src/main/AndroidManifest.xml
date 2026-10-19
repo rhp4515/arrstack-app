@@ -58,8 +58,8 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
-        <!-- Browser / external https links (Discover, Einthusan Import,
-             and the Play Store fallback below). -->
+        <!-- Browser / external https links (Discover and the Play
+             Store fallback below). -->
         <intent>
             <action android:name="android.intent.action.VIEW"/>
             <data android:scheme="https"/>
